@@ -1,0 +1,40 @@
+:root {
+  color-scheme: dark;
+  --bg: #071018;
+  --panel: rgba(11, 16, 22, 0.72);
+  --text: #f4f6f8;
+  --muted: #9aabb8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+button,
+input,
+audio {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}

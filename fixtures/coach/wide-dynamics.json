@@ -1,0 +1,63 @@
+{
+  "version": "coach-input-v1",
+  "jobId": "fixture_wide_dynamics",
+  "songTitle": "Wide Dynamics Fixture",
+  "analysedStem": "vocals",
+  "durationSeconds": 180,
+  "rawMetrics": {
+    "averageRms": 0.062,
+    "peakAmplitude": 0.72,
+    "dynamicRangeDbRobust": 57,
+    "averagePitchHz": 196,
+    "crestFactor": 7.8,
+    "silenceRatio": 0.18,
+    "analysedStem": "vocals"
+  },
+  "derivedMetrics": {
+    "pitchBandLabel": "Around G3",
+    "vocalEnergyLabel": "Moderate",
+    "dynamicsLabel": "Wide dynamic range detected",
+    "clippingRiskLabel": "Safe peak level",
+    "confidenceLevel": "moderate-high"
+  },
+  "phraseMetrics": {
+    "phraseCount": 6,
+    "phraseEnergyConsistencyScore": 68,
+    "phraseEnergyConsistencyLabel": "Moderate phrase consistency"
+  },
+  "pitchStabilityMetrics": {
+    "usablePitchFrameRatio": 0.5,
+    "meanPitchConfidence": 0.65,
+    "pitchStdDevCents": 44,
+    "pitchTrackVariabilityLabel": "Moderate pitch-track variability",
+    "pitchTrackingConfidenceLabel": "good"
+  },
+  "issueScores": {
+    "lowVocalEnergyScore": 0,
+    "peakRiskScore": 0,
+    "wideDynamicsScore": 90,
+    "phraseInconsistencyScore": 32,
+    "pitchVariabilityScore": 0,
+    "lowPitchConfidenceScore": 0,
+    "highSilenceRatioScore": 8,
+    "crestPeakinessScore": 18,
+    "primaryFocus": "wide_dynamic_movement",
+    "secondaryFocus": "",
+    "overallPriority": 90
+  },
+  "vocalProfile": {
+    "archetype": "wide_dynamics",
+    "pitchCentreSummary": "average pitch centre around G3",
+    "energyProfile": "Moderate vocal energy",
+    "peakProfile": "safe peak level",
+    "dynamicsProfile": "wide dynamic range detected",
+    "phraseProfile": "moderate phrase consistency",
+    "pitchTrackProfile": "moderate pitch-track variability",
+    "mainTakeaway": "smooth wide dynamic movement"
+  },
+  "notImplemented": [
+    { "name": "Timing accuracy", "status": "Not analysed yet", "reason": "No beat grid is analysed." },
+    { "name": "Breath support", "status": "Not analysed yet", "reason": "Current metrics cannot diagnose breath support." },
+    { "name": "True vocal range", "status": "Not analysed yet", "reason": "Raw pitch extremes are not a range test." }
+  ]
+}
