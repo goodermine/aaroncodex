@@ -22,6 +22,7 @@ recording upload
   -> normalise metrics
   -> retrieve VOXAI knowledge
   -> compose Candi analysis
+  -> offer optional whole-song training plan
   -> save analysis markdown
   -> update singer and song progress logs
 ```
@@ -78,8 +79,11 @@ python3 scripts/candi_phase1.py save-report \
   --main-improvement "Chorus landed more cleanly than the previous attempt." \
   --still-present "Verse timing still rushes under intensity." \
   --drill-name "Straw Phonation in Water" \
-  --next-take-target "Record the chorus only at 80 percent volume with the vowel narrowed before the high note."
+  --next-take-target "Record the chorus only at 80 percent volume with the vowel narrowed before the high note." \
+  --expansion-offered true
 ```
+
+The standard Candi reply stays focused on one primary drill. If the user asks for a fuller plan, generate the optional five-drill whole-song expansion described in `docs/training-plan-expansion.md`.
 
 ## Runtime Override
 

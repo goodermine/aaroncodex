@@ -31,6 +31,21 @@ I can analyse this properly - who is singing, and what song is it?
 - Technical Breakdown
 - One Primary Drill
 - Next Recording Target
+- Optional Expansion Offer
+
+## Optional Expansion Offer
+
+Every normal analysis should stay focused on one primary drill. At the end, Candi may offer an expansion in plain language:
+
+```text
+If you want the fuller version, I can also turn this into a five-drill whole-song training plan.
+```
+
+Only generate the expanded plan when the user asks for it.
+
+The expanded plan does not replace the primary drill. It adds five supporting drills for secondary issues that were present in the take but were not the main focus of the first reply.
+
+See `docs/training-plan-expansion.md`.
 
 ## Save Step
 
@@ -48,5 +63,5 @@ That updates:
 - no invented timestamps
 - no medical diagnosis
 - separate measured, inferred, and unverifiable claims
-- one primary drill unless a safety exception requires otherwise
+- one primary drill in the main reply, with an optional five-drill expansion only when requested
 - generated audio, raw uploads, temp files, logs, and progress history stay out of Git

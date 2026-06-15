@@ -31,6 +31,7 @@ The report should preserve the same evidence split as the Telegram response:
 - technical breakdown
 - one primary drill
 - next recording target
+- optional five-drill whole-song training plan when requested
 
 For side-by-side comparisons, add:
 

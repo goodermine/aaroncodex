@@ -340,6 +340,30 @@ def prepare_command(args: argparse.Namespace) -> int:
             "Drill Prescription",
             "Next Recording Target",
         ],
+        "optional_expansion": {
+            "name": "Whole Song Training Plan",
+            "offer_in_reply": True,
+            "trigger": "User asks for the expanded plan, full-song plan, or more exercises.",
+            "max_supporting_drills": 5,
+            "principle": (
+                "Keep the main reply focused on one primary drill. If requested, add five supporting drills "
+                "for secondary song issues without replacing the primary drill."
+            ),
+            "supporting_drill_targets": [
+                "Pitch / Intonation",
+                "Rhythm / Timing",
+                "Intensity / Shouting Control",
+                "Tone / Resonance",
+                "Phrase Shape / Performance Delivery",
+            ],
+            "required_sections": [
+                "Whole-Song Diagnosis",
+                "Primary Drill Recap",
+                "Five Supporting Exercises",
+                "Seven-Day Practice Plan",
+                "Next Full-Song Recording Target",
+            ],
+        },
     }
     manifest_path = TEMP_DIR / "metric-json" / f"{base_name}-manifest.json"
     write_json(manifest_path, manifest)
@@ -402,6 +426,11 @@ def save_report_command(args: argparse.Namespace) -> int:
             "Memory Decision:",
             f"- {args.memory_decision}",
             "",
+            "Expansion Plan:",
+            f"- Offered: {args.expansion_offered}",
+            f"- Requested: {args.expansion_requested}",
+            f"- Path: {args.expansion_plan_path or 'none'}",
+            "",
         ]
     )
 
@@ -451,6 +480,9 @@ def build_parser() -> argparse.ArgumentParser:
     save_report.add_argument("--next-take-target", required=True)
     save_report.add_argument("--drill-result", default="unknown")
     save_report.add_argument("--memory-decision", default="progress log")
+    save_report.add_argument("--expansion-offered", default="true")
+    save_report.add_argument("--expansion-requested", default="false")
+    save_report.add_argument("--expansion-plan-path")
     save_report.set_defaults(func=save_report_command)
 
     return parser
