@@ -2,6 +2,10 @@
 
 Private MVP repository for turning the working local VOXAI/Candi vocal analysis flow into a small service.
 
+Start here for agent-to-agent context:
+
+- `HANDOFF.md`
+
 This repo packages the clean pieces of the current working pipeline:
 
 - VOXAI acoustic backend in `backend/voxai-local-analysis`
