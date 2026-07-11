@@ -22,6 +22,7 @@ backend/voxai-local-analysis/voxai_env/
 # VOX runtime uploads and generated files
 openclaw-data/vox-coach/uploads/raw/*
 openclaw-data/vox-coach/uploads/processed/*
+openclaw-data/vox-coach/uploads/reference/*
 openclaw-data/vox-coach/temp/*
 openclaw-data/vox-coach/logs/*
 openclaw-data/vox-coach/memory/analyses/*
@@ -32,6 +33,7 @@ openclaw-data/vox-coach/reports/pdf/*
 # Keep runtime folders present
 !openclaw-data/vox-coach/uploads/raw/.gitkeep
 !openclaw-data/vox-coach/uploads/processed/.gitkeep
+!openclaw-data/vox-coach/uploads/reference/.gitkeep
 !openclaw-data/vox-coach/temp/.gitkeep
 !openclaw-data/vox-coach/logs/.gitkeep
 !openclaw-data/vox-coach/memory/analyses/.gitkeep

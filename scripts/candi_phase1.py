@@ -165,6 +165,34 @@ def run_backend(input_path: Path, singer_name: str) -> tuple[Path, Path]:
     return json_output, report_output
 
 
+def fetch_reference_track(target: str, quality: str = "320") -> dict:
+    """Download the original song for comparison via scripts/fetch_reference.py.
+
+    Returns the fetcher's JSON manifest. Failures are reported in the
+    returned dict rather than raised - a missing reference track must not
+    block the singer's analysis.
+    """
+    script = WORKSPACE / "scripts" / "fetch_reference.py"
+    result = subprocess.run(
+        [PYTHON_BIN, str(script), target, "--fmt", "mp3", "--quality", quality],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        # Tolerate any stray yt-dlp output ahead of the JSON manifest.
+        stdout = result.stdout[result.stdout.find("{"):] if "{" in result.stdout else ""
+        payload = json.loads(stdout)
+    except json.JSONDecodeError:
+        payload = {
+            "status": "error",
+            "error": result.stderr.strip() or result.stdout.strip() or "Reference fetch produced no output.",
+        }
+    payload.setdefault("status", "error")
+    payload["target"] = target
+    return payload
+
+
 def normalise_backend_metrics(raw_metrics: dict) -> dict:
     return {
         "source": "voxai-local-analysis/analyse_song.py",
@@ -275,6 +303,15 @@ def prepare_command(args: argparse.Namespace) -> int:
     knowledge_check_path = TEMP_DIR / "metric-json" / f"{base_name}-knowledge-check.json"
     write_json(knowledge_check_path, knowledge_check)
 
+    reference: dict = {"status": "not_requested"}
+    reference_target = args.reference_url or args.reference_query
+    if not reference_target and args.fetch_reference:
+        reference_target = " ".join(
+            part for part in [metadata.artist, metadata.song, "official audio"] if part
+        )
+    if reference_target:
+        reference = fetch_reference_track(reference_target, quality=args.reference_quality)
+
     processed_audio_path: Path | None = None
     analysis_input_path = raw_destination
     if source_path.suffix.lower() in VIDEO_EXTENSIONS:
@@ -319,6 +356,7 @@ def prepare_command(args: argparse.Namespace) -> int:
                 else None
             ),
             "normalised_metrics": str(normalised_metrics_path),
+            "reference_track": reference.get("path"),
             "knowledge_core": str(KNOWLEDGE_DIR / "VOXAI_Knowledge_Core.txt"),
             "exercise_library": str(KNOWLEDGE_DIR / "VOXAI_Scientific_Exercise_Library.txt"),
             **memory_paths,
@@ -327,6 +365,7 @@ def prepare_command(args: argparse.Namespace) -> int:
             key: Path(path).exists()
             for key, path in memory_paths.items()
         },
+        "reference": reference,
         "required_analysis_sections": [
             "Quick Summary",
             "Singer / Song / Context",
@@ -467,6 +506,24 @@ def build_parser() -> argparse.ArgumentParser:
     prepare.add_argument("--sender-id")
     prepare.add_argument("--chat-id")
     prepare.add_argument("--recording-date")
+    prepare.add_argument(
+        "--fetch-reference",
+        action="store_true",
+        help="Also download the original song from YouTube for comparison, searching by artist + song.",
+    )
+    prepare.add_argument(
+        "--reference-query",
+        help="Explicit YouTube search query for the original song (overrides --fetch-reference search).",
+    )
+    prepare.add_argument(
+        "--reference-url",
+        help="Explicit YouTube URL for the original song (overrides --reference-query).",
+    )
+    prepare.add_argument(
+        "--reference-quality",
+        default="320",
+        help="MP3 bitrate for the reference download (default 320).",
+    )
     prepare.set_defaults(func=prepare_command)
 
     save_report = subparsers.add_parser("save-report", help="Update progress logs for a completed Candi analysis.")

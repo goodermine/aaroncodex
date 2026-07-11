@@ -10,6 +10,7 @@ This repo packages the clean pieces of the current working pipeline:
 
 - VOXAI acoustic backend in `backend/voxai-local-analysis`
 - Candi Phase 1 intake/report helpers in `scripts/`
+- reference-song downloader (agent CLI + web page) in `backend/reference-downloader`
 - required VOXAI knowledge files in `openclaw-data/vox-coach/knowledge/`
 - runtime folders for uploads, metrics, reports, and progress logs
 - notes for the PDF/report workflow and SaaS MVP path in `docs/`
@@ -21,6 +22,7 @@ Generated files, private singer progress logs, uploads, temporary WAVs, Telegram
 ```text
 recording upload
   -> save raw file
+  -> fetch original song from YouTube for comparison (agent-run)
   -> extract audio when needed
   -> run backend analyse_song.py
   -> normalise metrics
@@ -69,8 +71,15 @@ python3 scripts/candi_phase1.py prepare \
   --source-path "/absolute/path/to/recording.mp3" \
   --message "Analyse this. It is Aaron singing Beggin." \
   --singer "Aaron" \
-  --song "Beggin"
+  --song "Beggin" \
+  --artist "Maneskin" \
+  --fetch-reference
 ```
+
+`--fetch-reference` makes the agent download the original song from
+YouTube automatically (searching `<artist> <song> official audio`) so it
+is available for comparison — no manual download step. The manifest then
+includes `paths.reference_track`. See `backend/reference-downloader/README.md`.
 
 After composing the Candi analysis markdown, save it to the `analysis_record` path in the returned manifest, then run:
 

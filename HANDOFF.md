@@ -51,6 +51,11 @@ It intentionally excludes:
 |-- README.md
 |-- HANDOFF.md
 |-- backend/
+|   |-- reference-downloader/
+|   |   |-- app.py
+|   |   |-- reference_dl.py
+|   |   |-- requirements.txt
+|   |   `-- README.md
 |   `-- voxai-local-analysis/
 |       |-- analyse_song.py
 |       |-- install.sh
@@ -73,6 +78,7 @@ It intentionally excludes:
 |       `-- reports/pdf/
 `-- scripts/
     |-- candi_phase1.py
+    |-- fetch_reference.py
     `-- verify_voxai_knowledge.py
 ```
 
@@ -83,6 +89,7 @@ The working Phase 1 flow is:
 ```text
 Telegram/local recording
   -> save raw upload
+  -> fetch the original song from YouTube for comparison (agent-run, no manual download)
   -> extract audio if the upload is video
   -> run VOXAI backend
   -> optionally separate stems first
@@ -264,7 +271,9 @@ python3 scripts/candi_phase1.py prepare \
   --source-path "/absolute/path/to/upload.mp3" \
   --message "Analyse this. It is Aaron singing Beggin." \
   --singer "Aaron" \
-  --song "Beggin"
+  --song "Beggin" \
+  --artist "Maneskin" \
+  --fetch-reference
 ```
 
 What `prepare` does:
@@ -272,12 +281,50 @@ What `prepare` does:
 1. copies the raw upload into `openclaw-data/vox-coach/uploads/raw/`
 2. if singer or song is missing, creates a pending record
 3. runs the knowledge gate
-4. extracts audio for video uploads
-5. runs the backend with `--separate-stems`
-6. loads backend JSON
-7. normalises metrics
-8. writes normalised metrics JSON
-9. builds a manifest with all paths Candi needs
+4. fetches the original song from YouTube when requested (see Reference Tracks below)
+5. extracts audio for video uploads
+6. runs the backend with `--separate-stems`
+7. loads backend JSON
+8. normalises metrics
+9. writes normalised metrics JSON
+10. builds a manifest with all paths Candi needs
+
+## Reference Tracks (Original Song Comparison)
+
+Standing instruction: when the user asks for an analysis and the song is
+known, the agent fetches the original song itself for comparison. The
+user should never have to download the original manually.
+
+Default path — add `--fetch-reference` to `prepare` (as in the example
+above). It searches YouTube for `<artist> <song> official audio`,
+downloads the top match as MP3 320kbps into
+`openclaw-data/vox-coach/uploads/reference/`, and adds a `reference`
+block plus `paths.reference_track` to the manifest. Use
+`--reference-query "..."` or `--reference-url "..."` when the default
+search would be ambiguous, and `--reference-quality` to change the
+bitrate.
+
+Standalone fetch (outside a take analysis):
+
+```bash
+python3 scripts/fetch_reference.py "Maneskin Beggin official audio"
+```
+
+Prints a JSON manifest (`status`, `path`, `title`, `cached`, ...). A
+video that is already in the reference library is reused
+(`"cached": true`) instead of re-downloaded.
+
+Rules:
+
+- a failed reference fetch must never block the take analysis; the
+  manifest reports `reference.status: "error"` and the analysis proceeds
+- requires `yt-dlp` (`pip install -r backend/reference-downloader/requirements.txt`)
+  and `ffmpeg`
+- copyright care applies (see Important Product Rules): private
+  comparison/analysis use only, and delete reference media when no
+  longer needed
+- there is also a human-facing web page (`backend/reference-downloader/app.py`,
+  binds to 127.0.0.1:8765) that shares the same download engine
 
 Save command:
 
