@@ -203,13 +203,16 @@ def normalise_backend_metrics(raw_metrics: dict) -> dict:
         "sample_rate": raw_metrics.get("sample_rate"),
         "stem_separation": raw_metrics.get("stem_separation"),
         "pitch": raw_metrics.get("pitch"),
-        "perturbation": raw_metrics.get("perturbation"),
-        "hnr": raw_metrics.get("hnr"),
+        "voice_quality": raw_metrics.get("voice_quality"),
+        "harmonic_balance": raw_metrics.get("harmonic_balance"),
+        "intonation": raw_metrics.get("intonation"),
         "resonance": raw_metrics.get("resonance"),
         "dynamics": raw_metrics.get("dynamics"),
         "rhythm": raw_metrics.get("rhythm"),
         "formants": raw_metrics.get("formants"),
         "vibrato": raw_metrics.get("vibrato"),
+        "phrasing": raw_metrics.get("phrasing"),
+        "technical_score": raw_metrics.get("technical_score"),
         "time_diagnostics": raw_metrics.get("time_diagnostics"),
         "visual_diagnostics": raw_metrics.get("visual_diagnostics"),
         "diagnostic_flags": raw_metrics.get("diagnostic_flags", []),
@@ -217,6 +220,7 @@ def normalise_backend_metrics(raw_metrics: dict) -> dict:
         "notes": [
             "Metrics were normalised directly from the existing local VOX backend JSON.",
             "Time buckets and visual diagnostics are supporting evidence only, especially for karaoke/live-room recordings.",
+            "technical_score is deterministic (rubric v1) — quote it verbatim, do not adjust or re-estimate it.",
         ],
     }
 
@@ -364,6 +368,15 @@ def prepare_command(args: argparse.Namespace) -> int:
         "memory_exists": {
             key: Path(path).exists()
             for key, path in memory_paths.items()
+        },
+        "scoring_policy": {
+            "technical_score_source": "normalised_metrics.technical_score (deterministic rubric v2, computed by the backend)",
+            "rules": [
+                "Quote the backend technical_score verbatim, including its confidence level and component breakdown.",
+                "Never invent, rescale, curve, or 'round up' numeric scores. If a score feels wrong, say why in prose — do not change the number.",
+                "Any listener-impact or artistry commentary must be clearly labelled as a subjective impression, not a measurement, and must not be expressed as a numeric score.",
+                "If technical_score has an error or low confidence, state that instead of substituting a guessed number.",
+            ],
         },
         "reference": reference,
         "required_analysis_sections": [

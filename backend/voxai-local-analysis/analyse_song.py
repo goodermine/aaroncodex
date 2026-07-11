@@ -17,7 +17,17 @@ Outputs:
 
 Dependencies:
     numpy, scipy, librosa, soundfile, matplotlib
+    praat-parselmouth — clinical-grade jitter/shimmer/HNR/formants (Praat)
     (Optional) openai — for AI-generated natural language feedback
+
+Measurement policy:
+    * Voice-quality metrics (jitter, shimmer, HNR, formants) are computed
+      with Praat algorithms (via parselmouth) on sustained voiced segments
+      only — never across pauses or note changes.
+    * Every derived judgement carries a "method" and "reliability" label.
+    * The technical score is a deterministic, documented rubric over the
+      measured values: the same audio always produces the same score.
+      Nothing in this file asks a language model for a number.
 
 Author:     VOXAI Diagnostic Engine
 =============================================================================
@@ -26,6 +36,7 @@ Author:     VOXAI Diagnostic Engine
 import os
 import sys
 import json
+import math
 import argparse
 import warnings
 import subprocess
@@ -41,6 +52,13 @@ import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend for WSL (no display required)
 import matplotlib.pyplot as plt
 
+try:
+    import parselmouth
+    from parselmouth.praat import call as praat_call
+    PARSELMOUTH_AVAILABLE = True
+except ImportError:
+    PARSELMOUTH_AVAILABLE = False
+
 warnings.filterwarnings('ignore')
 
 
@@ -48,20 +66,45 @@ warnings.filterwarnings('ignore')
 # CONFIGURATION
 # =============================================================================
 
-# Minimum confidence threshold for voiced pitch frames
-VOICED_CONFIDENCE_THRESHOLD = 0.5
+# Pitch tracking range for sung vocals
+PYIN_FMIN_NOTE = 'C2'   # ~65 Hz — lower limit for bass/baritenor
+PYIN_FMAX_NOTE = 'D6'   # ~1175 Hz — covers high tenor/falsetto and most female range
+PRAAT_PITCH_FLOOR = 65.0
+PRAAT_PITCH_CEILING = 1200.0
 
 # Minimum RMS level (dB) to be considered an active (non-silent) frame
 SILENCE_THRESHOLD_DB = -60.0
 
-# Jitter/Shimmer clinical reference thresholds (speech pathology standards)
+# Sustained-note segmentation
+VOICED_GAP_BRIDGE_FRAMES = 2      # bridge voiced gaps up to ~23 ms
+NOTE_SPLIT_CENTS = 60.0           # split a voiced run when smoothed pitch jumps this much
+NOTE_MIN_DURATION_S = 0.25        # minimum sustained note for intonation/voice-quality
+VIBRATO_NOTE_MIN_S = 0.50         # minimum note length for per-note vibrato analysis
+PHRASE_GAP_BRIDGE_S = 0.30        # voiced runs closer than this belong to one phrase
+
+# Speech-pathology reference thresholds (kept for context in reports only —
+# a sung melody is NOT directly comparable to a sustained spoken vowel)
 JITTER_THRESHOLD_PCT = 1.04
 SHIMMER_THRESHOLD_PCT = 3.81
 HNR_CLEAN_THRESHOLD_DB = 20.0
 
+# Singing-oriented interpretation bands for sustained sung notes
+SINGING_JITTER_GOOD_PCT = 0.5
+SINGING_SHIMMER_GOOD_PCT = 3.0
+SINGING_HNR_GOOD_DB = 15.0
+
 # Spectral centroid ranges for resonance classification
 CENTROID_DARK_THRESHOLD = 1200.0    # Hz — below this = dark/swallowed
 CENTROID_BRIGHT_THRESHOLD = 2500.0  # Hz — above this = very bright/twangy
+
+# Vibrato detection
+VIBRATO_RATE_MIN_HZ = 4.0
+VIBRATO_RATE_MAX_HZ = 8.0
+VIBRATO_SEARCH_MIN_HZ = 3.0
+VIBRATO_SEARCH_MAX_HZ = 9.0
+VIBRATO_MIN_EXTENT_CENTS = 10.0
+VIBRATO_MAX_EXTENT_CENTS = 300.0
+VIBRATO_MIN_BAND_RATIO = 0.15
 
 
 # =============================================================================
@@ -78,10 +121,6 @@ def convert_to_wav(input_path, temp_dir="temp"):
     os.makedirs(temp_dir, exist_ok=True)
     base_name = os.path.splitext(os.path.basename(input_path))[0]
     output_path = os.path.join(temp_dir, f"{base_name}_converted.wav")
-
-    if input_path.lower().endswith('.wav'):
-        # Still re-encode to ensure mono + 44100 Hz
-        pass
 
     print(f"  Converting to standard WAV format...")
     cmd = [
@@ -110,12 +149,20 @@ def resolve_repo_path(path_value):
     return os.path.join(repo_root, path_value)
 
 
-def find_first_stem_match(patterns):
-    """Returns the first matching file path from a list of glob patterns."""
+def find_first_stem_match(patterns, exclude_substrings=()):
+    """
+    Returns the first matching file path from a list of glob patterns.
+
+    exclude_substrings filters out false positives — e.g. the loose pattern
+    "*vocals*" would otherwise happily match "no_vocals" (the instrumental).
+    """
     for pattern in patterns:
         matches = sorted(glob.glob(pattern, recursive=True))
-        if matches:
-            return matches[0]
+        for match in matches:
+            lower_name = os.path.basename(match).lower()
+            if any(bad in lower_name for bad in exclude_substrings):
+                continue
+            return match
     return None
 
 
@@ -151,17 +198,22 @@ def run_stem_separation(input_path, script_path="tools/stems/batch_stems.sh"):
             print(result.stderr)
         raise RuntimeError("Stem separation failed. Check the command output above.")
 
-    vocals_path = find_first_stem_match([
-        os.path.join(run_output_dir, "**", "*_(Vocals)_*.flac"),
-        os.path.join(run_output_dir, "**", "*_(Vocals)_*.wav"),
-        os.path.join(run_output_dir, "**", "*.vocals.wav"),
-        os.path.join(run_output_dir, "**", "*vocals*.wav"),
-    ])
+    vocals_path = find_first_stem_match(
+        [
+            os.path.join(run_output_dir, "**", "*_(Vocals)_*.flac"),
+            os.path.join(run_output_dir, "**", "*_(Vocals)_*.wav"),
+            os.path.join(run_output_dir, "**", "*.vocals.wav"),
+            os.path.join(run_output_dir, "**", "*vocals*.wav"),
+            os.path.join(run_output_dir, "**", "*vocals*.flac"),
+        ],
+        exclude_substrings=("no_vocals", "instrumental"),
+    )
     instrumental_path = find_first_stem_match([
         os.path.join(run_output_dir, "**", "*_(Instrumental)_*.flac"),
         os.path.join(run_output_dir, "**", "*_(Instrumental)_*.wav"),
         os.path.join(run_output_dir, "**", "*.instrumental.wav"),
         os.path.join(run_output_dir, "**", "*no_vocals*.wav"),
+        os.path.join(run_output_dir, "**", "*no_vocals*.flac"),
     ])
 
     if not vocals_path:
@@ -201,6 +253,144 @@ def hz_to_note_safe(hz):
         return "N/A"
 
 
+def hz_to_cents(hz_values):
+    """Converts Hz to cents relative to A4 = 440 Hz (NaN-safe)."""
+    hz_values = np.asarray(hz_values, dtype=float)
+    out = np.full(hz_values.shape, np.nan)
+    valid = np.isfinite(hz_values) & (hz_values > 0)
+    out[valid] = 1200.0 * np.log2(hz_values[valid] / 440.0)
+    return out
+
+
+def moving_average(values, window_frames):
+    """Centred moving average with reflected edges (window forced odd, >=3)."""
+    window_frames = max(3, int(window_frames) | 1)
+    if len(values) < window_frames:
+        return np.full(len(values), np.mean(values))
+    padded = np.pad(values, window_frames // 2, mode='reflect')
+    kernel = np.ones(window_frames) / window_frames
+    return np.convolve(padded, kernel, mode='valid')
+
+
+def safe_float(value, decimals=None):
+    """Converts to a JSON-safe float, mapping NaN/inf to None."""
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(value):
+        return None
+    return round(value, decimals) if decimals is not None else value
+
+
+# =============================================================================
+# VOICED-SEGMENT AND NOTE SEGMENTATION
+# =============================================================================
+
+def segment_voiced_runs(f0, hop_length, sr, min_duration_s=NOTE_MIN_DURATION_S,
+                        bridge_frames=VOICED_GAP_BRIDGE_FRAMES):
+    """
+    Finds contiguous runs of voiced frames in the F0 track, bridging very
+    short unvoiced gaps. Returns a list of (start_frame, end_frame) pairs
+    (end exclusive). All downstream voice-quality analysis is restricted to
+    these runs so that pauses and consonants never contaminate the metrics.
+    """
+    voiced = np.isfinite(f0)
+    if bridge_frames > 0:
+        voiced_bridged = voiced.copy()
+        gap_start = None
+        for i, v in enumerate(voiced):
+            if v:
+                if gap_start is not None and 0 < i - gap_start <= bridge_frames:
+                    voiced_bridged[gap_start:i] = True
+                gap_start = None
+            elif gap_start is None:
+                gap_start = i
+        voiced = voiced_bridged
+
+    min_frames = max(3, int(min_duration_s * sr / hop_length))
+    runs = []
+    start = None
+    for i, v in enumerate(voiced):
+        if v and start is None:
+            start = i
+        elif not v and start is not None:
+            if i - start >= min_frames:
+                runs.append((start, i))
+            start = None
+    if start is not None and len(voiced) - start >= min_frames:
+        runs.append((start, len(voiced)))
+    return runs
+
+
+def segment_sustained_notes(f0, hop_length, sr, min_duration_s=NOTE_MIN_DURATION_S):
+    """
+    Splits voiced runs into sustained-note segments at melodic pitch jumps.
+
+    The pitch contour is median-filtered so vibrato does not trigger splits,
+    then a new note begins wherever the smoothed contour jumps more than
+    NOTE_SPLIT_CENTS between adjacent frames.
+
+    Returns a list of dicts: {start, end, start_s, end_s, duration_s,
+    median_hz, cents_contour (relative to A440)}.
+    """
+    frame_s = hop_length / sr
+    min_frames = max(3, int(min_duration_s / frame_s))
+    notes = []
+
+    for run_start, run_end in segment_voiced_runs(f0, hop_length, sr,
+                                                  min_duration_s=min_duration_s):
+        seg_f0 = f0[run_start:run_end].copy()
+        # Fill bridged NaN frames by interpolation inside the run
+        nans = ~np.isfinite(seg_f0)
+        if nans.any():
+            seg_f0[nans] = np.interp(
+                np.flatnonzero(nans), np.flatnonzero(~nans), seg_f0[~nans]
+            )
+        cents = hz_to_cents(seg_f0)
+        smoothed = scipy.signal.medfilt(cents, kernel_size=5)
+        jumps = np.abs(np.diff(smoothed))
+        split_points = np.flatnonzero(jumps > NOTE_SPLIT_CENTS) + 1
+
+        boundaries = [0, *split_points.tolist(), len(seg_f0)]
+        for b_start, b_end in zip(boundaries[:-1], boundaries[1:]):
+            if b_end - b_start < min_frames:
+                continue
+            note_f0 = seg_f0[b_start:b_end]
+            notes.append({
+                "start": run_start + b_start,
+                "end": run_start + b_end,
+                "start_s": (run_start + b_start) * frame_s,
+                "end_s": (run_start + b_end) * frame_s,
+                "duration_s": (b_end - b_start) * frame_s,
+                "median_hz": float(np.median(note_f0)),
+                "cents_contour": hz_to_cents(note_f0),
+            })
+    return notes
+
+
+def segment_phrases(f0, hop_length, sr):
+    """
+    Groups voiced runs separated by less than PHRASE_GAP_BRIDGE_S into
+    phrases. Used for breath/phrase-length metrics.
+    """
+    frame_s = hop_length / sr
+    runs = segment_voiced_runs(f0, hop_length, sr, min_duration_s=0.1)
+    if not runs:
+        return []
+    max_gap_frames = int(PHRASE_GAP_BRIDGE_S / frame_s)
+    phrases = [list(runs[0])]
+    for start, end in runs[1:]:
+        if start - phrases[-1][1] <= max_gap_frames:
+            phrases[-1][1] = end
+        else:
+            phrases.append([start, end])
+    return [
+        {"start_s": s * frame_s, "end_s": e * frame_s, "duration_s": (e - s) * frame_s}
+        for s, e in phrases
+    ]
+
+
 # =============================================================================
 # ANALYSIS MODULES
 # =============================================================================
@@ -213,14 +403,19 @@ def analyse_pitch(y, sr, hop_length=512):
     frequency (F0) over time. pyin is more robust than basic autocorrelation
     and handles distorted/raspy vocals better than naive methods.
 
+    The reported pitch range uses the 2.5th–97.5th percentile of voiced
+    frames ("robust range"): a single octave-error frame from the tracker
+    would otherwise wildly inflate the range. The absolute min/max frames
+    are still reported separately for reference.
+
     Returns a dict of pitch statistics.
     """
-    print("  [1/8] Pitch analysis (pyin)...")
+    print("  [1/10] Pitch analysis (pyin)...")
 
     f0, voiced_flag, voiced_probs = librosa.pyin(
         y,
-        fmin=librosa.note_to_hz('C2'),   # ~65 Hz — lower limit for bass/baritenor
-        fmax=librosa.note_to_hz('C6'),   # ~1047 Hz — upper limit for tenor
+        fmin=librosa.note_to_hz(PYIN_FMIN_NOTE),
+        fmax=librosa.note_to_hz(PYIN_FMAX_NOTE),
         sr=sr,
         frame_length=2048,
         hop_length=hop_length
@@ -233,8 +428,10 @@ def analyse_pitch(y, sr, hop_length=512):
     if n_voiced < 10:
         return {"error": "Insufficient voiced frames detected. Check audio quality."}
 
-    # Calculate pitch range in semitones
-    pitch_range_semitones = round(
+    p2_5 = float(np.percentile(voiced_f0, 2.5))
+    p97_5 = float(np.percentile(voiced_f0, 97.5))
+    robust_range_semitones = round(12 * np.log2(p97_5 / p2_5), 1) if p2_5 > 0 else 0
+    full_range_semitones = round(
         12 * np.log2(np.max(voiced_f0) / np.min(voiced_f0)), 1
     ) if np.min(voiced_f0) > 0 else 0
 
@@ -270,95 +467,216 @@ def analyse_pitch(y, sr, hop_length=512):
         "median_note": hz_to_note_safe(np.median(voiced_f0)),
         "min_note": hz_to_note_safe(np.min(voiced_f0)),
         "max_note": hz_to_note_safe(np.max(voiced_f0)),
-        "range_semitones": pitch_range_semitones,
+        "robust_min_hz": round(p2_5, 2),
+        "robust_max_hz": round(p97_5, 2),
+        "robust_min_note": hz_to_note_safe(p2_5),
+        "robust_max_note": hz_to_note_safe(p97_5),
+        "range_semitones": robust_range_semitones,
+        "range_semitones_note": "Robust range (2.5th-97.5th percentile of voiced frames). Immune to single octave-error frames.",
+        "full_range_semitones": full_range_semitones,
         "voiced_percentage": round(n_voiced / n_total * 100, 1),
         "p25_hz": round(float(np.percentile(voiced_f0, 25)), 2),
         "p75_hz": round(float(np.percentile(voiced_f0, 75)), 2),
         "p95_hz": round(float(np.percentile(voiced_f0, 95)), 2),
         "sections": sections,
-        "raw_f0": f0  # Keep for perturbation analysis
+        "raw_f0": f0  # Keep for downstream segment analysis
     }
 
 
-def analyse_perturbation(f0):
+def analyse_voice_quality(wav_path, f0, sr, hop_length=512):
     """
-    MODULE 2: PERTURBATION ANALYSIS (Jitter & Shimmer)
-    ────────────────────────────────────────────────────
-    Jitter measures cycle-to-cycle frequency instability.
-    Shimmer measures cycle-to-cycle amplitude instability.
-    Both are elevated in breathy, strained, or intentionally distorted voices.
+    MODULE 2: VOICE QUALITY — JITTER, SHIMMER, HNR (Praat)
+    ────────────────────────────────────────────────────────
+    Clinical-grade perturbation analysis using Praat algorithms via
+    parselmouth, computed PER SUSTAINED NOTE and aggregated with the median.
 
-    Clinical thresholds (speech pathology):
-        Jitter Local > 1.04% = abnormal
-        Shimmer Local > 3.81% = abnormal
-    In singing, especially with controlled grit, these thresholds will be exceeded
-    intentionally — context is critical for interpretation.
+    Why per-note: jitter/shimmer are defined for sustained phonation. A sung
+    melody moves between pitches by design; measuring across note changes
+    (or worse, across pauses) counts musicianship as pathology. Restricting
+    each measurement window to one sustained note removes that bias.
+
+    Reported thresholds: the classic 1.04% jitter / 3.81% shimmer figures
+    are speech-pathology norms for sustained spoken vowels. Sung notes with
+    vibrato naturally run slightly higher, so interpretation bands here are
+    singing-oriented and clearly labelled.
+
+    Falls back to a frame-based F0 approximation (clearly labelled
+    low-reliability, jitter only) if parselmouth is not installed.
     """
-    print("  [2/8] Perturbation analysis (jitter)...")
+    print("  [2/10] Voice quality — jitter/shimmer/HNR...")
 
-    voiced_f0 = f0[~np.isnan(f0)]
-    if len(voiced_f0) < 3:
-        return {"error": "Insufficient data for perturbation analysis."}
+    notes = segment_sustained_notes(f0, hop_length, sr)
+    long_notes = [n for n in notes if n["duration_s"] >= NOTE_MIN_DURATION_S]
 
-    periods = 1.0 / voiced_f0
-    period_diffs = np.abs(np.diff(periods))
-    mean_period = float(np.mean(periods))
+    if not long_notes:
+        return {
+            "error": "No sustained notes (>= 0.25 s) found — cannot measure voice quality.",
+            "method": "none",
+            "reliability": "none",
+        }
 
-    # Local Jitter: mean absolute difference between consecutive periods
-    jitter_local = float(np.mean(period_diffs) / mean_period) * 100
+    if not PARSELMOUTH_AVAILABLE:
+        return _voice_quality_fallback(long_notes)
 
-    # RAP (Relative Average Perturbation): 3-point smoothed jitter
-    rap_diffs = []
-    for i in range(1, len(periods) - 1):
-        avg3 = (periods[i-1] + periods[i] + periods[i+1]) / 3
-        rap_diffs.append(abs(periods[i] - avg3))
-    jitter_rap = float(np.mean(rap_diffs) / mean_period) * 100 if rap_diffs else None
+    snd = parselmouth.Sound(wav_path)
+    point_process = praat_call(
+        snd, "To PointProcess (periodic, cc)", PRAAT_PITCH_FLOOR, PRAAT_PITCH_CEILING
+    )
+    harmonicity = snd.to_harmonicity_cc(
+        time_step=0.01,
+        minimum_pitch=PRAAT_PITCH_FLOOR,
+        silence_threshold=0.1,
+        periods_per_window=1.0,
+    )
 
-    # PPQ5 (Period Perturbation Quotient, 5-point smoothed)
-    ppq_diffs = []
-    for i in range(2, len(periods) - 2):
-        avg5 = np.mean(periods[i-2:i+3])
-        ppq_diffs.append(abs(periods[i] - avg5))
-    jitter_ppq5 = float(np.mean(ppq_diffs) / mean_period) * 100 if ppq_diffs else None
+    per_note = {"jitter_local": [], "jitter_rap": [], "jitter_ppq5": [],
+                "shimmer_local": [], "shimmer_apq3": [], "shimmer_db": [],
+                "hnr_db": []}
+
+    for note in long_notes:
+        t0, t1 = note["start_s"], note["end_s"]
+        try:
+            values = {
+                "jitter_local": praat_call(point_process, "Get jitter (local)", t0, t1, 0.0001, 0.02, 1.3) * 100,
+                "jitter_rap": praat_call(point_process, "Get jitter (rap)", t0, t1, 0.0001, 0.02, 1.3) * 100,
+                "jitter_ppq5": praat_call(point_process, "Get jitter (ppq5)", t0, t1, 0.0001, 0.02, 1.3) * 100,
+                "shimmer_local": praat_call([snd, point_process], "Get shimmer (local)", t0, t1, 0.0001, 0.02, 1.3, 1.6) * 100,
+                "shimmer_apq3": praat_call([snd, point_process], "Get shimmer (apq3)", t0, t1, 0.0001, 0.02, 1.3, 1.6) * 100,
+                "shimmer_db": praat_call([snd, point_process], "Get shimmer (local_dB)", t0, t1, 0.0001, 0.02, 1.3, 1.6),
+                "hnr_db": praat_call(harmonicity, "Get mean", t0, t1),
+            }
+        except Exception:
+            continue
+        for key, value in values.items():
+            if value is not None and math.isfinite(value):
+                per_note[key].append(float(value))
+
+    n_measured = len(per_note["jitter_local"])
+    if n_measured == 0:
+        return _voice_quality_fallback(long_notes)
+
+    def median_of(key, decimals=4):
+        return safe_float(np.median(per_note[key]), decimals) if per_note[key] else None
+
+    jitter_med = median_of("jitter_local")
+    shimmer_med = median_of("shimmer_local")
+    hnr_med = median_of("hnr_db", 2)
 
     return {
-        "jitter_local_percent": round(jitter_local, 4),
-        "jitter_rap_percent": round(jitter_rap, 4) if jitter_rap else None,
-        "jitter_ppq5_percent": round(jitter_ppq5, 4) if jitter_ppq5 else None,
-        "threshold_local_pct": JITTER_THRESHOLD_PCT,
-        "exceeds_threshold": jitter_local > JITTER_THRESHOLD_PCT
+        "method": "praat_parselmouth_per_sustained_note",
+        "reliability": "high" if n_measured >= 5 else "medium",
+        "n_notes_measured": n_measured,
+        "n_sustained_notes_found": len(long_notes),
+        "jitter_local_percent_median": jitter_med,
+        "jitter_rap_percent_median": median_of("jitter_rap"),
+        "jitter_ppq5_percent_median": median_of("jitter_ppq5"),
+        "shimmer_local_percent_median": shimmer_med,
+        "shimmer_apq3_percent_median": median_of("shimmer_apq3"),
+        "shimmer_local_db_median": median_of("shimmer_db"),
+        "hnr_db_median": hnr_med,
+        "hnr_db_p25": safe_float(np.percentile(per_note["hnr_db"], 25), 2) if per_note["hnr_db"] else None,
+        "hnr_db_p75": safe_float(np.percentile(per_note["hnr_db"], 75), 2) if per_note["hnr_db"] else None,
+        "interpretation": _interpret_voice_quality(jitter_med, shimmer_med, hnr_med),
+        "reference": {
+            "speech_pathology_jitter_pct": JITTER_THRESHOLD_PCT,
+            "speech_pathology_shimmer_pct": SHIMMER_THRESHOLD_PCT,
+            "note": "Speech norms are for sustained spoken vowels; sung notes with vibrato run naturally higher. Interpretation above uses singing-oriented bands.",
+        },
     }
 
 
-def analyse_hnr(y):
+def _voice_quality_fallback(long_notes):
     """
-    MODULE 3: HARMONIC-TO-NOISE RATIO
-    ───────────────────────────────────
-    Separates the audio into harmonic (tonal) and percussive (noise-like)
-    components using the HPSS algorithm, then computes the energy ratio.
+    Frame-based jitter approximation, restricted to within-note windows.
+    Only used when parselmouth is unavailable. Shimmer and HNR are NOT
+    reported here — an unreliable number is worse than an honest gap.
+    """
+    per_note_jitter = []
+    for note in long_notes:
+        contour = note["cents_contour"]
+        if len(contour) < 8:
+            continue
+        # Remove slow melodic/vibrato movement; residual reflects instability
+        residual = contour - moving_average(contour, 7)
+        hz = note["median_hz"] * (2 ** (residual / 1200.0))
+        periods = 1.0 / hz
+        jitter = np.mean(np.abs(np.diff(periods))) / np.mean(periods) * 100
+        per_note_jitter.append(float(jitter))
 
-    HNR > 20 dB = clean, well-supported phonation
-    HNR 10-20 dB = mild breathiness or distortion
-    HNR < 10 dB = heavy distortion, breathiness, or controlled grit
+    return {
+        "method": "frame_f0_approximation",
+        "reliability": "low",
+        "note": (
+            "parselmouth is not installed — this is a coarse frame-level "
+            "approximation, not clinical jitter. Install praat-parselmouth "
+            "for real cycle-to-cycle measurements. Shimmer and HNR are "
+            "intentionally omitted rather than guessed."
+        ),
+        "n_notes_measured": len(per_note_jitter),
+        "n_sustained_notes_found": len(long_notes),
+        "jitter_local_percent_median": safe_float(np.median(per_note_jitter), 4) if per_note_jitter else None,
+        "shimmer_local_percent_median": None,
+        "hnr_db_median": None,
+        "interpretation": "Unavailable at full reliability (parselmouth missing).",
+    }
+
+
+def _interpret_voice_quality(jitter_pct, shimmer_pct, hnr_db):
+    """Singing-oriented interpretation of sustained-note voice quality."""
+    if jitter_pct is None and hnr_db is None:
+        return "Insufficient data."
+    concerns = []
+    if hnr_db is not None:
+        if hnr_db >= SINGING_HNR_GOOD_DB:
+            concerns.append("clean, well-supported phonation")
+        elif hnr_db >= 8:
+            concerns.append("mild breathiness or intentional grit")
+        else:
+            concerns.append("heavy breathiness/distortion (verify capture quality)")
+    if jitter_pct is not None:
+        if jitter_pct <= SINGING_JITTER_GOOD_PCT:
+            concerns.append("very stable fold vibration")
+        elif jitter_pct <= 1.5:
+            concerns.append("normal sung-note perturbation")
+        else:
+            concerns.append("elevated frequency perturbation")
+    if shimmer_pct is not None and shimmer_pct > 2 * SINGING_SHIMMER_GOOD_PCT:
+        concerns.append("elevated amplitude perturbation")
+    return "; ".join(concerns).capitalize() + "."
+
+
+def analyse_harmonic_balance(y):
     """
-    print("  [3/8] Harmonic-to-Noise Ratio analysis...")
+    MODULE 3: HARMONIC / RESIDUAL BALANCE (HPSS)
+    ──────────────────────────────────────────────
+    Separates the audio into harmonic and residual components using HPSS and
+    computes the whole-file energy ratio.
+
+    IMPORTANT: this is a global tonal-balance descriptor, NOT clinical HNR.
+    (Earlier versions mislabelled it "HNR" — real HNR is per-frame
+    autocorrelation harmonicity on voiced segments, reported by the voice
+    quality module.) It includes silence and consonants, so use it only as a
+    rough texture indicator.
+    """
+    print("  [3/10] Harmonic/residual balance (HPSS)...")
 
     y_harmonic, y_percussive = librosa.effects.hpss(y)
     harmonic_power = float(np.mean(y_harmonic ** 2))
     noise = y - y_harmonic
     noise_power = float(np.mean(noise ** 2))
 
-    hnr_db = 10 * np.log10(harmonic_power / noise_power) if noise_power > 0 else 99.0
-    hpr_ratio = harmonic_power / float(np.mean(y_percussive ** 2)) if np.mean(y_percussive ** 2) > 0 else 99.0
+    ratio_db = 10 * np.log10(harmonic_power / noise_power) if noise_power > 0 else 99.0
+    percussive_power = float(np.mean(y_percussive ** 2))
+    hpr_db = 10 * np.log10(harmonic_power / percussive_power) if percussive_power > 0 else 99.0
 
     return {
-        "hnr_db": round(float(hnr_db), 2),
-        "hpr_db": round(10 * np.log10(hpr_ratio), 2) if hpr_ratio > 0 else 0,
-        "classification": (
-            "Clean / Well-supported" if hnr_db > HNR_CLEAN_THRESHOLD_DB else
-            "Mild distortion / Breathiness" if hnr_db > 10 else
-            "Heavy distortion / Controlled grit"
-        )
+        "harmonic_residual_db": round(float(ratio_db), 2),
+        "harmonic_percussive_db": round(float(hpr_db), 2),
+        "method": "hpss_whole_file",
+        "note": (
+            "Global tonal-balance descriptor over the whole file (includes "
+            "silence/consonants). NOT clinical HNR — see voice_quality.hnr_db_median."
+        ),
     }
 
 
@@ -370,12 +688,18 @@ def analyse_resonance(y, sr, hop_length=512):
     indicate bright, forward resonance. Low values indicate dark, swallowed tone.
 
     Spectral Rolloff: The frequency below which X% of the spectral energy lies.
-    High rolloff = lots of high-frequency harmonic content.
-
     Spectral Flatness: 0 = perfectly tonal (sine wave); 1 = white noise.
-    Very low values confirm the voice is tonal even under distortion.
+
+    All statistics are computed over ACTIVE frames only (frame RMS above the
+    silence threshold). On isolated stems with long silent gaps, unmuted
+    low-level noise would otherwise dominate the averages and skew the
+    brightness classification.
     """
-    print("  [4/8] Resonance analysis...")
+    print("  [4/10] Resonance analysis (active frames only)...")
+
+    rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=hop_length)[0]
+    rms_db = librosa.amplitude_to_db(rms, ref=np.max)
+    active_mask = rms_db > SILENCE_THRESHOLD_DB
 
     centroid = librosa.feature.spectral_centroid(y=y, sr=sr, hop_length=hop_length)[0]
     rolloff_85 = librosa.feature.spectral_rolloff(y=y, sr=sr, hop_length=hop_length, roll_percent=0.85)[0]
@@ -383,6 +707,15 @@ def analyse_resonance(y, sr, hop_length=512):
     flatness = librosa.feature.spectral_flatness(y=y, hop_length=hop_length)[0]
     bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr, hop_length=hop_length)[0]
     contrast = librosa.feature.spectral_contrast(y=y, sr=sr, hop_length=hop_length)
+
+    n_frames = min(len(active_mask), len(centroid))
+    mask = active_mask[:n_frames]
+    if not mask.any():
+        return {"error": "No active frames above the silence threshold."}
+
+    centroid, flatness, bandwidth = centroid[:n_frames][mask], flatness[:n_frames][mask], bandwidth[:n_frames][mask]
+    rolloff_85, rolloff_95 = rolloff_85[:n_frames][mask], rolloff_95[:n_frames][mask]
+    contrast = contrast[:, :n_frames][:, mask]
 
     mean_centroid = float(np.mean(centroid))
     resonance_class = (
@@ -399,22 +732,26 @@ def analyse_resonance(y, sr, hop_length=512):
         "spectral_flatness_mean": round(float(np.mean(flatness)), 6),
         "spectral_bandwidth_mean_hz": round(float(np.mean(bandwidth)), 2),
         "spectral_contrast_overall_mean_db": round(float(np.mean(contrast)), 2),
-        "resonance_classification": resonance_class
+        "active_frame_percentage": round(float(np.mean(mask)) * 100, 1),
+        "resonance_classification": resonance_class,
+        "method": "librosa_active_frames_only",
     }
 
 
-def analyse_dynamics(y, sr, hop_length=512):
+def analyse_dynamics(y, sr, f0=None, hop_length=512):
     """
     MODULE 5: DYNAMICS ANALYSIS
     ─────────────────────────────
     RMS Energy measures the loudness of the signal over time.
-    Dynamic Range is the difference between the loudest and quietest active frames.
-    Effective Dynamic Range (P10-P90) removes outliers for a more realistic measure.
+    Effective Dynamic Range (P10-P90) removes outliers for a realistic measure.
 
-    A narrow effective dynamic range (< 12 dB) indicates a consistently loud,
-    compressed delivery with little light and shade.
+    Note: dB values are relative to the loudest frame in THIS file (ref=max),
+    so they describe internal contrast, not absolute loudness.
+
+    Also reports phrase-level dynamic shaping: the spread of per-phrase mean
+    levels, which captures light-and-shade across the performance.
     """
-    print("  [5/8] Dynamics analysis...")
+    print("  [5/10] Dynamics analysis...")
 
     rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=hop_length)[0]
     rms_db = librosa.amplitude_to_db(rms, ref=np.max)
@@ -425,27 +762,44 @@ def analyse_dynamics(y, sr, hop_length=512):
 
     zcr = librosa.feature.zero_crossing_rate(y, hop_length=hop_length)[0]
 
-    return {
+    result = {
         "mean_rms_db": round(float(np.mean(active)), 2),
         "median_rms_db": round(float(np.median(active)), 2),
         "full_dynamic_range_db": round(float(np.max(active) - np.min(active)), 2),
         "effective_dynamic_range_db": round(float(np.percentile(active, 90) - np.percentile(active, 10)), 2),
         "p10_db": round(float(np.percentile(active, 10)), 2),
         "p90_db": round(float(np.percentile(active, 90)), 2),
-        "zcr_mean": round(float(np.mean(zcr)), 6)
+        "zcr_mean": round(float(np.mean(zcr)), 6),
+        "reference_note": "dB relative to the loudest frame in this file (internal contrast, not absolute loudness).",
     }
 
+    if f0 is not None:
+        phrases = segment_phrases(f0, hop_length, sr)
+        phrase_levels = []
+        for phrase in phrases:
+            i0 = int(phrase["start_s"] * sr / hop_length)
+            i1 = min(int(phrase["end_s"] * sr / hop_length), len(rms_db))
+            if i1 > i0:
+                phrase_levels.append(float(np.mean(rms_db[i0:i1])))
+        if len(phrase_levels) >= 3:
+            result["phrase_level_spread_db"] = round(float(np.percentile(phrase_levels, 90) - np.percentile(phrase_levels, 10)), 2)
+            result["n_phrases"] = len(phrase_levels)
 
-def analyse_rhythm(y, sr, hop_length=512):
+    return result
+
+
+def analyse_rhythm(y, sr, is_isolated_stem=False, hop_length=512):
     """
     MODULE 6: RHYTHM AND ONSET ANALYSIS
     ─────────────────────────────────────
     Onset detection identifies the start of each note/syllable.
     Onset rate (onsets/second) indicates how densely packed the delivery is.
-    Rhythmic regularity measures how consistent the spacing between onsets is.
-    A value of 1.0 = perfectly metronomic; 0.0 = completely irregular.
+
+    Tempo estimation via beat tracking is designed for full mixes with
+    percussive content — on an isolated vocal stem it is LOW CONFIDENCE and
+    flagged as such.
     """
-    print("  [6/8] Rhythm and onset analysis...")
+    print("  [6/10] Rhythm and onset analysis...")
 
     tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, hop_length=hop_length)
     tempo_val = float(tempo) if np.isscalar(tempo) else float(tempo[0])
@@ -466,113 +820,285 @@ def analyse_rhythm(y, sr, hop_length=512):
 
     return {
         "estimated_tempo_bpm": round(tempo_val, 1),
+        "tempo_confidence": "low (isolated vocal stem — beat tracking expects a full mix)" if is_isolated_stem else "medium",
         "total_onsets": len(onsets),
         "onsets_per_second": round(len(onsets) / duration, 2),
         **ioi_stats
     }
 
 
-def analyse_formants(y, sr, hop_length=512):
+def analyse_formants(wav_path, y, sr, f0, hop_length=512, formant_ceiling=5500.0):
     """
-    MODULE 7: FORMANT ESTIMATION (LPC)
-    ────────────────────────────────────
+    MODULE 7: FORMANT ANALYSIS
+    ────────────────────────────
     Formants are the resonant frequencies of the vocal tract.
-    F1 correlates with jaw height (low F1 = closed jaw, high F1 = open jaw).
-    F2 correlates with tongue position (low F2 = back vowel, high F2 = front vowel).
+    F1 correlates with jaw height; F2 with tongue position.
 
-    This uses Linear Predictive Coding (LPC) — an approximation.
-    For clinical-grade formant analysis, Praat software is recommended.
+    Primary method: Praat Burg algorithm (via parselmouth), sampled at the
+    centres of sustained voiced notes only, aggregated with median +/- IQR.
+
+    Fallback (parselmouth missing): LPC on audio DOWNSAMPLED to ~11 kHz with
+    order ~= sr/1000 + 2, voiced frames only. (LPC order 12 at 44.1 kHz — the
+    old approach — cannot resolve vocal-tract formants and produced noise.)
     """
-    print("  [7/8] Formant estimation (LPC)...")
+    print("  [7/10] Formant analysis...")
 
-    def get_formants(chunk, sr, order=12):
+    notes = segment_sustained_notes(f0, hop_length, sr)
+    if not notes:
+        return {"error": "No sustained voiced notes for formant analysis.", "method": "none"}
+
+    if PARSELMOUTH_AVAILABLE:
+        snd = parselmouth.Sound(wav_path)
+        formant = snd.to_formant_burg(
+            time_step=0.01,
+            max_number_of_formants=5,
+            maximum_formant=formant_ceiling,
+            window_length=0.025,
+            pre_emphasis_from=50.0,
+        )
+        samples = {1: [], 2: [], 3: []}
+        for note in notes:
+            # Sample a few points inside each sustained note
+            for frac in (0.3, 0.5, 0.7):
+                t = note["start_s"] + frac * note["duration_s"]
+                for i in (1, 2, 3):
+                    value = formant.get_value_at_time(i, t)
+                    if value is not None and math.isfinite(value):
+                        samples[i].append(float(value))
+        if not samples[1]:
+            return {"error": "Praat returned no valid formant samples.", "method": "praat_burg"}
+        result = {"method": "praat_burg_sustained_notes", "reliability": "high",
+                  "formant_ceiling_hz": formant_ceiling,
+                  "n_samples": len(samples[1])}
+        for i in (1, 2, 3):
+            if samples[i]:
+                arr = np.array(samples[i])
+                result[f"F{i}_median_hz"] = round(float(np.median(arr)), 1)
+                result[f"F{i}_iqr_hz"] = round(float(np.percentile(arr, 75) - np.percentile(arr, 25)), 1)
+        return result
+
+    # ── Fallback: correctly-scaled LPC ────────────────────────────────────
+    target_sr = 11025
+    y_ds = librosa.resample(y, orig_sr=sr, target_sr=target_sr)
+    order = int(target_sr / 1000) + 2
+
+    def get_formants(chunk):
         pre_emphasis = 0.97
         chunk_pe = np.append(chunk[0], chunk[1:] - pre_emphasis * chunk[:-1])
         try:
             a = librosa.lpc(chunk_pe, order=order)
             roots = np.roots(a)
-            roots = roots[np.imag(roots) >= 0]
+            roots = roots[np.imag(roots) >= 0.01]
             angles = np.arctan2(np.imag(roots), np.real(roots))
-            freqs = sorted(angles * (sr / (2 * np.pi)))
-            freqs = [f for f in freqs if 90 < f < sr / 2]
-            return freqs[:4] if len(freqs) >= 4 else None
+            freqs = sorted(angles * (target_sr / (2 * np.pi)))
+            freqs = [freq for freq in freqs if 200 < freq < target_sr / 2 - 200]
+            return freqs[:3] if len(freqs) >= 3 else None
         except Exception:
             return None
 
-    chunk_size = int(0.03 * sr)  # 30ms windows
-    mid_start = int(len(y) * 0.25)
-    mid_end = int(len(y) * 0.75)
+    chunk_size = int(0.03 * target_sr)
     samples = []
-
-    for start in range(mid_start, mid_end, chunk_size * 8):
-        chunk = y[start:start + chunk_size]
-        if len(chunk) == chunk_size and np.max(np.abs(chunk)) > 0.01:
-            f = get_formants(chunk, sr)
-            if f and len(f) >= 3:
-                samples.append(f[:3])
+    for note in notes:
+        start = int(note["start_s"] * target_sr)
+        end = int(note["end_s"] * target_sr)
+        for cstart in range(start, end - chunk_size, chunk_size * 2):
+            chunk = y_ds[cstart:cstart + chunk_size]
+            if len(chunk) == chunk_size and np.max(np.abs(chunk)) > 0.01:
+                freqs = get_formants(chunk)
+                if freqs:
+                    samples.append(freqs)
 
     if not samples:
-        return {"error": "Could not estimate formants. Audio may be too noisy."}
+        return {"error": "Could not estimate formants.", "method": "lpc_downsampled"}
 
     arr = np.array(samples)
     return {
-        "F1_mean_hz": round(float(np.mean(arr[:, 0])), 1),
-        "F1_std_hz": round(float(np.std(arr[:, 0])), 1),
-        "F2_mean_hz": round(float(np.mean(arr[:, 1])), 1),
-        "F2_std_hz": round(float(np.std(arr[:, 1])), 1),
-        "F3_mean_hz": round(float(np.mean(arr[:, 2])), 1),
-        "F3_std_hz": round(float(np.std(arr[:, 2])), 1),
+        "method": "lpc_downsampled_11kHz_voiced_only",
+        "reliability": "medium",
+        "note": "LPC fallback. Install praat-parselmouth for Burg-method formants.",
+        "F1_median_hz": round(float(np.median(arr[:, 0])), 1),
+        "F2_median_hz": round(float(np.median(arr[:, 1])), 1),
+        "F3_median_hz": round(float(np.median(arr[:, 2])), 1),
         "n_samples": len(samples),
-        "note": "LPC formant estimation. For clinical accuracy, use Praat."
     }
 
 
-def analyse_vibrato(y, sr, f0, hop_length=512):
+def analyse_vibrato(f0, sr, hop_length=512):
     """
-    MODULE 8: VIBRATO DETECTION
-    ─────────────────────────────
-    Vibrato is a periodic pitch modulation, typically in the 4-8 Hz range.
-    Detected by taking the FFT of the pitch contour and looking for peaks
-    in the vibrato frequency range.
+    MODULE 8: PER-NOTE VIBRATO ANALYSIS
+    ─────────────────────────────────────
+    Vibrato is a periodic pitch modulation, typically 4-8 Hz, on SUSTAINED
+    notes. Each note >= 0.5 s is analysed individually:
+
+      1. Convert the note's pitch contour to cents.
+      2. Remove the slow melodic trend (moving average) so only the
+         oscillation remains.
+      3. FFT the residual; a prominent peak in the vibrato band with a
+         musically plausible extent counts as vibrato.
+
+    (A single FFT over the whole song's contour — the old approach — mostly
+    measures the rate of note changes, not vibrato.)
+
+    Reports per-note rate/extent plus aggregate statistics. Professional
+    vibrato typically runs ~5-7 Hz at 20-150 cents extent with high
+    regularity.
     """
-    print("  [8/8] Vibrato detection...")
+    print("  [8/10] Vibrato analysis (per sustained note)...")
 
-    voiced_f0 = f0[~np.isnan(f0)]
-    if len(voiced_f0) < 50:
-        return {"error": "Insufficient data for vibrato analysis."}
+    pitch_sr = sr / hop_length
+    notes = [n for n in segment_sustained_notes(f0, hop_length, sr)
+             if n["duration_s"] >= VIBRATO_NOTE_MIN_S]
 
-    f0_interp = f0.copy()
-    nans = np.isnan(f0_interp)
-    if not np.all(nans):
-        f0_interp[nans] = np.interp(
-            np.flatnonzero(nans), np.flatnonzero(~nans), f0_interp[~nans]
+    if not notes:
+        return {
+            "error": f"No sustained notes >= {VIBRATO_NOTE_MIN_S}s — vibrato cannot be assessed.",
+            "n_notes_analysed": 0,
+        }
+
+    per_note = []
+    for note in notes:
+        contour = note["cents_contour"]
+        trend = moving_average(contour, int(0.35 * pitch_sr))
+        residual = contour - trend
+        windowed = residual * np.hanning(len(residual))
+        spectrum = np.abs(np.fft.rfft(windowed)) ** 2
+        freqs = np.fft.rfftfreq(len(windowed), d=1.0 / pitch_sr)
+
+        search = (freqs >= VIBRATO_SEARCH_MIN_HZ) & (freqs <= VIBRATO_SEARCH_MAX_HZ)
+        total = (freqs >= 0.5)
+        if not search.any() or spectrum[total].sum() <= 0:
+            continue
+
+        peak_idx = np.argmax(spectrum[search])
+        rate = float(freqs[search][peak_idx])
+        # Peak band power (peak bin +/- ~0.75 Hz) vs all modulation power
+        band = (freqs >= rate - 0.75) & (freqs <= rate + 0.75)
+        band_ratio = float(spectrum[band].sum() / spectrum[total].sum())
+        extent = float((np.percentile(residual, 97.5) - np.percentile(residual, 2.5)) / 2)
+
+        has_vibrato = (
+            VIBRATO_RATE_MIN_HZ <= rate <= VIBRATO_RATE_MAX_HZ
+            and band_ratio >= VIBRATO_MIN_BAND_RATIO
+            and VIBRATO_MIN_EXTENT_CENTS <= extent <= VIBRATO_MAX_EXTENT_CENTS
         )
-        f0_cents = 1200 * np.log2(f0_interp / np.mean(voiced_f0))
-        pitch_sr = sr / hop_length
-        fft_pitch = np.abs(np.fft.rfft(f0_cents - np.mean(f0_cents)))
-        fft_freqs = np.fft.rfftfreq(len(f0_cents), d=1.0 / pitch_sr)
+        per_note.append({
+            "start_s": round(note["start_s"], 2),
+            "duration_s": round(note["duration_s"], 2),
+            "note": hz_to_note_safe(note["median_hz"]),
+            "rate_hz": round(rate, 2),
+            "extent_cents": round(extent, 1),
+            "band_power_ratio": round(band_ratio, 3),
+            "has_vibrato": has_vibrato,
+        })
 
-        vibrato_mask = (fft_freqs >= 4) & (fft_freqs <= 8)
-        if np.any(vibrato_mask):
-            vib_power = float(np.max(fft_pitch[vibrato_mask]))
-            vib_freq = float(fft_freqs[vibrato_mask][np.argmax(fft_pitch[vibrato_mask])])
-            total_power = float(np.sum(fft_pitch))
-            return {
-                "dominant_rate_hz": round(vib_freq, 2),
-                "vibrato_power_ratio_pct": round(vib_power / total_power * 100, 3) if total_power > 0 else 0,
-                "classification": "Vibrato present" if vib_power / total_power > 0.01 else "Minimal vibrato"
-            }
+    if not per_note:
+        return {"error": "Vibrato analysis produced no valid notes.", "n_notes_analysed": 0}
 
-    return {"error": "Could not compute vibrato."}
+    vibrato_notes = [n for n in per_note if n["has_vibrato"]]
+    pct = len(vibrato_notes) / len(per_note) * 100
+
+    summary = {
+        "method": "per_note_fft_of_detrended_cents_contour",
+        "n_notes_analysed": len(per_note),
+        "n_notes_with_vibrato": len(vibrato_notes),
+        "pct_notes_with_vibrato": round(pct, 1),
+        "notes": per_note,
+    }
+    if vibrato_notes:
+        summary["median_rate_hz"] = round(float(np.median([n["rate_hz"] for n in vibrato_notes])), 2)
+        summary["median_extent_cents"] = round(float(np.median([n["extent_cents"] for n in vibrato_notes])), 1)
+        summary["median_regularity"] = round(float(np.median([n["band_power_ratio"] for n in vibrato_notes])), 3)
+    summary["classification"] = (
+        "Consistent vibrato" if pct >= 60 else
+        "Selective vibrato" if pct >= 25 else
+        "Minimal vibrato"
+    )
+    return summary
+
+
+def analyse_intonation(f0, sr, hop_length=512):
+    """
+    MODULE 9: INTONATION ANALYSIS
+    ───────────────────────────────
+    Measures how accurately sustained notes sit on the equal-tempered pitch
+    grid — the closest audio-only proxy for "singing in tune" without a
+    reference melody.
+
+      1. Each sustained note's median pitch -> cents deviation from the
+         nearest semitone.
+      2. A global tuning offset (median deviation) is removed first, so a
+         track tuned slightly off A440 (common on older records/tape) is
+         not penalised.
+      3. Also reports intra-note drift: how much the slow (vibrato-removed)
+         contour wanders within each note.
+
+    Professional reference: median absolute deviation under ~10 cents reads
+    as in tune; under ~5 cents is exceptional. The just-noticeable
+    difference for most listeners is roughly 10-25 cents in melodic context.
+    """
+    print("  [9/10] Intonation analysis...")
+
+    pitch_sr = sr / hop_length
+    notes = segment_sustained_notes(f0, hop_length, sr)
+    if len(notes) < 3:
+        return {"error": "Fewer than 3 sustained notes — intonation cannot be assessed.",
+                "n_notes": len(notes)}
+
+    # Deviation of each note's median pitch from the nearest semitone, in cents
+    raw_devs = []
+    for note in notes:
+        cents_abs = 1200.0 * np.log2(note["median_hz"] / 440.0)
+        dev = ((cents_abs + 50) % 100) - 50   # -> [-50, 50)
+        raw_devs.append(dev)
+    raw_devs = np.array(raw_devs)
+
+    tuning_offset = float(np.median(raw_devs))
+    devs = raw_devs - tuning_offset
+    # Re-wrap in case offset removal pushed values past +/-50
+    devs = ((devs + 50) % 100) - 50
+    abs_devs = np.abs(devs)
+
+    # Intra-note drift of the slow contour (vibrato excluded by smoothing)
+    drifts = []
+    for note in notes:
+        contour = note["cents_contour"]
+        slow = moving_average(contour, int(0.35 * pitch_sr))
+        drifts.append(float(np.percentile(slow, 95) - np.percentile(slow, 5)))
+
+    median_abs = float(np.median(abs_devs))
+    return {
+        "method": "sustained_note_deviation_from_equal_tempered_grid",
+        "n_notes": len(notes),
+        "tuning_offset_cents": round(tuning_offset, 1),
+        "median_abs_deviation_cents": round(median_abs, 1),
+        "p90_abs_deviation_cents": round(float(np.percentile(abs_devs, 90)), 1),
+        "pct_notes_within_10_cents": round(float(np.mean(abs_devs <= 10) * 100), 1),
+        "pct_notes_within_25_cents": round(float(np.mean(abs_devs <= 25) * 100), 1),
+        "median_intra_note_drift_cents": round(float(np.median(drifts)), 1),
+        "classification": (
+            "Exceptional accuracy" if median_abs <= 5 else
+            "Professional accuracy" if median_abs <= 10 else
+            "Good accuracy" if median_abs <= 20 else
+            "Inconsistent intonation" if median_abs <= 35 else
+            "Poor intonation (or unreliable pitch tracking — check capture quality)"
+        ),
+        "caveat": (
+            "Grid-deviation is a proxy: expressive slides, blue notes and "
+            "non-12-TET material register as deviation. Interpret alongside "
+            "the recording context."
+        ),
+    }
 
 
 def analyse_time_diagnostics(y, sr, f0, pitch_results, dynamics_results, resonance_results, hop_length=512):
     """
+    MODULE 10: TIME-BASED DIAGNOSTICS
     Summarises time-based diagnostics for Candi.
 
     These are supporting indicators for coaching, especially on karaoke/live-room
     recordings where backing track bleed and room noise can confuse F0 detection.
     """
+    print("  [10/10] Time diagnostics...")
     duration = librosa.get_duration(y=y, sr=sr)
     block_seconds = 10
     block_size = sr * block_seconds
@@ -648,6 +1174,345 @@ def analyse_time_diagnostics(y, sr, f0, pitch_results, dynamics_results, resonan
         "energy_blocks_10s": energy_blocks,
         "problem_zones": problem_zones,
         "environment_risk": environment_risk,
+    }
+
+
+# =============================================================================
+# DETERMINISTIC TECHNICAL SCORE
+# =============================================================================
+
+# Default location of the professional-reference calibration file, built by
+# tools/build_calibration.py from analyses of pro vocal takes.
+DEFAULT_CALIBRATION_PATH = "calibration/pro_reference.json"
+
+# Minimum number of reference values before a calibrated anchor is trusted
+CALIBRATION_MIN_REFS = 5
+
+
+def load_calibration(path):
+    """
+    Loads a pro-reference calibration file (see tools/build_calibration.py).
+    Returns the parsed dict, or None if the file is absent/invalid.
+    """
+    if not path:
+        return None
+    # A relative path may refer to the current working directory (ad-hoc
+    # runs) or to the repo root (committed default calibration) — try both.
+    candidates = [path, resolve_repo_path(path)] if not os.path.isabs(path) else [path]
+    resolved = next((c for c in candidates if os.path.isfile(c)), None)
+    if resolved is None:
+        return None
+    try:
+        with open(resolved) as f:
+            calibration = json.load(f)
+        if calibration.get("version") != "pro_reference_v1":
+            print(f"  WARNING: unrecognised calibration version in {resolved} — ignoring.")
+            return None
+        calibration["_path"] = resolved
+        return calibration
+    except Exception as exc:
+        print(f"  WARNING: could not load calibration {resolved}: {exc}")
+        return None
+
+
+def _calib_metric(calibration, key):
+    """Returns the reference stats for a metric if enough references exist."""
+    if not calibration:
+        return None
+    stats = calibration.get("metrics", {}).get(key)
+    if stats and stats.get("n", 0) >= CALIBRATION_MIN_REFS:
+        return stats
+    return None
+
+
+def _reference_percentile(value, stats, lower_is_better):
+    """Share of professional references this value equals or beats (0-100)."""
+    values = stats.get("values_sorted", [])
+    if not values:
+        return None
+    values = np.asarray(values, dtype=float)
+    beats = np.mean(value <= values) if lower_is_better else np.mean(value >= values)
+    return round(float(beats) * 100, 1)
+
+
+def _scale(value, best, worst):
+    """
+    Maps value linearly to a 0-10 score where `best` (or better) = 10 and
+    `worst` (or beyond) = 0. Works whichever direction is "better".
+    """
+    if value is None:
+        return None
+    if best == worst:
+        return 10.0
+    frac = (value - worst) / (best - worst)
+    return round(float(np.clip(frac, 0.0, 1.0)) * 10, 2)
+
+
+def _peak_scale(value, ideal_low, ideal_high, zero_low, zero_high):
+    """10 inside [ideal_low, ideal_high], falling linearly to 0 at the zero bounds."""
+    if value is None:
+        return None
+    if ideal_low <= value <= ideal_high:
+        return 10.0
+    if value < ideal_low:
+        return _scale(value, ideal_low, zero_low)
+    return _scale(value, ideal_high, zero_high)
+
+
+def _linear_component(value, key, calibration, default_best, worst, unit, lower_is_better=True):
+    """
+    Builds a linear component score. Without calibration, `default_best`
+    earns 10. With calibration, "10" is re-anchored to the professional
+    reference distribution (p25 for lower-is-better metrics, p75 for
+    higher-is-better), and the value's percentile vs the references is
+    reported. The theoretical `worst` (score 0) anchor is never softened.
+    """
+    stats = _calib_metric(calibration, key)
+    if stats:
+        best = stats["p25"] if lower_is_better else stats["p75"]
+        pct = _reference_percentile(value, stats, lower_is_better)
+        formula = (f"10 at pro-reference {'p25' if lower_is_better else 'p75'} "
+                   f"({best}{unit}), 0 at {worst}{unit}, linear")
+        basis = f"= {value}{unit} — matches or beats {pct}% of {stats['n']} pro references"
+        return _scale(value, best, worst), formula, basis
+    formula = f"10 at {default_best}{unit} or better, 0 at {worst}{unit}, linear (uncalibrated anchors)"
+    return _scale(value, default_best, worst), formula, f"= {value}{unit}"
+
+
+def compute_technical_score(results, calibration=None):
+    """
+    DETERMINISTIC TECHNICAL SCORE — RUBRIC v2
+    ───────────────────────────────────────────
+    A transparent, formula-based 0-10 score over the measured metrics.
+    The same audio always yields the same score; no component is generated
+    or adjusted by a language model. Every component reports its input
+    value, formula, and weight so the number can be audited.
+
+    Calibration: when a professional-reference file exists (built by
+    tools/build_calibration.py from analyses of pro vocal takes), the
+    "10" anchors come from the pro distribution itself — a singer matching
+    the professional pack scores 9-10 because that is measurably where the
+    pros sit. Without calibration, documented theoretical anchors apply.
+
+    v2 changes vs v1 (fairness to real-world material):
+      * vibrato_control is style-aware: consistent deliberate straight tone
+        scores via note-steadiness instead of being penalised for lacking
+        vibrato (presence requirement relaxed 70% -> 40% on the vibrato path).
+      * dynamics_expression takes the best of phrase-level shaping vs
+        effective range: mastered/compressed stems no longer punish the
+        singer for the mixing engineer's compressor.
+      * phrase_control anchor relaxed (2.5 s median = 10) — short pop
+        phrasing is a style, not a breath defect.
+
+    Components (weights renormalised over whichever are measurable):
+      intonation_accuracy  25%  median |cents| from tuning-corrected grid
+      pitch_stability      15%  median intra-note drift (cents)
+      voice_quality        20%  Praat jitter/shimmer/HNR on sustained notes
+      vibrato_control      15%  vibrato quality OR straight-tone steadiness
+      dynamics_expression  15%  phrase-level shaping / effective range
+      phrase_control       10%  median phrase duration (breath management)
+
+    IMPORTANT SCOPE NOTE: this measures technical execution observable in
+    the audio. It cannot measure artistry, emotional delivery, lyric
+    interpretation, or style-appropriateness — those are inherently human
+    judgements and are NOT folded into this number.
+    """
+    components = {}
+
+    intonation = results.get("intonation", {})
+    drift = intonation.get("median_intra_note_drift_cents")
+    if intonation.get("median_abs_deviation_cents") is not None:
+        value = intonation["median_abs_deviation_cents"]
+        score, formula, basis = _linear_component(
+            value, "intonation_median_abs_deviation_cents", calibration,
+            default_best=5, worst=45, unit=" cents")
+        components["intonation_accuracy"] = {
+            "weight": 0.25,
+            "input": f"median abs grid deviation {basis}",
+            "formula": formula,
+            "score": score,
+        }
+        if drift is not None:
+            score, formula, basis = _linear_component(
+                drift, "intonation_median_intra_note_drift_cents", calibration,
+                default_best=10, worst=80, unit=" cents")
+            components["pitch_stability"] = {
+                "weight": 0.15,
+                "input": f"median intra-note drift {basis}",
+                "formula": formula,
+                "score": score,
+            }
+
+    vq = results.get("voice_quality", {})
+    if vq.get("method", "").startswith("praat"):
+        subscores = []
+        detail = []
+        jitter = vq.get("jitter_local_percent_median")
+        if jitter is not None:
+            score, _, basis = _linear_component(
+                jitter, "voice_quality_jitter_local_percent_median", calibration,
+                default_best=0.3, worst=2.5, unit="%")
+            subscores.append(score)
+            detail.append(f"jitter {basis}")
+        shimmer = vq.get("shimmer_local_percent_median")
+        if shimmer is not None:
+            score, _, basis = _linear_component(
+                shimmer, "voice_quality_shimmer_local_percent_median", calibration,
+                default_best=2.5, worst=12.0, unit="%")
+            subscores.append(score)
+            detail.append(f"shimmer {basis}")
+        hnr = vq.get("hnr_db_median")
+        if hnr is not None:
+            score, _, basis = _linear_component(
+                hnr, "voice_quality_hnr_db_median", calibration,
+                default_best=20.0, worst=5.0, unit=" dB", lower_is_better=False)
+            subscores.append(score)
+            detail.append(f"HNR {basis}")
+        subscores = [s for s in subscores if s is not None]
+        if subscores:
+            components["voice_quality"] = {
+                "weight": 0.20,
+                "input": "; ".join(detail),
+                "formula": "mean of jitter/shimmer/HNR sub-scores (Praat, per sustained note)",
+                "score": round(float(np.mean(subscores)), 2),
+            }
+
+    vib = results.get("vibrato", {})
+    if vib.get("n_notes_analysed", 0) >= 3:
+        pct = vib.get("pct_notes_with_vibrato", 0)
+
+        # Path A — vibrato-led singing: quality of the vibrato itself
+        vib_subscores = [_scale(pct, 40, 0)]
+        vib_detail = [f"{pct}% of long notes carry vibrato (10 at >=40%)"]
+        if vib.get("median_rate_hz") is not None:
+            rate_stats = _calib_metric(calibration, "vibrato_median_rate_hz")
+            extent_stats = _calib_metric(calibration, "vibrato_median_extent_cents")
+            rate_lo, rate_hi = (rate_stats["p25"], rate_stats["p75"]) if rate_stats else (5.0, 7.0)
+            ext_lo, ext_hi = (extent_stats["p25"], extent_stats["p75"]) if extent_stats else (25.0, 130.0)
+            vib_subscores.append(_peak_scale(vib["median_rate_hz"], rate_lo, rate_hi, 3.0, 9.0))
+            vib_subscores.append(_peak_scale(vib["median_extent_cents"], ext_lo, ext_hi, 5.0, 300.0))
+            vib_detail.append(f"rate {vib['median_rate_hz']} Hz (ideal {rate_lo}-{rate_hi})")
+            vib_detail.append(f"extent {vib['median_extent_cents']} cents (ideal {ext_lo}-{ext_hi})")
+        vibrato_path = float(np.mean([s for s in vib_subscores if s is not None]))
+
+        # Path B — deliberate straight tone: steadiness of held notes.
+        # Consistent straight tone is a valid professional style and must
+        # not be scored as "missing vibrato".
+        candidates = [(vibrato_path, "vibrato-led")]
+        if drift is not None:
+            candidates.append((_scale(drift, 12, 80), "straight-tone"))
+            vib_detail.append(f"intra-note drift {drift} cents (straight-tone path)")
+        best_score, style = max(candidates, key=lambda c: c[0])
+        components["vibrato_control"] = {
+            "weight": 0.15,
+            "input": "; ".join(vib_detail),
+            "formula": "best of vibrato-quality path and straight-tone steadiness path (consistent straight tone is a valid professional style)",
+            "style_detected": style,
+            "score": round(best_score, 2),
+        }
+
+    dyn = results.get("dynamics", {})
+    dyn_candidates = []
+    dyn_detail = []
+    phrase_spread = dyn.get("phrase_level_spread_db")
+    if phrase_spread is not None:
+        spread_stats = _calib_metric(calibration, "dynamics_phrase_level_spread_db")
+        lo, hi = (spread_stats["p25"], spread_stats["p75"]) if spread_stats else (3.0, 12.0)
+        dyn_candidates.append(_peak_scale(phrase_spread, lo, hi, 0.5, 25.0))
+        dyn_detail.append(f"phrase-level spread {phrase_spread} dB (ideal {lo}-{hi})")
+    eff = dyn.get("effective_dynamic_range_db")
+    if eff is not None:
+        eff_stats = _calib_metric(calibration, "dynamics_effective_dynamic_range_db")
+        lo, hi = (eff_stats["p25"], eff_stats["p75"]) if eff_stats else (6.0, 22.0)
+        dyn_candidates.append(_peak_scale(eff, lo, hi, 2.0, 35.0))
+        dyn_detail.append(f"effective range {eff} dB (ideal {lo}-{hi})")
+    dyn_candidates = [c for c in dyn_candidates if c is not None]
+    if dyn_candidates:
+        components["dynamics_expression"] = {
+            "weight": 0.15,
+            "input": "; ".join(dyn_detail),
+            "formula": "best of phrase-level shaping and effective range (mastered/compressed stems limit raw range through no fault of the singer)",
+            "score": round(float(max(dyn_candidates)), 2),
+        }
+
+    phrases = results.get("phrasing", {})
+    if phrases.get("median_phrase_s") is not None:
+        value = phrases["median_phrase_s"]
+        score, formula, basis = _linear_component(
+            value, "phrasing_median_phrase_s", calibration,
+            default_best=2.5, worst=0.5, unit=" s", lower_is_better=False)
+        components["phrase_control"] = {
+            "weight": 0.10,
+            "input": f"median phrase length {basis}",
+            "formula": formula,
+            "score": score,
+        }
+
+    scored = {k: v for k, v in components.items() if v.get("score") is not None}
+    if not scored:
+        return {"error": "No components could be scored.", "components": components}
+
+    total_weight = sum(v["weight"] for v in scored.values())
+    overall = sum(v["score"] * v["weight"] for v in scored.values()) / total_weight
+
+    env = results.get("time_diagnostics", {}).get("environment_risk", {})
+    capture_risk = env.get("karaoke_or_room_contamination_risk") == "elevated"
+    n_notes = results.get("intonation", {}).get("n_notes", 0)
+    praat_used = results.get("voice_quality", {}).get("method", "").startswith("praat")
+    confidence = (
+        "high" if praat_used and n_notes >= 8 and not capture_risk else
+        "medium" if n_notes >= 4 else
+        "low"
+    )
+
+    calibrated = calibration is not None
+    provenance = (
+        "deterministic_rubric_v2 — computed from measured audio features; "
+        "identical audio yields an identical score; no LLM involvement; "
+        + ("anchored to professional reference distribution" if calibrated else
+           "theoretical anchors (no pro calibration file found)")
+    )
+
+    return {
+        "overall_score_0_to_10": round(float(overall), 1),
+        "provenance": provenance,
+        "calibration": {
+            "active": calibrated,
+            "file": calibration.get("_path") if calibrated else None,
+            "n_references": calibration.get("n_references") if calibrated else 0,
+            "note": None if calibrated else (
+                "Run tools/build_calibration.py over analyses of 15-20 professional "
+                "reference takes to anchor 9-10 to the professional distribution."
+            ),
+        },
+        "confidence": confidence,
+        "confidence_basis": {
+            "praat_metrics_available": praat_used,
+            "n_sustained_notes": n_notes,
+            "capture_risk_elevated": capture_risk,
+        },
+        "components": components,
+        "weights_note": "Weights renormalised over measurable components.",
+        "scope_note": (
+            "Technical execution only. Artistry, emotion, interpretation and "
+            "style-appropriateness are human judgements and are not part of "
+            "this number. Any 'listener impact' figure elsewhere in a report "
+            "is a subjective estimate, not a measurement."
+        ),
+    }
+
+
+def analyse_phrasing(f0, sr, hop_length=512):
+    """Breath/phrase-length statistics from voiced-run grouping."""
+    phrases = segment_phrases(f0, hop_length, sr)
+    if not phrases:
+        return {"error": "No phrases detected."}
+    durations = [p["duration_s"] for p in phrases]
+    return {
+        "n_phrases": len(phrases),
+        "median_phrase_s": round(float(np.median(durations)), 2),
+        "max_phrase_s": round(float(np.max(durations)), 2),
+        "method": f"voiced runs merged across gaps < {PHRASE_GAP_BRIDGE_S}s",
     }
 
 
@@ -740,31 +1605,42 @@ def generate_diagnostic_flags(results):
         })
         archetype_scores["Volume Chaser"] += 2
 
-    # ─── PITCH STABILITY FLAGS ────────────────────────────────────────────
-    pitch = results.get("pitch", {})
-    sections = pitch.get("sections", [])
-    unstable_sections = [s for s in sections if s.get("cv_percent", 0) > 30]
-    if len(unstable_sections) > len(sections) * 0.4:
+    # ─── INTONATION FLAGS ─────────────────────────────────────────────────
+    intonation = results.get("intonation", {})
+    med_dev = intonation.get("median_abs_deviation_cents")
+    if med_dev is not None and med_dev > 20:
         flags.append({
             "category": "Pitch",
-            "flag": "High pitch instability in upper register",
-            "value": f"{len(unstable_sections)}/{len(sections)} sections with CV > 30%",
-            "interpretation": "Pitch drift in upper-mid and upper register passages.",
-            "likely_cause": "TA-dominant registration pulling chest mass too high. Breath pressure decay.",
-            "intervention": "Fry to Head / Lip Trill"
+            "flag": "Sustained notes landing off the pitch grid",
+            "value": f"median {med_dev} cents from nearest semitone (tuning-corrected)",
+            "interpretation": "Notes are consistently settling off-centre.",
+            "likely_cause": "Ear-to-onset calibration, or breath pressure bending sustained pitch.",
+            "intervention": "Slow sirens onto held target notes with drone reference"
         })
         archetype_scores["Pitch Slider"] += 2
 
-    # ─── PERTURBATION FLAGS ───────────────────────────────────────────────
-    pert = results.get("perturbation", {})
-    jitter = pert.get("jitter_local_percent", 0)
-    if jitter > JITTER_THRESHOLD_PCT:
-        hnr = results.get("hnr", {}).get("hnr_db", 20)
-        if hnr < 10:
+    drift = intonation.get("median_intra_note_drift_cents")
+    if drift is not None and drift > 40:
+        flags.append({
+            "category": "Pitch",
+            "flag": "High intra-note pitch drift",
+            "value": f"median {drift} cents drift within sustained notes",
+            "interpretation": "Held notes wander rather than sitting still.",
+            "likely_cause": "Breath pressure decay or TA-dominant registration pulling pitch.",
+            "intervention": "Fry to Head / Lip Trill / Messa di Voce on single pitches"
+        })
+        archetype_scores["Pitch Slider"] += 1
+
+    # ─── VOICE QUALITY FLAGS ──────────────────────────────────────────────
+    vq = results.get("voice_quality", {})
+    jitter = vq.get("jitter_local_percent_median")
+    hnr = vq.get("hnr_db_median")
+    if jitter is not None and jitter > 1.5:
+        if hnr is not None and hnr < 8:
             flags.append({
                 "category": "Vocal Fold Behaviour",
-                "flag": "Elevated jitter + low HNR",
-                "value": f"Jitter: {jitter}% | HNR: {hnr} dB",
+                "flag": "Elevated jitter + low HNR on sustained notes",
+                "value": f"Jitter: {jitter}% | HNR: {hnr} dB (Praat, per-note median)",
                 "interpretation": "Compression-led distortion (controlled grit) or breathiness.",
                 "likely_cause": "Intentional supraglottic compression. Confirm against context.",
                 "intervention": "Bratty Nay (if resonance is dark) / Lip Trill (if breath is leaky)"
@@ -773,8 +1649,8 @@ def generate_diagnostic_flags(results):
         else:
             flags.append({
                 "category": "Vocal Fold Behaviour",
-                "flag": "Elevated jitter with moderate HNR",
-                "value": f"Jitter: {jitter}%",
+                "flag": "Elevated jitter on sustained notes",
+                "value": f"Jitter: {jitter}% (Praat, per-note median)",
                 "interpretation": "Some fold irregularity. May indicate fatigue or onset instability.",
                 "likely_cause": "Inconsistent breath onset or sub-optimal fold closure.",
                 "intervention": "Mum 1-5-3-1 (forward mix onset)"
@@ -787,7 +1663,7 @@ def generate_diagnostic_flags(results):
         flags.append({
             "category": "Resonance",
             "flag": "Low spectral centroid — dark/swallowed resonance",
-            "value": f"{centroid} Hz",
+            "value": f"{centroid} Hz (active frames only)",
             "interpretation": "Tone is dark and lacks projection.",
             "likely_cause": "Depressed larynx or retracted tongue root.",
             "intervention": "Bratty Nay / NG Siren"
@@ -797,7 +1673,7 @@ def generate_diagnostic_flags(results):
         flags.append({
             "category": "Resonance",
             "flag": "High spectral centroid — bright/forward resonance",
-            "value": f"{centroid} Hz",
+            "value": f"{centroid} Hz (active frames only)",
             "interpretation": "Strong forward placement. Good projection and cut.",
             "likely_cause": "Aryepiglottic twang / raised larynx / wide oral cavity.",
             "intervention": "Maintain — no correction needed. Monitor for laryngeal elevation."
@@ -822,13 +1698,15 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
     """
     now = datetime.now().strftime("%d %B %Y")
     pitch = results.get("pitch", {})
-    pert = results.get("perturbation", {})
-    hnr = results.get("hnr", {})
+    vq = results.get("voice_quality", {})
+    harm = results.get("harmonic_balance", {})
     res = results.get("resonance", {})
     dyn = results.get("dynamics", {})
     rhythm = results.get("rhythm", {})
     formants = results.get("formants", {})
     vibrato = results.get("vibrato", {})
+    intonation = results.get("intonation", {})
+    score = results.get("technical_score", {})
     stem_info = results.get("stem_separation")
     visual_info = results.get("visual_diagnostics")
 
@@ -872,6 +1750,36 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
             f"| Caution | {visual_info.get('note', 'Supporting diagnostics only.')} |",
         ]
 
+    # ── Technical score ──────────────────────────────────────────────────
+    if score and not score.get("error"):
+        calib = score.get("calibration", {})
+        calib_line = (
+            f"Calibrated against {calib.get('n_references')} professional references."
+            if calib.get("active")
+            else "Uncalibrated (theoretical anchors) — build a pro-reference calibration with tools/build_calibration.py."
+        )
+        lines += [
+            f"",
+            f"---",
+            f"",
+            f"## TECHNICAL SCORE (DETERMINISTIC)",
+            f"",
+            f"> **{score.get('overall_score_0_to_10', 'N/A')} / 10** — confidence: {score.get('confidence', 'N/A')}",
+            f">",
+            f"> {calib_line}",
+            f">",
+            f"> {score.get('scope_note', '')}",
+            f"",
+            f"| Component | Score | Weight | Basis |",
+            f"|---|---|---|---|",
+        ]
+        for name, comp in score.get("components", {}).items():
+            lines.append(
+                f"| {name.replace('_', ' ').title()} | {comp.get('score', 'N/A')} | {comp.get('weight')} | {comp.get('input', '')} |"
+            )
+        lines.append("")
+        lines.append(f"*Provenance: {score.get('provenance', '')}*")
+
     lines += [
         f"",
         f"---",
@@ -899,31 +1807,73 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"|---|---|",
         f"| Mean Pitch | {pitch.get('mean_hz', 'N/A')} Hz ({pitch.get('mean_note', 'N/A')}) |",
         f"| Median Pitch | {pitch.get('median_hz', 'N/A')} Hz ({pitch.get('median_note', 'N/A')}) |",
-        f"| Pitch Range | {pitch.get('min_note', 'N/A')} – {pitch.get('max_note', 'N/A')} ({pitch.get('range_semitones', 'N/A')} semitones) |",
+        f"| Robust Pitch Range | {pitch.get('robust_min_note', 'N/A')} – {pitch.get('robust_max_note', 'N/A')} ({pitch.get('range_semitones', 'N/A')} semitones, 2.5th–97.5th pct) |",
+        f"| Extreme Frames | {pitch.get('min_note', 'N/A')} – {pitch.get('max_note', 'N/A')} ({pitch.get('full_range_semitones', 'N/A')} semitones, may include tracker errors) |",
         f"| Voiced Frames | {pitch.get('voiced_percentage', 'N/A')}% |",
-        f"| Std Dev | {pitch.get('std_hz', 'N/A')} Hz |",
         f"",
         f"---",
         f"",
-        f"## VOCAL FOLD BEHAVIOUR",
+        f"## INTONATION (sustained notes vs pitch grid)",
         f"",
-        f"| Metric | Value | Clinical Threshold |",
+        f"| Metric | Value |",
+        f"|---|---|",
+        f"| Sustained notes analysed | {intonation.get('n_notes', 'N/A')} |",
+        f"| Tuning offset (removed) | {intonation.get('tuning_offset_cents', 'N/A')} cents |",
+        f"| Median abs deviation | {intonation.get('median_abs_deviation_cents', 'N/A')} cents |",
+        f"| Notes within ±10 cents | {intonation.get('pct_notes_within_10_cents', 'N/A')}% |",
+        f"| Notes within ±25 cents | {intonation.get('pct_notes_within_25_cents', 'N/A')}% |",
+        f"| Intra-note drift (median) | {intonation.get('median_intra_note_drift_cents', 'N/A')} cents |",
+        f"| Classification | **{intonation.get('classification', 'N/A')}** |",
+        f"",
+        f"*{intonation.get('caveat', '')}*",
+        f"",
+        f"---",
+        f"",
+        f"## VOICE QUALITY (Praat, per sustained note)",
+        f"",
+        f"| Metric | Value | Method |",
         f"|---|---|---|",
-        f"| Jitter (Local) | {pert.get('jitter_local_percent', 'N/A')}% | < {JITTER_THRESHOLD_PCT}% |",
-        f"| Jitter (RAP) | {pert.get('jitter_rap_percent', 'N/A')}% | < 0.68% |",
-        f"| HNR | {hnr.get('hnr_db', 'N/A')} dB | > {HNR_CLEAN_THRESHOLD_DB} dB (clean) |",
-        f"| Classification | {hnr.get('classification', 'N/A')} | — |",
+        f"| Jitter (local, median) | {vq.get('jitter_local_percent_median', 'N/A')}% | {vq.get('method', 'N/A')} |",
+        f"| Shimmer (local, median) | {vq.get('shimmer_local_percent_median', 'N/A')}% | reliability: {vq.get('reliability', 'N/A')} |",
+        f"| HNR (median) | {vq.get('hnr_db_median', 'N/A')} dB | {vq.get('n_notes_measured', 'N/A')} notes measured |",
+        f"| Interpretation | {vq.get('interpretation', 'N/A')} | — |",
+        f"",
+        f"*Speech-pathology thresholds (jitter {JITTER_THRESHOLD_PCT}%, shimmer {SHIMMER_THRESHOLD_PCT}%) describe sustained spoken vowels; sung notes with vibrato naturally run higher.*",
         f"",
         f"---",
         f"",
-        f"## RESONANCE",
+        f"## VIBRATO (per sustained note ≥ {VIBRATO_NOTE_MIN_S}s)",
+        f"",
+        f"| Metric | Value |",
+        f"|---|---|",
+        f"| Long notes analysed | {vibrato.get('n_notes_analysed', 'N/A')} |",
+        f"| Notes with vibrato | {vibrato.get('n_notes_with_vibrato', 'N/A')} ({vibrato.get('pct_notes_with_vibrato', 'N/A')}%) |",
+        f"| Median rate | {vibrato.get('median_rate_hz', 'N/A')} Hz |",
+        f"| Median extent | {vibrato.get('median_extent_cents', 'N/A')} cents |",
+        f"| Classification | **{vibrato.get('classification', 'N/A')}** |",
+        f"",
+        f"---",
+        f"",
+        f"## RESONANCE (active frames only)",
         f"",
         f"| Metric | Value |",
         f"|---|---|",
         f"| Spectral Centroid (Mean) | {res.get('spectral_centroid_mean_hz', 'N/A')} Hz |",
         f"| Spectral Rolloff (85%) | {res.get('spectral_rolloff_85_mean_hz', 'N/A')} Hz |",
         f"| Spectral Flatness | {res.get('spectral_flatness_mean', 'N/A')} (0=tonal, 1=noise) |",
+        f"| Active frames | {res.get('active_frame_percentage', 'N/A')}% |",
         f"| Classification | **{res.get('resonance_classification', 'N/A')}** |",
+        f"",
+        f"---",
+        f"",
+        f"## FORMANTS",
+        f"",
+        f"| Metric | Value |",
+        f"|---|---|",
+        f"| F1 (median) | {formants.get('F1_median_hz', 'N/A')} Hz |",
+        f"| F2 (median) | {formants.get('F2_median_hz', 'N/A')} Hz |",
+        f"| F3 (median) | {formants.get('F3_median_hz', 'N/A')} Hz |",
+        f"| Method | {formants.get('method', 'N/A')} (reliability: {formants.get('reliability', 'N/A')}) |",
         f"",
         f"---",
         f"",
@@ -931,8 +1881,9 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"",
         f"| Metric | Value |",
         f"|---|---|",
-        f"| Mean RMS Energy | {dyn.get('mean_rms_db', 'N/A')} dB |",
+        f"| Mean RMS Energy | {dyn.get('mean_rms_db', 'N/A')} dB (relative to file peak) |",
         f"| Effective Dynamic Range (P10–P90) | {dyn.get('effective_dynamic_range_db', 'N/A')} dB |",
+        f"| Phrase-level spread | {dyn.get('phrase_level_spread_db', 'N/A')} dB |",
         f"| Full Dynamic Range | {dyn.get('full_dynamic_range_db', 'N/A')} dB |",
         f"",
         f"---",
@@ -941,9 +1892,18 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"",
         f"| Metric | Value |",
         f"|---|---|",
-        f"| Estimated Tempo | {rhythm.get('estimated_tempo_bpm', 'N/A')} BPM |",
+        f"| Estimated Tempo | {rhythm.get('estimated_tempo_bpm', 'N/A')} BPM (confidence: {rhythm.get('tempo_confidence', 'N/A')}) |",
         f"| Onset Rate | {rhythm.get('onsets_per_second', 'N/A')} onsets/sec |",
         f"| Rhythmic Regularity | {rhythm.get('rhythmic_regularity', 'N/A')} (0=irregular, 1=metronomic) |",
+        f"",
+        f"---",
+        f"",
+        f"## HARMONIC BALANCE (whole-file texture — not clinical HNR)",
+        f"",
+        f"| Metric | Value |",
+        f"|---|---|",
+        f"| Harmonic/residual ratio | {harm.get('harmonic_residual_db', 'N/A')} dB |",
+        f"| Note | {harm.get('note', '')} |",
         f"",
         f"---",
         f"",
@@ -970,6 +1930,7 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"---",
         f"",
         f"*VOXAI Diagnostic Engine — Transformation over validation.*",
+        f"*All scores in this report are deterministic measurements or documented formulas — never model-generated estimates.*",
     ]
 
     with open(output_path, 'w') as f:
@@ -1001,6 +1962,18 @@ def main():
         default="tools/stems/batch_stems.sh",
         help="Path to stem separation helper script (relative to repo or absolute).",
     )
+    parser.add_argument(
+        "--formant-ceiling",
+        type=float,
+        default=5500.0,
+        help="Praat formant ceiling in Hz (5000 typical for adult male, 5500 for female).",
+    )
+    parser.add_argument(
+        "--calibration",
+        default=DEFAULT_CALIBRATION_PATH,
+        help="Path to pro-reference calibration JSON (built by tools/build_calibration.py). "
+             "Pass 'none' to force theoretical anchors.",
+    )
     args = parser.parse_args()
 
     if not os.path.exists(args.input_file):
@@ -1019,6 +1992,12 @@ def main():
     print(f"\n{'='*60}")
     print(f"  VOXAI Analysis: {args.name} — {os.path.basename(args.input_file)}")
     print(f"{'='*60}\n")
+
+    if not PARSELMOUTH_AVAILABLE:
+        print("  WARNING: praat-parselmouth is not installed.")
+        print("  Voice quality (jitter/shimmer/HNR) and formants will run in")
+        print("  reduced-reliability fallback mode. Install with:")
+        print("      pip install praat-parselmouth\n")
 
     analysis_input_path = args.input_file
     stem_metadata = None
@@ -1049,7 +2028,11 @@ def main():
         "analysis_input_file": os.path.basename(analysis_input_path),
         "artist_name": args.name,
         "duration_seconds": round(duration, 2),
-        "sample_rate": sr
+        "sample_rate": sr,
+        "engine": {
+            "parselmouth_available": PARSELMOUTH_AVAILABLE,
+            "measurement_policy": "voice-quality metrics restricted to sustained voiced notes; deterministic scoring rubric v1",
+        },
     }
 
     if stem_metadata:
@@ -1058,20 +2041,24 @@ def main():
     # Stage 3: Run all analysis modules
     print("Running analysis pipeline...")
     pitch_results = analyse_pitch(y, sr)
-    raw_f0 = pitch_results.pop("raw_f0", None)  # Extract raw F0 for perturbation
+    raw_f0 = pitch_results.pop("raw_f0", None)  # Extract raw F0 for segment analysis
     results["pitch"] = pitch_results
 
     if raw_f0 is not None:
-        results["perturbation"] = analyse_perturbation(raw_f0)
+        results["voice_quality"] = analyse_voice_quality(wav_path, raw_f0, sr)
 
-    results["hnr"] = analyse_hnr(y)
+    results["harmonic_balance"] = analyse_harmonic_balance(y)
     results["resonance"] = analyse_resonance(y, sr)
-    results["dynamics"] = analyse_dynamics(y, sr)
-    results["rhythm"] = analyse_rhythm(y, sr)
-    results["formants"] = analyse_formants(y, sr)
+    results["dynamics"] = analyse_dynamics(y, sr, f0=raw_f0)
+    results["rhythm"] = analyse_rhythm(y, sr, is_isolated_stem=bool(stem_metadata))
 
     if raw_f0 is not None:
-        results["vibrato"] = analyse_vibrato(y, sr, raw_f0)
+        results["formants"] = analyse_formants(
+            wav_path, y, sr, raw_f0, formant_ceiling=args.formant_ceiling
+        )
+        results["vibrato"] = analyse_vibrato(raw_f0, sr)
+        results["intonation"] = analyse_intonation(raw_f0, sr)
+        results["phrasing"] = analyse_phrasing(raw_f0, sr)
         results["time_diagnostics"] = analyse_time_diagnostics(
             y,
             sr,
@@ -1098,7 +2085,20 @@ def main():
             "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces.",
         }
 
-    # Stage 4: Diagnostic logic
+    # Stage 4: Deterministic technical score
+    print("\nComputing deterministic technical score...")
+    calibration = None if args.calibration.lower() == "none" else load_calibration(args.calibration)
+    if calibration:
+        print(f"  Calibration: {calibration['_path']} ({calibration.get('n_references')} pro references)")
+    else:
+        print("  Calibration: none — using theoretical anchors. "
+              "Build one with tools/build_calibration.py for pro-anchored scoring.")
+    results["technical_score"] = compute_technical_score(results, calibration=calibration)
+    if "overall_score_0_to_10" in results["technical_score"]:
+        print(f"  Technical score: {results['technical_score']['overall_score_0_to_10']}/10 "
+              f"(confidence: {results['technical_score']['confidence']})")
+
+    # Stage 5: Diagnostic logic
     print("\nRunning diagnostic logic engine...")
     flags, archetype = generate_diagnostic_flags(results)
     results["archetype"] = archetype
@@ -1106,12 +2106,12 @@ def main():
     print(f"  Archetype: {archetype}")
     print(f"  Flags raised: {len(flags)}")
 
-    # Stage 5: Save JSON
+    # Stage 6: Save JSON
     with open(json_output, 'w') as f:
         json.dump(results, f, indent=2, default=str)
     print(f"\n  Raw data saved: {json_output}")
 
-    # Stage 6: Generate Markdown report
+    # Stage 7: Generate Markdown report
     print("\nGenerating diagnostic report...")
     generate_markdown_report(results, flags, archetype, args.name, os.path.basename(args.input_file), report_output)
 
