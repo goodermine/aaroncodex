@@ -1,7 +1,7 @@
 {
   "version": "pro_reference_v1",
-  "created": "2026-07-11T15:19:04",
-  "n_references": 24,
+  "created": "2026-07-11T15:38:40",
+  "n_references": 25,
   "source_files": [
     "Bon_Jovi_-_Livin_On_A_Prayer_Live_8_2005_Ba4bLJnj6MI---88bb560a-bbca-49b9-946e-e0cd63f80c1d_analysis.json",
     "Bon_Jovi_-_Livin_On_A_Prayer_lDK9QqIzhwk_1---33c3d53e-10a6-4939-9043-c8170f14ab51_analysis.json",
@@ -24,6 +24,7 @@
     "joe-cocker-with-a-little-help-from-my-friends-woodstock_analysis.json",
     "journey-dont-stop-believin_analysis.json",
     "kenny-loggins-danger-zone-official-audio-top-gun_analysis.json",
+    "kryptonite-3-doors-down-reference_analysis.json",
     "queen-somebody-to-love_analysis.json",
     "teddy-swims-lose-control_analysis.json",
     "tina-turner-whats-love-got-to-do-with-it_analysis.json"
@@ -32,7 +33,7 @@
   "note": "Professional reference distributions for VOXAI technical-score anchoring. Component '10' anchors use p25 (lower-is-better) or p75 (higher-is-better) of these values; theoretical zero anchors are unchanged. Metrics with n < 5 are ignored by the scorer.",
   "metrics": {
     "intonation_median_abs_deviation_cents": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
         10.0,
         10.0,
@@ -56,6 +57,7 @@
         20.0,
         20.0,
         20.0,
+        20.0,
         30.0,
         30.0
       ],
@@ -66,7 +68,7 @@
       "p90": 20.0
     },
     "intonation_median_intra_note_drift_cents": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
         0.0,
         6.1,
@@ -80,6 +82,7 @@
         21.0,
         21.9,
         24.0,
+        24.5,
         24.7,
         24.8,
         26.9,
@@ -93,18 +96,19 @@
         55.7,
         80.9
       ],
-      "p10": 12.39,
-      "p25": 15.2,
-      "p50": 24.35,
-      "p75": 31.25,
-      "p90": 47.53
+      "p10": 12.52,
+      "p25": 15.3,
+      "p50": 24.5,
+      "p75": 29.6,
+      "p90": 46.84
     },
     "voice_quality_jitter_local_percent_median": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
         0.4891,
         0.5726,
         0.5827,
+        0.6658,
         0.7325,
         0.7433,
         0.7508,
@@ -127,14 +131,14 @@
         1.3357,
         1.4946
       ],
-      "p10": 0.6276,
-      "p25": 0.7803,
-      "p50": 0.8777,
-      "p75": 1.0712,
-      "p90": 1.2683
+      "p10": 0.6159,
+      "p25": 0.7508,
+      "p50": 0.8764,
+      "p75": 1.063,
+      "p90": 1.2597
     },
     "voice_quality_shimmer_local_percent_median": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
         4.8523,
         7.1823,
@@ -144,6 +148,7 @@
         7.6885,
         7.9724,
         8.9845,
+        9.3191,
         9.4023,
         9.5341,
         9.5496,
@@ -161,14 +166,14 @@
         14.5097,
         15.0127
       ],
-      "p10": 7.2768,
-      "p25": 7.9014,
-      "p50": 9.7038,
-      "p75": 12.3661,
-      "p90": 13.7915
+      "p10": 7.2855,
+      "p25": 7.9724,
+      "p50": 9.6686,
+      "p75": 12.2337,
+      "p90": 13.7305
     },
     "voice_quality_hnr_db_median": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
         8.73,
         9.35,
@@ -177,6 +182,7 @@
         11.11,
         11.56,
         11.69,
+        12.63,
         12.78,
         12.87,
         13.0,
@@ -195,18 +201,19 @@
         18.3,
         22.39
       ],
-      "p10": 10.058,
-      "p25": 11.6575,
-      "p50": 13.715,
-      "p75": 15.0525,
-      "p90": 17.139
+      "p10": 10.174,
+      "p25": 11.69,
+      "p50": 13.65,
+      "p75": 15.04,
+      "p90": 17.132
     },
     "vibrato_median_rate_hz": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
         4.95,
         5.04,
         5.05,
+        5.07,
         5.07,
         5.27,
         5.27,
@@ -229,19 +236,20 @@
         6.73,
         6.89
       ],
-      "p10": 5.056,
-      "p25": 5.3525,
+      "p10": 5.058,
+      "p25": 5.27,
       "p50": 5.56,
-      "p75": 5.895,
-      "p90": 6.243
+      "p75": 5.88,
+      "p90": 6.214
     },
     "vibrato_median_extent_cents": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
         42.7,
         46.8,
         51.5,
         53.4,
+        53.5,
         55.5,
         56.3,
         56.6,
@@ -263,15 +271,16 @@
         85.7,
         103.1
       ],
-      "p10": 52.07,
-      "p25": 56.525,
-      "p50": 66.1,
-      "p75": 73.925,
-      "p90": 80.73
+      "p10": 52.26,
+      "p25": 56.3,
+      "p50": 65.7,
+      "p75": 73.3,
+      "p90": 80.24
     },
     "vibrato_pct_notes_with_vibrato": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
+        33.3,
         34.1,
         35.0,
         35.8,
@@ -297,14 +306,14 @@
         70.6,
         80.0
       ],
-      "p10": 36.46,
-      "p25": 45.725,
-      "p50": 52.8,
-      "p75": 59.4,
-      "p90": 66.28
+      "p10": 35.32,
+      "p25": 44.9,
+      "p50": 52.7,
+      "p75": 59.1,
+      "p90": 65.74
     },
     "dynamics_phrase_level_spread_db": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
         10.94,
         12.59,
@@ -329,16 +338,17 @@
         38.33,
         39.89,
         40.65,
-        41.96
+        41.96,
+        44.74
       ],
-      "p10": 16.352,
-      "p25": 19.31,
-      "p50": 27.985,
-      "p75": 33.245,
-      "p90": 39.422
+      "p10": 16.666,
+      "p25": 19.34,
+      "p50": 28.5,
+      "p75": 35.9,
+      "p90": 40.346
     },
     "dynamics_effective_dynamic_range_db": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
         22.36,
         22.48,
@@ -354,6 +364,7 @@
         36.33,
         37.37,
         38.88,
+        41.42,
         41.84,
         41.95,
         42.81,
@@ -365,14 +376,14 @@
         51.76,
         52.08
       ],
-      "p10": 23.782,
-      "p25": 27.5475,
-      "p50": 36.85,
-      "p75": 46.4025,
-      "p90": 49.995
+      "p10": 23.816,
+      "p25": 28.04,
+      "p50": 37.37,
+      "p75": 45.83,
+      "p90": 49.95
     },
     "phrasing_median_phrase_s": {
-      "n": 24,
+      "n": 25,
       "values_sorted": [
         1.11,
         1.16,
@@ -389,6 +400,7 @@
         4.13,
         4.16,
         4.2,
+        4.42,
         4.58,
         4.62,
         4.72,
@@ -399,11 +411,11 @@
         5.82,
         6.5
       ],
-      "p10": 1.455,
-      "p25": 2.1975,
-      "p50": 3.665,
-      "p75": 4.7475,
-      "p90": 5.201
+      "p10": 1.48,
+      "p25": 2.26,
+      "p50": 4.13,
+      "p75": 4.72,
+      "p90": 5.188
     }
   }
 }
