@@ -1,0 +1,842 @@
+{
+  "file_name": "the-zombies-shes-not-there-reference.mp3",
+  "analysis_input_file": "the-zombies-shes-not-there-reference_(Vocals)_UVR_MDXNET_Main.flac",
+  "artist_name": "The Zombies",
+  "duration_seconds": 142.51,
+  "sample_rate": 44100,
+  "engine": {
+    "parselmouth_available": true,
+    "measurement_policy": "voice-quality metrics restricted to sustained voiced notes; deterministic scoring rubric v1"
+  },
+  "stem_separation": {
+    "enabled": true,
+    "script_path": "/home/rustwood/.openclaw/workspace/voxai-local-analysis/tools/stems/batch_stems.sh",
+    "output_dir": "output/stems/the-zombies-shes-not-there-reference_20260712-012016",
+    "vocals_path": "output/stems/the-zombies-shes-not-there-reference_20260712-012016/the-zombies-shes-not-there-reference_(Vocals)_UVR_MDXNET_Main.flac",
+    "instrumental_path": null
+  },
+  "pitch": {
+    "mean_hz": 332.13,
+    "median_hz": 331.54,
+    "min_hz": 66.94,
+    "max_hz": 1174.66,
+    "std_hz": 117.36,
+    "mean_note": "E4",
+    "median_note": "E4",
+    "min_note": "C2",
+    "max_note": "D6",
+    "robust_min_hz": 108.11,
+    "robust_max_hz": 447.69,
+    "robust_min_note": "A2",
+    "robust_max_note": "A4",
+    "range_semitones": 24.6,
+    "range_semitones_note": "Robust range (2.5th-97.5th percentile of voiced frames). Immune to single octave-error frames.",
+    "full_range_semitones": 49.6,
+    "voiced_percentage": 63.4,
+    "p25_hz": 236.81,
+    "p75_hz": 432.44,
+    "p95_hz": 442.55,
+    "sections": [
+      {
+        "time_range": "0-10s",
+        "mean_hz": 229.2,
+        "mean_note": "A\u266f3",
+        "std_hz": 67.81,
+        "cv_percent": 29.58,
+        "voiced_pct": 24.9
+      },
+      {
+        "time_range": "10-20s",
+        "mean_hz": 278.97,
+        "mean_note": "C\u266f4",
+        "std_hz": 86.98,
+        "cv_percent": 31.18,
+        "voiced_pct": 82.2
+      },
+      {
+        "time_range": "20-30s",
+        "mean_hz": 195.23,
+        "mean_note": "G3",
+        "std_hz": 52.42,
+        "cv_percent": 26.85,
+        "voiced_pct": 62.4
+      },
+      {
+        "time_range": "30-40s",
+        "mean_hz": 378.78,
+        "mean_note": "F\u266f4",
+        "std_hz": 51.82,
+        "cv_percent": 13.68,
+        "voiced_pct": 87.5
+      },
+      {
+        "time_range": "40-50s",
+        "mean_hz": 433.21,
+        "mean_note": "A4",
+        "std_hz": 13.28,
+        "cv_percent": 3.06,
+        "voiced_pct": 83.0
+      },
+      {
+        "time_range": "50-60s",
+        "mean_hz": 266.17,
+        "mean_note": "C4",
+        "std_hz": 31.12,
+        "cv_percent": 11.69,
+        "voiced_pct": 28.1
+      },
+      {
+        "time_range": "60-70s",
+        "mean_hz": 281.45,
+        "mean_note": "C\u266f4",
+        "std_hz": 99.01,
+        "cv_percent": 35.18,
+        "voiced_pct": 85.0
+      },
+      {
+        "time_range": "70-80s",
+        "mean_hz": 212.02,
+        "mean_note": "G\u266f3",
+        "std_hz": 54.58,
+        "cv_percent": 25.74,
+        "voiced_pct": 77.7
+      },
+      {
+        "time_range": "80-90s",
+        "mean_hz": 379.67,
+        "mean_note": "F\u266f4",
+        "std_hz": 58.34,
+        "cv_percent": 15.37,
+        "voiced_pct": 83.9
+      },
+      {
+        "time_range": "90-100s",
+        "mean_hz": 431.96,
+        "mean_note": "A4",
+        "std_hz": 19.43,
+        "cv_percent": 4.5,
+        "voiced_pct": 72.4
+      },
+      {
+        "time_range": "110-120s",
+        "mean_hz": 244.02,
+        "mean_note": "B3",
+        "std_hz": 195.79,
+        "cv_percent": 80.24,
+        "voiced_pct": 37.3
+      },
+      {
+        "time_range": "120-130s",
+        "mean_hz": 331.72,
+        "mean_note": "E4",
+        "std_hz": 92.21,
+        "cv_percent": 27.8,
+        "voiced_pct": 82.1
+      },
+      {
+        "time_range": "130-140s",
+        "mean_hz": 422.49,
+        "mean_note": "G\u266f4",
+        "std_hz": 30.87,
+        "cv_percent": 7.31,
+        "voiced_pct": 79.8
+      }
+    ]
+  },
+  "voice_quality": {
+    "method": "praat_parselmouth_per_sustained_note",
+    "reliability": "high",
+    "n_notes_measured": 96,
+    "n_sustained_notes_found": 97,
+    "jitter_local_percent_median": 1.6431,
+    "jitter_rap_percent_median": 0.8872,
+    "jitter_ppq5_percent_median": 0.9872,
+    "shimmer_local_percent_median": 17.3051,
+    "shimmer_apq3_percent_median": 9.1573,
+    "shimmer_local_db_median": 1.5169,
+    "hnr_db_median": 7.7,
+    "hnr_db_p25": 6.31,
+    "hnr_db_p75": 9.84,
+    "interpretation": "Heavy breathiness/distortion (verify capture quality); elevated frequency perturbation; elevated amplitude perturbation.",
+    "reference": {
+      "speech_pathology_jitter_pct": 1.04,
+      "speech_pathology_shimmer_pct": 3.81,
+      "note": "Speech norms are for sustained spoken vowels; sung notes with vibrato run naturally higher. Interpretation above uses singing-oriented bands."
+    }
+  },
+  "harmonic_balance": {
+    "harmonic_residual_db": 8.6,
+    "harmonic_percussive_db": 8.6,
+    "method": "hpss_whole_file",
+    "note": "Global tonal-balance descriptor over the whole file (includes silence/consonants). NOT clinical HNR \u2014 see voice_quality.hnr_db_median."
+  },
+  "resonance": {
+    "spectral_centroid_mean_hz": 3792.57,
+    "spectral_centroid_median_hz": 2997.93,
+    "spectral_rolloff_85_mean_hz": 7504.9,
+    "spectral_rolloff_95_mean_hz": 11455.37,
+    "spectral_flatness_mean": 0.006964,
+    "spectral_bandwidth_mean_hz": 3773.07,
+    "spectral_contrast_overall_mean_db": 20.96,
+    "active_frame_percentage": 90.7,
+    "resonance_classification": "Bright / Forward / Twangy",
+    "method": "librosa_active_frames_only"
+  },
+  "dynamics": {
+    "mean_rms_db": -17.53,
+    "median_rms_db": -6.5,
+    "full_dynamic_range_db": 60.0,
+    "effective_dynamic_range_db": 54.65,
+    "p10_db": -57.3,
+    "p90_db": -2.65,
+    "zcr_mean": 0.140541,
+    "reference_note": "dB relative to the loudest frame in this file (internal contrast, not absolute loudness).",
+    "phrase_level_spread_db": 44.11,
+    "n_phrases": 22
+  },
+  "rhythm": {
+    "estimated_tempo_bpm": 92.3,
+    "tempo_confidence": "low (isolated vocal stem \u2014 beat tracking expects a full mix)",
+    "total_onsets": 230,
+    "onsets_per_second": 1.61,
+    "mean_ioi_s": 0.5767,
+    "std_ioi_s": 1.4501,
+    "rhythmic_regularity": -1.5145
+  },
+  "formants": {
+    "method": "praat_burg_sustained_notes",
+    "reliability": "high",
+    "formant_ceiling_hz": 5500.0,
+    "n_samples": 303,
+    "F1_median_hz": 807.3,
+    "F1_iqr_hz": 264.6,
+    "F2_median_hz": 1589.2,
+    "F2_iqr_hz": 350.7,
+    "F3_median_hz": 2813.3,
+    "F3_iqr_hz": 242.6
+  },
+  "vibrato": {
+    "method": "per_note_fft_of_detrended_cents_contour",
+    "n_notes_analysed": 45,
+    "n_notes_with_vibrato": 25,
+    "pct_notes_with_vibrato": 55.6,
+    "notes": [
+      {
+        "start_s": 9.3,
+        "duration_s": 0.93,
+        "note": "C4",
+        "rate_hz": 6.46,
+        "extent_cents": 33.4,
+        "band_power_ratio": 0.287,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 10.23,
+        "duration_s": 1.59,
+        "note": "D\u266f4",
+        "rate_hz": 5.03,
+        "extent_cents": 61.5,
+        "band_power_ratio": 0.219,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 13.15,
+        "duration_s": 1.18,
+        "note": "A3",
+        "rate_hz": 4.22,
+        "extent_cents": 13.9,
+        "band_power_ratio": 0.246,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 16.44,
+        "duration_s": 1.15,
+        "note": "D\u266f4",
+        "rate_hz": 5.22,
+        "extent_cents": 60.1,
+        "band_power_ratio": 0.136,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 17.64,
+        "duration_s": 1.29,
+        "note": "A4",
+        "rate_hz": 3.1,
+        "extent_cents": 58.8,
+        "band_power_ratio": 0.231,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 25.4,
+        "duration_s": 0.66,
+        "note": "A3",
+        "rate_hz": 3.02,
+        "extent_cents": 45.6,
+        "band_power_ratio": 0.462,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 26.06,
+        "duration_s": 0.51,
+        "note": "F\u266f3",
+        "rate_hz": 3.92,
+        "extent_cents": 94.4,
+        "band_power_ratio": 0.434,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 27.69,
+        "duration_s": 1.09,
+        "note": "E3",
+        "rate_hz": 4.58,
+        "extent_cents": 26.7,
+        "band_power_ratio": 0.208,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 29.49,
+        "duration_s": 1.04,
+        "note": "D4",
+        "rate_hz": 4.79,
+        "extent_cents": 63.8,
+        "band_power_ratio": 0.205,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 31.8,
+        "duration_s": 0.84,
+        "note": "E4",
+        "rate_hz": 4.79,
+        "extent_cents": 30.6,
+        "band_power_ratio": 0.349,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 33.18,
+        "duration_s": 1.96,
+        "note": "G\u266f4",
+        "rate_hz": 4.59,
+        "extent_cents": 57.9,
+        "band_power_ratio": 0.49,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 36.15,
+        "duration_s": 0.63,
+        "note": "A4",
+        "rate_hz": 3.19,
+        "extent_cents": 58.3,
+        "band_power_ratio": 0.384,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 39.04,
+        "duration_s": 0.55,
+        "note": "A4",
+        "rate_hz": 5.5,
+        "extent_cents": 63.0,
+        "band_power_ratio": 0.433,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 39.59,
+        "duration_s": 0.93,
+        "note": "A4",
+        "rate_hz": 6.46,
+        "extent_cents": 36.9,
+        "band_power_ratio": 0.327,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 40.52,
+        "duration_s": 0.53,
+        "note": "A4",
+        "rate_hz": 5.62,
+        "extent_cents": 67.9,
+        "band_power_ratio": 0.435,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 41.69,
+        "duration_s": 0.52,
+        "note": "A4",
+        "rate_hz": 5.74,
+        "extent_cents": 84.9,
+        "band_power_ratio": 0.517,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 44.58,
+        "duration_s": 0.62,
+        "note": "A4",
+        "rate_hz": 8.13,
+        "extent_cents": 34.3,
+        "band_power_ratio": 0.287,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 45.88,
+        "duration_s": 1.88,
+        "note": "A4",
+        "rate_hz": 4.79,
+        "extent_cents": 65.4,
+        "band_power_ratio": 0.433,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 47.82,
+        "duration_s": 1.68,
+        "note": "A4",
+        "rate_hz": 4.75,
+        "extent_cents": 11.3,
+        "band_power_ratio": 0.089,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 58.43,
+        "duration_s": 2.61,
+        "note": "D4",
+        "rate_hz": 4.59,
+        "extent_cents": 61.5,
+        "band_power_ratio": 0.184,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 62.17,
+        "duration_s": 1.68,
+        "note": "G\u266f3",
+        "rate_hz": 4.16,
+        "extent_cents": 41.3,
+        "band_power_ratio": 0.278,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 65.57,
+        "duration_s": 1.14,
+        "note": "E4",
+        "rate_hz": 3.52,
+        "extent_cents": 70.2,
+        "band_power_ratio": 0.27,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 66.71,
+        "duration_s": 1.82,
+        "note": "A4",
+        "rate_hz": 3.29,
+        "extent_cents": 81.3,
+        "band_power_ratio": 0.314,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 69.43,
+        "duration_s": 0.92,
+        "note": "G\u266f3",
+        "rate_hz": 3.27,
+        "extent_cents": 31.6,
+        "band_power_ratio": 0.279,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 72.47,
+        "duration_s": 0.7,
+        "note": "D4",
+        "rate_hz": 5.74,
+        "extent_cents": 67.8,
+        "band_power_ratio": 0.144,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 74.57,
+        "duration_s": 0.96,
+        "note": "A3",
+        "rate_hz": 3.11,
+        "extent_cents": 78.3,
+        "band_power_ratio": 0.383,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 76.9,
+        "duration_s": 1.25,
+        "note": "E3",
+        "rate_hz": 3.19,
+        "extent_cents": 37.0,
+        "band_power_ratio": 0.263,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 78.99,
+        "duration_s": 0.78,
+        "note": "D4",
+        "rate_hz": 3.86,
+        "extent_cents": 54.2,
+        "band_power_ratio": 0.185,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 81.04,
+        "duration_s": 0.84,
+        "note": "E4",
+        "rate_hz": 3.59,
+        "extent_cents": 45.0,
+        "band_power_ratio": 0.299,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 82.4,
+        "duration_s": 1.81,
+        "note": "G\u266f4",
+        "rate_hz": 6.07,
+        "extent_cents": 48.8,
+        "band_power_ratio": 0.533,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 88.93,
+        "duration_s": 0.92,
+        "note": "A4",
+        "rate_hz": 5.45,
+        "extent_cents": 55.0,
+        "band_power_ratio": 0.273,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 92.83,
+        "duration_s": 0.6,
+        "note": "A4",
+        "rate_hz": 4.97,
+        "extent_cents": 50.1,
+        "band_power_ratio": 0.353,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 95.27,
+        "duration_s": 1.93,
+        "note": "A4",
+        "rate_hz": 4.15,
+        "extent_cents": 71.4,
+        "band_power_ratio": 0.412,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 97.34,
+        "duration_s": 1.17,
+        "note": "A4",
+        "rate_hz": 4.26,
+        "extent_cents": 15.6,
+        "band_power_ratio": 0.343,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 117.85,
+        "duration_s": 0.67,
+        "note": "A3",
+        "rate_hz": 4.46,
+        "extent_cents": 61.0,
+        "band_power_ratio": 0.403,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 120.11,
+        "duration_s": 1.11,
+        "note": "E3",
+        "rate_hz": 6.28,
+        "extent_cents": 33.4,
+        "band_power_ratio": 0.22,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 121.89,
+        "duration_s": 0.71,
+        "note": "C4",
+        "rate_hz": 5.65,
+        "extent_cents": 67.4,
+        "band_power_ratio": 0.097,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 124.3,
+        "duration_s": 0.78,
+        "note": "E4",
+        "rate_hz": 5.14,
+        "extent_cents": 20.8,
+        "band_power_ratio": 0.358,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 125.36,
+        "duration_s": 2.36,
+        "note": "G\u266f4",
+        "rate_hz": 5.09,
+        "extent_cents": 63.8,
+        "band_power_ratio": 0.528,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 131.46,
+        "duration_s": 0.51,
+        "note": "A4",
+        "rate_hz": 5.87,
+        "extent_cents": 72.1,
+        "band_power_ratio": 0.474,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 132.11,
+        "duration_s": 0.81,
+        "note": "A4",
+        "rate_hz": 3.69,
+        "extent_cents": 43.0,
+        "band_power_ratio": 0.397,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 132.92,
+        "duration_s": 0.55,
+        "note": "G\u266f4",
+        "rate_hz": 3.67,
+        "extent_cents": 67.1,
+        "band_power_ratio": 0.46,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 133.58,
+        "duration_s": 1.07,
+        "note": "A4",
+        "rate_hz": 5.62,
+        "extent_cents": 41.5,
+        "band_power_ratio": 0.146,
+        "has_vibrato": false
+      },
+      {
+        "start_s": 138.26,
+        "duration_s": 1.96,
+        "note": "A4",
+        "rate_hz": 4.08,
+        "extent_cents": 67.9,
+        "band_power_ratio": 0.315,
+        "has_vibrato": true
+      },
+      {
+        "start_s": 140.38,
+        "duration_s": 1.11,
+        "note": "A4",
+        "rate_hz": 5.38,
+        "extent_cents": 9.3,
+        "band_power_ratio": 0.071,
+        "has_vibrato": false
+      }
+    ],
+    "median_rate_hz": 4.97,
+    "median_extent_cents": 57.9,
+    "median_regularity": 0.349,
+    "classification": "Selective vibrato"
+  },
+  "intonation": {
+    "method": "sustained_note_deviation_from_equal_tempered_grid",
+    "n_notes": 101,
+    "tuning_offset_cents": -15.0,
+    "median_abs_deviation_cents": 15.0,
+    "p90_abs_deviation_cents": 35.0,
+    "pct_notes_within_10_cents": 30.7,
+    "pct_notes_within_25_cents": 68.3,
+    "median_intra_note_drift_cents": 22.7,
+    "classification": "Good accuracy",
+    "caveat": "Grid-deviation is a proxy: expressive slides, blue notes and non-12-TET material register as deviation. Interpret alongside the recording context."
+  },
+  "phrasing": {
+    "n_phrases": 22,
+    "median_phrase_s": 3.06,
+    "max_phrase_s": 20.43,
+    "method": "voiced runs merged across gaps < 0.3s"
+  },
+  "time_diagnostics": {
+    "energy_blocks_10s": [
+      {
+        "time_range": "0-10s",
+        "rms_db": -22.93
+      },
+      {
+        "time_range": "10-20s",
+        "rms_db": -19.17
+      },
+      {
+        "time_range": "20-30s",
+        "rms_db": -19.69
+      },
+      {
+        "time_range": "30-40s",
+        "rms_db": -18.41
+      },
+      {
+        "time_range": "40-50s",
+        "rms_db": -19.41
+      },
+      {
+        "time_range": "50-60s",
+        "rms_db": -22.82
+      },
+      {
+        "time_range": "60-70s",
+        "rms_db": -19.99
+      },
+      {
+        "time_range": "70-80s",
+        "rms_db": -19.79
+      },
+      {
+        "time_range": "80-90s",
+        "rms_db": -18.27
+      },
+      {
+        "time_range": "90-100s",
+        "rms_db": -19.82
+      },
+      {
+        "time_range": "100-110s",
+        "rms_db": -70.64
+      },
+      {
+        "time_range": "110-120s",
+        "rms_db": -22.57
+      },
+      {
+        "time_range": "120-130s",
+        "rms_db": -18.69
+      },
+      {
+        "time_range": "130-140s",
+        "rms_db": -18.54
+      },
+      {
+        "time_range": "140-143s",
+        "rms_db": -26.14
+      }
+    ],
+    "problem_zones": [
+      {
+        "time_range": "10-20s",
+        "category": "Pitch",
+        "flag": "unstable_f0",
+        "value": "31.18% CV",
+        "note": "F0 varied heavily in this 10-second window. Treat cautiously if backing vocals or room noise are present."
+      },
+      {
+        "time_range": "60-70s",
+        "category": "Pitch",
+        "flag": "unstable_f0",
+        "value": "35.18% CV",
+        "note": "F0 varied heavily in this 10-second window. Treat cautiously if backing vocals or room noise are present."
+      },
+      {
+        "time_range": "110-120s",
+        "category": "Pitch",
+        "flag": "unstable_f0",
+        "value": "80.24% CV",
+        "note": "F0 varied heavily in this 10-second window. Treat cautiously if backing vocals or room noise are present."
+      },
+      {
+        "time_range": "whole_take",
+        "category": "Resonance",
+        "flag": "bright_forward_spectrum",
+        "value": "3792.57 Hz mean centroid",
+        "note": "Strong forward/bright energy. Useful for cut, but can also include room bleed or harsh mic capture."
+      }
+    ],
+    "environment_risk": {
+      "karaoke_or_room_contamination_risk": "normal",
+      "peak_amplitude": 0.6039,
+      "near_clip_sample_percent": 0.0,
+      "voiced_percentage": 63.4,
+      "note": "No obvious global capture-risk marker was detected."
+    }
+  },
+  "visual_diagnostics": {
+    "plot_path": "/home/rustwood/.openclaw/workspace/vox-cloud-alpha-main/backend/voxai-local-analysis/reports/diagnostics/the-zombies-shes-not-there-reference_diagnostic_plot.png",
+    "panels": [
+      "waveform_amplitude",
+      "pitch_contour_f0",
+      "rms_energy_db",
+      "spectral_centroid_brightness"
+    ],
+    "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
+  },
+  "technical_score": {
+    "overall_score_0_to_10": 8.5,
+    "capture_fair_score_0_to_10": 10.0,
+    "capture_fair_note": "Rubric with voice_quality excluded (weights renormalised). Jitter/shimmer/HNR partly measure the recording chain: vintage masters run through stem separation read far worse than clean modern captures of an equal voice. Use capture_fair on BOTH sides for any take-vs-original or cross-era comparison; use overall_score for a singer's absolute result and self-progress.",
+    "provenance": "deterministic_rubric_v2 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
+    "calibration": {
+      "active": true,
+      "file": "/home/rustwood/.openclaw/workspace/vox-cloud-alpha-main/backend/voxai-local-analysis/calibration/pro_reference.json",
+      "n_references": 36,
+      "note": null
+    },
+    "confidence": "high",
+    "confidence_basis": {
+      "praat_metrics_available": true,
+      "n_sustained_notes": 101,
+      "capture_risk_elevated": false
+    },
+    "components": {
+      "intonation_accuracy": {
+        "weight": 0.25,
+        "input": "median abs grid deviation = 15.0 cents \u2014 matches or beats 75.0% of 36 pro references",
+        "formula": "10 at pro-reference median (20.0 cents), 0 at 45 cents, linear",
+        "score": 10.0
+      },
+      "pitch_stability": {
+        "weight": 0.15,
+        "input": "median intra-note drift = 22.7 cents \u2014 matches or beats 63.9% of 36 pro references",
+        "formula": "10 at pro-reference median (25.7 cents), 0 at 80 cents, linear",
+        "score": 10.0
+      },
+      "voice_quality": {
+        "weight": 0.2,
+        "input": "jitter = 1.6431% \u2014 matches or beats 0.0% of 36 pro references; shimmer = 17.3051% \u2014 matches or beats 0.0% of 36 pro references; HNR = 7.7 dB \u2014 matches or beats 0.0% of 36 pro references",
+        "formula": "mean of jitter/shimmer/HNR sub-scores (Praat, per sustained note)",
+        "score": 2.87
+      },
+      "vibrato_control": {
+        "weight": 0.15,
+        "input": "55.6% of long notes carry vibrato (10 at >=40%); rate 4.97 Hz (ideal 5.04-5.995); extent 57.9 cents (ideal 53.45-81.1); intra-note drift 22.7 cents (straight-tone path)",
+        "formula": "best of vibrato-quality path and straight-tone steadiness path (consistent straight tone is a valid professional style)",
+        "style_detected": "vibrato-led",
+        "score": 9.89
+      },
+      "dynamics_expression": {
+        "weight": 0.15,
+        "input": "phrase-level spread 44.11 dB (ideal 17.295-40.27); effective range 54.65 dB (ideal 24.045-51.52)",
+        "formula": "best of phrase-level shaping and effective range (mastered/compressed stems limit raw range through no fault of the singer)",
+        "score": 10.0
+      },
+      "phrase_control": {
+        "weight": 0.1,
+        "input": "median phrase length = 3.06 s \u2014 matches or beats 50.0% of 36 pro references",
+        "formula": "10 at pro-reference median (3.09 s), 0 at 0.5 s, linear",
+        "score": 9.88
+      }
+    },
+    "weights_note": "Weights renormalised over measurable components.",
+    "scope_note": "Technical execution only. Artistry, emotion, interpretation and style-appropriateness are human judgements and are not part of this number. Any 'listener impact' figure elsewhere in a report is a subjective estimate, not a measurement."
+  },
+  "archetype": "Pusher",
+  "diagnostic_flags": [
+    {
+      "category": "Vocal Fold Behaviour",
+      "flag": "Elevated jitter + low HNR on sustained notes",
+      "value": "Jitter: 1.6431% | HNR: 7.7 dB (Praat, per-note median)",
+      "interpretation": "Compression-led distortion (controlled grit) or breathiness.",
+      "likely_cause": "Intentional supraglottic compression. Confirm against context.",
+      "intervention": "Bratty Nay (if resonance is dark) / Lip Trill (if breath is leaky)"
+    },
+    {
+      "category": "Resonance",
+      "flag": "High spectral centroid \u2014 bright/forward resonance",
+      "value": "3792.57 Hz (active frames only)",
+      "interpretation": "Strong forward placement. Good projection and cut.",
+      "likely_cause": "Aryepiglottic twang / raised larynx / wide oral cavity.",
+      "intervention": "Maintain \u2014 no correction needed. Monitor for laryngeal elevation."
+    }
+  ]
+}
