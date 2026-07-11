@@ -1196,9 +1196,10 @@ def load_calibration(path):
     """
     if not path:
         return None
-    # A relative path may refer to the current working directory (ad-hoc
-    # runs) or to the repo root (committed default calibration) — try both.
-    candidates = [path, resolve_repo_path(path)] if not os.path.isabs(path) else [path]
+    # The repo-committed calibration is canonical; only fall back to a
+    # cwd-relative file when the repo has none. (Trying cwd first once let a
+    # stale test file silently shadow the real 23-reference pack.)
+    candidates = [resolve_repo_path(path), path] if not os.path.isabs(path) else [path]
     resolved = next((c for c in candidates if os.path.isfile(c)), None)
     if resolved is None:
         return None
