@@ -83,10 +83,12 @@ on the radio?". Workflow:
    `--calibration <path>`; `--calibration none` forces theoretical anchors).
 
 With calibration active, each linear component's "10" anchor moves to the
-professional distribution (p25 for lower-is-better metrics, p75 for
-higher-is-better); band components (vibrato rate/extent, dynamics) take
-their ideal bands from the pro p25–p75. Zero anchors stay theoretical, so
-weak performances still score low. The output reports, per component, the
+professional pack **median** — matching a typical professional reference IS
+the top of the scale; band components (vibrato rate/extent, dynamics) take
+their ideal bands from the pro p10–p90. Zero anchors stay theoretical, so
+weak performances still score low. Validated against the initial 11-track
+pack: the references themselves score 8.4–10.0 (median 9.0) against their
+own calibration, while a deliberately flawed synthetic control scores 5.5. The output reports, per component, the
 percentile of the singer against the reference pack ("matches or beats X%
 of N pro references") — the score is anchored to verified human-certified
 material while remaining fully deterministic and auditable. References

@@ -1269,10 +1269,13 @@ def _linear_component(value, key, calibration, default_best, worst, unit, lower_
     """
     stats = _calib_metric(calibration, key)
     if stats:
-        best = stats["p25"] if lower_is_better else stats["p75"]
+        # The pack median earns 10: "as good as a typical professional
+        # reference" IS the top of the scale. Values beyond the theoretical
+        # worst anchor still fall to 0, so weak takes stay low.
+        best = stats["p50"]
         pct = _reference_percentile(value, stats, lower_is_better)
-        formula = (f"10 at pro-reference {'p25' if lower_is_better else 'p75'} "
-                   f"({best}{unit}), 0 at {worst}{unit}, linear")
+        formula = (f"10 at pro-reference median ({best}{unit}), "
+                   f"0 at {worst}{unit}, linear")
         basis = f"= {value}{unit} — matches or beats {pct}% of {stats['n']} pro references"
         return _scale(value, best, worst), formula, basis
     formula = f"10 at {default_best}{unit} or better, 0 at {worst}{unit}, linear (uncalibrated anchors)"
@@ -1387,8 +1390,8 @@ def compute_technical_score(results, calibration=None):
         if vib.get("median_rate_hz") is not None:
             rate_stats = _calib_metric(calibration, "vibrato_median_rate_hz")
             extent_stats = _calib_metric(calibration, "vibrato_median_extent_cents")
-            rate_lo, rate_hi = (rate_stats["p25"], rate_stats["p75"]) if rate_stats else (5.0, 7.0)
-            ext_lo, ext_hi = (extent_stats["p25"], extent_stats["p75"]) if extent_stats else (25.0, 130.0)
+            rate_lo, rate_hi = (rate_stats["p10"], rate_stats["p90"]) if rate_stats else (5.0, 7.0)
+            ext_lo, ext_hi = (extent_stats["p10"], extent_stats["p90"]) if extent_stats else (25.0, 130.0)
             vib_subscores.append(_peak_scale(vib["median_rate_hz"], rate_lo, rate_hi, 3.0, 9.0))
             vib_subscores.append(_peak_scale(vib["median_extent_cents"], ext_lo, ext_hi, 5.0, 300.0))
             vib_detail.append(f"rate {vib['median_rate_hz']} Hz (ideal {rate_lo}-{rate_hi})")
@@ -1417,13 +1420,13 @@ def compute_technical_score(results, calibration=None):
     phrase_spread = dyn.get("phrase_level_spread_db")
     if phrase_spread is not None:
         spread_stats = _calib_metric(calibration, "dynamics_phrase_level_spread_db")
-        lo, hi = (spread_stats["p25"], spread_stats["p75"]) if spread_stats else (3.0, 12.0)
+        lo, hi = (spread_stats["p10"], spread_stats["p90"]) if spread_stats else (3.0, 12.0)
         dyn_candidates.append(_peak_scale(phrase_spread, lo, hi, 0.5, 25.0))
         dyn_detail.append(f"phrase-level spread {phrase_spread} dB (ideal {lo}-{hi})")
     eff = dyn.get("effective_dynamic_range_db")
     if eff is not None:
         eff_stats = _calib_metric(calibration, "dynamics_effective_dynamic_range_db")
-        lo, hi = (eff_stats["p25"], eff_stats["p75"]) if eff_stats else (6.0, 22.0)
+        lo, hi = (eff_stats["p10"], eff_stats["p90"]) if eff_stats else (6.0, 22.0)
         dyn_candidates.append(_peak_scale(eff, lo, hi, 2.0, 35.0))
         dyn_detail.append(f"effective range {eff} dB (ideal {lo}-{hi})")
     dyn_candidates = [c for c in dyn_candidates if c is not None]
