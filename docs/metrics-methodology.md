@@ -96,6 +96,23 @@ whose voice-quality metrics came from the non-Praat fallback are excluded
 from voice-quality anchors; any metric with fewer than 5 reference values
 stays on theoretical anchors.
 
+### Capture-fair comparison score
+
+`technical_score.capture_fair_score_0_to_10` is the same rubric with the
+voice_quality component excluded (weights renormalised). Jitter, shimmer
+and HNR partly measure the recording chain rather than the singer: a
+vintage master ripped and run through stem separation reads 2–3× worse on
+these than a clean modern capture of an equal voice (observed across every
+vintage reference: shimmer 13–15% vs ≤5% for clean captures).
+
+Rules of use:
+- **Take vs original / any cross-era comparison** → compare capture-fair
+  scores on both sides. Never declare a singer "better than the original"
+  from overall scores.
+- **Absolute result and self-progress** (same singer, same setup over
+  time) → use the overall score; there voice quality legitimately reflects
+  technique and capture improvements the singer controls.
+
 ### What the score does NOT measure
 
 Artistry, emotional delivery, lyric interpretation, groove feel and

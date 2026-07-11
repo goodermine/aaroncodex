@@ -131,6 +131,20 @@ not missing vibrato); compressed/mastered stems limit raw dynamic range
 through no fault of the singer (phrase-level shaping is scored instead);
 short pop phrasing is a style, not a breath defect.
 
+## 3c. Take-vs-original comparisons: use the capture-fair score
+
+`technical_score.capture_fair_score_0_to_10` excludes voice_quality
+(weights renormalised). For ANY comparison between a singer's take and an
+original recording — or between recordings from different eras/chains —
+compare capture-fair scores on both sides. Voice quality (jitter/shimmer/
+HNR) partly measures the recording chain: vintage separated stems read far
+worse than clean modern captures, so overall-score head-to-heads
+systematically flatter the newer recording. Never report a singer as
+out-scoring the original based on overall scores; if the capture-fair
+comparison still favours the singer, present it with the methodology
+caveat. The overall score remains correct for absolute results and
+tracking the same singer's progress over time.
+
 ## 4. Sanity checks after switching
 
 Run these once after adopting the new engine:

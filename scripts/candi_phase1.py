@@ -376,6 +376,7 @@ def prepare_command(args: argparse.Namespace) -> int:
                 "Never invent, rescale, curve, or 'round up' numeric scores. If a score feels wrong, say why in prose — do not change the number.",
                 "Any listener-impact or artistry commentary must be clearly labelled as a subjective impression, not a measurement, and must not be expressed as a numeric score.",
                 "If technical_score has an error or low confidence, state that instead of substituting a guessed number.",
+                "For any take-vs-original or cross-era comparison, compare capture_fair_score_0_to_10 on BOTH sides — never overall scores. Voice quality (jitter/shimmer/HNR) partly measures the recording chain: vintage separated stems read far worse than clean modern captures, so overall-score head-to-heads unfairly favour the newer recording. Never declare a singer 'better than the original' from overall scores.",
             ],
         },
         "reference": reference,

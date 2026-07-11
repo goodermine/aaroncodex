@@ -1459,6 +1459,20 @@ def compute_technical_score(results, calibration=None):
     total_weight = sum(v["weight"] for v in scored.values())
     overall = sum(v["score"] * v["weight"] for v in scored.values()) / total_weight
 
+    # Capture-fair score: the same rubric with voice_quality excluded
+    # (weights renormalised). Jitter/shimmer/HNR measure the recording
+    # chain as much as the singer when sources differ in era or mastering —
+    # a vintage master run through stem separation reads 2-3x worse on
+    # these than a clean modern capture of an equal voice. For any
+    # singer-vs-singer comparison across different recordings (e.g. a take
+    # vs the original record), compare capture-fair scores on BOTH sides.
+    fair = {k: v for k, v in scored.items() if k != "voice_quality"}
+    capture_fair = (
+        sum(v["score"] * v["weight"] for v in fair.values())
+        / sum(v["weight"] for v in fair.values())
+        if fair else overall
+    )
+
     env = results.get("time_diagnostics", {}).get("environment_risk", {})
     capture_risk = env.get("karaoke_or_room_contamination_risk") == "elevated"
     n_notes = results.get("intonation", {}).get("n_notes", 0)
@@ -1479,6 +1493,15 @@ def compute_technical_score(results, calibration=None):
 
     return {
         "overall_score_0_to_10": round(float(overall), 1),
+        "capture_fair_score_0_to_10": round(float(capture_fair), 1),
+        "capture_fair_note": (
+            "Rubric with voice_quality excluded (weights renormalised). "
+            "Jitter/shimmer/HNR partly measure the recording chain: vintage "
+            "masters run through stem separation read far worse than clean "
+            "modern captures of an equal voice. Use capture_fair on BOTH "
+            "sides for any take-vs-original or cross-era comparison; use "
+            "overall_score for a singer's absolute result and self-progress."
+        ),
         "provenance": provenance,
         "calibration": {
             "active": calibrated,
@@ -1769,6 +1792,8 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
             f"## TECHNICAL SCORE (DETERMINISTIC)",
             f"",
             f"> **{score.get('overall_score_0_to_10', 'N/A')} / 10** — confidence: {score.get('confidence', 'N/A')}",
+            f">",
+            f"> Capture-fair score: **{score.get('capture_fair_score_0_to_10', 'N/A')} / 10** — use this (on both sides) when comparing against an original recording from a different era/recording chain.",
             f">",
             f"> {calib_line}",
             f">",
