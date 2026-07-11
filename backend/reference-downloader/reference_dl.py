@@ -52,30 +52,53 @@ def is_youtube_url(text: str) -> bool:
     return urlparse(text.strip()).hostname in ALLOWED_HOSTS
 
 
-def _resolve_target(target: str) -> str:
-    """Turn user input into something yt-dlp can fetch.
+_INFO_OPTS = {"quiet": True, "no_warnings": True, "noplaylist": True}
 
-    URLs must be YouTube; anything else is treated as a search query and
-    resolved to the top YouTube result.
+
+def _extract(url: str) -> dict:
+    with yt_dlp.YoutubeDL(_INFO_OPTS) as ydl:
+        return ydl.extract_info(url, download=False)
+
+
+def _resolve_meta(target: str) -> dict:
+    """Resolve user input (YouTube URL or search text) to full video metadata.
+
+    Searches try the top few results and use the first playable one, so a
+    single unavailable/region-blocked video at the top of the results
+    doesn't fail the whole fetch.
     """
     target = target.strip()
     if not target:
         raise ReferenceError("Empty song name / link.")
+
     if is_url(target):
         if not is_youtube_url(target):
             raise ReferenceError("Only YouTube links are supported.")
-        return target
-    return f"ytsearch1:{target}"
+        try:
+            return _extract(target)
+        except yt_dlp.utils.DownloadError as exc:
+            raise ReferenceError(f"Could not read that link: {exc}") from exc
 
+    flat_opts = {**_INFO_OPTS, "extract_flat": "in_playlist"}
+    try:
+        with yt_dlp.YoutubeDL(flat_opts) as ydl:
+            search = ydl.extract_info(f"ytsearch5:{target}", download=False)
+    except yt_dlp.utils.DownloadError as exc:
+        raise ReferenceError(f"Search failed: {exc}") from exc
 
-def _first_entry(meta: dict) -> dict:
-    """Unwrap a search-result playlist down to the single video entry."""
-    while meta.get("_type") in ("playlist", "multi_video"):
-        entries = meta.get("entries") or []
-        if not entries:
-            raise ReferenceError("No YouTube results for that search.")
-        meta = entries[0]
-    return meta
+    entries = search.get("entries") or []
+    if not entries:
+        raise ReferenceError("No YouTube results for that search.")
+    last_error: Exception | None = None
+    for entry in entries:
+        entry_url = entry.get("url") or entry.get("webpage_url")
+        if not entry_url:
+            continue
+        try:
+            return _extract(entry_url)
+        except yt_dlp.utils.DownloadError as exc:
+            last_error = exc
+    raise ReferenceError(f"No playable result for that search: {last_error}")
 
 
 def _summary(meta: dict) -> dict:
@@ -93,13 +116,7 @@ def _summary(meta: dict) -> dict:
 
 def fetch_info(target: str) -> dict:
     """Metadata for a URL or search query, without downloading."""
-    resolved = _resolve_target(target)
-    opts = {"quiet": True, "no_warnings": True, "noplaylist": True}
-    try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            meta = _first_entry(ydl.extract_info(resolved, download=False))
-    except yt_dlp.utils.DownloadError as exc:
-        raise ReferenceError(f"Could not read that link/search: {exc}") from exc
+    meta = _resolve_meta(target)
 
     heights = sorted(
         {
@@ -148,14 +165,7 @@ def download_reference(
             "ffmpeg not found on PATH - install it (the VOXAI backend needs it too)."
         )
 
-    resolved = _resolve_target(target)
-    info_opts = {"quiet": True, "no_warnings": True, "noplaylist": True}
-    try:
-        with yt_dlp.YoutubeDL(info_opts) as ydl:
-            meta = _first_entry(ydl.extract_info(resolved, download=False))
-    except yt_dlp.utils.DownloadError as exc:
-        raise ReferenceError(f"Could not read that link/search: {exc}") from exc
-
+    meta = _resolve_meta(target)
     result = _summary(meta)
     result.update({"format": fmt, "quality": quality, "cached": False})
 
