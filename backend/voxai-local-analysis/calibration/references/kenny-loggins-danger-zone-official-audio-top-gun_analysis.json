@@ -11,8 +11,8 @@
   "stem_separation": {
     "enabled": true,
     "script_path": "/home/rustwood/.openclaw/workspace/voxai-local-analysis/tools/stems/batch_stems.sh",
-    "output_dir": "output/stems/kenny-loggins-danger-zone-official-audio-top-gun_20260711-145842",
-    "vocals_path": "output/stems/kenny-loggins-danger-zone-official-audio-top-gun_20260711-145842/kenny-loggins-danger-zone-official-audio-top-gun_(Vocals)_UVR_MDXNET_Main.flac",
+    "output_dir": "output/stems/kenny-loggins-danger-zone-official-audio-top-gun_20260711-190028",
+    "vocals_path": "output/stems/kenny-loggins-danger-zone-official-audio-top-gun_20260711-190028/kenny-loggins-danger-zone-official-audio-top-gun_(Vocals)_UVR_MDXNET_Main.flac",
     "instrumental_path": null
   },
   "pitch": {
@@ -1064,12 +1064,12 @@
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
   "technical_score": {
-    "overall_score_0_to_10": 8.7,
+    "overall_score_0_to_10": 8.8,
     "provenance": "deterministic_rubric_v2 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
     "calibration": {
       "active": true,
-      "file": "calibration/pro_reference.json",
-      "n_references": 22,
+      "file": "/home/rustwood/.openclaw/workspace/vox-cloud-alpha-main/backend/voxai-local-analysis/calibration/pro_reference.json",
+      "n_references": 31,
       "note": null
     },
     "confidence": "high",
@@ -1081,40 +1081,40 @@
     "components": {
       "intonation_accuracy": {
         "weight": 0.25,
-        "input": "median abs grid deviation = 10.0 cents \u2014 matches or beats 100.0% of 22 pro references",
+        "input": "median abs grid deviation = 10.0 cents \u2014 matches or beats 100.0% of 31 pro references",
         "formula": "10 at pro-reference median (20.0 cents), 0 at 45 cents, linear",
         "score": 10.0
       },
       "pitch_stability": {
         "weight": 0.15,
-        "input": "median intra-note drift = 16.2 cents \u2014 matches or beats 72.7% of 22 pro references",
-        "formula": "10 at pro-reference median (24.75 cents), 0 at 80 cents, linear",
+        "input": "median intra-note drift = 16.2 cents \u2014 matches or beats 77.4% of 31 pro references",
+        "formula": "10 at pro-reference median (24.8 cents), 0 at 80 cents, linear",
         "score": 10.0
       },
       "voice_quality": {
         "weight": 0.2,
-        "input": "jitter = 1.2078% \u2014 matches or beats 13.6% of 22 pro references; shimmer = 15.0127% \u2014 matches or beats 0.0% of 22 pro references; HNR = 9.35 dB \u2014 matches or beats 4.5% of 22 pro references",
+        "input": "jitter = 1.2078% \u2014 matches or beats 19.4% of 31 pro references; shimmer = 15.0127% \u2014 matches or beats 3.2% of 31 pro references; HNR = 9.35 dB \u2014 matches or beats 6.5% of 31 pro references",
         "formula": "mean of jitter/shimmer/HNR sub-scores (Praat, per sustained note)",
-        "score": 4.32
+        "score": 4.39
       },
       "vibrato_control": {
         "weight": 0.15,
-        "input": "61.9% of long notes carry vibrato (10 at >=40%); rate 6.04 Hz (ideal 5.09-6.292); extent 42.7 cents (ideal 53.61-81.71); intra-note drift 16.2 cents (straight-tone path)",
+        "input": "61.9% of long notes carry vibrato (10 at >=40%); rate 6.04 Hz (ideal 5.04-6.04); extent 42.7 cents (ideal 53.4-80.9); intra-note drift 16.2 cents (straight-tone path)",
         "formula": "best of vibrato-quality path and straight-tone steadiness path (consistent straight tone is a valid professional style)",
         "style_detected": "straight-tone",
         "score": 9.38
       },
       "dynamics_expression": {
         "weight": 0.15,
-        "input": "phrase-level spread 19.34 dB (ideal 18.611-39.734); effective range 32.23 dB (ideal 23.714-50.085)",
+        "input": "phrase-level spread 19.34 dB (ideal 18.2-39.89); effective range 32.23 dB (ideal 24.02-51.76)",
         "formula": "best of phrase-level shaping and effective range (mastered/compressed stems limit raw range through no fault of the singer)",
         "score": 10.0
       },
       "phrase_control": {
         "weight": 0.1,
-        "input": "median phrase length = 3.2 s \u2014 matches or beats 50.0% of 22 pro references",
-        "formula": "10 at pro-reference median (3.4 s), 0 at 0.5 s, linear",
-        "score": 9.31
+        "input": "median phrase length = 3.2 s \u2014 matches or beats 51.6% of 31 pro references",
+        "formula": "10 at pro-reference median (3.2 s), 0 at 0.5 s, linear",
+        "score": 10.0
       }
     },
     "weights_note": "Weights renormalised over measurable components.",
