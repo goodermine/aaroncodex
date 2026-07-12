@@ -121,6 +121,55 @@ If a report includes a "listener impact" style estimate, it must be
 labelled as a subjective impression and must not be presented as a numeric
 measurement — this is enforced in the Candi manifest `scoring_policy`.
 
+## Time-localised trouble spots
+
+The intonation block also reports WHERE problems live, not just their size:
+
+- `intonation.notes` — every sustained note with timestamp, note name,
+  tuning-corrected grid deviation, whole-note drift, and mid-note drift
+  (middle 60% of the contour, so onset scoops and release slides don't
+  read as held-note drift).
+- `worst_intonation_notes` / `worst_drift_notes` — top offenders past the
+  trouble thresholds (25 cents off-grid / 40 cents mid-note movement);
+  mid-note movement above 300 cents is treated as a deliberate slide or
+  segmentation artifact and excluded.
+- `sections_20s`, `most_drift_sections`, `most_off_grid_sections` — 20-second
+  section map for "which part of the song needs work".
+- The Markdown report renders these plus long sustains (≥1.2 s) without
+  vibrato (a style check, not automatically a fault). Large mid-note
+  movement can be drift OR intentional runs — the timestamps exist so a
+  human can judge by ear.
+
+## Deep-analysis diagnostics (reported, not yet scored)
+
+These modules ship as timestamped diagnostics. They deliberately do NOT
+feed the calibrated technical score until the reference pack is
+re-analysed with them (a future, explicit rubric-v3 step) — anchors must
+never shift silently.
+
+| Module | What it measures | Reliability |
+|---|---|---|
+| CPPS (`voice_quality.cpps_db`) | Cepstral peak prominence (Praat) — research-standard phonation clarity | high |
+| Strain (`voice_quality.strain*`) | Top-quartile notes that are loud with HNR ≥4 dB below the take's own median — timestamped "pushed note" flags | medium (intentional grit also trips it) |
+| Registers (`registers`) | Per-note spectral-balance 2-means → chest/head split, estimated passaggio, timestamped transitions; honestly reports "no clear split" when clustering separation is weak | medium (heuristic) |
+| Vibrato onset delay (`vibrato.median_onset_delay_s`) | Time from note start until vibrato blooms (pros ~0.2–0.6 s) | medium |
+| Breath (`breath`) | Phrase-end pitch sag (final 0.5 s slope) — timestamped "ran out of air" flags | medium (intentional fall-offs also trip it) |
+| Groove (`groove`) | Vocal onsets vs half-beat grid of the singer's own instrumental stem — rushing/dragging in ms, per 20 s section | medium (needs a rhythmic backing) |
+| Range map (`range_map`) | Time-weighted seconds-per-semitone, comfortable core (mid-80%), extremes | high |
+
+### Companion tools
+
+- **`tools/compare_takes.py take.json original.json`** — melody-match: DTW
+  alignment of the persisted 10 Hz pitch contours (`pitch.f0_contour`),
+  global transposition detected and removed (singing in a lower key is a
+  choice, not an error), then per-20 s section: sharp/flat vs the original
+  melody and ahead/behind timing feel. Validated on ground truth: a +3
+  semitone, +15 cent synthetic copy was recovered as exactly +3 st and
+  ~10–15 cents.
+- **`tools/progress_report.py output/ --singer NAME [--song SLUG]`** — the
+  progress ledger: per-take metric table plus first→latest trends for
+  score, intonation, drift, voice quality, vibrato, phrasing and breath.
+
 ## Known remaining limits
 
 - Stem separation artifacts (phasey tails, backing-vocal bleed) degrade all

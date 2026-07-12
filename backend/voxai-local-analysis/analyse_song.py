@@ -106,6 +106,11 @@ VIBRATO_MIN_EXTENT_CENTS = 10.0
 VIBRATO_MAX_EXTENT_CENTS = 300.0
 VIBRATO_MIN_BAND_RATIO = 0.15
 
+# Trouble-spot reporting thresholds (time-localised feedback)
+TROUBLE_DEV_CENTS = 25.0     # a note landing further off-grid than this is flagged
+TROUBLE_DRIFT_CENTS = 40.0   # a note drifting more than this while held is flagged
+FLAT_SUSTAIN_MIN_S = 1.2     # long sustains without vibrato get a style-check flag
+
 
 # =============================================================================
 # UTILITY FUNCTIONS
@@ -270,6 +275,12 @@ def moving_average(values, window_frames):
     padded = np.pad(values, window_frames // 2, mode='reflect')
     kernel = np.ones(window_frames) / window_frames
     return np.convolve(padded, kernel, mode='valid')
+
+
+def seconds_to_mmss(seconds):
+    """Formats seconds as m:ss for human-readable timestamps."""
+    seconds = max(0, int(round(float(seconds))))
+    return f"{seconds // 60}:{seconds % 60:02d}"
 
 
 def safe_float(value, decimals=None):
@@ -457,7 +468,24 @@ def analyse_pitch(y, sr, hop_length=512):
                 "voiced_pct": round(len(sec_voiced) / len(sec_f0) * 100, 1)
             })
 
+    # Compact pitch contour (10 Hz, cents rel. A440, None = unvoiced) —
+    # persisted so tools/compare_takes.py can melody-match two analyses
+    # without re-processing audio.
+    contour_rate = 10.0
+    frame_rate = sr / hop_length
+    step = max(1, int(round(frame_rate / contour_rate)))
+    cents_full = hz_to_cents(f0)
+    contour = [
+        round(float(c), 1) if math.isfinite(c) else None
+        for c in cents_full[::step]
+    ]
+
     return {
+        "f0_contour": {
+            "rate_hz": round(frame_rate / step, 3),
+            "units": "cents_rel_A440",
+            "values": contour,
+        },
         "mean_hz": round(float(np.mean(voiced_f0)), 2),
         "median_hz": round(float(np.median(voiced_f0)), 2),
         "min_hz": round(float(np.min(voiced_f0)), 2),
@@ -483,7 +511,7 @@ def analyse_pitch(y, sr, hop_length=512):
     }
 
 
-def analyse_voice_quality(wav_path, f0, sr, hop_length=512):
+def analyse_voice_quality(wav_path, f0, sr, y=None, hop_length=512):
     """
     MODULE 2: VOICE QUALITY — JITTER, SHIMMER, HNR (Praat)
     ────────────────────────────────────────────────────────
@@ -555,6 +583,72 @@ def analyse_voice_quality(wav_path, f0, sr, hop_length=512):
     if n_measured == 0:
         return _voice_quality_fallback(long_notes)
 
+    # ── CPPS: cepstral peak prominence (smoothed) ────────────────────────
+    # The modern research-standard voice-quality measure; more robust than
+    # jitter/shimmer on connected singing. Higher = clearer phonation.
+    cpps_db = None
+    try:
+        cepstrogram = praat_call(snd, "To PowerCepstrogram", 60.0, 0.002, 5000.0, 50.0)
+        cpps_db = safe_float(praat_call(
+            cepstrogram, "Get CPPS", False, 0.02, 0.0005, 60.0, 880.0,
+            0.05, "Parabolic", 0.001, 0.05, "Straight", "Robust"), 2)
+    except Exception:
+        pass
+
+    # ── Strain detection ─────────────────────────────────────────────────
+    # A pushed top note shows as: high pitch + loud + harmonicity collapsing
+    # relative to the singer's own norm. Flags are timestamped diagnostics,
+    # judged against this take only (no cross-singer comparison).
+    strained_notes = []
+    strain_summary = None
+    note_feats = []
+    if y is not None:
+        rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=hop_length)[0]
+        rms_db_track = librosa.amplitude_to_db(rms, ref=np.max)
+        for note in long_notes:
+            t0, t1 = note["start_s"], note["end_s"]
+            i0, i1 = int(t0 * sr / hop_length), int(t1 * sr / hop_length)
+            if i1 <= i0 or i1 > len(rms_db_track):
+                continue
+            try:
+                note_hnr = praat_call(harmonicity, "Get mean", t0, t1)
+            except Exception:
+                continue
+            if note_hnr is None or not math.isfinite(note_hnr):
+                continue
+            note_feats.append({
+                "start_s": note["start_s"],
+                "time": seconds_to_mmss(note["start_s"]),
+                "duration_s": round(note["duration_s"], 2),
+                "note": hz_to_note_safe(note["median_hz"]),
+                "median_hz": note["median_hz"],
+                "hnr_db": float(note_hnr),
+                "rms_db": float(np.mean(rms_db_track[i0:i1])),
+            })
+        if len(note_feats) >= 8:
+            pitches = np.array([n["median_hz"] for n in note_feats])
+            hnrs = np.array([n["hnr_db"] for n in note_feats])
+            louds = np.array([n["rms_db"] for n in note_feats])
+            hi_pitch = np.percentile(pitches, 75)
+            med_hnr = float(np.median(hnrs))
+            med_loud = float(np.median(louds))
+            for n in note_feats:
+                if (n["median_hz"] >= hi_pitch and n["rms_db"] >= med_loud
+                        and n["hnr_db"] <= med_hnr - 4.0):
+                    strained_notes.append({
+                        "time": n["time"], "note": n["note"],
+                        "duration_s": n["duration_s"],
+                        "hnr_drop_db": round(med_hnr - n["hnr_db"], 1),
+                    })
+            top_notes = [n for n in note_feats if n["median_hz"] >= hi_pitch]
+            strain_summary = {
+                "n_top_quartile_notes": len(top_notes),
+                "n_strained": len(strained_notes),
+                "pct_top_notes_strained": round(len(strained_notes) / len(top_notes) * 100, 1) if top_notes else 0,
+                "method": "high pitch + above-median loudness + HNR >=4 dB below this take's own median",
+                "reliability": "medium — heuristic; intentional grit also trips it, confirm by ear at the timestamps",
+            }
+
     def median_of(key, decimals=4):
         return safe_float(np.median(per_note[key]), decimals) if per_note[key] else None
 
@@ -576,6 +670,10 @@ def analyse_voice_quality(wav_path, f0, sr, hop_length=512):
         "hnr_db_median": hnr_med,
         "hnr_db_p25": safe_float(np.percentile(per_note["hnr_db"], 25), 2) if per_note["hnr_db"] else None,
         "hnr_db_p75": safe_float(np.percentile(per_note["hnr_db"], 75), 2) if per_note["hnr_db"] else None,
+        "cpps_db": cpps_db,
+        "cpps_note": "Cepstral Peak Prominence (smoothed, Praat). Research-standard clarity measure; diagnostic only until the reference pack is re-analysed with it.",
+        "strain": strain_summary,
+        "strained_notes": strained_notes[:10],
         "interpretation": _interpret_voice_quality(jitter_med, shimmer_med, hnr_med),
         "reference": {
             "speech_pathology_jitter_pct": JITTER_THRESHOLD_PCT,
@@ -981,6 +1079,21 @@ def analyse_vibrato(f0, sr, hop_length=512):
             and band_ratio >= VIBRATO_MIN_BAND_RATIO
             and VIBRATO_MIN_EXTENT_CENTS <= extent <= VIBRATO_MAX_EXTENT_CENTS
         )
+
+        # Vibrato onset delay: professionals typically hold a straight
+        # onset, then let vibrato bloom. Find the first 0.4 s window whose
+        # oscillation reaches half the note's overall extent.
+        onset_delay_s = None
+        if has_vibrato:
+            win = max(4, int(0.4 * pitch_sr))
+            half_extent = extent / 2
+            for start_idx in range(0, len(residual) - win, max(1, win // 4)):
+                seg = residual[start_idx:start_idx + win]
+                seg_extent = (np.percentile(seg, 97.5) - np.percentile(seg, 2.5)) / 2
+                if seg_extent >= half_extent:
+                    onset_delay_s = round(start_idx / pitch_sr, 2)
+                    break
+
         per_note.append({
             "start_s": round(note["start_s"], 2),
             "duration_s": round(note["duration_s"], 2),
@@ -989,6 +1102,7 @@ def analyse_vibrato(f0, sr, hop_length=512):
             "extent_cents": round(extent, 1),
             "band_power_ratio": round(band_ratio, 3),
             "has_vibrato": has_vibrato,
+            "onset_delay_s": onset_delay_s,
         })
 
     if not per_note:
@@ -1008,6 +1122,10 @@ def analyse_vibrato(f0, sr, hop_length=512):
         summary["median_rate_hz"] = round(float(np.median([n["rate_hz"] for n in vibrato_notes])), 2)
         summary["median_extent_cents"] = round(float(np.median([n["extent_cents"] for n in vibrato_notes])), 1)
         summary["median_regularity"] = round(float(np.median([n["band_power_ratio"] for n in vibrato_notes])), 3)
+        delays = [n["onset_delay_s"] for n in vibrato_notes if n.get("onset_delay_s") is not None]
+        if delays:
+            summary["median_onset_delay_s"] = round(float(np.median(delays)), 2)
+            summary["onset_delay_note"] = "Time from note start until vibrato blooms. Pros typically ~0.2-0.6 s; near-zero can read as nervous wobble, very late as an afterthought."
     summary["classification"] = (
         "Consistent vibrato" if pct >= 60 else
         "Selective vibrato" if pct >= 25 else
@@ -1066,6 +1184,58 @@ def analyse_intonation(f0, sr, hop_length=512):
         drifts.append(float(np.percentile(slow, 95) - np.percentile(slow, 5)))
 
     median_abs = float(np.median(abs_devs))
+
+    # ── Time-localised detail ────────────────────────────────────────────
+    # Every sustained note with its timestamp, so reports can say WHERE the
+    # problems live, not just how big they are on average.
+    note_details = []
+    for note, dev, drift in zip(notes, devs, drifts):
+        # Mid-note drift: middle 60% of the contour only, so onset scoops
+        # and release slides don't read as "the held note drifted".
+        contour = note["cents_contour"]
+        lo, hi = int(0.2 * len(contour)), int(0.8 * len(contour))
+        mid = contour[lo:hi] if hi - lo >= 5 else contour
+        mid_slow = moving_average(mid, int(0.35 * pitch_sr))
+        held_drift = float(np.percentile(mid_slow, 95) - np.percentile(mid_slow, 5))
+        note_details.append({
+            "time": seconds_to_mmss(note["start_s"]),
+            "start_s": round(note["start_s"], 2),
+            "duration_s": round(note["duration_s"], 2),
+            "note": hz_to_note_safe(note["median_hz"]),
+            "deviation_cents": round(float(dev), 1),
+            "drift_cents": round(float(drift), 1),
+            "held_drift_cents": round(held_drift, 1),
+        })
+
+    worst_intonation = sorted(
+        (n for n in note_details if abs(n["deviation_cents"]) > TROUBLE_DEV_CENTS),
+        key=lambda n: -abs(n["deviation_cents"]))[:8]
+    # >300 cents mid-note movement is a deliberate slide or a segmentation
+    # artifact, not a control problem — excluded from the trouble list.
+    worst_drift = sorted(
+        (n for n in note_details
+         if TROUBLE_DRIFT_CENTS < n["held_drift_cents"] <= 300),
+        key=lambda n: -n["held_drift_cents"])[:8]
+
+    # Per-section aggregates (~20 s bins) — which stretch of the song needs work
+    section_s = 20.0
+    sections = {}
+    for n in note_details:
+        idx = int(n["start_s"] // section_s)
+        sections.setdefault(idx, []).append(n)
+    section_summary = []
+    for idx in sorted(sections):
+        seg = sections[idx]
+        section_summary.append({
+            "time_range": f"{seconds_to_mmss(idx * section_s)}-{seconds_to_mmss((idx + 1) * section_s)}",
+            "n_notes": len(seg),
+            "median_abs_deviation_cents": round(float(np.median([abs(n["deviation_cents"]) for n in seg])), 1),
+            "median_drift_cents": round(float(np.median([n["held_drift_cents"] for n in seg])), 1),
+            "worst_note": max(seg, key=lambda n: max(abs(n["deviation_cents"]), n["drift_cents"] / 2))["time"],
+        })
+    drift_ranked = sorted(section_summary, key=lambda s: -s["median_drift_cents"])
+    dev_ranked = sorted(section_summary, key=lambda s: -s["median_abs_deviation_cents"])
+
     return {
         "method": "sustained_note_deviation_from_equal_tempered_grid",
         "n_notes": len(notes),
@@ -1075,6 +1245,12 @@ def analyse_intonation(f0, sr, hop_length=512):
         "pct_notes_within_10_cents": round(float(np.mean(abs_devs <= 10) * 100), 1),
         "pct_notes_within_25_cents": round(float(np.mean(abs_devs <= 25) * 100), 1),
         "median_intra_note_drift_cents": round(float(np.median(drifts)), 1),
+        "notes": note_details,
+        "worst_intonation_notes": worst_intonation,
+        "worst_drift_notes": worst_drift,
+        "sections_20s": section_summary,
+        "most_drift_sections": [s["time_range"] for s in drift_ranked[:3] if s["median_drift_cents"] > TROUBLE_DRIFT_CENTS * 0.6],
+        "most_off_grid_sections": [s["time_range"] for s in dev_ranked[:3] if s["median_abs_deviation_cents"] > TROUBLE_DEV_CENTS * 0.8],
         "classification": (
             "Exceptional accuracy" if median_abs <= 5 else
             "Professional accuracy" if median_abs <= 10 else
@@ -1087,6 +1263,260 @@ def analyse_intonation(f0, sr, hop_length=512):
             "non-12-TET material register as deviation. Interpret alongside "
             "the recording context."
         ),
+    }
+
+
+def analyse_registers(y, sr, f0, hop_length=512):
+    """
+    REGISTER / PASSAGGIO MAP (heuristic)
+    ──────────────────────────────────────
+    Estimates chest-dominant vs head/light-dominant production per sustained
+    note from spectral balance: chest voice carries strong upper-harmonic
+    energy; head/falsetto concentrates energy in the low harmonics. Notes
+    are split on this take's own spectral-balance median, the boundary pitch
+    between the two clusters estimates the passaggio, and adjacent notes
+    that switch cluster are flagged as register transitions.
+
+    Reliability: medium. This is a spectral heuristic, not laryngoscopy —
+    breathy chest or belted head mix can misclassify. Timestamps exist so a
+    coach can verify by ear.
+    """
+    print("  Register/passaggio mapping (heuristic)...")
+    notes = segment_sustained_notes(f0, hop_length, sr)
+    if len(notes) < 8:
+        return {"error": "Too few sustained notes for register mapping.", "n_notes": len(notes)}
+
+    feats = []
+    for note in notes:
+        s0, s1 = int(note["start_s"] * sr), int(note["end_s"] * sr)
+        seg = y[s0:s1]
+        if len(seg) < 1024:
+            continue
+        spec = np.abs(np.fft.rfft(seg * np.hanning(len(seg)))) ** 2
+        freqs = np.fft.rfftfreq(len(seg), 1.0 / sr)
+        low = spec[(freqs >= 80) & (freqs < 1200)].sum()
+        high = spec[(freqs >= 1200) & (freqs < 4000)].sum()
+        if low <= 0 or high <= 0:
+            continue
+        feats.append({
+            "start_s": note["start_s"],
+            "time": seconds_to_mmss(note["start_s"]),
+            "note": hz_to_note_safe(note["median_hz"]),
+            "median_hz": note["median_hz"],
+            "balance_db": float(10 * np.log10(low / high)),
+        })
+    if len(feats) < 8:
+        return {"error": "Too few analysable notes for register mapping."}
+
+    # 1-D 2-means on spectral balance. A median split would force a 50/50
+    # answer even for a single-register performance — instead, cluster and
+    # then require real separation before claiming two registers exist.
+    balances = np.array([f["balance_db"] for f in feats])
+    c_lo, c_hi = float(np.percentile(balances, 25)), float(np.percentile(balances, 75))
+    for _ in range(20):
+        assign_hi = np.abs(balances - c_hi) < np.abs(balances - c_lo)
+        if assign_hi.all() or (~assign_hi).all():
+            break
+        new_lo, new_hi = float(balances[~assign_hi].mean()), float(balances[assign_hi].mean())
+        if abs(new_lo - c_lo) < 1e-6 and abs(new_hi - c_hi) < 1e-6:
+            break
+        c_lo, c_hi = new_lo, new_hi
+
+    spread = float(np.std(balances))
+    separation = (c_hi - c_lo) / spread if spread > 0 else 0.0
+    if separation < 1.2 or assign_hi.all() or (~assign_hi).all():
+        dominant = "full/chest-leaning" if np.median(balances) <= np.mean([c_lo, c_hi]) else "light/head-leaning"
+        return {
+            "method": "spectral_balance_heuristic_per_note",
+            "reliability": "medium — verify by ear",
+            "n_notes": len(feats),
+            "single_register": True,
+            "read": (
+                f"No clear two-register split detected — production is spectrally "
+                f"consistent across the range ({dominant} overall). That usually means "
+                f"a well-blended mix (good) or one mechanism used throughout."
+            ),
+            "n_register_transitions": 0,
+            "transitions": [],
+        }
+
+    for f, hi in zip(feats, assign_hi):
+        f["cluster"] = "light" if hi else "full"
+    light = [f for f in feats if f["cluster"] == "light"]
+    full = [f for f in feats if f["cluster"] == "full"]
+    # The cluster sitting higher in pitch is the head/light mechanism
+    if light and full and np.median([f["median_hz"] for f in light]) < np.median([f["median_hz"] for f in full]):
+        for f in feats:
+            f["cluster"] = "light" if f["cluster"] == "full" else "full"
+        light, full = full, light
+
+    passaggio_hz = None
+    if light and full:
+        top_full = float(np.percentile([f["median_hz"] for f in full], 90))
+        bottom_light = float(np.percentile([f["median_hz"] for f in light], 10))
+        passaggio_hz = (top_full + bottom_light) / 2
+
+    transitions = []
+    min_gap_db = (c_hi - c_lo) / 2
+    for a, b in zip(feats[:-1], feats[1:]):
+        if (a["cluster"] != b["cluster"] and (b["start_s"] - a["start_s"]) < 3.0
+                and abs(a["balance_db"] - b["balance_db"]) >= min_gap_db):
+            transitions.append({
+                "time": b["time"],
+                "from": f"{a['cluster']} ({a['note']})",
+                "to": f"{b['cluster']} ({b['note']})",
+            })
+
+    return {
+        "method": "spectral_balance_heuristic_per_note",
+        "reliability": "medium — verify by ear at the timestamps",
+        "n_notes": len(feats),
+        "pct_full_voice": round(len(full) / len(feats) * 100, 1),
+        "pct_light_head": round(len(light) / len(feats) * 100, 1),
+        "estimated_passaggio": hz_to_note_safe(passaggio_hz) if passaggio_hz else None,
+        "estimated_passaggio_hz": round(passaggio_hz, 1) if passaggio_hz else None,
+        "n_register_transitions": len(transitions),
+        "transitions": transitions[:12],
+        "notes": [{k: (round(v, 1) if isinstance(v, float) else v)
+                   for k, v in f.items() if k != "median_hz"} for f in feats],
+    }
+
+
+def analyse_breath(y, sr, f0, hop_length=512):
+    """
+    BREATH / PHRASE-END DIAGNOSTICS
+    ─────────────────────────────────
+    Running out of air shows at phrase ends: pitch sags and energy collapses
+    in the final half-second. Each phrase's ending is fitted for pitch slope
+    (cents/s) and flagged when it sags more than ~40 cents into the release.
+    """
+    print("  Breath/phrase-end diagnostics...")
+    phrases = segment_phrases(f0, hop_length, sr)
+    if len(phrases) < 3:
+        return {"error": "Too few phrases for breath diagnostics."}
+
+    frame_rate = sr / hop_length
+    cents = hz_to_cents(f0)
+    sagging = []
+    measured = 0
+    for phrase in phrases:
+        end_frame = int(phrase["end_s"] * frame_rate)
+        tail = cents[max(0, end_frame - int(0.5 * frame_rate)):end_frame]
+        tail = tail[np.isfinite(tail)]
+        if len(tail) < 6:
+            continue
+        measured += 1
+        x = np.arange(len(tail)) / frame_rate
+        slope = float(np.polyfit(x, tail, 1)[0])          # cents per second
+        sag = float(tail[0] - np.min(tail))
+        if slope < -60 and sag > 40:
+            sagging.append({
+                "time": seconds_to_mmss(phrase["end_s"]),
+                "phrase_length_s": round(phrase["duration_s"], 2),
+                "sag_cents": round(sag, 1),
+            })
+
+    return {
+        "method": "pitch slope over the final 0.5 s of each phrase",
+        "n_phrases_measured": measured,
+        "n_sagging_endings": len(sagging),
+        "pct_sagging_endings": round(len(sagging) / measured * 100, 1) if measured else None,
+        "sagging_phrase_ends": sagging[:10],
+        "note": "Sagging endings on LONG phrases suggest breath running out; on short phrases, intentional fall-offs are common in rock/soul — judge by ear.",
+    }
+
+
+def analyse_groove(vocal_y, sr, instrumental_path, hop_length=512):
+    """
+    GROOVE / TIMING vs THE BACKING TRACK
+    ──────────────────────────────────────
+    Beat-tracks the INSTRUMENTAL stem (where beat tracking is reliable),
+    then measures each vocal onset's signed distance to the nearest
+    half-beat: negative = rushing (early), positive = dragging (late).
+    """
+    print("  Groove/timing vs instrumental...")
+    try:
+        inst_y, _ = librosa.load(instrumental_path, sr=sr, mono=True)
+    except Exception as exc:
+        return {"error": f"Could not load instrumental stem: {exc}"}
+
+    tempo, beat_frames = librosa.beat.beat_track(y=inst_y, sr=sr, hop_length=hop_length)
+    beat_times = librosa.frames_to_time(beat_frames, sr=sr, hop_length=hop_length)
+    if len(beat_times) < 8:
+        return {"error": "Beat tracking found too few beats in the instrumental."}
+
+    # Half-beat grid: singers legitimately land on off-beats
+    grid = np.sort(np.concatenate([beat_times, beat_times[:-1] + np.diff(beat_times) / 2]))
+    onsets = librosa.onset.onset_detect(y=vocal_y, sr=sr, hop_length=hop_length, units="time")
+    onsets = [t for t in onsets if grid[0] <= t <= grid[-1]]
+    if len(onsets) < 10:
+        return {"error": "Too few vocal onsets inside the beat grid."}
+
+    offsets_ms = []
+    for t in onsets:
+        idx = np.searchsorted(grid, t)
+        nearest = min(
+            (g for g in grid[max(0, idx - 1):idx + 1]),
+            key=lambda g: abs(t - g),
+        )
+        offsets_ms.append((t - nearest) * 1000.0)
+    offsets_ms = np.array(offsets_ms)
+
+    section_s = 20.0
+    sections = {}
+    for t, off in zip(onsets, offsets_ms):
+        sections.setdefault(int(t // section_s), []).append(off)
+    section_summary = [
+        {
+            "time_range": f"{seconds_to_mmss(i * section_s)}-{seconds_to_mmss((i + 1) * section_s)}",
+            "mean_offset_ms": round(float(np.mean(v)), 1),
+            "feel": "rushing" if np.mean(v) < -25 else "dragging" if np.mean(v) > 25 else "in the pocket",
+        }
+        for i, v in sorted(sections.items()) if len(v) >= 3
+    ]
+
+    mean_off = float(np.mean(offsets_ms))
+    return {
+        "method": "vocal onsets vs half-beat grid of the instrumental stem",
+        "tempo_bpm": round(float(tempo) if np.isscalar(tempo) else float(tempo[0]), 1),
+        "n_onsets": len(onsets),
+        "mean_offset_ms": round(mean_off, 1),
+        "offset_spread_ms": round(float(np.std(offsets_ms)), 1),
+        "feel": "rushing" if mean_off < -25 else "dragging" if mean_off > 25 else "in the pocket",
+        "sections_20s": section_summary,
+        "note": "Negative = ahead of the beat. Persistent |offset| under ~25 ms reads as tight; deliberate back-phrasing (soul/jazz) shows as consistent positive offsets — style, not error.",
+    }
+
+
+def analyse_range_map(f0, sr, voice_quality=None, hop_length=512):
+    """
+    RANGE MAP
+    ───────────
+    Time-weighted histogram of where the voice actually lives: seconds spent
+    per semitone, the comfortable core (middle 80% of voiced time), and the
+    extremes touched.
+    """
+    print("  Range map...")
+    voiced = f0[np.isfinite(f0)]
+    if len(voiced) < 50:
+        return {"error": "Too little voiced material for a range map."}
+    frame_s = hop_length / sr
+    midi = 69 + 12 * np.log2(voiced / 440.0)
+    bins = np.round(midi).astype(int)
+    histogram = {}
+    for b in bins:
+        histogram[int(b)] = histogram.get(int(b), 0) + frame_s
+    p10, p90 = np.percentile(midi, 10), np.percentile(midi, 90)
+
+    def midi_to_name(m):
+        return hz_to_note_safe(440.0 * 2 ** ((m - 69) / 12))
+
+    return {
+        "comfortable_core": f"{midi_to_name(p10)}-{midi_to_name(p90)}",
+        "extremes_touched": f"{midi_to_name(np.percentile(midi, 0.5))}-{midi_to_name(np.percentile(midi, 99.5))}",
+        "most_used_note": midi_to_name(max(histogram, key=histogram.get)),
+        "seconds_per_note": {midi_to_name(k): round(v, 1) for k, v in sorted(histogram.items())},
+        "note": "Time-weighted from this take only. Compare across takes/songs for a true personal range picture.",
     }
 
 
@@ -1736,6 +2166,10 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
     score = results.get("technical_score", {})
     stem_info = results.get("stem_separation")
     visual_info = results.get("visual_diagnostics")
+    registers = results.get("registers", {})
+    breath = results.get("breath", {})
+    groove = results.get("groove", {})
+    range_map = results.get("range_map", {})
 
     lines = [
         f"# VOXAI Diagnostic Report",
@@ -1855,6 +2289,62 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"| Classification | **{intonation.get('classification', 'N/A')}** |",
         f"",
         f"*{intonation.get('caveat', '')}*",
+    ]
+
+    # ── Time-localised trouble spots ─────────────────────────────────────
+    lines += [
+        f"",
+        f"---",
+        f"",
+        f"## TROUBLE SPOTS (time-localised)",
+        f"",
+    ]
+    worst_drift = intonation.get("worst_drift_notes", [])
+    worst_dev = intonation.get("worst_intonation_notes", [])
+    flat_sustains = [
+        n for n in vibrato.get("notes", [])
+        if not n.get("has_vibrato") and n.get("duration_s", 0) >= FLAT_SUSTAIN_MIN_S
+    ][:8]
+
+    if worst_drift:
+        lines += [f"**Notes with most mid-note pitch movement** (> {TROUBLE_DRIFT_CENTS:.0f} cents; onset scoops/release slides excluded — large values can be held-note drift OR deliberate runs, judge by ear at the timestamp):", f""]
+        lines += [f"| Time | Note | Held | Drift (mid-note) |", f"|---|---|---|---|"]
+        for n in worst_drift:
+            lines.append(f"| {n['time']} | {n['note']} | {n['duration_s']}s | {n['held_drift_cents']} cents |")
+        lines.append("")
+    if worst_dev:
+        lines += [f"**Notes that landed furthest off-centre** (> {TROUBLE_DEV_CENTS:.0f} cents, tuning-corrected):", f""]
+        lines += [f"| Time | Note | Held | Off by |", f"|---|---|---|---|"]
+        for n in worst_dev:
+            lines.append(f"| {n['time']} | {n['note']} | {n['duration_s']}s | {n['deviation_cents']:+} cents |")
+        lines += [f"", f"*±50 cents means exactly halfway between two semitones — the maximum measurable.*", f""]
+    if flat_sustains:
+        lines += [f"**Long sustains without vibrato** (≥ {FLAT_SUSTAIN_MIN_S}s — fine if straight tone is the intent):", f""]
+        lines.append("| Time | Note | Held |")
+        lines.append("|---|---|---|")
+        for n in flat_sustains:
+            lines.append(f"| {seconds_to_mmss(n['start_s'])} | {n.get('note', '?')} | {n['duration_s']}s |")
+        lines.append("")
+    if intonation.get("most_drift_sections"):
+        lines.append(f"**Sections with most drift:** {', '.join(intonation['most_drift_sections'])}  ")
+    if intonation.get("most_off_grid_sections"):
+        lines.append(f"**Sections most off the pitch grid:** {', '.join(intonation['most_off_grid_sections'])}  ")
+    if intonation.get("sections_20s"):
+        lines += [
+            f"",
+            f"<details><summary>Full 20-second section map</summary>",
+            f"",
+            f"| Section | Notes | Median off-centre | Median drift | Worst note at |",
+            f"|---|---|---|---|---|",
+        ]
+        for s in intonation["sections_20s"]:
+            lines.append(
+                f"| {s['time_range']} | {s['n_notes']} | {s['median_abs_deviation_cents']} cents | {s['median_drift_cents']} cents | {s['worst_note']} |")
+        lines += [f"", f"</details>"]
+    if not (worst_drift or worst_dev or flat_sustains):
+        lines.append("No individual notes exceeded the trouble thresholds. Clean take.")
+
+    lines += [
         f"",
         f"---",
         f"",
@@ -1865,6 +2355,8 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"| Jitter (local, median) | {vq.get('jitter_local_percent_median', 'N/A')}% | {vq.get('method', 'N/A')} |",
         f"| Shimmer (local, median) | {vq.get('shimmer_local_percent_median', 'N/A')}% | reliability: {vq.get('reliability', 'N/A')} |",
         f"| HNR (median) | {vq.get('hnr_db_median', 'N/A')} dB | {vq.get('n_notes_measured', 'N/A')} notes measured |",
+        f"| CPPS | {vq.get('cpps_db', 'N/A')} dB | research-standard clarity measure (diagnostic) |",
+        f"| Strained top notes | {(vq.get('strain') or {}).get('n_strained', 'N/A')} of {(vq.get('strain') or {}).get('n_top_quartile_notes', 'N/A')} top-quartile notes | {', '.join(n['time'] for n in vq.get('strained_notes', [])[:6]) or '—'} |",
         f"| Interpretation | {vq.get('interpretation', 'N/A')} | — |",
         f"",
         f"*Speech-pathology thresholds (jitter {JITTER_THRESHOLD_PCT}%, shimmer {SHIMMER_THRESHOLD_PCT}%) describe sustained spoken vowels; sung notes with vibrato naturally run higher.*",
@@ -1880,6 +2372,49 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"| Median rate | {vibrato.get('median_rate_hz', 'N/A')} Hz |",
         f"| Median extent | {vibrato.get('median_extent_cents', 'N/A')} cents |",
         f"| Classification | **{vibrato.get('classification', 'N/A')}** |",
+        f"| Vibrato onset delay (median) | {vibrato.get('median_onset_delay_s', 'N/A')} s (pros typically 0.2–0.6 s) |",
+        f"",
+        f"---",
+        f"",
+        f"## REGISTERS (heuristic — verify by ear)",
+        f"",
+        f"| Metric | Value |",
+        f"|---|---|",
+        f"| Full/chest-dominant notes | {registers.get('pct_full_voice', 'N/A')}% |",
+        f"| Light/head-dominant notes | {registers.get('pct_light_head', 'N/A')}% |",
+        f"| Estimated passaggio | {registers.get('estimated_passaggio', 'N/A')} |",
+        f"| Register transitions | {registers.get('n_register_transitions', 'N/A')} — at {', '.join(t['time'] for t in registers.get('transitions', [])[:6]) or '—'} |",
+        f"| Read | {registers.get('read', '—')} |",
+        f"",
+        f"---",
+        f"",
+        f"## GROOVE / TIMING" + (" (vs backing track)" if groove and not groove.get('error') else ""),
+        f"",
+        f"| Metric | Value |",
+        f"|---|---|",
+        f"| Mean onset offset | {groove.get('mean_offset_ms', 'N/A')} ms ({groove.get('feel', 'N/A')}) |",
+        f"| Timing consistency (spread) | {groove.get('offset_spread_ms', 'N/A')} ms |",
+        f"| Backing tempo | {groove.get('tempo_bpm', 'N/A')} BPM |",
+        f"",
+        *([f"*{groove.get('note', '')}*", f""] if groove and not groove.get("error") else [f"*Not available — requires an instrumental stem (run with --separate-stems).*", f""]),
+        f"---",
+        f"",
+        f"## BREATH / PHRASE ENDINGS",
+        f"",
+        f"| Metric | Value |",
+        f"|---|---|",
+        f"| Phrase endings measured | {breath.get('n_phrases_measured', 'N/A')} |",
+        f"| Sagging endings | {breath.get('n_sagging_endings', 'N/A')} ({breath.get('pct_sagging_endings', 'N/A')}%) — at {', '.join(p['time'] for p in breath.get('sagging_phrase_ends', [])[:6]) or '—'} |",
+        f"",
+        f"---",
+        f"",
+        f"## RANGE MAP",
+        f"",
+        f"| Metric | Value |",
+        f"|---|---|",
+        f"| Comfortable core (mid-80% of voiced time) | {range_map.get('comfortable_core', 'N/A')} |",
+        f"| Extremes touched | {range_map.get('extremes_touched', 'N/A')} |",
+        f"| Most-used note | {range_map.get('most_used_note', 'N/A')} |",
         f"",
         f"---",
         f"",
@@ -2055,6 +2590,7 @@ def main():
     results = {
         "file_name": os.path.basename(args.input_file),
         "analysis_input_file": os.path.basename(analysis_input_path),
+        "analysed_at": datetime.now().isoformat(timespec="seconds"),
         "artist_name": args.name,
         "duration_seconds": round(duration, 2),
         "sample_rate": sr,
@@ -2074,7 +2610,7 @@ def main():
     results["pitch"] = pitch_results
 
     if raw_f0 is not None:
-        results["voice_quality"] = analyse_voice_quality(wav_path, raw_f0, sr)
+        results["voice_quality"] = analyse_voice_quality(wav_path, raw_f0, sr, y=y)
 
     results["harmonic_balance"] = analyse_harmonic_balance(y)
     results["resonance"] = analyse_resonance(y, sr)
@@ -2088,6 +2624,11 @@ def main():
         results["vibrato"] = analyse_vibrato(raw_f0, sr)
         results["intonation"] = analyse_intonation(raw_f0, sr)
         results["phrasing"] = analyse_phrasing(raw_f0, sr)
+        results["registers"] = analyse_registers(y, sr, raw_f0)
+        results["breath"] = analyse_breath(y, sr, raw_f0)
+        results["range_map"] = analyse_range_map(raw_f0, sr)
+        if stem_metadata and stem_metadata.get("instrumental_path"):
+            results["groove"] = analyse_groove(y, sr, stem_metadata["instrumental_path"])
         results["time_diagnostics"] = analyse_time_diagnostics(
             y,
             sr,
