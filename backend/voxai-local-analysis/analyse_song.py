@@ -822,7 +822,26 @@ def analyse_resonance(y, sr, hop_length=512):
         "Bright / Forward / Twangy"
     )
 
+    # Singer's formant: energy in the 2-4 kHz "projection band" relative to
+    # the 80 Hz-2 kHz body of the voice, active frames only. This band is
+    # what lets a voice cut over a band/orchestra (the classic "ring").
+    stft = np.abs(librosa.stft(y, n_fft=2048, hop_length=hop_length)) ** 2
+    freqs = librosa.fft_frequencies(sr=sr, n_fft=2048)
+    stft = stft[:, :n_frames][:, mask]
+    band_sf = stft[(freqs >= 2000) & (freqs < 4000)].sum(axis=0)
+    band_body = stft[(freqs >= 80) & (freqs < 2000)].sum(axis=0)
+    valid = band_body > 0
+    sf_ratio_db = float(np.median(10 * np.log10(band_sf[valid] / band_body[valid]))) if valid.any() else None
+
     return {
+        "singers_formant_ratio_db": round(sf_ratio_db, 2) if sf_ratio_db is not None else None,
+        "singers_formant_read": (
+            None if sf_ratio_db is None else
+            "Strong ring/projection" if sf_ratio_db > -12 else
+            "Moderate projection" if sf_ratio_db > -20 else
+            "Soft/dark — little 2-4 kHz ring"
+        ),
+        "singers_formant_note": "Median 2-4 kHz vs 80 Hz-2 kHz energy on active frames. Heuristic bands; diagnostic until pro-pack anchors exist.",
         "spectral_centroid_mean_hz": round(mean_centroid, 2),
         "spectral_centroid_median_hz": round(float(np.median(centroid)), 2),
         "spectral_rolloff_85_mean_hz": round(float(np.mean(rolloff_85)), 2),
@@ -925,6 +944,45 @@ def analyse_rhythm(y, sr, is_isolated_stem=False, hop_length=512):
     }
 
 
+# Peterson & Barney adult-male vowel averages (F1, F2 in Hz); scaled by
+# formant ceiling to approximate other voice types.
+VOWEL_TARGETS = {
+    "ee (heat)": (270, 2290), "ih (hit)": (390, 1990), "eh (bet)": (530, 1840),
+    "ae (cat)": (660, 1720), "ah (father)": (730, 1090), "aw (bought)": (570, 840),
+    "uh (book)": (440, 1020), "oo (boot)": (300, 870), "uh (cut)": (640, 1190),
+    "er (bird)": (490, 1350),
+}
+
+
+def _map_vowel_space(per_note, formant_ceiling):
+    """
+    Maps each sustained note's F1/F2 to the nearest cardinal vowel.
+    Notes above ~350 Hz F0 are excluded: with widely-spaced harmonics the
+    formant estimates (and the very concept of a static vowel) degrade —
+    this is a known physics limit, not a solvable bug.
+    """
+    scale = formant_ceiling / 5000.0
+    usable = [n for n in per_note if n["median_hz"] <= 350]
+    mapped = []
+    for n in usable:
+        best, best_d = None, 1e12
+        for vowel, (f1, f2) in VOWEL_TARGETS.items():
+            d = (np.log(n["F1"] / (f1 * scale))) ** 2 + (np.log(n["F2"] / (f2 * scale))) ** 2
+            if d < best_d:
+                best, best_d = vowel, d
+        mapped.append({"time": n["time"], "F1": round(n["F1"]), "F2": round(n["F2"]), "vowel": best})
+    counts = {}
+    for m in mapped:
+        counts[m["vowel"]] = counts.get(m["vowel"], 0) + 1
+    return {
+        "n_notes_mapped": len(mapped),
+        "n_notes_excluded_high_pitch": len(per_note) - len(usable),
+        "vowel_distribution": dict(sorted(counts.items(), key=lambda kv: -kv[1])),
+        "notes": mapped,
+        "reliability": "medium — vowel identity from F1/F2 is approximate on sung (vs spoken) vowels; excluded above F0 350 Hz where formant tracking breaks down",
+    }
+
+
 def analyse_formants(wav_path, y, sr, f0, hop_length=512, formant_ceiling=5500.0):
     """
     MODULE 7: FORMANT ANALYSIS
@@ -955,14 +1013,24 @@ def analyse_formants(wav_path, y, sr, f0, hop_length=512, formant_ceiling=5500.0
             pre_emphasis_from=50.0,
         )
         samples = {1: [], 2: [], 3: []}
+        per_note = []
         for note in notes:
             # Sample a few points inside each sustained note
+            note_f = {1: [], 2: [], 3: []}
             for frac in (0.3, 0.5, 0.7):
                 t = note["start_s"] + frac * note["duration_s"]
                 for i in (1, 2, 3):
                     value = formant.get_value_at_time(i, t)
                     if value is not None and math.isfinite(value):
                         samples[i].append(float(value))
+                        note_f[i].append(float(value))
+            if note_f[1] and note_f[2]:
+                per_note.append({
+                    "time": seconds_to_mmss(note["start_s"]),
+                    "median_hz": note["median_hz"],
+                    "F1": float(np.median(note_f[1])),
+                    "F2": float(np.median(note_f[2])),
+                })
         if not samples[1]:
             return {"error": "Praat returned no valid formant samples.", "method": "praat_burg"}
         result = {"method": "praat_burg_sustained_notes", "reliability": "high",
@@ -973,6 +1041,7 @@ def analyse_formants(wav_path, y, sr, f0, hop_length=512, formant_ceiling=5500.0
                 arr = np.array(samples[i])
                 result[f"F{i}_median_hz"] = round(float(np.median(arr)), 1)
                 result[f"F{i}_iqr_hz"] = round(float(np.percentile(arr, 75) - np.percentile(arr, 25)), 1)
+        result["vowel_space"] = _map_vowel_space(per_note, formant_ceiling)
         return result
 
     # ── Fallback: correctly-scaled LPC ────────────────────────────────────
@@ -1263,6 +1332,132 @@ def analyse_intonation(f0, sr, hop_length=512):
             "non-12-TET material register as deviation. Interpret alongside "
             "the recording context."
         ),
+    }
+
+
+def analyse_onsets(f0, sr, hop_length=512):
+    """
+    ONSET QUALITY — scoops, overshoots, clean landings
+    ────────────────────────────────────────────────────
+    How each sustained note is approached: the first ~0.25 s of the contour
+    versus the note's settled centre (median of the middle 50%).
+
+      scoop      — starts >25 cents BELOW target and slides up
+      overshoot  — rises >25 cents ABOVE target before settling
+      clean      — lands within ±25 cents and stays
+
+    Scoops are a legitimate stylistic device in pop/soul/rock; the value of
+    measuring them is consistency and intent — random scooping reads as
+    imprecision, deliberate scooping reads as style. Timestamps let a coach
+    judge which is which.
+    """
+    print("  Onset quality (scoops/overshoots)...")
+    frame_s = hop_length / sr
+    pitch_sr = sr / hop_length
+    notes = [n for n in segment_sustained_notes(f0, hop_length, sr) if n["duration_s"] >= 0.35]
+    if len(notes) < 5:
+        return {"error": "Too few sustained notes for onset analysis."}
+
+    per_note = []
+    for note in notes:
+        # Vibrato-smoothed contour, and skip the 2 boundary frames that can
+        # still ride the glide from the previous note — otherwise transition
+        # tails and vibrato peaks masquerade as scoops/overshoots.
+        slow = moving_average(note["cents_contour"], int(0.15 * pitch_sr))
+        if len(slow) < 8:
+            continue
+        q1, q3 = int(0.3 * len(slow)), int(0.8 * len(slow))
+        target = float(np.median(slow[q1:q3]))
+        onset_frames = min(int(0.25 / frame_s), max(4, len(slow) // 3))
+        start_dev = float(np.median(slow[2:6]) - target)
+        peak_excursion = float(np.max(slow[2:onset_frames]) - target)
+        reaches_target = bool(np.min(np.abs(slow[q1:q3] - target)) <= 20)
+        if start_dev <= -30 and reaches_target:
+            kind = "scoop"
+        elif peak_excursion >= 30 and start_dev > -30:
+            kind = "overshoot"
+        else:
+            kind = "clean"
+        per_note.append({
+            "time": seconds_to_mmss(note["start_s"]),
+            "note": hz_to_note_safe(note["median_hz"]),
+            "kind": kind,
+            "start_dev_cents": round(start_dev, 1),
+        })
+
+    n = len(per_note)
+    scoops = [p for p in per_note if p["kind"] == "scoop"]
+    overshoots = [p for p in per_note if p["kind"] == "overshoot"]
+    return {
+        "method": "first 0.25 s of each sustained note vs its settled centre",
+        "n_onsets": n,
+        "pct_clean": round((n - len(scoops) - len(overshoots)) / n * 100, 1),
+        "pct_scooped": round(len(scoops) / n * 100, 1),
+        "pct_overshot": round(len(overshoots) / n * 100, 1),
+        "median_scoop_depth_cents": round(float(np.median([p["start_dev_cents"] for p in scoops])), 1) if scoops else None,
+        "deepest_scoops": sorted(scoops, key=lambda p: p["start_dev_cents"])[:6],
+        "overshoots": sorted(overshoots, key=lambda p: -p["start_dev_cents"])[:6],
+        "note": "Scooping can be deliberate style — consistency matters more than the raw percentage. Compare with the original via tools/compare_takes.py to see whether the original scoops in the same places.",
+    }
+
+
+def analyse_harmonics(y, sr, f0, hop_length=512):
+    """
+    HARMONIC PROFILE (overtone strengths)
+    ───────────────────────────────────────
+    Median relative strength of harmonics H1-H8 across sustained notes —
+    the numeric equivalent of VoceVista-style overtone sliders. H1-H2
+    (fundamental vs 2nd harmonic) is a classic phonation-weight proxy:
+    strongly positive = flutey/breathier source, negative = pressed/richer.
+    """
+    print("  Harmonic profile (H1-H8)...")
+    notes = [n for n in segment_sustained_notes(f0, hop_length, sr) if n["duration_s"] >= 0.3]
+    if len(notes) < 5:
+        return {"error": "Too few sustained notes for harmonic profiling."}
+
+    levels = {k: [] for k in range(1, 9)}
+    h1_h2 = []
+    for note in notes:
+        s0, s1 = int(note["start_s"] * sr), int(note["end_s"] * sr)
+        seg = y[s0:s1]
+        if len(seg) < 2048:
+            continue
+        spec = np.abs(np.fft.rfft(seg * np.hanning(len(seg)))) ** 2
+        freqs = np.fft.rfftfreq(len(seg), 1.0 / sr)
+        f0_med = note["median_hz"]
+        note_levels = {}
+        for k in range(1, 9):
+            target = k * f0_med
+            if target > sr / 2 - 100:
+                break
+            window = (freqs >= target * 0.94) & (freqs <= target * 1.06)
+            if window.any():
+                note_levels[k] = 10 * np.log10(max(spec[window].max(), 1e-12))
+        if 1 not in note_levels:
+            continue
+        strongest = max(note_levels.values())
+        for k, v in note_levels.items():
+            levels[k].append(v - strongest)
+        if 2 in note_levels:
+            h1_h2.append(note_levels[1] - note_levels[2])
+
+    if not levels[1]:
+        return {"error": "Could not profile harmonics."}
+    profile = {f"H{k}_median_db_rel_strongest": round(float(np.median(v)), 1)
+               for k, v in levels.items() if v}
+    h1h2_med = round(float(np.median(h1_h2)), 1) if h1_h2 else None
+    return {
+        "method": "per-sustained-note FFT, harmonic peaks at k*F0, median across notes",
+        "n_notes": len(levels[1]),
+        **profile,
+        "H1_minus_H2_median_db": h1h2_med,
+        "h1_h2_read": (
+            None if h1h2_med is None else
+            "Light/flutey source (H1-dominant)" if h1h2_med > 6 else
+            "Balanced source" if h1h2_med > -6 else
+            "Rich/pressed source (H2-dominant)"
+        ),
+        "note": "Numeric overtone profile. On separated stems, separation artifacts add noise to upper harmonics — read H5+ cautiously.",
     }
 
 
@@ -1989,8 +2184,18 @@ def generate_visual_diagnostics(y, sr, f0, output_path, title, hop_length=512):
     spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr, hop_length=hop_length)[0]
     centroid_times = librosa.times_like(spectral_centroid, sr=sr, hop_length=hop_length)
 
-    fig, axes = plt.subplots(4, 1, figsize=(16, 13))
+    fig, axes = plt.subplots(5, 1, figsize=(16, 17))
     fig.suptitle(title, fontsize=13, fontweight='bold')
+
+    # Spectrogram with the singer's-formant band marked
+    stft_db = librosa.amplitude_to_db(np.abs(librosa.stft(y, n_fft=2048, hop_length=hop_length)), ref=np.max)
+    img = librosa.display.specshow(stft_db, sr=sr, hop_length=hop_length,
+                                   x_axis='time', y_axis='linear', ax=axes[4], cmap='magma')
+    axes[4].set_ylim([0, 5000])
+    axes[4].axhline(y=2000, color='cyan', linestyle='--', linewidth=0.8)
+    axes[4].axhline(y=4000, color='cyan', linestyle='--', linewidth=0.8, label="Singer's formant band (2-4 kHz)")
+    axes[4].set_title("Spectrogram — harmonics & singer's formant band (2-4 kHz between dashed lines)", fontsize=11)
+    axes[4].legend(fontsize=9, loc='upper right')
 
     librosa.display.waveshow(y, sr=sr, ax=axes[0], color='steelblue', alpha=0.8)
     axes[0].set_title('Waveform (Amplitude over Time)', fontsize=11)
@@ -2170,6 +2375,9 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
     breath = results.get("breath", {})
     groove = results.get("groove", {})
     range_map = results.get("range_map", {})
+    onsets = results.get("onsets", {})
+    harmonics = results.get("harmonics", {})
+    vowel_space = (formants.get("vowel_space") or {}) if isinstance(formants, dict) else {}
 
     lines = [
         f"# VOXAI Diagnostic Report",
@@ -2427,6 +2635,7 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"| Spectral Flatness | {res.get('spectral_flatness_mean', 'N/A')} (0=tonal, 1=noise) |",
         f"| Active frames | {res.get('active_frame_percentage', 'N/A')}% |",
         f"| Classification | **{res.get('resonance_classification', 'N/A')}** |",
+        f"| Singer's formant (2–4 kHz ring) | {res.get('singers_formant_ratio_db', 'N/A')} dB — {res.get('singers_formant_read', 'N/A')} |",
         f"",
         f"---",
         f"",
@@ -2438,6 +2647,30 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"| F2 (median) | {formants.get('F2_median_hz', 'N/A')} Hz |",
         f"| F3 (median) | {formants.get('F3_median_hz', 'N/A')} Hz |",
         f"| Method | {formants.get('method', 'N/A')} (reliability: {formants.get('reliability', 'N/A')}) |",
+        f"",
+        f"**Vowel space** ({vowel_space.get('n_notes_mapped', 'N/A')} notes mapped, {vowel_space.get('n_notes_excluded_high_pitch', 'N/A')} excluded above F0 350 Hz): "
+        + (", ".join(f"{v} ×{c}" for v, c in list(vowel_space.get('vowel_distribution', {}).items())[:6]) or "N/A"),
+        f"",
+        f"---",
+        f"",
+        f"## ONSET QUALITY (scoops / overshoots)",
+        f"",
+        f"| Metric | Value |",
+        f"|---|---|",
+        f"| Clean landings | {onsets.get('pct_clean', 'N/A')}% of {onsets.get('n_onsets', 'N/A')} onsets |",
+        f"| Scooped | {onsets.get('pct_scooped', 'N/A')}% (median depth {onsets.get('median_scoop_depth_cents', 'N/A')} cents) — deepest at {', '.join(p['time'] for p in onsets.get('deepest_scoops', [])[:5]) or '—'} |",
+        f"| Overshot | {onsets.get('pct_overshot', 'N/A')}% — at {', '.join(p['time'] for p in onsets.get('overshoots', [])[:5]) or '—'} |",
+        f"",
+        f"*{onsets.get('note', '')}*",
+        f"",
+        f"---",
+        f"",
+        f"## HARMONIC PROFILE (overtone strengths)",
+        f"",
+        f"| Metric | Value |",
+        f"|---|---|",
+        *[f"| {k.replace('_median_db_rel_strongest','')} | {harmonics.get(k)} dB |" for k in sorted(harmonics.keys()) if k.startswith('H') and k.endswith('_median_db_rel_strongest')],
+        f"| H1−H2 (phonation weight) | {harmonics.get('H1_minus_H2_median_db', 'N/A')} dB — {harmonics.get('h1_h2_read', 'N/A')} |",
         f"",
         f"---",
         f"",
@@ -2627,6 +2860,8 @@ def main():
         results["registers"] = analyse_registers(y, sr, raw_f0)
         results["breath"] = analyse_breath(y, sr, raw_f0)
         results["range_map"] = analyse_range_map(raw_f0, sr)
+        results["onsets"] = analyse_onsets(raw_f0, sr)
+        results["harmonics"] = analyse_harmonics(y, sr, raw_f0)
         if stem_metadata and stem_metadata.get("instrumental_path"):
             results["groove"] = analyse_groove(y, sr, stem_metadata["instrumental_path"])
         results["time_diagnostics"] = analyse_time_diagnostics(

@@ -216,6 +216,8 @@ def normalise_backend_metrics(raw_metrics: dict) -> dict:
         "breath": raw_metrics.get("breath"),
         "groove": raw_metrics.get("groove"),
         "range_map": raw_metrics.get("range_map"),
+        "onsets": raw_metrics.get("onsets"),
+        "harmonics": raw_metrics.get("harmonics"),
         "technical_score": raw_metrics.get("technical_score"),
         "time_diagnostics": raw_metrics.get("time_diagnostics"),
         "visual_diagnostics": raw_metrics.get("visual_diagnostics"),

@@ -157,6 +157,17 @@ never shift silently.
 | Groove (`groove`) | Vocal onsets vs half-beat grid of the singer's own instrumental stem — rushing/dragging in ms, per 20 s section | medium (needs a rhythmic backing) |
 | Range map (`range_map`) | Time-weighted seconds-per-semitone, comfortable core (mid-80%), extremes | high |
 
+Competitor-parity diagnostics (post-take equivalents of what VoceVista /
+Sing&See display live; no live tracking, no EGG by design):
+
+| Module | What it measures | Reliability |
+|---|---|---|
+| Singer's formant (`resonance.singers_formant_ratio_db`) | Median 2–4 kHz vs 80 Hz–2 kHz energy on active frames — projection/"ring" | high (heuristic labels) |
+| Onset quality (`onsets`) | Per-note approach: clean / scoop (>25 c below, sliding up) / overshoot (>25 c above, settling); timestamped worst offenders | high measurement, style-neutral interpretation |
+| Harmonic profile (`harmonics`) | Median H1–H8 relative strengths + H1−H2 phonation-weight proxy | medium (read H5+ cautiously on separated stems) |
+| Vowel space (`formants.vowel_space`) | Per-note F1/F2 mapped to nearest cardinal vowel; distribution + timestamps; notes above F0 350 Hz excluded (physics limit) | medium |
+| Spectrogram panel | Added to the diagnostics plot with the 2–4 kHz band marked | visual aid |
+
 ### Companion tools
 
 - **`tools/compare_takes.py take.json original.json`** — melody-match: DTW
