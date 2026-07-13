@@ -168,6 +168,16 @@ Sing&See display live; no live tracking, no EGG by design):
 | Vowel space (`formants.vowel_space`) | Per-note F1/F2 mapped to nearest cardinal vowel; distribution + timestamps; notes above F0 350 Hz excluded (physics limit) | medium |
 | Spectrogram panel | Added to the diagnostics plot with the 2–4 kHz band marked | visual aid |
 
+### Visual report v2
+
+The diagnostics output is now three artifacts, all rendered from already-measured data (no new metrics, scores unchanged):
+
+- **Main plot (7 panels)**: section-health ribbon (green/amber/red from the trouble thresholds), waveform, pitch contour on a note-named axis with the comfortable-core band shaded, RMS, vibrato rate/extent timeline with the pro 5–7 Hz band, F1/F2 vowel chart with cardinal targets, and the spectrogram with F0 + H2–H6 harmonic traces and the singer's-formant band.
+- **Note inspection cards** (`*_note_cards.png`): up to 3 flagged notes (strained first, then worst drift/off-centre) — spectrum slice, harmonic peak markers, H1–H8 table in note+cents / Hz / dB format.
+- **Per-note CSV** (`*_notes.csv`): every sustained note with intonation, vibrato and onset columns, joined on the shared note start time.
+
+Reports use VoceVista-style `note+cents` notation (`F♯3+24ct`) via the additive `note_detailed` field; existing `note` fields are unchanged for compatibility.
+
 ### Companion tools
 
 - **`tools/compare_takes.py take.json original.json`** — melody-match: DTW
