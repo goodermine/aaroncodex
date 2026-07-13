@@ -2449,6 +2449,205 @@ def export_notes_csv(results, output_path):
 
 
 # =============================================================================
+# DETERMINISTIC PRESCRIPTION ENGINE
+# =============================================================================
+
+DEFAULT_PRESCRIPTION_MAP_PATH = "knowledge/prescription_map.json"
+
+
+def load_prescription_map(path=DEFAULT_PRESCRIPTION_MAP_PATH):
+    """Loads the library-derived prescription map (repo path first)."""
+    candidates = [resolve_repo_path(path), path] if not os.path.isabs(path) else [path]
+    resolved = next((c for c in candidates if os.path.isfile(c)), None)
+    if resolved is None:
+        return None
+    try:
+        with open(resolved, encoding="utf-8") as f:
+            pmap = json.load(f)
+        if pmap.get("version") != "prescription_map_v1":
+            return None
+        pmap["_path"] = resolved
+        return pmap
+    except Exception:
+        return None
+
+
+def _library_hash_matches(pmap):
+    """True/False when the library is reachable, None when it isn't."""
+    lib = pmap.get("library_path")
+    if not lib or not os.path.isfile(lib):
+        return None
+    import hashlib
+    text = open(lib, encoding="utf-8").read()
+    return hashlib.sha256(text.encode("utf-8")).hexdigest() == pmap.get("library_sha256")
+
+
+def generate_prescriptions(results, pmap, calibration=None):
+    """
+    DETERMINISTIC PRESCRIPTION ENGINE
+    ───────────────────────────────────
+    Maps measured issues to exercise categories extracted verbatim from the
+    Scientific Exercise Library. Rules, not language models: every
+    prescription carries the trigger, the measured evidence, and a severity
+    (pro-pack percentile where calibration exists). Style guards keep
+    legitimate styles (straight tone, scoops, back-phrasing) prescription-
+    inert; capture guards suppress voice-quality triggers when metrics may
+    reflect recording artifacts.
+    """
+    if not pmap:
+        return {"error": "No prescription map found. Run tools/build_prescription_map.py."}
+
+    into = results.get("intonation", {}) or {}
+    vq = results.get("voice_quality", {}) or {}
+    breath = results.get("breath", {}) or {}
+    vib = results.get("vibrato", {}) or {}
+    res = results.get("resonance", {}) or {}
+    reg = results.get("registers", {}) or {}
+    groove = results.get("groove", {}) or {}
+    env = (results.get("time_diagnostics", {}) or {}).get("environment_risk", {}) or {}
+
+    capture_ok = env.get("karaoke_or_room_contamination_risk") != "elevated"
+    praat_ok = str(vq.get("method", "")).startswith("praat")
+    guards_applied = []
+
+    def pct_severity(value, calib_key, lower_is_better=True, fallback=None):
+        stats = _calib_metric(calibration, calib_key)
+        if stats and value is not None:
+            beats = _reference_percentile(value, stats, lower_is_better)
+            if beats is not None:
+                return round(100 - beats, 1)
+        return fallback
+
+    triggers = []
+
+    # 1. Pitch accuracy — off-grid sustained notes
+    dev = into.get("median_abs_deviation_cents")
+    if dev is not None and dev > 20:
+        sev = pct_severity(dev, "intonation_median_abs_deviation_cents",
+                           fallback=min(100.0, (dev - 20) * 4))
+        triggers.append(("pitch_accuracy", sev,
+                         [f"median grid deviation {dev} cents (worse than {sev}% of pro pack)" ]))
+
+    # 2. Breath / support — held-note drift and sagging phrase endings
+    drift = into.get("median_intra_note_drift_cents")
+    sag_pct = breath.get("pct_sagging_endings")
+    breath_evidence = []
+    breath_sev = 0.0
+    if drift is not None and drift > 40:
+        s = pct_severity(drift, "intonation_median_intra_note_drift_cents",
+                         fallback=min(100.0, (drift - 40) * 2.5))
+        breath_sev = max(breath_sev, s or 0)
+        breath_evidence.append(f"held notes drift {drift} cents")
+    if sag_pct is not None and sag_pct > 30 and breath.get("n_phrases_measured", 0) >= 8:
+        breath_sev = max(breath_sev, float(sag_pct))
+        breath_evidence.append(
+            f"{sag_pct}% of phrase endings sag (intentional fall-offs also register — confirm by ear)")
+    if breath_evidence:
+        triggers.append(("breath_support", breath_sev, breath_evidence))
+
+    # 3. Pressed / strained — safety-boosted so it outranks when present
+    strain = vq.get("strain") or {}
+    strain_pct = strain.get("pct_top_notes_strained")
+    if strain_pct is not None and strain_pct >= 25:
+        if praat_ok and capture_ok:
+            triggers.append(("pressed_strained", min(100.0, strain_pct + 25),
+                             [f"{strain_pct}% of top-quartile notes show the strain signature "
+                              f"(safety-priority: SOVT first-line per library; avoid belting drills)"]))
+        else:
+            guards_applied.append("strain trigger suppressed (capture risk or non-Praat metrics)")
+
+    # 4. Breathy / leaky — only on trustworthy voice-quality data
+    jitter = vq.get("jitter_local_percent_median")
+    hnr = vq.get("hnr_db_median")
+    if jitter is not None and hnr is not None and jitter >= 1.5 and hnr <= 10:
+        if praat_ok and capture_ok:
+            sev = pct_severity(hnr, "voice_quality_hnr_db_median",
+                               lower_is_better=False, fallback=60.0)
+            triggers.append(("breathy_leaky", sev,
+                             [f"jitter {jitter}% with HNR {hnr} dB on sustained notes"]))
+        else:
+            guards_applied.append("breathy/leaky trigger suppressed (capture risk or non-Praat metrics)")
+
+    # 5. Muffled / dull tone
+    sf = res.get("singers_formant_ratio_db")
+    centroid = res.get("spectral_centroid_mean_hz")
+    if sf is not None and sf < -20 and centroid is not None and centroid < CENTROID_DARK_THRESHOLD:
+        triggers.append(("muffled_dull", min(100.0, (-20 - sf) * 5),
+                         [f"singer's formant {sf} dB (soft/dark) with centroid {centroid} Hz"]))
+
+    # 6. Vibrato — style-guarded: near-zero presence = straight-tone style, never auto-corrected
+    presence = vib.get("pct_notes_with_vibrato")
+    n_long = vib.get("n_notes_analysed", 0)
+    if presence is not None and n_long >= 8:
+        if presence < 8:
+            guards_applied.append(
+                "vibrato trigger skipped: <8% presence reads as deliberate straight tone (style)")
+        elif presence < 40:
+            triggers.append(("vibrato", min(60.0, (40 - presence) * 1.5),
+                             [f"vibrato on only {presence}% of long notes — attempted but inconsistent"]))
+        else:
+            rate = vib.get("median_rate_hz")
+            if rate is not None and not (4.5 <= rate <= 7.5):
+                triggers.append(("vibrato", 35.0,
+                                 [f"vibrato rate {rate} Hz sits outside the healthy 4.5-7.5 Hz band"]))
+
+    # 7. Register bridge — low-confidence heuristic, only without stronger signals
+    if not reg.get("single_register") and reg.get("n_notes"):
+        ratio = (reg.get("n_register_transitions") or 0) / max(1, reg["n_notes"])
+        if ratio > 0.35:
+            triggers.append(("register_bridge", 30.0,
+                             [f"{reg.get('n_register_transitions')} register transitions across "
+                              f"{reg['n_notes']} notes (heuristic — verify flips by ear)"]))
+
+    # Measured issues the library has no category for — surfaced, not force-fitted
+    uncovered = []
+    if groove and not groove.get("error"):
+        off = groove.get("mean_offset_ms")
+        if off is not None and abs(off) > 60:
+            uncovered.append(f"timing: {off:+} ms vs the backing track ({groove.get('feel')}) — "
+                             f"no dedicated library category; nearest is runs_riffs")
+
+    triggers.sort(key=lambda t: -(t[1] or 0))
+    def build(cat_key, sev, evidence):
+        cat = pmap["categories"].get(cat_key)
+        if not cat:
+            return None
+        return {
+            "category": cat_key,
+            "selector_heading": cat["selector_heading"],
+            "severity_0_to_100": round(sev or 0, 1),
+            "evidence": evidence,
+            "exercises": [{"num": e["num"], "name": e["name"]} for e in cat["exercises"]],
+            "primary_exercise_detail": cat["exercises"][0].get("detail") if cat["exercises"] else None,
+            "next_take_cue": cat["next_take_cue"],
+            "seven_day_template": cat["seven_day_template"],
+        }
+
+    built = [b for b in (build(*t) for t in triggers) if b]
+    hash_ok = _library_hash_matches(pmap)
+    return {
+        "method": "deterministic_prescription_engine_v1 — rules over measured values; exercise content verbatim from the library; no LLM selection",
+        "map_version": pmap.get("version"),
+        "library_hash_verified": hash_ok,
+        "library_hash_note": (
+            None if hash_ok else
+            "Library not reachable from here — hash unverified" if hash_ok is None else
+            "LIBRARY CHANGED since the map was built — re-run tools/build_prescription_map.py"
+        ),
+        "primary": built[0] if built else None,
+        "supporting": built[1:6],
+        "guards_applied": guards_applied,
+        "no_direct_coverage": uncovered,
+        "note": (
+            "No limiter triggered — no drill prescribed (exercises are prescriptions, not rewards)."
+            if not built else
+            "Primary drill = highest-severity measured limiter. Candi may choose among the "
+            "category's listed exercises using drill history, or justify a deviation in prose."
+        ),
+    }
+
+
+# =============================================================================
 # DIAGNOSTIC LOGIC ENGINE
 # =============================================================================
 
@@ -2769,6 +2968,41 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         lines += [f"", f"</details>"]
     if not (worst_drift or worst_dev or flat_sustains):
         lines.append("No individual notes exceeded the trouble thresholds. Clean take.")
+
+    presc = results.get("prescriptions", {}) or {}
+    lines += [
+        f"",
+        f"---",
+        f"",
+        f"## PRESCRIPTIONS (deterministic, from the Scientific Exercise Library)",
+        f"",
+    ]
+    if presc.get("primary"):
+        p = presc["primary"]
+        lines += [
+            f"> **Primary limiter: {p['selector_heading']}** (severity {p['severity_0_to_100']}/100)",
+            f"> Evidence: {'; '.join(p['evidence'])}",
+            f"> Exercises: {', '.join(str(e['num']) + ' ' + e['name'] for e in p['exercises'])}",
+            f"> Next-take cue: *{p['next_take_cue']}*"
+            + (f" — 7-day template {p['seven_day_template']}" if p.get('seven_day_template') else ""),
+            f"",
+        ]
+        if p.get("primary_exercise_detail"):
+            lines += [f"<details><summary>Primary exercise (verbatim from library)</summary>", f"",
+                      p["primary_exercise_detail"], f"", f"</details>", f""]
+        if presc.get("supporting"):
+            lines += [f"**Supporting (secondary limiters):**", f""]
+            for s in presc["supporting"]:
+                lines.append(f"- {s['selector_heading']} (severity {s['severity_0_to_100']}) — {'; '.join(s['evidence'])}")
+            lines.append("")
+    else:
+        lines += [presc.get("note") or presc.get("error") or "Prescription engine unavailable.", f""]
+    for g in presc.get("guards_applied", []) or []:
+        lines.append(f"*Guard: {g}*  ")
+    for u in presc.get("no_direct_coverage", []) or []:
+        lines.append(f"*No library coverage: {u}*  ")
+    if presc.get("library_hash_note"):
+        lines.append(f"*{presc['library_hash_note']}*  ")
 
     lines += [
         f"",
@@ -3130,6 +3364,18 @@ def main():
     if "overall_score_0_to_10" in results["technical_score"]:
         print(f"  Technical score: {results['technical_score']['overall_score_0_to_10']}/10 "
               f"(confidence: {results['technical_score']['confidence']})")
+
+    # Stage 4b: Deterministic prescriptions from the exercise library
+    print("\nRunning prescription engine...")
+    pmap = load_prescription_map()
+    results["prescriptions"] = generate_prescriptions(results, pmap, calibration=calibration)
+    presc = results["prescriptions"]
+    if presc.get("primary"):
+        print(f"  Primary limiter: {presc['primary']['category']} "
+              f"(severity {presc['primary']['severity_0_to_100']}) -> "
+              f"{presc['primary']['exercises'][0]['name'] if presc['primary']['exercises'] else '?'}")
+    else:
+        print(f"  Prescriptions: {presc.get('note') or presc.get('error')}")
 
     # Stage 5: Diagnostic logic
     print("\nRunning diagnostic logic engine...")
