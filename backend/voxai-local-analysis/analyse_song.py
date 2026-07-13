@@ -277,6 +277,20 @@ def moving_average(values, window_frames):
     return np.convolve(padded, kernel, mode='valid')
 
 
+def hz_to_note_cents(hz):
+    """Formats a frequency VoceVista-style: note plus cents offset, e.g. 'F♯3+24ct'."""
+    try:
+        hz = float(hz)
+        if hz <= 0 or not math.isfinite(hz):
+            return "N/A"
+        midi = librosa.hz_to_midi(hz)
+        nearest = int(round(midi))
+        cents = int(round((midi - nearest) * 100))
+        return f"{librosa.midi_to_note(nearest)}{cents:+d}ct"
+    except Exception:
+        return "N/A"
+
+
 def seconds_to_mmss(seconds):
     """Formats seconds as m:ss for human-readable timestamps."""
     seconds = max(0, int(round(float(seconds))))
@@ -636,7 +650,8 @@ def analyse_voice_quality(wav_path, f0, sr, y=None, hop_length=512):
                 if (n["median_hz"] >= hi_pitch and n["rms_db"] >= med_loud
                         and n["hnr_db"] <= med_hnr - 4.0):
                     strained_notes.append({
-                        "time": n["time"], "note": n["note"],
+                        "time": n["time"], "start_s": round(n["start_s"], 2),
+                        "note": n["note"],
                         "duration_s": n["duration_s"],
                         "hnr_drop_db": round(med_hnr - n["hnr_db"], 1),
                     })
@@ -1271,6 +1286,7 @@ def analyse_intonation(f0, sr, hop_length=512):
             "start_s": round(note["start_s"], 2),
             "duration_s": round(note["duration_s"], 2),
             "note": hz_to_note_safe(note["median_hz"]),
+            "note_detailed": hz_to_note_cents(note["median_hz"]),
             "deviation_cents": round(float(dev), 1),
             "drift_cents": round(float(drift), 1),
             "held_drift_cents": round(held_drift, 1),
@@ -1380,6 +1396,7 @@ def analyse_onsets(f0, sr, hop_length=512):
             kind = "clean"
         per_note.append({
             "time": seconds_to_mmss(note["start_s"]),
+            "start_s": round(note["start_s"], 2),
             "note": hz_to_note_safe(note["median_hz"]),
             "kind": kind,
             "start_dev_cents": round(start_dev, 1),
@@ -2168,68 +2185,466 @@ def analyse_phrasing(f0, sr, hop_length=512):
     }
 
 
-def generate_visual_diagnostics(y, sr, f0, output_path, title, hop_length=512):
-    """Generates a Manus-style diagnostic plot for quick visual review."""
-    print("  Generating visual diagnostic plot...")
+def _severity_color(dev, drift):
+    """Ribbon color from the shared trouble thresholds."""
+    if dev > TROUBLE_DEV_CENTS or drift > TROUBLE_DRIFT_CENTS * 1.5:
+        return "#d62728"      # red
+    if dev > TROUBLE_DEV_CENTS * 0.72 or drift > TROUBLE_DRIFT_CENTS * 1.1:
+        return "#ff9f1c"      # amber
+    return "#2a9d3a"          # green
+
+
+def generate_visual_diagnostics(y, sr, f0, output_path, title, results=None, hop_length=512):
+    """
+    Visual report v2 — VoceVista-parity, post-take.
+    Panels: severity ribbon, waveform, pitch contour on a note axis with the
+    comfortable-range band, RMS, vibrato rate/extent timeline, vowel chart,
+    spectrogram with harmonic traces and the singer's-formant band.
+    """
+    print("  Generating visual diagnostics (v2)...")
+    results = results or {}
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     pitch_times = librosa.times_like(f0, sr=sr, hop_length=hop_length)
     voiced_f0 = f0[~np.isnan(f0)] if f0 is not None else np.array([])
-    mean_f0 = float(np.mean(voiced_f0)) if len(voiced_f0) else None
 
     rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=hop_length)[0]
     rms_db = librosa.amplitude_to_db(rms, ref=np.max)
     rms_times = librosa.times_like(rms, sr=sr, hop_length=hop_length)
 
-    spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr, hop_length=hop_length)[0]
-    centroid_times = librosa.times_like(spectral_centroid, sr=sr, hop_length=hop_length)
-
-    fig, axes = plt.subplots(5, 1, figsize=(16, 17))
+    fig = plt.figure(figsize=(16, 24))
+    gs = fig.add_gridspec(7, 1, height_ratios=[0.25, 1.2, 1.8, 1.0, 1.2, 1.8, 2.2], hspace=0.45)
     fig.suptitle(title, fontsize=13, fontweight='bold')
 
-    # Spectrogram with the singer's-formant band marked
+    # ── Panel 0: severity ribbon ─────────────────────────────────────────
+    ax = fig.add_subplot(gs[0])
+    sections = results.get("intonation", {}).get("sections_20s", []) or []
+    for i, s in enumerate(sections):
+        ax.axvspan(i * 20, (i + 1) * 20,
+                   color=_severity_color(s.get("median_abs_deviation_cents", 0),
+                                         s.get("median_drift_cents", 0)), alpha=0.9)
+    ax.set_xlim([0, max(pitch_times[-1] if len(pitch_times) else 1, 1)])
+    ax.set_yticks([])
+    ax.set_title("Section health (green = clean, amber = watch, red = trouble) — 20 s sections", fontsize=10, loc='left')
+
+    # ── Panel 1: waveform ────────────────────────────────────────────────
+    ax = fig.add_subplot(gs[1])
+    librosa.display.waveshow(y, sr=sr, ax=ax, color='steelblue', alpha=0.8)
+    ax.set_title('Waveform (Amplitude over Time)', fontsize=11)
+    ax.set_xlabel('')
+
+    # ── Panel 2: pitch contour on a note axis + comfortable range band ──
+    ax = fig.add_subplot(gs[2])
+    ax.plot(pitch_times, f0, color='darkorange', linewidth=0.9, label='F0', alpha=0.9)
+    if len(voiced_f0) > 20:
+        midi = 69 + 12 * np.log2(voiced_f0 / 440.0)
+        p10_hz = 440.0 * 2 ** ((np.percentile(midi, 10) - 69) / 12)
+        p90_hz = 440.0 * 2 ** ((np.percentile(midi, 90) - 69) / 12)
+        ax.axhspan(p10_hz, p90_hz, color='seagreen', alpha=0.12,
+                   label=f'Comfortable core {hz_to_note_safe(p10_hz)}-{hz_to_note_safe(p90_hz)}')
+        lo = max(60, float(np.min(voiced_f0)) * 0.8)
+        hi = min(1200, float(np.max(voiced_f0)) * 1.25)
+    else:
+        lo, hi = 60, 900
+    ax.set_yscale('log')
+    ax.set_ylim([lo, hi])
+    note_ticks = [t for t in [65.4, 98.0, 130.8, 196.0, 261.6, 392.0, 523.3, 784.0, 1046.5] if lo <= t <= hi]
+    ax.set_yticks(note_ticks)
+    ax.set_yticklabels([hz_to_note_safe(t) for t in note_ticks])
+    ax.set_title('Pitch Contour on note axis — shaded band = where this voice lived (mid-80% of voiced time)', fontsize=11)
+    ax.legend(fontsize=9, loc='upper right')
+
+    # ── Panel 3: RMS energy ──────────────────────────────────────────────
+    ax = fig.add_subplot(gs[3])
+    ax.fill_between(rms_times, rms_db, alpha=0.6, color='crimson')
+    ax.plot(rms_times, rms_db, color='crimson', linewidth=0.6)
+    ax.set_title('RMS Energy (dB rel. peak)', fontsize=11)
+
+    # ── Panel 4: vibrato timeline ────────────────────────────────────────
+    ax = fig.add_subplot(gs[4])
+    vib_notes = results.get("vibrato", {}).get("notes", []) or []
+    ax.axhspan(5.0, 7.0, color='seagreen', alpha=0.15, label='Pro rate band 5-7 Hz')
+    ax2 = ax.twinx()
+    plotted_extent = False
+    for n in vib_notes:
+        t0, t1 = n["start_s"], n["start_s"] + n["duration_s"]
+        color = 'darkorange' if n.get("has_vibrato") else 'lightgray'
+        ax.plot([t0, t1], [n["rate_hz"]] * 2, color=color, linewidth=3, solid_capstyle='butt')
+        if n.get("has_vibrato"):
+            ax2.plot((t0 + t1) / 2, n["extent_cents"], marker='o', markersize=3, color='mediumpurple')
+            plotted_extent = True
+    ax.set_ylim([2, 10])
+    ax.set_ylabel('Rate (Hz)')
+    ax2.set_ylabel('Extent (cents)', color='mediumpurple')
+    if not vib_notes:
+        ax.text(0.5, 0.5, 'No sustained notes long enough for vibrato analysis',
+                transform=ax.transAxes, ha='center', fontsize=10, color='gray')
+    if not plotted_extent:
+        ax2.set_yticks([])
+    ax.set_xlim([0, max(pitch_times[-1] if len(pitch_times) else 1, 1)])
+    ax.set_title('Vibrato timeline — orange = vibrato notes (rate), purple dots = extent, gray = straight-tone notes', fontsize=11)
+    ax.legend(fontsize=9, loc='upper right')
+
+    # ── Panel 5: vowel chart ─────────────────────────────────────────────
+    ax = fig.add_subplot(gs[5])
+    vowel_space = (results.get("formants", {}) or {}).get("vowel_space") or {}
+    mapped = vowel_space.get("notes", [])
+    ceiling = (results.get("formants", {}) or {}).get("formant_ceiling_hz", 5000.0)
+    scale = ceiling / 5000.0
+    for vowel, (f1, f2) in VOWEL_TARGETS.items():
+        ax.plot(f2 * scale, f1 * scale, marker='s', color='gray', markersize=6, alpha=0.6)
+        ax.annotate(vowel.split(' ')[0], (f2 * scale, f1 * scale), fontsize=9, color='gray',
+                    xytext=(4, 4), textcoords='offset points')
+    if mapped:
+        f1s = [m["F1"] for m in mapped]
+        f2s = [m["F2"] for m in mapped]
+        times_c = [i / max(1, len(mapped) - 1) for i in range(len(mapped))]
+        sc = ax.scatter(f2s, f1s, c=times_c, cmap='viridis', s=18, alpha=0.75)
+        cb = plt.colorbar(sc, ax=ax, pad=0.01, fraction=0.03)
+        cb.set_label('song position (start-end)', fontsize=8)
+    else:
+        ax.text(0.5, 0.5, 'Vowel mapping unavailable (requires Praat formants; excluded above F0 350 Hz)',
+                transform=ax.transAxes, ha='center', fontsize=10, color='gray')
+    ax.invert_xaxis()
+    ax.invert_yaxis()
+    ax.set_xlabel('F2 (Hz)')
+    ax.set_ylabel('F1 (Hz)')
+    ax.set_title('Vowel chart — gray squares = cardinal vowel targets, dots = your sustained notes', fontsize=11)
+
+    # ── Panel 6: spectrogram + harmonic traces + singer's formant band ──
+    ax = fig.add_subplot(gs[6])
     stft_db = librosa.amplitude_to_db(np.abs(librosa.stft(y, n_fft=2048, hop_length=hop_length)), ref=np.max)
-    img = librosa.display.specshow(stft_db, sr=sr, hop_length=hop_length,
-                                   x_axis='time', y_axis='linear', ax=axes[4], cmap='magma')
-    axes[4].set_ylim([0, 5000])
-    axes[4].axhline(y=2000, color='cyan', linestyle='--', linewidth=0.8)
-    axes[4].axhline(y=4000, color='cyan', linestyle='--', linewidth=0.8, label="Singer's formant band (2-4 kHz)")
-    axes[4].set_title("Spectrogram — harmonics & singer's formant band (2-4 kHz between dashed lines)", fontsize=11)
-    axes[4].legend(fontsize=9, loc='upper right')
+    librosa.display.specshow(stft_db, sr=sr, hop_length=hop_length,
+                             x_axis='time', y_axis='linear', ax=ax, cmap='magma')
+    for k in range(1, 7):
+        hk = k * f0
+        hk = np.where(hk <= 5000, hk, np.nan)
+        ax.plot(pitch_times, hk, color='cyan' if k > 1 else 'white',
+                linewidth=0.7 if k > 1 else 1.1, alpha=0.55 if k > 1 else 0.9)
+    ax.axhline(y=2000, color='lime', linestyle='--', linewidth=0.9)
+    ax.axhline(y=4000, color='lime', linestyle='--', linewidth=0.9)
+    ax.set_ylim([0, 5000])
+    ax.set_title("Spectrogram with harmonic traces (white = F0, cyan = H2-H6) — singer's formant band between green lines", fontsize=11)
 
-    librosa.display.waveshow(y, sr=sr, ax=axes[0], color='steelblue', alpha=0.8)
-    axes[0].set_title('Waveform (Amplitude over Time)', fontsize=11)
-    axes[0].set_xlabel('Time (s)')
-    axes[0].set_ylabel('Amplitude')
-
-    axes[1].plot(pitch_times, f0, color='darkorange', linewidth=0.9, label='F0 (Hz)', alpha=0.85)
-    axes[1].set_title('Pitch Contour (F0) — Vocal Melody Tracking', fontsize=11)
-    axes[1].set_xlabel('Time (s)')
-    axes[1].set_ylabel('Frequency (Hz)')
-    axes[1].set_ylim([60, 900])
-    if mean_f0:
-        axes[1].axhline(y=mean_f0, color='red', linestyle='--', linewidth=0.8, label=f'Mean F0 ({mean_f0:.0f}Hz)')
-    axes[1].legend(fontsize=9)
-
-    axes[2].fill_between(rms_times, rms_db, alpha=0.6, color='crimson')
-    axes[2].plot(rms_times, rms_db, color='crimson', linewidth=0.6)
-    axes[2].set_title('RMS Energy (dB) — Volume / Intensity over Time', fontsize=11)
-    axes[2].set_xlabel('Time (s)')
-    axes[2].set_ylabel('dB')
-    axes[2].axhline(y=np.mean(rms_db), color='black', linestyle='--', linewidth=0.8, label=f'Mean ({np.mean(rms_db):.1f}dB)')
-    axes[2].legend(fontsize=9)
-
-    axes[3].plot(centroid_times, spectral_centroid, color='mediumseagreen', linewidth=0.8, alpha=0.85)
-    axes[3].set_title('Spectral Centroid (Hz) — Vocal Brightness / Presence', fontsize=11)
-    axes[3].set_xlabel('Time (s)')
-    axes[3].set_ylabel('Hz')
-    axes[3].axhline(y=np.mean(spectral_centroid), color='black', linestyle='--', linewidth=0.8, label=f'Mean ({np.mean(spectral_centroid):.0f}Hz)')
-    axes[3].legend(fontsize=9)
-
-    plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close(fig)
     print(f"  Visual diagnostics saved to: {output_path}")
+
+
+def generate_note_cards(y, sr, f0, results, output_path, hop_length=512, max_cards=3):
+    """
+    Per-note inspection cards for the take's flagged moments — spectrum
+    slice with harmonic peaks and the singer's-formant band, plus an
+    H1-H8 table (note / Hz / dB). Strained notes first, then worst drift,
+    then worst intonation.
+    """
+    candidates = []
+    vq = results.get("voice_quality", {}) or {}
+    into = results.get("intonation", {}) or {}
+    for n in vq.get("strained_notes", []) or []:
+        if "start_s" in n:
+            candidates.append(("strained", n))
+    for n in into.get("worst_drift_notes", []) or []:
+        candidates.append(("worst drift", n))
+    for n in into.get("worst_intonation_notes", []) or []:
+        candidates.append(("furthest off-centre", n))
+
+    seen, cards = set(), []
+    for kind, n in candidates:
+        key = round(n.get("start_s", -1), 1)
+        if key in seen or key < 0:
+            continue
+        seen.add(key)
+        cards.append((kind, n))
+        if len(cards) >= max_cards:
+            break
+    if not cards:
+        return None
+
+    frame_rate = sr / hop_length
+    fig, axes = plt.subplots(len(cards), 1, figsize=(14, 4.6 * len(cards)), squeeze=False)
+    fig.suptitle("Note inspection cards — the take's flagged moments", fontsize=13, fontweight='bold')
+
+    for ax, (kind, n) in zip(axes[:, 0], cards):
+        t0 = n["start_s"]
+        dur = n.get("duration_s", 0.5)
+        i0, i1 = int(t0 * frame_rate), int((t0 + dur) * frame_rate)
+        seg_f0 = f0[i0:max(i1, i0 + 1)]
+        seg_f0 = seg_f0[np.isfinite(seg_f0)]
+        f0_med = float(np.median(seg_f0)) if len(seg_f0) else None
+
+        s0, s1 = int(t0 * sr), int((t0 + dur) * sr)
+        seg = y[s0:s1]
+        if len(seg) < 1024 or f0_med is None:
+            ax.text(0.5, 0.5, f"{kind} at {n.get('time')} — segment too short to render", ha='center')
+            continue
+        spec = np.abs(np.fft.rfft(seg * np.hanning(len(seg)))) ** 2
+        freqs = np.fft.rfftfreq(len(seg), 1.0 / sr)
+        spec_db = 10 * np.log10(np.maximum(spec, 1e-12))
+        mask = freqs <= 5000
+        ax.plot(freqs[mask], spec_db[mask], color='steelblue', linewidth=0.7)
+        ax.axvspan(2000, 4000, color='lime', alpha=0.08)
+
+        rows = []
+        for k in range(1, 9):
+            target = k * f0_med
+            if target > 5000:
+                break
+            window = (freqs >= target * 0.94) & (freqs <= target * 1.06)
+            if not window.any():
+                continue
+            peak_idx = np.argmax(spec[window])
+            peak_hz = float(freqs[window][peak_idx])
+            peak_db = float(spec_db[window][peak_idx])
+            ax.plot(peak_hz, peak_db, marker='v', color='darkorange', markersize=6)
+            rows.append(f"H{k}: {hz_to_note_cents(peak_hz):>10s}  {peak_hz:7.1f} Hz  {peak_db:6.1f} dB")
+        ax.text(1.02, 0.95, "\n".join(rows), transform=ax.transAxes, fontsize=8.5,
+                family='monospace', va='top')
+        ax.set_xlim([0, 5000])
+        ax.set_xlabel('Frequency (Hz)')
+        ax.set_ylabel('dB')
+        ax.set_title(f"{kind.upper()} — {n.get('time')} — {hz_to_note_cents(f0_med)} — held {dur}s", fontsize=11, loc='left')
+
+    plt.tight_layout(rect=[0, 0, 0.82, 0.96])
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    print(f"  Note cards saved to: {output_path}")
+    return output_path
+
+
+def export_notes_csv(results, output_path):
+    """Per-note CSV for spreadsheet users: intonation rows enriched with
+    vibrato and onset columns, joined on the shared note start time."""
+    notes = (results.get("intonation", {}) or {}).get("notes", []) or []
+    if not notes:
+        return None
+    vib = {round(n["start_s"], 2): n for n in (results.get("vibrato", {}) or {}).get("notes", []) or []}
+    ons = {round(n["start_s"], 2): n for n in []}
+    onset_list = (results.get("onsets", {}) or {})
+    for group in ("deepest_scoops", "overshoots"):
+        for n in onset_list.get(group, []) or []:
+            if "start_s" in n:
+                ons[round(n["start_s"], 2)] = n
+
+    header = ["time", "start_s", "duration_s", "note", "note_detailed",
+              "deviation_cents", "drift_cents", "held_drift_cents",
+              "vibrato_rate_hz", "vibrato_extent_cents", "has_vibrato",
+              "onset_kind", "onset_start_dev_cents"]
+    lines = [",".join(header)]
+    for n in notes:
+        key = round(n["start_s"], 2)
+        v = vib.get(key, {})
+        o = ons.get(key, {})
+        row = [n.get("time"), n.get("start_s"), n.get("duration_s"), n.get("note"),
+               n.get("note_detailed"), n.get("deviation_cents"), n.get("drift_cents"),
+               n.get("held_drift_cents"), v.get("rate_hz"), v.get("extent_cents"),
+               v.get("has_vibrato"), o.get("kind"), o.get("start_dev_cents")]
+        lines.append(",".join("" if x is None else str(x) for x in row))
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    with open(output_path, "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+    print(f"  Per-note CSV saved to: {output_path}")
+    return output_path
+
+
+# =============================================================================
+# DETERMINISTIC PRESCRIPTION ENGINE
+# =============================================================================
+
+DEFAULT_PRESCRIPTION_MAP_PATH = "knowledge/prescription_map.json"
+
+
+def load_prescription_map(path=DEFAULT_PRESCRIPTION_MAP_PATH):
+    """Loads the library-derived prescription map (repo path first)."""
+    candidates = [resolve_repo_path(path), path] if not os.path.isabs(path) else [path]
+    resolved = next((c for c in candidates if os.path.isfile(c)), None)
+    if resolved is None:
+        return None
+    try:
+        with open(resolved, encoding="utf-8") as f:
+            pmap = json.load(f)
+        if pmap.get("version") != "prescription_map_v1":
+            return None
+        pmap["_path"] = resolved
+        return pmap
+    except Exception:
+        return None
+
+
+def _library_hash_matches(pmap):
+    """True/False when the library is reachable, None when it isn't."""
+    lib = pmap.get("library_path")
+    if not lib or not os.path.isfile(lib):
+        return None
+    import hashlib
+    text = open(lib, encoding="utf-8").read()
+    return hashlib.sha256(text.encode("utf-8")).hexdigest() == pmap.get("library_sha256")
+
+
+def generate_prescriptions(results, pmap, calibration=None):
+    """
+    DETERMINISTIC PRESCRIPTION ENGINE
+    ───────────────────────────────────
+    Maps measured issues to exercise categories extracted verbatim from the
+    Scientific Exercise Library. Rules, not language models: every
+    prescription carries the trigger, the measured evidence, and a severity
+    (pro-pack percentile where calibration exists). Style guards keep
+    legitimate styles (straight tone, scoops, back-phrasing) prescription-
+    inert; capture guards suppress voice-quality triggers when metrics may
+    reflect recording artifacts.
+    """
+    if not pmap:
+        return {"error": "No prescription map found. Run tools/build_prescription_map.py."}
+
+    into = results.get("intonation", {}) or {}
+    vq = results.get("voice_quality", {}) or {}
+    breath = results.get("breath", {}) or {}
+    vib = results.get("vibrato", {}) or {}
+    res = results.get("resonance", {}) or {}
+    reg = results.get("registers", {}) or {}
+    groove = results.get("groove", {}) or {}
+    env = (results.get("time_diagnostics", {}) or {}).get("environment_risk", {}) or {}
+
+    capture_ok = env.get("karaoke_or_room_contamination_risk") != "elevated"
+    praat_ok = str(vq.get("method", "")).startswith("praat")
+    guards_applied = []
+
+    def pct_severity(value, calib_key, lower_is_better=True, fallback=None):
+        stats = _calib_metric(calibration, calib_key)
+        if stats and value is not None:
+            beats = _reference_percentile(value, stats, lower_is_better)
+            if beats is not None:
+                return round(100 - beats, 1)
+        return fallback
+
+    triggers = []
+
+    # 1. Pitch accuracy — off-grid sustained notes
+    dev = into.get("median_abs_deviation_cents")
+    if dev is not None and dev > 20:
+        sev = pct_severity(dev, "intonation_median_abs_deviation_cents",
+                           fallback=min(100.0, (dev - 20) * 4))
+        triggers.append(("pitch_accuracy", sev,
+                         [f"median grid deviation {dev} cents (worse than {sev}% of pro pack)" ]))
+
+    # 2. Breath / support — held-note drift and sagging phrase endings
+    drift = into.get("median_intra_note_drift_cents")
+    sag_pct = breath.get("pct_sagging_endings")
+    breath_evidence = []
+    breath_sev = 0.0
+    if drift is not None and drift > 40:
+        s = pct_severity(drift, "intonation_median_intra_note_drift_cents",
+                         fallback=min(100.0, (drift - 40) * 2.5))
+        breath_sev = max(breath_sev, s or 0)
+        breath_evidence.append(f"held notes drift {drift} cents")
+    if sag_pct is not None and sag_pct > 30 and breath.get("n_phrases_measured", 0) >= 8:
+        breath_sev = max(breath_sev, float(sag_pct))
+        breath_evidence.append(
+            f"{sag_pct}% of phrase endings sag (intentional fall-offs also register — confirm by ear)")
+    if breath_evidence:
+        triggers.append(("breath_support", breath_sev, breath_evidence))
+
+    # 3. Pressed / strained — safety-boosted so it outranks when present
+    strain = vq.get("strain") or {}
+    strain_pct = strain.get("pct_top_notes_strained")
+    if strain_pct is not None and strain_pct >= 25:
+        if praat_ok and capture_ok:
+            triggers.append(("pressed_strained", min(100.0, strain_pct + 25),
+                             [f"{strain_pct}% of top-quartile notes show the strain signature "
+                              f"(safety-priority: SOVT first-line per library; avoid belting drills)"]))
+        else:
+            guards_applied.append("strain trigger suppressed (capture risk or non-Praat metrics)")
+
+    # 4. Breathy / leaky — only on trustworthy voice-quality data
+    jitter = vq.get("jitter_local_percent_median")
+    hnr = vq.get("hnr_db_median")
+    if jitter is not None and hnr is not None and jitter >= 1.5 and hnr <= 10:
+        if praat_ok and capture_ok:
+            sev = pct_severity(hnr, "voice_quality_hnr_db_median",
+                               lower_is_better=False, fallback=60.0)
+            triggers.append(("breathy_leaky", sev,
+                             [f"jitter {jitter}% with HNR {hnr} dB on sustained notes"]))
+        else:
+            guards_applied.append("breathy/leaky trigger suppressed (capture risk or non-Praat metrics)")
+
+    # 5. Muffled / dull tone
+    sf = res.get("singers_formant_ratio_db")
+    centroid = res.get("spectral_centroid_mean_hz")
+    if sf is not None and sf < -20 and centroid is not None and centroid < CENTROID_DARK_THRESHOLD:
+        triggers.append(("muffled_dull", min(100.0, (-20 - sf) * 5),
+                         [f"singer's formant {sf} dB (soft/dark) with centroid {centroid} Hz"]))
+
+    # 6. Vibrato — style-guarded: near-zero presence = straight-tone style, never auto-corrected
+    presence = vib.get("pct_notes_with_vibrato")
+    n_long = vib.get("n_notes_analysed", 0)
+    if presence is not None and n_long >= 8:
+        if presence < 8:
+            guards_applied.append(
+                "vibrato trigger skipped: <8% presence reads as deliberate straight tone (style)")
+        elif presence < 40:
+            triggers.append(("vibrato", min(60.0, (40 - presence) * 1.5),
+                             [f"vibrato on only {presence}% of long notes — attempted but inconsistent"]))
+        else:
+            rate = vib.get("median_rate_hz")
+            if rate is not None and not (4.5 <= rate <= 7.5):
+                triggers.append(("vibrato", 35.0,
+                                 [f"vibrato rate {rate} Hz sits outside the healthy 4.5-7.5 Hz band"]))
+
+    # 7. Register bridge — low-confidence heuristic, only without stronger signals
+    if not reg.get("single_register") and reg.get("n_notes"):
+        ratio = (reg.get("n_register_transitions") or 0) / max(1, reg["n_notes"])
+        if ratio > 0.35:
+            triggers.append(("register_bridge", 30.0,
+                             [f"{reg.get('n_register_transitions')} register transitions across "
+                              f"{reg['n_notes']} notes (heuristic — verify flips by ear)"]))
+
+    # Measured issues the library has no category for — surfaced, not force-fitted
+    uncovered = []
+    if groove and not groove.get("error"):
+        off = groove.get("mean_offset_ms")
+        if off is not None and abs(off) > 60:
+            uncovered.append(f"timing: {off:+} ms vs the backing track ({groove.get('feel')}) — "
+                             f"no dedicated library category; nearest is runs_riffs")
+
+    triggers.sort(key=lambda t: -(t[1] or 0))
+    def build(cat_key, sev, evidence):
+        cat = pmap["categories"].get(cat_key)
+        if not cat:
+            return None
+        return {
+            "category": cat_key,
+            "selector_heading": cat["selector_heading"],
+            "severity_0_to_100": round(sev or 0, 1),
+            "evidence": evidence,
+            "exercises": [{"num": e["num"], "name": e["name"]} for e in cat["exercises"]],
+            "primary_exercise_detail": cat["exercises"][0].get("detail") if cat["exercises"] else None,
+            "next_take_cue": cat["next_take_cue"],
+            "seven_day_template": cat["seven_day_template"],
+        }
+
+    built = [b for b in (build(*t) for t in triggers) if b]
+    hash_ok = _library_hash_matches(pmap)
+    return {
+        "method": "deterministic_prescription_engine_v1 — rules over measured values; exercise content verbatim from the library; no LLM selection",
+        "map_version": pmap.get("version"),
+        "library_hash_verified": hash_ok,
+        "library_hash_note": (
+            None if hash_ok else
+            "Library not reachable from here — hash unverified" if hash_ok is None else
+            "LIBRARY CHANGED since the map was built — re-run tools/build_prescription_map.py"
+        ),
+        "primary": built[0] if built else None,
+        "supporting": built[1:6],
+        "guards_applied": guards_applied,
+        "no_direct_coverage": uncovered,
+        "note": (
+            "No limiter triggered — no drill prescribed (exercises are prescriptions, not rewards)."
+            if not built else
+            "Primary drill = highest-severity measured limiter. Candi may choose among the "
+            "category's listed exercises using drill history, or justify a deviation in prose."
+        ),
+    }
 
 
 # =============================================================================
@@ -2415,6 +2830,8 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
             f"| Field | Value |",
             f"|---|---|",
             f"| Diagnostic plot | `{visual_info.get('plot_path', 'N/A')}` |",
+            f"| Note inspection cards | `{visual_info.get('note_cards_path') or 'none flagged'}` |",
+            f"| Per-note CSV | `{visual_info.get('notes_csv_path') or 'N/A'}` |",
             f"| Panels | {', '.join(visual_info.get('panels', []))} |",
             f"| Caution | {visual_info.get('note', 'Supporting diagnostics only.')} |",
         ]
@@ -2518,13 +2935,13 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         lines += [f"**Notes with most mid-note pitch movement** (> {TROUBLE_DRIFT_CENTS:.0f} cents; onset scoops/release slides excluded — large values can be held-note drift OR deliberate runs, judge by ear at the timestamp):", f""]
         lines += [f"| Time | Note | Held | Drift (mid-note) |", f"|---|---|---|---|"]
         for n in worst_drift:
-            lines.append(f"| {n['time']} | {n['note']} | {n['duration_s']}s | {n['held_drift_cents']} cents |")
+            lines.append(f"| {n['time']} | {n.get('note_detailed', n['note'])} | {n['duration_s']}s | {n['held_drift_cents']} cents |")
         lines.append("")
     if worst_dev:
         lines += [f"**Notes that landed furthest off-centre** (> {TROUBLE_DEV_CENTS:.0f} cents, tuning-corrected):", f""]
         lines += [f"| Time | Note | Held | Off by |", f"|---|---|---|---|"]
         for n in worst_dev:
-            lines.append(f"| {n['time']} | {n['note']} | {n['duration_s']}s | {n['deviation_cents']:+} cents |")
+            lines.append(f"| {n['time']} | {n.get('note_detailed', n['note'])} | {n['duration_s']}s | {n['deviation_cents']:+} cents |")
         lines += [f"", f"*±50 cents means exactly halfway between two semitones — the maximum measurable.*", f""]
     if flat_sustains:
         lines += [f"**Long sustains without vibrato** (≥ {FLAT_SUSTAIN_MIN_S}s — fine if straight tone is the intent):", f""]
@@ -2551,6 +2968,41 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         lines += [f"", f"</details>"]
     if not (worst_drift or worst_dev or flat_sustains):
         lines.append("No individual notes exceeded the trouble thresholds. Clean take.")
+
+    presc = results.get("prescriptions", {}) or {}
+    lines += [
+        f"",
+        f"---",
+        f"",
+        f"## PRESCRIPTIONS (deterministic, from the Scientific Exercise Library)",
+        f"",
+    ]
+    if presc.get("primary"):
+        p = presc["primary"]
+        lines += [
+            f"> **Primary limiter: {p['selector_heading']}** (severity {p['severity_0_to_100']}/100)",
+            f"> Evidence: {'; '.join(p['evidence'])}",
+            f"> Exercises: {', '.join(str(e['num']) + ' ' + e['name'] for e in p['exercises'])}",
+            f"> Next-take cue: *{p['next_take_cue']}*"
+            + (f" — 7-day template {p['seven_day_template']}" if p.get('seven_day_template') else ""),
+            f"",
+        ]
+        if p.get("primary_exercise_detail"):
+            lines += [f"<details><summary>Primary exercise (verbatim from library)</summary>", f"",
+                      p["primary_exercise_detail"], f"", f"</details>", f""]
+        if presc.get("supporting"):
+            lines += [f"**Supporting (secondary limiters):**", f""]
+            for s in presc["supporting"]:
+                lines.append(f"- {s['selector_heading']} (severity {s['severity_0_to_100']}) — {'; '.join(s['evidence'])}")
+            lines.append("")
+    else:
+        lines += [presc.get("note") or presc.get("error") or "Prescription engine unavailable.", f""]
+    for g in presc.get("guards_applied", []) or []:
+        lines.append(f"*Guard: {g}*  ")
+    for u in presc.get("no_direct_coverage", []) or []:
+        lines.append(f"*No library coverage: {u}*  ")
+    if presc.get("library_hash_note"):
+        lines.append(f"*{presc['library_hash_note']}*  ")
 
     lines += [
         f"",
@@ -2878,14 +3330,24 @@ def main():
             raw_f0,
             visual_output,
             f"VOXAI Audio Analysis — {base_name}\n{args.name}",
+            results=results,
         )
+        cards_output = os.path.join("reports", "diagnostics", f"{base_name}_note_cards.png")
+        cards_path = generate_note_cards(y, sr, raw_f0, results, cards_output)
+        csv_output = os.path.join("output", f"{base_name}_notes.csv")
+        csv_path = export_notes_csv(results, csv_output)
         results["visual_diagnostics"] = {
             "plot_path": os.path.abspath(visual_output),
+            "note_cards_path": os.path.abspath(cards_path) if cards_path else None,
+            "notes_csv_path": os.path.abspath(csv_path) if csv_path else None,
             "panels": [
+                "section_health_ribbon",
                 "waveform_amplitude",
-                "pitch_contour_f0",
+                "pitch_contour_note_axis_with_range_band",
                 "rms_energy_db",
-                "spectral_centroid_brightness",
+                "vibrato_rate_extent_timeline",
+                "vowel_chart_f1_f2",
+                "spectrogram_with_harmonic_traces",
             ],
             "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces.",
         }
@@ -2902,6 +3364,18 @@ def main():
     if "overall_score_0_to_10" in results["technical_score"]:
         print(f"  Technical score: {results['technical_score']['overall_score_0_to_10']}/10 "
               f"(confidence: {results['technical_score']['confidence']})")
+
+    # Stage 4b: Deterministic prescriptions from the exercise library
+    print("\nRunning prescription engine...")
+    pmap = load_prescription_map()
+    results["prescriptions"] = generate_prescriptions(results, pmap, calibration=calibration)
+    presc = results["prescriptions"]
+    if presc.get("primary"):
+        print(f"  Primary limiter: {presc['primary']['category']} "
+              f"(severity {presc['primary']['severity_0_to_100']}) -> "
+              f"{presc['primary']['exercises'][0]['name'] if presc['primary']['exercises'] else '?'}")
+    else:
+        print(f"  Prescriptions: {presc.get('note') or presc.get('error')}")
 
     # Stage 5: Diagnostic logic
     print("\nRunning diagnostic logic engine...")

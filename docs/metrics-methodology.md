@@ -168,6 +168,16 @@ Sing&See display live; no live tracking, no EGG by design):
 | Vowel space (`formants.vowel_space`) | Per-note F1/F2 mapped to nearest cardinal vowel; distribution + timestamps; notes above F0 350 Hz excluded (physics limit) | medium |
 | Spectrogram panel | Added to the diagnostics plot with the 2–4 kHz band marked | visual aid |
 
+### Visual report v2
+
+The diagnostics output is now three artifacts, all rendered from already-measured data (no new metrics, scores unchanged):
+
+- **Main plot (7 panels)**: section-health ribbon (green/amber/red from the trouble thresholds), waveform, pitch contour on a note-named axis with the comfortable-core band shaded, RMS, vibrato rate/extent timeline with the pro 5–7 Hz band, F1/F2 vowel chart with cardinal targets, and the spectrogram with F0 + H2–H6 harmonic traces and the singer's-formant band.
+- **Note inspection cards** (`*_note_cards.png`): up to 3 flagged notes (strained first, then worst drift/off-centre) — spectrum slice, harmonic peak markers, H1–H8 table in note+cents / Hz / dB format.
+- **Per-note CSV** (`*_notes.csv`): every sustained note with intonation, vibrato and onset columns, joined on the shared note start time.
+
+Reports use VoceVista-style `note+cents` notation (`F♯3+24ct`) via the additive `note_detailed` field; existing `note` fields are unchanged for compatibility.
+
 ### Companion tools
 
 - **`tools/compare_takes.py take.json original.json`** — melody-match: DTW
@@ -180,6 +190,34 @@ Sing&See display live; no live tracking, no EGG by design):
 - **`tools/progress_report.py output/ --singer NAME [--song SLUG]`** — the
   progress ledger: per-take metric table plus first→latest trends for
   score, intonation, drift, voice quality, vibrato, phrasing and breath.
+
+## Deterministic prescription engine (v1)
+
+`prescriptions` maps measured limiters to exercise categories extracted
+**verbatim** from the Scientific Exercise Library — rules, not language
+models. The map (`knowledge/prescription_map.json`, built by
+`tools/build_prescription_map.py`) is pinned to the library's sha256; the
+engine warns when the library has changed since the map was built.
+
+Triggers (each carries evidence + severity = 100 − pro-pack percentile
+where calibration exists):
+
+| Trigger | Category | Guards |
+|---|---|---|
+| Median grid deviation > 20 c | pitch_accuracy | — |
+| Held-note drift > 40 c / >30% sagging phrase ends | breath_support | fall-off style caveat in evidence |
+| ≥25% of top notes strained | pressed_strained (+25 safety boost, SOVT-first) | suppressed on capture risk / non-Praat |
+| Jitter ≥1.5% AND HNR ≤10 dB | breathy_leaky | suppressed on capture risk / non-Praat |
+| Singer's formant < −20 dB AND dark centroid | muffled_dull | — |
+| Vibrato on 8–40% of long notes, or rate outside 4.5–7.5 Hz | vibrato (exercises 101–106) | <8% presence = straight-tone style, never triggered |
+| Register transitions > 35% of notes | register_bridge | low-confidence label |
+
+Primary = highest severity; up to 5 supporting. No trigger → no drill
+("exercises are prescriptions, not rewards"). Measured issues without a
+library category (e.g. groove/timing) are surfaced as `no_direct_coverage`,
+never force-fitted. Candi may choose among the prescribed category's
+exercises using drill history, or deviate with explicit justification
+(enforced in the manifest scoring_policy).
 
 ## Known remaining limits
 
