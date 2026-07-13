@@ -2235,13 +2235,9 @@ def generate_visual_diagnostics(y, sr, f0, output_path, title, results=None, hop
 
     # ── Panel 2: pitch contour on a note axis + comfortable range band ──
     ax = fig.add_subplot(gs[2])
-    ax.plot(pitch_times, f0, color='darkorange', linewidth=0.9, label='F0', alpha=0.9)
+    # Clean singer's pitch line: plain blue, no accuracy shading or overlays
+    ax.plot(pitch_times, f0, color='royalblue', linewidth=0.9, alpha=0.9)
     if len(voiced_f0) > 20:
-        midi = 69 + 12 * np.log2(voiced_f0 / 440.0)
-        p10_hz = 440.0 * 2 ** ((np.percentile(midi, 10) - 69) / 12)
-        p90_hz = 440.0 * 2 ** ((np.percentile(midi, 90) - 69) / 12)
-        ax.axhspan(p10_hz, p90_hz, color='seagreen', alpha=0.12,
-                   label=f'Comfortable core {hz_to_note_safe(p10_hz)}-{hz_to_note_safe(p90_hz)}')
         lo = max(60, float(np.min(voiced_f0)) * 0.8)
         hi = min(1200, float(np.max(voiced_f0)) * 1.25)
     else:
@@ -2251,8 +2247,7 @@ def generate_visual_diagnostics(y, sr, f0, output_path, title, results=None, hop
     note_ticks = [t for t in [65.4, 98.0, 130.8, 196.0, 261.6, 392.0, 523.3, 784.0, 1046.5] if lo <= t <= hi]
     ax.set_yticks(note_ticks)
     ax.set_yticklabels([hz_to_note_safe(t) for t in note_ticks])
-    ax.set_title('Pitch Contour on note axis — shaded band = where this voice lived (mid-80% of voiced time)', fontsize=11)
-    ax.legend(fontsize=9, loc='upper right')
+    ax.set_title('Pitch Contour (F0) — singer pitch line on note axis', fontsize=11)
 
     # ── Panel 3: RMS energy ──────────────────────────────────────────────
     ax = fig.add_subplot(gs[3])
