@@ -2473,12 +2473,25 @@ def load_prescription_map(path=DEFAULT_PRESCRIPTION_MAP_PATH):
 
 
 def _library_hash_matches(pmap):
-    """True/False when the library is reachable, None when it isn't."""
+    """True/False when the library is reachable, None when it isn't.
+
+    The map stores the library path relative to the backend root so the
+    check is portable across machines; older absolute-path maps and the
+    default runtime layout are tried as fallbacks.
+    """
+    candidates = []
     lib = pmap.get("library_path")
-    if not lib or not os.path.isfile(lib):
+    if lib:
+        candidates.append(lib if os.path.isabs(lib) else resolve_repo_path(lib))
+    if pmap.get("library_path_absolute_at_build"):
+        candidates.append(pmap["library_path_absolute_at_build"])
+    candidates.append(resolve_repo_path(
+        "../../openclaw-data/vox-coach/knowledge/VOXAI_Scientific_Exercise_Library.txt"))
+    resolved = next((c for c in candidates if c and os.path.isfile(c)), None)
+    if resolved is None:
         return None
     import hashlib
-    text = open(lib, encoding="utf-8").read()
+    text = open(resolved, encoding="utf-8").read()
     return hashlib.sha256(text.encode("utf-8")).hexdigest() == pmap.get("library_sha256")
 
 

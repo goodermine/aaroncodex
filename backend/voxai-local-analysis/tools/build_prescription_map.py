@@ -56,10 +56,24 @@ def parse_library(text):
             print(f"  WARNING: selector heading not in SELECTOR_META, skipped: {heading}")
             continue
         key, template = meta
-        exercises = [
-            {"num": int(num), "name": name.strip().rstrip(".")}
-            for num, name in re.findall(r"(\d+)\s+([^,.]+(?:\([^)]*\))?[^,.]*)", use_line)
-        ]
+        # Split on commas, then parse each item as "<num> <name>" or a
+        # range "<num>–<num> <name>". Names may legitimately contain
+        # digits and periods ("33 1.5 Scale Lip Bubbles"), so never split
+        # inside an item.
+        exercises = []
+        for item in use_line.rstrip(".").split(","):
+            item = item.strip()
+            m = re.match(r"^(\d+)\s*[–-]\s*(\d+)\s+(.*)$", item)
+            if m:
+                lo, hi, name = int(m.group(1)), int(m.group(2)), m.group(3).strip()
+                for num in range(lo, hi + 1):
+                    exercises.append({"num": num, "name": name})
+                continue
+            m = re.match(r"^(\d+)\s+(.*)$", item)
+            if m:
+                exercises.append({"num": int(m.group(1)), "name": m.group(2).strip()})
+            elif item:
+                print(f"  WARNING: unparseable selector item in '{heading}': {item!r}")
         categories[key] = {
             "selector_heading": heading,
             "exercises": exercises,
@@ -99,10 +113,14 @@ def main():
             else:
                 missing.append((key, ex["num"]))
 
+    # Store the library location RELATIVE to the backend root so the hash
+    # check works on any machine, not just the one that built the map.
+    backend_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     payload = {
         "version": "prescription_map_v1",
         "built": datetime.now().isoformat(timespec="seconds"),
-        "library_path": lib_path,
+        "library_path": os.path.relpath(lib_path, backend_root),
+        "library_path_absolute_at_build": lib_path,
         "library_sha256": sha,
         "n_categories": len(categories),
         "n_exercises_in_library": len(entries),
