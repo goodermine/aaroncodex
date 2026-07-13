@@ -4,7 +4,11 @@ set -euo pipefail
 INPUT_PATH=""
 OUTPUT_DIR=""
 PYTHON_BIN="python3"
-MDX_MODEL="UVR-MDX-NET-Inst_HQ_3.onnx"
+# This two-stem MDX model is supported by current audio-separator releases and
+# is practical on CPU for interactive mobile uploads. The legacy
+# UVR-MDX-NET-Inst_HQ_3 default can no longer resolve on some package versions;
+# heavier Roformer models remain available through --model when required.
+MDX_MODEL="UVR_MDXNET_Main.onnx"
 VENV_PATH="${HOME}/.venvs/vox-sep-uvr"
 
 usage() {

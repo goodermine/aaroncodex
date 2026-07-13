@@ -1,0 +1,73 @@
+{
+  "processing_stages": [
+    "queued",
+    "separating_vocals",
+    "preparing_audio",
+    "tracking_pitch",
+    "running_v2_analysis",
+    "finding_original",
+    "analysing_original",
+    "aligning_comparison",
+    "building_report"
+  ],
+  "result_states": [
+    {
+      "name": "complete_verified",
+      "quality": "reliable",
+      "quality_flags": [],
+      "reference": "ready",
+      "report": true,
+      "expected": "scope, scores, comparison and coaching racks"
+    },
+    {
+      "name": "single_track",
+      "quality": "reliable",
+      "quality_flags": [],
+      "reference": "skipped",
+      "report": true,
+      "expected": "scope, scores and coaching racks without original controls or comparison rack"
+    },
+    {
+      "name": "partial_data",
+      "quality": "caution",
+      "quality_flags": ["low_voiced_coverage"],
+      "reference": "unavailable",
+      "report": true,
+      "expected": "persistent caution and explicit unavailable values"
+    },
+    {
+      "name": "low_confidence",
+      "quality": "caution",
+      "quality_flags": ["low_pitch_confidence"],
+      "reference": "ready",
+      "report": true,
+      "expected": "confidence warning above scores"
+    },
+    {
+      "name": "clipped_capture",
+      "quality": "caution",
+      "quality_flags": ["clipping_detected"],
+      "reference": "ready",
+      "report": true,
+      "expected": "capture warning above scores"
+    },
+    {
+      "name": "analysis_failure",
+      "quality": null,
+      "quality_flags": [],
+      "reference": null,
+      "report": false,
+      "error": "analysis_failed",
+      "expected": "focused accessible error state"
+    },
+    {
+      "name": "long_technical_report",
+      "quality": "reliable",
+      "quality_flags": [],
+      "reference": "ready",
+      "report": true,
+      "technical_report_lines": 1200,
+      "expected": "report remains unloaded until its rack opens"
+    }
+  ]
+}
