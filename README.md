@@ -1,6 +1,7 @@
 # VOX Cloud Alpha
 
-Private MVP repository for turning the working local VOXAI/Candi vocal analysis flow into a small service.
+Private VOXAI monorepo with two deliberately separate product entry points
+sharing one acoustic-analysis engine.
 
 Start here for agent-to-agent context:
 
@@ -17,7 +18,21 @@ This repo packages the clean pieces of the current working pipeline:
 
 Generated files, private singer progress logs, uploads, temporary WAVs, Telegram caches, and PDFs are intentionally ignored.
 
-## Current MVP Flow
+## Product Entry Points
+
+| Entry point | Location | Responsibility |
+|---|---|---|
+| Candi / Telegram | `scripts/candi_phase1.py` plus the OpenClaw Candi workspace | Telegram intake, durable singer memory, knowledge retrieval, coaching and progress logs |
+| VOXAI-Alpha web | `backend/pitch-viewer/` | Browser upload, pitch visualisation, original comparison, playback and browser-formatted diagnostics |
+| Shared engine | `backend/voxai-local-analysis/` | Stem-first measurements, V2 calibrated score and V3 diagnostic blocks used by both entry points |
+
+The web service is not the Telegram bot and does not own Candi's memory or
+messaging workflow. The Telegram workflow is not a web server. Neither entry
+point may fork or reimplement `analyse_song.py`; presentation can differ, but
+the measurements and calibration have one source of truth. See
+`docs/entry-points.md`.
+
+## Candi / Telegram Flow
 
 ```text
 recording upload
@@ -40,6 +55,20 @@ python3 scripts/verify_voxai_knowledge.py
 ```
 
 Expected result: `advanced_compliant: true`.
+
+## VOXAI-Alpha Web Entry Point
+
+The private/local web application accepts a singing recording, runs the shared
+engine, and plots its confident detected notes against synchronised playback:
+
+```bash
+cd backend/pitch-viewer
+pip install -r requirements.txt
+python app.py
+```
+
+Then open `http://127.0.0.1:8766`. See
+`backend/pitch-viewer/README.md` for limits and deployment safeguards.
 
 ## Backend Setup
 
