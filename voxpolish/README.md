@@ -14,17 +14,24 @@ Full song ──► Separate vocals ──► Analyze ──► Apply fixes ─�
 sibilants) into `edit_document.json`. Edit it, re-render, and your edits are
 applied exactly — rendering is deterministic DSP.
 
-## Install (Apple Silicon Mac)
+## Install (Geekom A9 Max — AMD Ryzen, 128 GB RAM)
 
 ```bash
 cd voxpolish
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e .                        # core: runs voice mode with DSP fallbacks
-pip install -e '.[separation]'          # + Demucs for song mode (uses the M-series GPU)
+pip install -e '.[separation]'          # + Demucs for song mode
 pip install -e '.[clean]'               # + DeepFilterNet denoising
 pip install -e '.[vad]'                 # + Silero AI voice detection (better gating)
-brew install ffmpeg                     # mp3/m4a decoding
 ```
+
+Also install ffmpeg for mp3/m4a decoding: `winget install ffmpeg` (Windows) or
+`sudo apt install ffmpeg` (Linux).
+
+Models run on the Ryzen CPU via PyTorch — with 128 GB of RAM everything fits in
+memory; expect a few minutes per song for separation and seconds for the rest.
+(The integrated Radeon iGPU isn't supported by ROCm, so there's no GPU path yet;
+ONNX Runtime + DirectML is the future option on Windows.)
 
 Everything ML is optional: without it the pipeline still runs (voice mode) using
 DSP fallbacks, and upgrades itself automatically when the models are installed.

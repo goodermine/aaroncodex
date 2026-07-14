@@ -21,7 +21,8 @@ def load(path: str | Path) -> tuple[np.ndarray, int]:
         if shutil.which("ffmpeg") is None:
             raise RuntimeError(
                 f"Could not decode {path.name} with libsndfile and ffmpeg is not "
-                "installed. Install ffmpeg (macOS: `brew install ffmpeg`) or "
+                "installed. Install ffmpeg (Windows: `winget install ffmpeg`, "
+                "Linux: `sudo apt install ffmpeg`) or "
                 "convert the file to WAV/FLAC first."
             )
     with tempfile.TemporaryDirectory() as td:

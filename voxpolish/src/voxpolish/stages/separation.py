@@ -1,7 +1,8 @@
 """Separation stage: split a full mix into vocal + instrumental with Demucs.
 
-Only used in Song mode. Requires the `separation` extra (demucs + torch);
-on Apple Silicon, Demucs uses the MPS GPU automatically when available.
+Only used in Song mode. Requires the `separation` extra (demucs + torch).
+Device is auto-picked: CUDA or Apple MPS when present, otherwise CPU — which
+is the expected path on the AMD Ryzen dev machine (no ROCm for its iGPU).
 """
 
 from __future__ import annotations

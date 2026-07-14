@@ -10,9 +10,12 @@ it a **full song**, not just a pre-isolated voice track.*
 
 - **First users**: (a) vocalists/singers cleaning up vocals in their own music, and
   (b) people recording talks, sermons, and podcasts. Two audiences → two input modes (§1a).
-- **Runtime**: runs **locally on the founder's Apple Silicon Mac (M-series Max)** initially.
-  No cloud, no hosting costs. PyTorch's MPS backend gives us GPU acceleration for
-  separation and denoising on that hardware.
+- **Runtime**: runs **locally on the founder's Geekom A9 Max (AMD Ryzen, 128 GB RAM)**
+  initially. No cloud, no hosting costs. The 128 GB of RAM fits every model in memory
+  comfortably; inference runs on the strong Ryzen CPU (PyTorch CPU backend — a few
+  minutes per song for separation, seconds for everything else). The integrated Radeon
+  iGPU has no official ROCm support, so GPU acceleration is a later nice-to-have
+  (likeliest path: ONNX Runtime + DirectML on Windows), not a requirement.
 - **Brand**: this is an add-on to the Vox Coaching ecosystem (voice analysis/coaching).
   The "Pulse" name from this repo's old site is unrelated and dropped.
 
@@ -133,10 +136,11 @@ Notes:
 - Ship as: local app first (runs on the user's machine, GPU if available)
 
 ### Phase 2 — Productize (decided: local-first)
-Everything runs locally on the founder's Apple Silicon Mac to start — the Phase 1 app
+Everything runs locally on the founder's Geekom A9 Max to start — the Phase 1 app
 (local server + browser UI) IS the product for now. When it's time to share it:
-- **Nearest step**: package as a Mac desktop app (Tauri/Electron wrapping Phase 1) —
-  local processing, no cloud costs; Apple Silicon MPS acceleration built in.
+- **Nearest step**: package as a desktop app (Tauri/Electron wrapping Phase 1) —
+  local processing, no cloud costs; cross-platform (Windows/Linux/macOS) since the
+  engine is plain Python + PyTorch CPU.
 - **Later option**: hosted web service tied into the Vox Coaching site (upload → process →
   browser editor), if reach matters more than margins. Phase 1's architecture (HTTP API +
   browser UI) deliberately keeps this door open.
