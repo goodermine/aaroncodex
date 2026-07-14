@@ -2014,12 +2014,23 @@ def compute_technical_score(results, calibration=None):
                 default_best=20.0, worst=5.0, unit=" dB", lower_is_better=False)
             subscores.append(score)
             detail.append(f"HNR {basis}")
+        # v3: CPPS (cepstral peak prominence) joins the clarity axis — the
+        # modern research-standard phonation-clarity measure. Capture-
+        # sensitive like the rest of voice_quality, so it rides inside the
+        # capture-fair exclusion automatically.
+        cpps = vq.get("cpps_db")
+        if cpps is not None:
+            score, _, basis = _linear_component(
+                cpps, "voice_quality_cpps_db", calibration,
+                default_best=13.0, worst=4.0, unit=" dB", lower_is_better=False)
+            subscores.append(score)
+            detail.append(f"CPPS {basis}")
         subscores = [s for s in subscores if s is not None]
         if subscores:
             components["voice_quality"] = {
                 "weight": 0.20,
                 "input": "; ".join(detail),
-                "formula": "mean of jitter/shimmer/HNR sub-scores (Praat, per sustained note)",
+                "formula": "mean of jitter/shimmer/HNR/CPPS sub-scores (Praat, per sustained note)",
                 "score": round(float(np.mean(subscores)), 2),
             }
 
@@ -2127,7 +2138,7 @@ def compute_technical_score(results, calibration=None):
 
     calibrated = calibration is not None
     provenance = (
-        "deterministic_rubric_v2 — computed from measured audio features; "
+        "deterministic_rubric_v3 — computed from measured audio features; "
         "identical audio yields an identical score; no LLM involvement; "
         + ("anchored to professional reference distribution" if calibrated else
            "theoretical anchors (no pro calibration file found)")

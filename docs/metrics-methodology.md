@@ -70,6 +70,38 @@ so any score can be audited by hand. A `confidence` field (high/medium/low)
 reflects whether Praat metrics were available, how many sustained notes
 were found, and whether capture-risk markers were raised.
 
+### Rubric v3 (current)
+
+v3 keeps v2's six components and weights unchanged, with one refinement and
+a deliberate set of exclusions:
+
+- **CPPS joins the voice-quality component.** Voice quality is now the mean
+  of jitter / shimmer / HNR / **CPPS** sub-scores (still 20% weight). CPPS
+  (cepstral peak prominence) is the modern research-standard clarity
+  measure; it discriminates properly (validated: clarity 13→5 dB drops the
+  voice-quality component 10.0→7.8) and, being capture-sensitive like the
+  other three, rides inside the capture-fair exclusion automatically.
+- **Everything else measured since v2 is reported but deliberately NOT
+  scored**, each for a documented reason:
+  - *Vibrato onset delay* — measured, but all 50 professional references
+    read 0.0 s on this pop/rock/soul/country pack (the "straight-then-bloom"
+    is a classical technique). It does not discriminate here, so scoring it
+    would be dead weight or would penalize the pros. Kept diagnostic.
+  - *Singer's formant / projection* — a real pro trait, but low by *style*
+    for intimate/dark singers (e.g. Norah Jones) and partly a function of
+    the microphone. Scoring it would penalize legitimate style and reward
+    capture. Reported with a pro-percentile; never scored.
+  - *Strain, onset scoops/overshoots, breath-end sag* — style choices or
+    heuristics (deliberate grit, soul scooping, expressive fall-offs).
+    Scoring them would punish artistry. Prescription triggers and
+    diagnostics only.
+  - *Registers, groove, range, harmonic profile, vowel space* — heuristic,
+    context-dependent, or descriptive rather than quality axes.
+
+This exclusion list is a feature: the score rewards technical execution a
+better singer genuinely controls, and refuses to move on things that are
+style, capture, or guesswork.
+
 ### Professional-reference calibration
 
 Theoretical anchors answer "is this physically excellent?"; calibration
@@ -112,6 +144,27 @@ Rules of use:
 - **Absolute result and self-progress** (same singer, same setup over
   time) → use the overall score; there voice quality legitimately reflects
   technique and capture improvements the singer controls.
+
+### Reference-pack admission policy
+
+The calibration pack defines what "professional" measures as — so what goes
+in matters as much as how it's measured. Policy (owner: Aaron):
+
+- **Studio recordings only.** Live recordings (PA bleed, crowd noise, room
+  reverb) and pre-hi-fi-era transfers (narrowband, noisy) measure worse on
+  voice quality *because of the capture chain, not the singer* — including
+  them drags the professional anchors and makes the whole scale less honest.
+  Removed on this basis (2026-07): Bon Jovi Live 8 2005, Joe Cocker at
+  Woodstock, Cold Chisel Bow River Live 1983, Judy Garland 1939. All four
+  artists remain represented (or eligible) via studio recordings.
+- **One performance per recording** (no duplicate files of the same take;
+  different recordings of the same song by different artists are fine).
+- **Prominent lead vocal, sustained-note-rich, minimal audible pitch
+  correction** — calibration needs real sustained phonation and honest
+  intonation, so heavily autotuned productions are poor references.
+- Balance targets: roughly even male/female, a spread of eras and styles
+  (belt, croon, straight-tone, vibrato-led, country, soul, rock, pop,
+  theatre), pack size ~50.
 
 ### What the score does NOT measure
 
