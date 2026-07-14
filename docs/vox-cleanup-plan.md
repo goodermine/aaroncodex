@@ -1,7 +1,20 @@
-# PulseVocal — Product & Engineering Plan
+# Vox Cleanup Tool — Product & Engineering Plan
 
-*Working title. An AI vocal cleanup tool inspired by NoiseWorks VoiceAssist, with one big
-differentiator: you feed it a **full song**, not a pre-isolated voice track.*
+*Name TBD — will live under the Vox Coaching brand family (candidates in §7). An AI vocal
+cleanup tool inspired by NoiseWorks VoiceAssist, with one big differentiator: you can feed
+it a **full song**, not just a pre-isolated voice track.*
+
+---
+
+## 0. Decisions made
+
+- **First users**: (a) vocalists/singers cleaning up vocals in their own music, and
+  (b) people recording talks, sermons, and podcasts. Two audiences → two input modes (§1a).
+- **Runtime**: runs **locally on the founder's Apple Silicon Mac (M-series Max)** initially.
+  No cloud, no hosting costs. PyTorch's MPS backend gives us GPU acceleration for
+  separation and denoising on that hardware.
+- **Brand**: this is an add-on to the Vox Coaching ecosystem (voice analysis/coaching).
+  The "Pulse" name from this repo's old site is unrelated and dropped.
 
 ---
 
@@ -20,6 +33,20 @@ Full mixed song ──► Separate vocals ──► Analyze ──► Apply fixe
 2. **Remixed song** — cleaned vocal recombined with the original instrumental
 3. **Delta** — audio of everything that was removed (noise, breaths, bleed), for auditioning
 4. **Automation data** — the gain curves and event regions as exportable data (JSON/MIDI)
+
+### 1a. Two input modes (one pipeline)
+
+Serving both audiences means the separation stage is a *switch*, not a fixture:
+
+- **Song mode** (vocalists/singers): full pipeline — separate the vocal from the mix,
+  clean it, then either return the stem or remix it with the instrumental.
+- **Voice mode** (talks, sermons, podcasts): the recording is already mostly voice, so
+  separation is skipped — or optionally used to strip background music/bed from a talk
+  recording, which is a killer feature for event recordings.
+
+Everything downstream of Stage A (analysis + render) is identical in both modes. Only the
+defaults differ: Song mode leans gentle on Gate/Breath (breaths are musical), Voice mode
+leans harder on Gate, Dynamics, and Mouth-noise-style cleanup for spoken word.
 
 **Design principle we keep from VoiceAssist: no black box.**
 Every module's *analysis* pass produces human-readable, editable data (gain curves, breath
@@ -105,14 +132,14 @@ Notes:
 - The UI reads/writes the Edit Document — render button applies it
 - Ship as: local app first (runs on the user's machine, GPU if available)
 
-### Phase 2 — Productize (pick one lane)
-- **Option A — Hosted web service**: users upload a song, GPU server processes, browser
-  editor for tweaks. Easiest distribution, recurring revenue, but hosting GPU costs and
-  upload friction.
-- **Option B — Desktop app** (Tauri/Electron wrapping Phase 1): one-time purchase like
-  VoiceAssist ($49–299 tiering worked for them), local processing, no cloud costs.
-- Recommendation: **A for reach, B for margins** — Phase 1's architecture (HTTP API +
-  browser UI) deliberately keeps both doors open.
+### Phase 2 — Productize (decided: local-first)
+Everything runs locally on the founder's Apple Silicon Mac to start — the Phase 1 app
+(local server + browser UI) IS the product for now. When it's time to share it:
+- **Nearest step**: package as a Mac desktop app (Tauri/Electron wrapping Phase 1) —
+  local processing, no cloud costs; Apple Silicon MPS acceleration built in.
+- **Later option**: hosted web service tied into the Vox Coaching site (upload → process →
+  browser editor), if reach matters more than margins. Phase 1's architecture (HTTP API +
+  browser UI) deliberately keeps this door open.
 
 ### Phase 3 — DAW plugin (only if the product earns it)
 - A real ARA plugin (JUCE + ARA SDK, C++) is a 12–18 month effort and the reason
@@ -139,12 +166,26 @@ Notes:
 
 ---
 
-## 6. Open decisions (to discuss)
+## 6. Remaining open decisions
 
-1. **Who is the first user?** Musicians cleaning their own recorded vocals inside a rough
-   mix? Cover/remix creators extracting vocals? Podcasters with music beds? This picks the
-   defaults and the marketing.
-2. **Local vs. hosted** processing (Phase 2 fork).
-3. **Name** — "PulseVocal" ties into the existing Pulse branding in this repo; open to better.
-4. **Python engine forever, or eventual C++ port** for the render stage (only matters if
-   Phase 3 happens).
+1. **Name** (see §7 shortlist) — pick before Phase 1 UI work so branding is baked in.
+2. **Python engine forever, or eventual C++ port** for the render stage (only matters if
+   Phase 3 / plugin ambitions materialize).
+3. **How this connects to Vox Coaching** — standalone tool, or a "cleanup" tab inside a
+   future Vox analysis app? Affects Phase 1 packaging, not Phase 0.
+
+---
+
+## 7. Naming — shortlist under the Vox brand
+
+The tool should read as part of the Vox Coaching family. Candidates (availability of
+domains/trademarks unchecked — avoid anything close to "VoiceAssist"):
+
+- **VoxPolish** — says exactly what it does; friendly for non-engineers
+- **VoxClean** — plainest possible; strong for the podcast/talks audience
+- **VoxRefine** — slightly more premium feel
+- **VoxRestore** — leans into the repair/rescue angle (bad recordings saved)
+- **VoxLab** — roomier umbrella if this later merges with the analysis/coaching tooling
+
+Working recommendation: **VoxPolish** for the tool, keeping **VoxLab** in reserve as the
+umbrella name if the coaching-analysis suite and this cleanup tool ever ship together.
