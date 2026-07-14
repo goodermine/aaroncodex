@@ -12,6 +12,22 @@ from .document import EditDocument
 from .stages import breath, clean, dynamics, gate, render, separation, sibilance
 
 
+# Remix peak ceiling: the sum is scaled DOWN (never up) to keep this much
+# headroom; equal scaling preserves the vocal-to-instrumental relationship.
+REMIX_PEAK_CEILING_DB = -1.0
+
+
+def mix_remix(vocal: np.ndarray, instrumental: np.ndarray, vocal_trim_db: float = 0.0) -> np.ndarray:
+    """Sum cleaned vocal (trimmed by vocal_trim_db) with the instrumental."""
+    n = min(vocal.shape[1], instrumental.shape[1])
+    remix = vocal[:, :n] * 10 ** (vocal_trim_db / 20) + instrumental[:, :n]
+    ceiling = 10 ** (REMIX_PEAK_CEILING_DB / 20)
+    peak = np.max(np.abs(remix))
+    if peak > ceiling:
+        remix = remix * (ceiling / peak)
+    return remix
+
+
 @dataclass
 class Settings:
     mode: str = "voice"  # "song" | "voice"
@@ -31,6 +47,10 @@ class Settings:
     catch_peaks: float = 0.5
     breath_reduction_db: float = -12.0
     sibilance_sensitivity: float = 0.5
+    # Trim applied to the cleaned vocal ONLY in the remix sum (the exported
+    # vocal stem is unaffected). Restores backing-track balance when leveling
+    # pushes the singer forward.
+    remix_vocal_db: float = 0.0
     extra: dict = field(default_factory=dict)
 
     @classmethod
@@ -42,6 +62,9 @@ class Settings:
             s.min_pause_s = 0.6
             s.breath_reduction_db = -6.0
             s.dynamics_smoothing = 0.5
+            # Field-test calibration: leveling pushed the singer slightly too
+            # far forward in the remix; sit the vocal back down ~2 dB.
+            s.remix_vocal_db = -2.0
         return s
 
 
@@ -151,11 +174,11 @@ def process(
     if instrumental is not None:
         audio_io.save(out_dir / "instrumental.wav", instrumental, sr)
         outputs["instrumental"] = str(out_dir / "instrumental.wav")
-        n = min(cleaned.shape[1], instrumental.shape[1])
-        remix = cleaned[:, :n] + instrumental[:, :n]
-        peak = np.max(np.abs(remix))
-        if peak > 1.0:
-            remix = remix / peak
+        remix = mix_remix(cleaned, instrumental, settings.remix_vocal_db)
+        doc.analysis["remix"] = {
+            "vocal_trim_db": settings.remix_vocal_db,
+            "peak_ceiling_db": REMIX_PEAK_CEILING_DB,
+        }
         audio_io.save(out_dir / "remix.wav", remix, sr)
         outputs["remix"] = str(out_dir / "remix.wav")
 

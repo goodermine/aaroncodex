@@ -72,7 +72,11 @@ Outputs:
 - Song mode also writes `instrumental.wav` + `remix.wav`.
 
 Useful flags: `--no-gate --no-dynamics --no-breath --no-sibilance --no-clean`,
-`--target-db -18`, `--gate-floor-db -30`, `--smoothing 0.5`.
+`--target-db -18`, `--gate-floor-db -30`, `--smoothing 0.5`,
+`--remix-vocal-db -2` (vocal balance in the remix sum only — defaults to −2 dB
+in song mode so leveling doesn't push the singer forward; the exported vocal
+stem is unaffected, and the remix is normalized only downward to a −1 dBFS
+peak ceiling so relative balance and headroom are preserved).
 
 ## The six modules
 

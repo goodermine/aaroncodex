@@ -38,6 +38,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--gate-floor-db", type=float, default=None)
     p.add_argument("--smoothing", type=float, default=None,
                    help="Dynamics strength 0..1 (default 0.7 voice / 0.5 song)")
+    p.add_argument("--remix-vocal-db", type=float, default=None,
+                   help="Vocal trim in the remix sum only, dB (default -2 in "
+                        "song mode; the exported vocal stem is unaffected)")
 
     args = parser.parse_args(argv)
 
@@ -55,6 +58,8 @@ def main(argv: list[str] | None = None) -> int:
         settings.gate_floor_db = args.gate_floor_db
     if args.smoothing is not None:
         settings.dynamics_smoothing = args.smoothing
+    if args.remix_vocal_db is not None:
+        settings.remix_vocal_db = args.remix_vocal_db
 
     edit_doc = EditDocument.load(args.from_doc) if args.from_doc else None
 
