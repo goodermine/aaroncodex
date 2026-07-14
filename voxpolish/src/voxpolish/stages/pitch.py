@@ -1,0 +1,188 @@
+"""Pitch analysis: track the vocal's pitch, detect the key, propose gentle
+corrections toward the scale.
+
+Analysis only — no audio is modified. The output is an editable report
+(the tuner's half of the no-black-box contract): every note, its deviation
+in cents, and the proposed correction. The rendering half (applying the
+correction with a vocoder/PSOLA) comes later, behind the same data.
+
+Tracker: YIN (de Cheveigné & Kawahara 2002) implemented with FFT
+correlation — no extra dependencies.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+from scipy import signal
+
+FRAME = 2048  # ~46 ms at 44.1k: >2 periods of the 80 Hz floor
+HOP = 512
+FMIN, FMAX = 75.0, 900.0
+YIN_THRESHOLD = 0.15
+MIN_LEVEL_DB = -50.0
+
+NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+MAJOR_SCALE = {0, 2, 4, 5, 7, 9, 11}
+MINOR_SCALE = {0, 2, 3, 5, 7, 8, 10}
+# Krumhansl-Schmuckler key profiles.
+_KS_MAJOR = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88])
+_KS_MINOR = np.array([6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17])
+
+
+def track(mono: np.ndarray, sr: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """YIN pitch track. Returns (times, f0_hz, confidence); f0=0 where unvoiced."""
+    tau_min = max(2, int(sr / FMAX))
+    tau_max = int(sr / FMIN)
+    n_frames = max(0, (len(mono) - FRAME - tau_max) // HOP + 1)
+    times = np.empty(n_frames)
+    f0 = np.zeros(n_frames)
+    conf = np.zeros(n_frames)
+
+    for i in range(n_frames):
+        start = i * HOP
+        times[i] = (start + FRAME / 2) / sr
+        long = np.asarray(mono[start : start + FRAME + tau_max], dtype=np.float64)
+        seg = long[:FRAME]
+        rms_db = 10 * np.log10(np.mean(seg**2) + 1e-12)
+        if rms_db < MIN_LEVEL_DB:
+            continue
+
+        # d(tau) = E(0) + E(tau) - 2*C(tau), all via FFT / cumsum.
+        corr = signal.correlate(long, seg, mode="valid", method="fft")
+        cs = np.concatenate([[0.0], np.cumsum(long**2)])
+        energy = cs[FRAME:] - cs[: tau_max + 1]
+        d = energy[0] + energy - 2.0 * corr
+        d = np.maximum(d, 0.0)
+
+        # Cumulative-mean-normalized difference.
+        cum = np.cumsum(d[1:])
+        cmndf = np.ones_like(d)
+        cmndf[1:] = d[1:] * np.arange(1, len(d)) / np.maximum(cum, 1e-12)
+
+        search = cmndf[tau_min:tau_max]
+        below = np.where(search < YIN_THRESHOLD)[0]
+        if len(below):
+            # First local minimum below threshold.
+            j = below[0]
+            while j + 1 < len(search) and search[j + 1] < search[j]:
+                j += 1
+        else:
+            j = int(np.argmin(search))
+            if search[j] > 0.5:
+                continue  # unvoiced
+        tau = j + tau_min
+        # Parabolic interpolation around the minimum.
+        if 1 <= tau < len(cmndf) - 1:
+            a, b, c = cmndf[tau - 1], cmndf[tau], cmndf[tau + 1]
+            denom = a - 2 * b + c
+            if abs(denom) > 1e-12:
+                tau = tau + 0.5 * (a - c) / denom
+        f0[i] = sr / tau
+        conf[i] = float(1.0 - cmndf[int(round(tau))])
+    return times, f0, conf
+
+
+def estimate_key(f0: np.ndarray) -> tuple[int, str, float]:
+    """Best-fit (tonic pitch class, 'major'|'minor', correlation) from a pitch track."""
+    voiced = f0 > 0
+    if not voiced.any():
+        return 0, "major", 0.0
+    midi = 69 + 12 * np.log2(f0[voiced] / 440.0)
+    hist = np.bincount(np.round(midi).astype(int) % 12, minlength=12).astype(float)
+    if hist.sum() == 0:
+        return 0, "major", 0.0
+    best = (0, "major", -2.0)
+    for tonic in range(12):
+        for mode, profile in (("major", _KS_MAJOR), ("minor", _KS_MINOR)):
+            r = np.corrcoef(np.roll(profile, tonic), hist)[0, 1]
+            if np.isfinite(r) and r > best[2]:
+                best = (tonic, mode, float(r))
+    return best
+
+
+def analyze(
+    mono: np.ndarray,
+    sr: int,
+    strength: float = 0.4,
+    retune_ms: float = 120.0,
+    max_cents: float = 100.0,
+    key: tuple[int, str] | None = None,
+) -> dict:
+    """Full pitch report: key, notes, deviations, proposed correction curve."""
+    times, f0, conf = track(mono, sr)
+    voiced = f0 > 0
+
+    if key is None:
+        tonic, mode, key_conf = estimate_key(f0)
+    else:
+        tonic, mode = key
+        _, _, key_conf = estimate_key(f0)
+    scale_pcs = MAJOR_SCALE if mode == "major" else MINOR_SCALE
+    scale = sorted((tonic + pc) % 12 for pc in scale_pcs)
+
+    midi = np.where(voiced, 69 + 12 * np.log2(np.maximum(f0, 1.0) / 440.0), 0.0)
+
+    def nearest_scale_note(m: float) -> int:
+        cands = []
+        base = int(np.floor(m)) - 2
+        for k in range(base, base + 6):
+            if k % 12 in scale:
+                cands.append(k)
+        return min(cands, key=lambda k: abs(m - k))
+
+    target = np.zeros_like(midi)
+    for i in np.where(voiced)[0]:
+        target[i] = nearest_scale_note(midi[i])
+    dev_cents = np.where(voiced, (midi - target) * 100.0, 0.0)
+
+    # Proposed correction: pull toward the scale tone, scaled by strength,
+    # smoothed by the retune time inside each voiced run (reset at gaps so a
+    # new note attacks cleanly), capped for subtlety.
+    hop_s = HOP / sr
+    alpha = 1.0 - np.exp(-hop_s / max(retune_ms / 1000.0, 1e-3))
+    correction = np.zeros_like(dev_cents)
+    acc = 0.0
+    for i in range(len(dev_cents)):
+        if not voiced[i]:
+            acc = 0.0
+            continue
+        acc += alpha * (-dev_cents[i] * strength - acc)
+        correction[i] = float(np.clip(acc, -max_cents, max_cents))
+
+    # Note segmentation: consecutive voiced frames on the same target note.
+    notes = []
+    i = 0
+    while i < len(times):
+        if not voiced[i]:
+            i += 1
+            continue
+        j = i
+        while j + 1 < len(times) and voiced[j + 1] and target[j + 1] == target[i]:
+            j += 1
+        dur = times[j] - times[i] + hop_s
+        if dur >= 0.1:
+            t = int(target[i])
+            notes.append({
+                "start": round(float(times[i]), 3),
+                "end": round(float(times[j]), 3),
+                "midi": t,
+                "note": f"{NOTE_NAMES[t % 12]}{t // 12 - 1}",
+                "mean_dev_cents": round(float(np.mean(dev_cents[i : j + 1])), 1),
+                "proposed_cents": round(float(np.mean(correction[i : j + 1])), 1),
+                "confidence": round(float(np.mean(conf[i : j + 1])), 3),
+            })
+        i = j + 1
+
+    voiced_devs = np.abs(dev_cents[voiced])
+    return {
+        "key": f"{NOTE_NAMES[tonic]} {mode}",
+        "key_confidence": round(key_conf, 3),
+        "settings": {"strength": strength, "retune_ms": retune_ms, "max_cents": max_cents},
+        "voiced_seconds": round(float(voiced.sum() * hop_s), 2),
+        "mean_abs_dev_cents": round(float(np.mean(voiced_devs)), 1) if voiced.any() else 0.0,
+        "notes": notes,
+        "curve": [
+            [round(float(t), 4), round(float(c), 1)]
+            for t, c in zip(times[voiced], correction[voiced])
+        ],
+    }

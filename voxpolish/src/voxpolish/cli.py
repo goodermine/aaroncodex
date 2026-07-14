@@ -47,6 +47,16 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--true-peak-db", type=float, default=None,
                    help="Final true-peak ceiling, dBTP (default -3)")
 
+    t = sub.add_parser("pitch", help="Analyze pitch and propose gentle corrections (no audio changes)")
+    t.add_argument("input", help="A clean vocal recording or stem")
+    t.add_argument("-o", "--out", default=None, help="Report path (default: <input>_pitch.json)")
+    t.add_argument("--strength", type=float, default=0.4,
+                   help="Correction strength 0..1 (default 0.4 = subtle)")
+    t.add_argument("--retune-ms", type=float, default=120.0,
+                   help="Retune speed; higher = more natural glide (default 120)")
+    t.add_argument("--key", default=None,
+                   help="Force key, e.g. 'A minor' or 'F# major' (default: auto-detect)")
+
     u = sub.add_parser("ui", help="Open a recording in the browser editor")
     u.add_argument("input", help="Audio file, or an existing session directory")
     u.add_argument("-o", "--session", default=None,
@@ -58,6 +68,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "ui":
         return _run_ui(args)
+    if args.command == "pitch":
+        return _run_pitch(args)
 
     settings = Settings.for_mode(args.mode)
     settings.strip_music_bed = args.strip_music_bed
@@ -89,6 +101,48 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Done in {elapsed:.1f}s. Outputs in {args.out}/")
     for name, path in outputs.items():
         print(f"  {name:16s} {path}")
+    return 0
+
+
+def _run_pitch(args) -> int:
+    import json
+    from pathlib import Path
+
+    from . import audio_io
+    from .stages import pitch
+
+    key = None
+    if args.key:
+        parts = args.key.strip().split()
+        try:
+            tonic = pitch.NOTE_NAMES.index(parts[0].upper().replace("♯", "#"))
+            mode = parts[1].lower()
+            assert mode in ("major", "minor")
+            key = (tonic, mode)
+        except (ValueError, IndexError, AssertionError):
+            print(f"Unrecognized key '{args.key}' — use e.g. 'A minor' or 'F# major'",
+                  file=sys.stderr)
+            return 1
+
+    audio, sr = audio_io.load(args.input)
+    mono = audio_io.to_mono(audio)
+    report = pitch.analyze(mono, sr, strength=args.strength,
+                           retune_ms=args.retune_ms, key=key)
+
+    out = Path(args.out) if args.out else Path(args.input).with_suffix("").with_name(
+        Path(args.input).stem + "_pitch.json")
+    out.write_text(json.dumps(report, indent=2))
+
+    print(f"Key: {report['key']} (confidence {report['key_confidence']})")
+    print(f"Voiced: {report['voiced_seconds']}s across {len(report['notes'])} notes")
+    print(f"Mean deviation: {report['mean_abs_dev_cents']} cents")
+    worst = sorted(report["notes"], key=lambda n: -abs(n["mean_dev_cents"]))[:5]
+    if worst:
+        print("Most off-pitch notes:")
+        for n in worst:
+            print(f"  {n['note']:4s} {n['start']:7.2f}s  {n['mean_dev_cents']:+6.1f} cents"
+                  f"  -> proposed {n['proposed_cents']:+6.1f}")
+    print(f"Report: {out}")
     return 0
 
 

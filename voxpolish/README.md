@@ -95,6 +95,21 @@ waveforms come from small precomputed peak files and audio streams with range
 requests, so long recordings never flood the browser; renders run in a
 background worker with a single-flight lock.
 
+## Pitch analysis (the tuner, phase 1 of 2)
+
+```bash
+voxpolish pitch vocal.wav --strength 0.4          # subtle; 1.0 = full pull
+voxpolish pitch vocal.wav --key "F# major"        # override auto-detection
+```
+
+Tracks the vocal's pitch (built-in YIN tracker, no extra installs), detects
+the key, segments notes, and writes `<name>_pitch.json`: every note with its
+deviation in cents and a proposed correction (strength- and retune-speed-
+shaped, capped at ±100 cents). **Analysis only — no audio is changed yet.**
+The rendering half (applying corrections with a vocoder) and the UI pitch
+lane come next; the report is the same editable-data contract as every other
+module. Works best on clean vocals: studio takes or clean stems.
+
 ## Balance & mastering (song mode)
 
 The remix goes through measured balancing and bounded mastering:
