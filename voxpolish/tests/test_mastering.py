@@ -22,11 +22,11 @@ def _band_noise(dur_s, rms_db, lo=100, hi=8000, seed=0):
     return (x * 10 ** (rms_db / 20)).astype(np.float32)[None, :]
 
 
-def _shimmer_like():
+def _shimmer_like(phrase_levels=(-30, -30, -30, -30, -30)):
     """Sparse quiet vocal over separation bleed: the Shimmer failure shape.
 
-    20% real silence, mostly low-level bleed, five short -30 dB phrases.
-    Returns (mono audio, list of phrase (start, end) marks).
+    20% real silence, mostly low-level bleed, five short phrases at the given
+    levels. Returns (mono audio, list of phrase (start, end) marks).
     """
     rng = np.random.default_rng(7)
     parts, marks, t = [], [], 0.0
@@ -39,11 +39,17 @@ def _shimmer_like():
         parts.append(x)
 
     add(rng.standard_normal(int(2.0 * SR)) * 10 ** (-80 / 20))  # true silence
-    for i in range(5):
+    for i, level in enumerate(phrase_levels):
         add(rng.standard_normal(int(1.6 * SR)) * 10 ** (-50 / 20))  # bleed
-        add(_voice_burst(0.5, -30, seed=40 + i), is_phrase=True)
+        add(_voice_burst(0.5, level, seed=40 + i), is_phrase=True)
     add(rng.standard_normal(int(1.0 * SR)) * 10 ** (-50 / 20))
     return np.concatenate(parts).astype(np.float32), marks
+
+
+def _active_lufs_over(audio, marks):
+    """Integrated loudness over the concatenated phrase intervals."""
+    act = measure.active_audio(np.atleast_2d(audio), SR, marks)
+    return measure.integrated_lufs(act, SR)
 
 
 # ---------------------------------------------------------------- dynamics
@@ -69,12 +75,55 @@ def test_shimmer_like_vocal_is_not_buried():
     assert abs(mean_shift) < 1.5, f"vocal level moved {mean_shift:+.1f} dB"
 
 
+def test_high_lra_shimmer_keeps_active_loudness():
+    """The 5 LU quiet-input deficit: wide phrase-level spread means leveling
+    cuts the loud frames that carry the loudness. Cleaned active LUFS must
+    stay within the documented +/-1 LU of raw."""
+    mono, marks = _shimmer_like(phrase_levels=(-22, -40, -28, -44, -33))
+    audio = np.atleast_2d(mono)
+    doc = analyze(audio, SR, Settings.for_mode("song"))
+    doc.pauses, doc.breaths, doc.sibilants = [], [], []  # isolate leveling
+    out = render.render(audio, SR, doc)
+
+    raw_lufs = _active_lufs_over(mono, marks)
+    cleaned_lufs = _active_lufs_over(out[0], marks)
+    assert raw_lufs is not None and cleaned_lufs is not None
+    assert abs(cleaned_lufs - raw_lufs) <= 1.0, (
+        f"active vocal loudness moved {cleaned_lufs - raw_lufs:+.2f} LU"
+    )
+
+
+def test_uniform_shimmer_keeps_active_loudness():
+    mono, marks = _shimmer_like()
+    audio = np.atleast_2d(mono)
+    doc = analyze(audio, SR, Settings.for_mode("song"))
+    doc.pauses, doc.breaths, doc.sibilants = [], [], []
+    out = render.render(audio, SR, doc)
+    delta = _active_lufs_over(out[0], marks) - _active_lufs_over(mono, marks)
+    assert abs(delta) <= 1.0
+
+
+def test_dense_vocal_keeps_active_loudness(speech_signal):
+    """The three good songs' shape: dense vocal, mild leveling — the
+    loudness-neutral invariant must be a near-no-op there too."""
+    mono, sr, marks = speech_signal
+    audio = np.atleast_2d(mono)
+    doc = analyze(audio, sr, Settings.for_mode("song"))
+    doc.pauses, doc.breaths, doc.sibilants = [], [], []
+    out = render.render(audio, sr, doc)
+
+    phrases = [marks[p] for p in ("phrase_loud", "phrase_quiet", "phrase_mid")]
+    act_raw = measure.integrated_lufs(measure.active_audio(audio, sr, phrases), sr)
+    act_out = measure.integrated_lufs(measure.active_audio(out, sr, phrases), sr)
+    assert abs(act_out - act_raw) <= 1.0
+
+
 def test_dynamics_reports_target_method(speech_signal):
     mono, sr, _ = speech_signal
     doc = analyze(np.atleast_2d(mono), sr, Settings.for_mode("voice"))
     info = doc.analysis["dynamics"]
     assert info["target_method"] in ("gated-median", "sanity-fallback")
-    assert "median_shift_correction_db" in info
+    assert "loudness_shift_correction_db" in info
 
 
 # ---------------------------------------------------------------- measurement

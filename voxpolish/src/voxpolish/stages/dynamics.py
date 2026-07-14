@@ -21,6 +21,23 @@ ABS_GATE_DB = -70.0
 TARGET_SANITY_DB = (-35.0, -10.0)
 
 
+def _gated_loudness_db(levels: np.ndarray) -> float | None:
+    """BS.1770-style gated loudness of a framewise level curve.
+
+    The 0.4 s / 0.1 s-hop frames above match the meter's momentary blocks, so
+    an absolute -70 gate plus a -10 relative gate approximates integrated
+    loudness closely enough to neutralize leveling against it.
+    """
+    kept = levels[levels > ABS_GATE_DB]
+    if len(kept) == 0:
+        return None
+    ungated = 10 * np.log10(np.mean(10 ** (kept / 10)))
+    gated = kept[kept > ungated - 10]
+    if len(gated) == 0:
+        return float(ungated)
+    return float(10 * np.log10(np.mean(10 ** (gated / 10))))
+
+
 def _robust_target(levels: np.ndarray, voiced: np.ndarray) -> tuple[float, str]:
     """EBU R128-style two-pass gated target selection.
 
@@ -87,17 +104,28 @@ def analyze(
         reduction = dsp.smooth_exponential(reduction, 0.025, 0.05)
         gain = gain + np.interp(times, ptimes, reduction)
 
-    # Zero-median-shift invariant: leveling compresses AROUND the performance
-    # level, it never moves it. Even a wrong target cannot bury the vocal.
-    active = voiced & (levels > max(ABS_GATE_DB, target - 12.0))
-    median_shift = float(np.median(gain[active])) if active.any() else 0.0
-    gain -= median_shift
+    # Loudness-neutral invariant: leveling compresses AROUND the performance,
+    # it never moves its measured loudness. The correction is computed with
+    # BS.1770-style gating (not the median, not plain energy): on high-LRA
+    # vocals the cuts land on the loud frames that carry the loudness, and
+    # boosted quiet passages can cross the meter's relative gate — both move
+    # integrated LUFS while leaving the median or total energy unchanged.
+    # Two iterations settle the moving gate.
+    loudness_shift = 0.0
+    for _ in range(2):
+        before = _gated_loudness_db(levels)
+        after = _gated_loudness_db(levels + gain)
+        if before is None or after is None:
+            break
+        step = after - before
+        gain -= step
+        loudness_shift += step
 
     curve = [[round(float(t), 4), round(float(g), 3)] for t, g in zip(times, gain)]
     info = {
         "target_db": round(target, 2),
         "target_method": method,
-        "median_shift_correction_db": round(median_shift, 3),
+        "loudness_shift_correction_db": round(loudness_shift, 3),
         "voiced_level_range_db": [
             round(float(np.min(levels[voiced])), 2),
             round(float(np.max(levels[voiced])), 2),
