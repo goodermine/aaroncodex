@@ -30,21 +30,28 @@ def test_session_carries_pitch_analysis(tuned_session):
     assert "key" in doc.pitch
 
 
+def test_tune_starts_bypassed_by_default(tuned_session):
+    """Field verdict: tuning is opt-in until re-approved by ear."""
+    doc = tuned_session.document()
+    assert doc.bypass.get("tune") is True
+    result = tuned_session.render()
+    assert not any("tuned" in n for n in result["notes"])
+
+
 @pytest.mark.skipif(not pitch.vocoder_available(), reason="pyworld not installed")
 def test_tune_toggle_changes_the_render(tuned_session):
     from voxpolish import audio_io
 
     s = tuned_session
+    s.render()
+    untuned, _ = audio_io.load(s.root / "vocal_cleaned.wav")
+
+    doc = s.document()
+    doc.bypass = {**doc.bypass, "tune": False}  # user opts in
+    s.update_document(doc.to_json(), expected_revision=s.revision())
     result = s.render()
     assert any("tuned" in n for n in result["notes"]), result
     tuned, _ = audio_io.load(s.root / "vocal_cleaned.wav")
-
-    doc = s.document()
-    doc.bypass = {**doc.bypass, "tune": True}
-    s.update_document(doc.to_json(), expected_revision=s.revision())
-    result = s.render()
-    assert not any("tuned" in n for n in result["notes"])
-    untuned, _ = audio_io.load(s.root / "vocal_cleaned.wav")
 
     assert not np.array_equal(tuned, untuned), "tune toggle must change the audio"
 
@@ -55,14 +62,15 @@ def test_tune_amount_zero_equals_bypass(tuned_session):
 
     s = tuned_session
     doc = s.document()
-    doc.amounts = {**doc.amounts, "tune": 0.0}
+    doc.bypass = {**doc.bypass, "tune": False}  # enabled...
+    doc.amounts = {**doc.amounts, "tune": 0.0}  # ...but amount zero
     s.update_document(doc.to_json(), expected_revision=s.revision())
     s.render()
     at_zero, _ = audio_io.load(s.root / "vocal_cleaned.wav")
 
     doc = s.document()
     doc.amounts = {**doc.amounts, "tune": 1.0}
-    doc.bypass = {**doc.bypass, "tune": True}
+    doc.bypass = {**doc.bypass, "tune": True}  # bypassed at full amount
     s.update_document(doc.to_json(), expected_revision=s.revision())
     s.render()
     bypassed, _ = audio_io.load(s.root / "vocal_cleaned.wav")

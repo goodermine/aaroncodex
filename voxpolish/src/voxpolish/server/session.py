@@ -86,6 +86,9 @@ class Session:
             }
         except Exception as e:
             doc.pitch = {"error": str(e)}
+        # Field verdict (July 15): tuning stays OUT of the default workflow —
+        # the Tune module starts bypassed; the user opts in per session.
+        doc.bypass = {**doc.bypass, "tune": True}
         s._write_doc(doc, revision=1)
         s.render()
         return s

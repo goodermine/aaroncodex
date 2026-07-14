@@ -22,6 +22,8 @@ YIN_THRESHOLD = 0.15
 MIN_LEVEL_DB = -50.0
 
 NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+# Notes whose core deviation is inside this band are left completely alone.
+DEADBAND_CENTS = 10.0
 MAJOR_SCALE = {0, 2, 4, 5, 7, 9, 11}
 MINOR_SCALE = {0, 2, 3, 5, 7, 8, 10}
 # Krumhansl-Schmuckler key profiles.
@@ -139,21 +141,13 @@ def analyze(
         target[i] = nearest_scale_note(midi[i])
     dev_cents = np.where(voiced, (midi - target) * 100.0, 0.0)
 
-    # Proposed correction: pull toward the scale tone, scaled by strength,
-    # smoothed by the retune time inside each voiced run (reset at gaps so a
-    # new note attacks cleanly), capped for subtlety.
+    # NOTE-CENTRIC correction (field verdict: frame-chasing sounded "far too
+    # strong and weird"). Each note gets ONE near-constant shift derived from
+    # its core median deviation — vibrato, scoops, and micro-inflections ride
+    # on top completely untouched. Notes inside the deadband, too unstable,
+    # or low-confidence get exactly zero correction.
     hop_s = HOP / sr
-    alpha = 1.0 - np.exp(-hop_s / max(retune_ms / 1000.0, 1e-3))
     correction = np.zeros_like(dev_cents)
-    acc = 0.0
-    for i in range(len(dev_cents)):
-        if not voiced[i]:
-            acc = 0.0
-            continue
-        acc += alpha * (-dev_cents[i] * strength - acc)
-        correction[i] = float(np.clip(acc, -max_cents, max_cents))
-
-    # Note segmentation: consecutive voiced frames on the same target note.
     notes = []
     i = 0
     while i < len(times):
@@ -165,15 +159,42 @@ def analyze(
             j += 1
         dur = times[j] - times[i] + hop_s
         if dur >= 0.1:
+            # Core = the held part of the note, excluding attack/release
+            # frames where scoops and consonant transitions live.
+            k = min(int(0.05 / hop_s), (j - i) // 3)
+            core = slice(i + k, j + 1 - k) if (j + 1 - k) > (i + k) else slice(i, j + 1)
+            med_dev = float(np.median(dev_cents[core]))
+            spread = float(np.std(dev_cents[core]))
+            conf_mean = float(np.mean(conf[i : j + 1]))
+
+            corr = 0.0
+            if (
+                abs(med_dev) >= DEADBAND_CENTS  # nearly in tune: hands off
+                and spread <= 60.0  # a glide/run, not a held note: hands off
+                and conf_mean >= 0.5  # shaky tracking: hands off
+            ):
+                corr = float(np.clip(-med_dev * strength, -max_cents, max_cents))
+
+            if corr != 0.0:
+                # Raised-cosine glide in over retune_ms (natural attack),
+                # short release ramp at the note end.
+                t_rel = times[i : j + 1] - times[i]
+                w_in = 0.5 - 0.5 * np.cos(
+                    np.pi * np.minimum(1.0, t_rel / max(retune_ms / 1000.0, 1e-3))
+                )
+                t_out = times[j] - times[i : j + 1]
+                w_out = 0.5 - 0.5 * np.cos(np.pi * np.minimum(1.0, t_out / 0.04))
+                correction[i : j + 1] = corr * w_in * w_out
+
             t = int(target[i])
             notes.append({
                 "start": round(float(times[i]), 3),
                 "end": round(float(times[j]), 3),
                 "midi": t,
                 "note": f"{NOTE_NAMES[t % 12]}{t // 12 - 1}",
-                "mean_dev_cents": round(float(np.mean(dev_cents[i : j + 1])), 1),
-                "proposed_cents": round(float(np.mean(correction[i : j + 1])), 1),
-                "confidence": round(float(np.mean(conf[i : j + 1])), 3),
+                "mean_dev_cents": round(med_dev, 1),
+                "proposed_cents": round(corr, 1),
+                "confidence": round(conf_mean, 3),
             })
         i = j + 1
 
@@ -223,17 +244,38 @@ def _dense_cents(world_times: np.ndarray, curve: list) -> np.ndarray:
     return cents
 
 
+def _corrected_spans(curve: list, margin_s: float = 0.06) -> list:
+    """(start, end) spans where the curve actually corrects (>0.5 cents)."""
+    spans: list[list[float]] = []
+    for t, c in curve:
+        if abs(c) <= 0.5:
+            continue
+        if spans and t - spans[-1][1] <= 0.1:
+            spans[-1][1] = t
+        else:
+            spans.append([t, t])
+    merged: list[list[float]] = []
+    for s, e in spans:
+        s, e = s - margin_s, e + margin_s
+        if merged and s <= merged[-1][1]:
+            merged[-1][1] = e
+        else:
+            merged.append([s, e])
+    return merged
+
+
 def apply_correction(audio: np.ndarray, sr: int, curve: list) -> tuple[np.ndarray, dict]:
     """Apply a cents-correction curve to (channels, samples) audio.
 
-    Uses the WORLD vocoder (pip install 'voxpolish[pitch]'). Transparency
-    guarantee: if the curve proposes essentially nothing (<1 cent
-    everywhere), the input is returned bit-identical — no resynthesis.
+    Uses the WORLD vocoder (pip install 'voxpolish[pitch]'), but ONLY inside
+    the corrected note spans: everywhere else the output is the original
+    audio, bit-identical, crossfaded at the span edges. Uncorrected takes
+    pass through untouched entirely.
     """
     audio = np.atleast_2d(audio)
-    max_prop = max((abs(c) for _, c in curve), default=0.0)
-    if max_prop < 1.0:
-        return audio.copy(), {"applied": False, "reason": "no correction above 1 cent"}
+    spans = _corrected_spans(curve)
+    if not spans:
+        return audio.copy(), {"applied": False, "reason": "no correction above 0.5 cents"}
 
     if not vocoder_available():
         raise RuntimeError(
@@ -241,7 +283,9 @@ def apply_correction(audio: np.ndarray, sr: int, curve: list) -> tuple[np.ndarra
         )
     import pyworld as pw
 
-    out = np.empty_like(audio, dtype=np.float64)
+    n = audio.shape[1]
+    xfade = int(0.02 * sr)
+    out = audio.astype(np.float64).copy()
     applied_cents = 0.0
     for ch in range(audio.shape[0]):
         x = np.ascontiguousarray(audio[ch], dtype=np.float64)
@@ -253,15 +297,29 @@ def apply_correction(audio: np.ndarray, sr: int, curve: list) -> tuple[np.ndarra
         cents[f0 <= 0] = 0.0
         applied_cents = max(applied_cents, float(np.max(np.abs(cents))))
         y = pw.synthesize(f0 * 2 ** (cents / 1200.0), sp, ap, sr)
-        n = audio.shape[1]
         y = y[:n] if len(y) >= n else np.pad(y, (0, n - len(y)))
-        # Pitch correction must never change loudness: pin output RMS to input.
-        rms_in = np.sqrt(np.mean(x**2))
-        rms_out = np.sqrt(np.mean(y**2))
-        if rms_out > 1e-9 and rms_in > 1e-9:
-            y *= rms_in / rms_out
-        out[ch] = y
+
+        for s, e in spans:
+            i0, i1 = max(0, int(s * sr)), min(n, int(e * sr))
+            if i1 - i0 < 4 * xfade:
+                continue
+            seg = y[i0:i1].copy()
+            # Loudness must not shift: pin the span's RMS to the original.
+            rms_in = np.sqrt(np.mean(x[i0:i1] ** 2))
+            rms_out = np.sqrt(np.mean(seg**2))
+            if rms_out > 1e-9 and rms_in > 1e-9:
+                seg *= rms_in / rms_out
+            w = np.ones(i1 - i0)
+            ramp = 0.5 - 0.5 * np.cos(np.pi * np.arange(xfade) / xfade)
+            w[:xfade] = ramp
+            w[-xfade:] = ramp[::-1]
+            out[ch, i0:i1] = x[i0:i1] * (1 - w) + seg * w
+
     return (
         np.clip(out, -1.0, 1.0).astype(np.float32),
-        {"applied": True, "max_applied_cents": round(applied_cents, 1)},
+        {
+            "applied": True,
+            "max_applied_cents": round(applied_cents, 1),
+            "corrected_spans": len(spans),
+        },
     )

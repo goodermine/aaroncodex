@@ -110,11 +110,18 @@ and the proposed correction (strength- and retune-speed-shaped, capped at
 ±100 cents). With `--apply` the corrections are rendered through the WORLD
 vocoder (`pip install 'voxpolish[pitch]'`).
 
-Transparency contract: in-tune audio passes through **bit-identical** (no
-resynthesis when nothing exceeds 1 cent), corrections never bridge gaps
-between phrases, and output loudness is pinned to the input. Edit the JSON,
-re-apply with `--from-report` — same no-black-box loop as everything else.
-Works best on clean vocals: studio takes or clean stems.
+Correction is **note-centric** (redesigned after field listening): each note
+gets one near-constant shift derived from its core median deviation, so
+vibrato, scoops, and micro-inflections ride through untouched. Notes within
+10 cents of the scale (the deadband), unstable glides, and low-confidence
+stretches get exactly zero correction.
+
+Transparency contract: only corrected note spans are resynthesized —
+everything else is the original audio **bit-identical**, crossfaded at span
+edges; corrections never bridge gaps; span loudness is pinned to the input.
+Edit the JSON, re-apply with `--from-report` — same no-black-box loop as
+everything else. In the editor, the Tune module starts **off** (opt-in per
+session). Works best on clean vocals: studio takes or clean stems.
 
 ## Bleed suppression (song mode)
 

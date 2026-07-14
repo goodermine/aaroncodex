@@ -63,6 +63,52 @@ def test_length_and_level_are_preserved():
     assert abs(20 * np.log10(rms_out / rms_in)) < 2.0, "level shifted audibly"
 
 
+def test_vibrato_is_preserved():
+    """The field verdict fix: correction shifts the note's CENTER, it never
+    fights vibrato. Depth of a 5.5 Hz / 25-cent vibrato must survive tuning."""
+    flat_center = 440.0 * 2 ** (-25 / 1200)
+    x = _tone(flat_center, 1.5, vibrato_hz=5.5, vibrato_cents=25)
+    report = pitch.analyze(x, SR, strength=1.0, retune_ms=60.0, key=(9, "minor"))
+    tuned, applied = pitch.apply_correction(np.atleast_2d(x), SR, report["curve"])
+    assert applied["applied"]
+
+    def cents_series(sig):
+        _, f0, _ = pitch.track(sig, SR)
+        v = f0 > 0
+        c = 1200 * np.log2(f0[v] / 440.0)
+        return c[3:-3]  # steady part
+
+    before, after = cents_series(x), cents_series(tuned[0])
+    # Center moved toward the note...
+    assert abs(np.median(after)) < abs(np.median(before)) - 10
+    # ...but the vibrato depth is intact (not flattened by frame-chasing).
+    assert np.std(after) > 0.6 * np.std(before), (
+        f"vibrato crushed: {np.std(before):.1f} -> {np.std(after):.1f} cents"
+    )
+
+
+def test_untouched_passages_are_bit_identical():
+    """Only corrected note spans are resynthesized: an in-tune phrase in the
+    same take must come through byte-for-byte."""
+    good = _tone(440.0, 0.8)
+    flat = _tone(440.0 * 2 ** (-40 / 1200), 0.8)
+    x = np.concatenate([good, _gap(0.4), flat, _gap(0.2)])
+    report = pitch.analyze(x, SR, strength=1.0, key=(9, "minor"))
+    tuned, applied = pitch.apply_correction(np.atleast_2d(x), SR, report["curve"])
+    assert applied["applied"]
+    n_good = int(0.85 * SR)  # the in-tune phrase plus a little margin
+    assert np.array_equal(tuned[0, :n_good], x[:n_good].astype(np.float32))
+
+
+def test_deadband_leaves_nearly_in_tune_notes_alone():
+    """A note 8 cents off is a singer, not a problem: zero correction."""
+    x = _tone(440.0 * 2 ** (-8 / 1200), 1.0)
+    report = pitch.analyze(x, SR, strength=1.0, key=(9, "minor"))
+    tuned, applied = pitch.apply_correction(np.atleast_2d(x), SR, report["curve"])
+    assert not applied["applied"]
+    assert np.array_equal(tuned, np.atleast_2d(x))
+
+
 def test_gaps_are_never_bridged():
     """Correction between two phrases must be zero — no interpolation across gaps."""
     flat = 440.0 * 2 ** (-40 / 1200)
