@@ -56,6 +56,10 @@ def main(argv: list[str] | None = None) -> int:
                    help="Retune speed; higher = more natural glide (default 120)")
     t.add_argument("--key", default=None,
                    help="Force key, e.g. 'A minor' or 'F# major' (default: auto-detect)")
+    t.add_argument("--apply", action="store_true",
+                   help="Actually apply the corrections: writes <input>_tuned.wav")
+    t.add_argument("--from-report", metavar="JSON", default=None,
+                   help="Skip analysis; apply this (hand-edited) pitch report's curve")
 
     u = sub.add_parser("ui", help="Open a recording in the browser editor")
     u.add_argument("input", help="Audio file, or an existing session directory")
@@ -126,8 +130,21 @@ def _run_pitch(args) -> int:
 
     audio, sr = audio_io.load(args.input)
     mono = audio_io.to_mono(audio)
-    report = pitch.analyze(mono, sr, strength=args.strength,
-                           retune_ms=args.retune_ms, key=key)
+    if args.from_report:
+        report = json.loads(Path(args.from_report).read_text())
+    else:
+        report = pitch.analyze(mono, sr, strength=args.strength,
+                               retune_ms=args.retune_ms, key=key)
+
+    if args.apply or args.from_report:
+        tuned, applied = pitch.apply_correction(audio, sr, report["curve"])
+        report = {**report, **applied}
+        tuned_path = Path(args.input).with_name(Path(args.input).stem + "_tuned.wav")
+        audio_io.save(tuned_path, tuned, sr)
+        if applied["applied"]:
+            print(f"Tuned audio: {tuned_path} (max applied {applied['max_applied_cents']} cents)")
+        else:
+            print(f"Tuned audio: {tuned_path} (passthrough — {applied['reason']})")
 
     out = Path(args.out) if args.out else Path(args.input).with_suffix("").with_name(
         Path(args.input).stem + "_pitch.json")

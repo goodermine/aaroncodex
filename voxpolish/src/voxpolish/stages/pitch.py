@@ -175,6 +175,7 @@ def analyze(
 
     voiced_devs = np.abs(dev_cents[voiced])
     return {
+        "applied": False,
         "key": f"{NOTE_NAMES[tonic]} {mode}",
         "key_confidence": round(key_conf, 3),
         "settings": {"strength": strength, "retune_ms": retune_ms, "max_cents": max_cents},
@@ -186,3 +187,77 @@ def analyze(
             for t, c in zip(times[voiced], correction[voiced])
         ],
     }
+
+
+# --------------------------------------------------------------- rendering
+
+
+def vocoder_available() -> bool:
+    try:
+        import pyworld  # noqa: F401
+
+        return True
+    except ImportError:
+        return False
+
+
+def _dense_cents(world_times: np.ndarray, curve: list) -> np.ndarray:
+    """Map the report's (voiced-only) correction curve onto vocoder frames.
+
+    Frames farther than 50 ms from any curve point get zero correction, so
+    gaps between phrases are never bridged by interpolation.
+    """
+    if not curve:
+        return np.zeros_like(world_times)
+    pts = np.asarray(curve, dtype=np.float64)
+    cents = np.interp(world_times, pts[:, 0], pts[:, 1], left=0.0, right=0.0)
+    idx = np.searchsorted(pts[:, 0], world_times).clip(1, len(pts) - 1)
+    nearest = np.minimum(
+        np.abs(world_times - pts[idx - 1, 0]), np.abs(world_times - pts[idx, 0])
+    )
+    cents[nearest > 0.05] = 0.0
+    return cents
+
+
+def apply_correction(audio: np.ndarray, sr: int, curve: list) -> tuple[np.ndarray, dict]:
+    """Apply a cents-correction curve to (channels, samples) audio.
+
+    Uses the WORLD vocoder (pip install 'voxpolish[pitch]'). Transparency
+    guarantee: if the curve proposes essentially nothing (<1 cent
+    everywhere), the input is returned bit-identical — no resynthesis.
+    """
+    audio = np.atleast_2d(audio)
+    max_prop = max((abs(c) for _, c in curve), default=0.0)
+    if max_prop < 1.0:
+        return audio.copy(), {"applied": False, "reason": "no correction above 1 cent"}
+
+    if not vocoder_available():
+        raise RuntimeError(
+            "Pitch rendering needs the WORLD vocoder: pip install 'voxpolish[pitch]'"
+        )
+    import pyworld as pw
+
+    out = np.empty_like(audio, dtype=np.float64)
+    applied_cents = 0.0
+    for ch in range(audio.shape[0]):
+        x = np.ascontiguousarray(audio[ch], dtype=np.float64)
+        f0, t = pw.dio(x, sr, f0_floor=FMIN, f0_ceil=FMAX)
+        f0 = pw.stonemask(x, f0, t, sr)
+        sp = pw.cheaptrick(x, f0, t, sr)
+        ap = pw.d4c(x, f0, t, sr)
+        cents = _dense_cents(t, curve)
+        cents[f0 <= 0] = 0.0
+        applied_cents = max(applied_cents, float(np.max(np.abs(cents))))
+        y = pw.synthesize(f0 * 2 ** (cents / 1200.0), sp, ap, sr)
+        n = audio.shape[1]
+        y = y[:n] if len(y) >= n else np.pad(y, (0, n - len(y)))
+        # Pitch correction must never change loudness: pin output RMS to input.
+        rms_in = np.sqrt(np.mean(x**2))
+        rms_out = np.sqrt(np.mean(y**2))
+        if rms_out > 1e-9 and rms_in > 1e-9:
+            y *= rms_in / rms_out
+        out[ch] = y
+    return (
+        np.clip(out, -1.0, 1.0).astype(np.float32),
+        {"applied": True, "max_applied_cents": round(applied_cents, 1)},
+    )

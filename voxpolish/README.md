@@ -95,20 +95,26 @@ waveforms come from small precomputed peak files and audio streams with range
 requests, so long recordings never flood the browser; renders run in a
 background worker with a single-flight lock.
 
-## Pitch analysis (the tuner, phase 1 of 2)
+## The tuner (subtle pitch correction)
 
 ```bash
-voxpolish pitch vocal.wav --strength 0.4          # subtle; 1.0 = full pull
-voxpolish pitch vocal.wav --key "F# major"        # override auto-detection
+voxpolish pitch vocal.wav --strength 0.4              # analyze only: report
+voxpolish pitch vocal.wav --strength 0.4 --apply      # + write vocal_tuned.wav
+voxpolish pitch vocal.wav --key "F# major" --apply    # force the key
+voxpolish pitch vocal.wav --from-report edited.json   # apply a hand-edited report
 ```
 
-Tracks the vocal's pitch (built-in YIN tracker, no extra installs), detects
-the key, segments notes, and writes `<name>_pitch.json`: every note with its
-deviation in cents and a proposed correction (strength- and retune-speed-
-shaped, capped at ±100 cents). **Analysis only — no audio is changed yet.**
-The rendering half (applying corrections with a vocoder) and the UI pitch
-lane come next; the report is the same editable-data contract as every other
-module. Works best on clean vocals: studio takes or clean stems.
+Tracks the vocal's pitch (built-in YIN tracker), detects the key, segments
+notes, and writes `<name>_pitch.json`: every note with its deviation in cents
+and the proposed correction (strength- and retune-speed-shaped, capped at
+±100 cents). With `--apply` the corrections are rendered through the WORLD
+vocoder (`pip install 'voxpolish[pitch]'`).
+
+Transparency contract: in-tune audio passes through **bit-identical** (no
+resynthesis when nothing exceeds 1 cent), corrections never bridge gaps
+between phrases, and output loudness is pinned to the input. Edit the JSON,
+re-apply with `--from-report` — same no-black-box loop as everything else.
+Works best on clean vocals: studio takes or clean stems.
 
 ## Balance & mastering (song mode)
 
