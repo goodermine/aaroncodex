@@ -1,0 +1,143 @@
+"""Pipeline orchestration: Separation -> Clean -> Analysis -> Render -> Outputs."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from pathlib import Path
+
+import numpy as np
+
+from . import audio_io
+from .document import EditDocument
+from .stages import breath, clean, dynamics, gate, render, separation, sibilance
+
+
+@dataclass
+class Settings:
+    mode: str = "voice"  # "song" | "voice"
+    # In voice mode, still run separation to strip background music beds.
+    strip_music_bed: bool = False
+    separation_model: str = "htdemucs_ft"
+    denoise_amount: float = 1.0
+    enable_gate: bool = True
+    enable_dynamics: bool = True
+    enable_breath: bool = True
+    enable_sibilance: bool = True
+    gate_floor_db: float = -60.0
+    min_pause_s: float = 0.35
+    target_db: float | None = None
+    dynamics_speed_ms: float = 600.0
+    dynamics_smoothing: float = 0.7
+    catch_peaks: float = 0.5
+    breath_reduction_db: float = -12.0
+    sibilance_sensitivity: float = 0.5
+    extra: dict = field(default_factory=dict)
+
+    @classmethod
+    def for_mode(cls, mode: str) -> "Settings":
+        s = cls(mode=mode)
+        if mode == "song":
+            # Breaths are musical; gate gently and level less aggressively.
+            s.gate_floor_db = -24.0
+            s.min_pause_s = 0.6
+            s.breath_reduction_db = -6.0
+            s.dynamics_smoothing = 0.5
+        return s
+
+
+def analyze(vocal: np.ndarray, sr: int, settings: Settings) -> EditDocument:
+    """Run all analysis modules over a (cleaned) vocal, produce the Edit Document."""
+    mono = audio_io.to_mono(vocal)
+    doc = EditDocument(sample_rate=sr, duration=len(mono) / sr, mode=settings.mode)
+
+    pauses, vad_times, vad_mask = gate.analyze(
+        mono, sr, min_pause_s=settings.min_pause_s, floor_db=settings.gate_floor_db
+    )
+    if settings.enable_gate:
+        doc.pauses = pauses
+
+    if settings.enable_dynamics:
+        doc.gain_curve, info = dynamics.analyze(
+            mono, sr, speech_times=vad_times, speech_mask=vad_mask,
+            target_db=settings.target_db, speed_ms=settings.dynamics_speed_ms,
+            smoothing=settings.dynamics_smoothing, catch_peaks=settings.catch_peaks,
+        )
+        doc.analysis["dynamics"] = info
+
+    if settings.enable_breath:
+        doc.breaths = breath.analyze(
+            mono, sr, vad_times, vad_mask, reduction_db=settings.breath_reduction_db
+        )
+
+    if settings.enable_sibilance:
+        doc.sibilants = sibilance.analyze(
+            mono, sr, speech_times=vad_times, speech_mask=vad_mask,
+            sensitivity=settings.sibilance_sensitivity,
+        )
+
+    doc.analysis["counts"] = {
+        "pauses": len(doc.pauses),
+        "breaths": len(doc.breaths),
+        "sibilants": len(doc.sibilants),
+    }
+    return doc
+
+
+def process(
+    input_path: str | Path,
+    out_dir: str | Path,
+    settings: Settings | None = None,
+    edit_doc: EditDocument | None = None,
+) -> dict:
+    """Full pipeline. Returns a dict of output paths.
+
+    If edit_doc is given, analysis is skipped and that document is rendered
+    instead — this is the "edit the JSON, re-render" workflow.
+    """
+    settings = settings or Settings()
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    outputs: dict[str, str] = {}
+
+    # Stage A: ingest (+ separation in song mode / bed-stripping voice mode).
+    instrumental = None
+    if settings.mode == "song" or settings.strip_music_bed:
+        vocal, instrumental, sr = separation.separate(input_path, settings.separation_model)
+    else:
+        vocal, sr = audio_io.load(input_path)
+    raw_vocal = vocal.copy()
+
+    # Clean runs before analysis so every detector sees the denoised signal.
+    vocal, denoise_info = clean.process(vocal, sr, settings.denoise_amount)
+
+    # Stage B: analysis -> Edit Document (unless re-rendering an edited one).
+    if edit_doc is None:
+        doc = analyze(vocal, sr, settings)
+        doc.denoise = denoise_info
+    else:
+        doc = edit_doc
+
+    # Stage C: deterministic render.
+    cleaned = render.render(vocal, sr, doc)
+
+    audio_io.save(out_dir / "vocal_cleaned.wav", cleaned, sr)
+    outputs["vocal_cleaned"] = str(out_dir / "vocal_cleaned.wav")
+
+    delta = raw_vocal - cleaned
+    audio_io.save(out_dir / "delta.wav", delta, sr)
+    outputs["delta"] = str(out_dir / "delta.wav")
+
+    if instrumental is not None:
+        audio_io.save(out_dir / "instrumental.wav", instrumental, sr)
+        outputs["instrumental"] = str(out_dir / "instrumental.wav")
+        n = min(cleaned.shape[1], instrumental.shape[1])
+        remix = cleaned[:, :n] + instrumental[:, :n]
+        peak = np.max(np.abs(remix))
+        if peak > 1.0:
+            remix = remix / peak
+        audio_io.save(out_dir / "remix.wav", remix, sr)
+        outputs["remix"] = str(out_dir / "remix.wav")
+
+    doc.save(out_dir / "edit_document.json")
+    outputs["edit_document"] = str(out_dir / "edit_document.json")
+    return outputs
