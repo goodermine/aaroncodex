@@ -45,6 +45,42 @@ def test_noise_is_unvoiced():
     assert (f0 > 0).mean() < 0.2
 
 
+def test_tracker_survives_sub_floor_content():
+    """Field crash (IndexError): content near/below the 75 Hz floor pushes
+    the CMNDF minimum to the search boundary, where unclamped parabolic
+    interpolation walked past the end of the array."""
+    x = _tone(60.0, 1.0)  # below FMIN: the pathological case
+    times, f0, conf = pitch.track(x, SR)  # must not raise
+    voiced = f0 > 0
+    if voiced.any():
+        assert f0[voiced].min() >= pitch.FMIN * 0.9
+        assert f0[voiced].max() <= pitch.FMAX * 1.1
+
+
+def test_tracker_survives_hostile_signals():
+    """Fuzz: mixed low rumble, clicks, DC, silence — never raises, always sane."""
+    rng = np.random.default_rng(9)
+    rumble = _tone(55.0, 0.8, amp=0.3)
+    clicks = np.zeros(int(0.8 * SR), dtype=np.float32)
+    clicks[:: SR // 13] = 0.9
+    dc = np.full(int(0.5 * SR), 0.1, dtype=np.float32)
+    noise = (rng.standard_normal(int(0.8 * SR)) * 0.2).astype(np.float32)
+    hostile = np.concatenate([rumble, clicks, dc, noise, _tone(200.0, 0.6)])
+    times, f0, conf = pitch.track(hostile, SR)  # must not raise
+    voiced = f0 > 0
+    assert np.all(np.isfinite(f0)) and np.all(np.isfinite(conf))
+    if voiced.any():
+        assert f0[voiced].min() >= pitch.FMIN * 0.9
+        assert f0[voiced].max() <= pitch.FMAX * 1.1
+
+
+def test_analyze_survives_sub_floor_content():
+    """The full CLI path that crashed in the field must complete."""
+    x = np.concatenate([_tone(60.0, 0.8), _gap(0.2), _tone(220.0, 0.8)])
+    report = pitch.analyze(x, SR)  # must not raise
+    assert "key" in report and "curve" in report
+
+
 def test_key_detection_on_a_major_ish_line():
     # A line built from C major tones: C4 E4 G4 A4 F4 D4 C4.
     freqs = [261.63, 329.63, 392.0, 440.0, 349.23, 293.66, 261.63]

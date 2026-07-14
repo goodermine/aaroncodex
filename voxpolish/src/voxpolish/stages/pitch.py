@@ -70,15 +70,19 @@ def track(mono: np.ndarray, sr: int) -> tuple[np.ndarray, np.ndarray, np.ndarray
             j = int(np.argmin(search))
             if search[j] > 0.5:
                 continue  # unvoiced
-        tau = j + tau_min
-        # Parabolic interpolation around the minimum.
-        if 1 <= tau < len(cmndf) - 1:
-            a, b, c = cmndf[tau - 1], cmndf[tau], cmndf[tau + 1]
+        tau = float(j + tau_min)
+        # Parabolic interpolation around the minimum. The vertex of a true
+        # local minimum lies within half a bin; anything further means the
+        # minimum sits on the search boundary (content near/below the f0
+        # floor), where the parabola extrapolates wildly — clamp it.
+        k = int(tau)
+        if 1 <= k < len(cmndf) - 1:
+            a, b, c = cmndf[k - 1], cmndf[k], cmndf[k + 1]
             denom = a - 2 * b + c
             if abs(denom) > 1e-12:
-                tau = tau + 0.5 * (a - c) / denom
+                tau = k + float(np.clip(0.5 * (a - c) / denom, -0.5, 0.5))
         f0[i] = sr / tau
-        conf[i] = float(1.0 - cmndf[int(round(tau))])
+        conf[i] = float(1.0 - cmndf[min(len(cmndf) - 1, max(0, int(round(tau))))])
     return times, f0, conf
 
 
