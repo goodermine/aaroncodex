@@ -287,10 +287,34 @@ def apply_correction(audio: np.ndarray, sr: int, curve: list) -> tuple[np.ndarra
     xfade = int(0.02 * sr)
     out = audio.astype(np.float64).copy()
     applied_cents = 0.0
+    approved: list[bool] | None = None
     for ch in range(audio.shape[0]):
         x = np.ascontiguousarray(audio[ch], dtype=np.float64)
         f0, t = pw.dio(x, sr, f0_floor=FMIN, f0_ceil=FMAX)
         f0 = pw.stonemask(x, f0, t, sr)
+
+        # Stability guard (field garble fix): the vocoder trusts ITS OWN
+        # pitch track inside a span. On noisy/separated audio that track
+        # octave-jumps and voiced-flaps, and resynthesizing those frames is
+        # the garble. An unstable span is skipped — original audio wins.
+        # Decided once (first channel) so stereo stays consistent.
+        if approved is None:
+            approved = []
+            for s, e in spans:
+                f0s = f0[(t >= s) & (t <= e)]
+                v = f0s > 0
+                if len(f0s) < 4 or v.mean() < 0.6:
+                    approved.append(False)
+                    continue
+                jumps = np.abs(np.diff(np.log2(f0s[v]))) > 0.4  # ~5 semitones
+                approved.append(bool(jumps.mean() <= 0.1))
+            if not any(approved):
+                return audio.copy(), {
+                    "applied": False,
+                    "reason": "all corrected spans had unstable pitch tracking",
+                    "skipped_unstable_spans": len(spans),
+                }
+
         sp = pw.cheaptrick(x, f0, t, sr)
         ap = pw.d4c(x, f0, t, sr)
         cents = _dense_cents(t, curve)
@@ -299,7 +323,9 @@ def apply_correction(audio: np.ndarray, sr: int, curve: list) -> tuple[np.ndarra
         y = pw.synthesize(f0 * 2 ** (cents / 1200.0), sp, ap, sr)
         y = y[:n] if len(y) >= n else np.pad(y, (0, n - len(y)))
 
-        for s, e in spans:
+        for k, (s, e) in enumerate(spans):
+            if not approved[k]:
+                continue
             i0, i1 = max(0, int(s * sr)), min(n, int(e * sr))
             if i1 - i0 < 4 * xfade:
                 continue
@@ -320,6 +346,7 @@ def apply_correction(audio: np.ndarray, sr: int, curve: list) -> tuple[np.ndarra
         {
             "applied": True,
             "max_applied_cents": round(applied_cents, 1),
-            "corrected_spans": len(spans),
+            "corrected_spans": int(sum(approved)),
+            "skipped_unstable_spans": int(len(approved) - sum(approved)),
         },
     )

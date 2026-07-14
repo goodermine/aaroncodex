@@ -109,6 +109,43 @@ def test_deadband_leaves_nearly_in_tune_notes_alone():
     assert np.array_equal(tuned, np.atleast_2d(x))
 
 
+def test_unstable_spans_are_skipped_not_garbled():
+    """Field garble fix (noisy source, 0:45-0:55): if the vocoder's own pitch
+    track is unstable inside a corrected span, that span must be skipped —
+    original audio wins over risky resynthesis."""
+    rng = np.random.default_rng(5)
+    flat = _tone(440.0 * 2 ** (-40 / 1200), 0.8)
+    noise = (rng.standard_normal(int(0.8 * SR)) * 0.15).astype(np.float32)
+    x = np.concatenate([flat, _gap(0.3), noise, _gap(0.2)])
+
+    report = pitch.analyze(x, SR, strength=1.0, key=(9, "minor"))
+    # Forge corrections over the unpitched noise, as a bad edit (or a bad
+    # analysis on noisy material) would.
+    noise_start = 1.1
+    forged = report["curve"] + [
+        [round(t, 3), 30.0] for t in np.arange(noise_start + 0.1, noise_start + 0.7, 0.03)
+    ]
+    tuned, applied = pitch.apply_correction(np.atleast_2d(x), SR, forged)
+
+    assert applied["applied"]
+    assert applied["skipped_unstable_spans"] >= 1, applied
+    # The noise region is untouched, byte for byte.
+    i0, i1 = int((noise_start + 0.05) * SR), int((noise_start + 0.75) * SR)
+    assert np.array_equal(tuned[0, i0:i1], x[i0:i1])
+    # And the legitimate flat note still got corrected.
+    seg = slice(int(0.1 * SR), int(0.7 * SR))
+    assert not np.array_equal(tuned[0, seg], x[seg])
+
+
+def test_all_unstable_spans_means_passthrough():
+    rng = np.random.default_rng(6)
+    noise = (rng.standard_normal(int(1.2 * SR)) * 0.15).astype(np.float32)
+    forged = [[round(t, 3), 30.0] for t in np.arange(0.1, 1.0, 0.03)]
+    tuned, applied = pitch.apply_correction(np.atleast_2d(noise), SR, forged)
+    assert not applied["applied"]
+    assert np.array_equal(tuned, np.atleast_2d(noise))
+
+
 def test_gaps_are_never_bridged():
     """Correction between two phrases must be zero — no interpolation across gaps."""
     flat = 440.0 * 2 ** (-40 / 1200)
