@@ -116,6 +116,21 @@ between phrases, and output loudness is pinned to the input. Edit the JSON,
 re-apply with `--from-report` — same no-black-box loop as everything else.
 Works best on clean vocals: studio takes or clean stems.
 
+## Bleed suppression (song mode)
+
+Separated vocals always leak some instrumental. Because we hold the
+instrumental stem, anything in the vocal stem that tracks it is bleed by
+definition — so the instrumental becomes a per-band noise reference for a
+bounded Wiener-style mask (leakage ratio calibrated from the vocal stem's
+quiet frames, attenuation floored at 15 dB, mask smoothed, dry/wet
+blendable). Runs automatically between separation and Clean; what it removes
+shows up in `removed.wav`; stats land in `analysis.bleed`.
+
+- `--bleed-strength 0.9` — push harder on a leaky mix (default 0.7, 0 = off)
+- `--sep-shifts 2` — extra Demucs passes: audibly less bleed at the source,
+  roughly linear CPU cost
+- `--sep-model htdemucs` — try alternate separation models
+
 ## Balance & mastering (song mode)
 
 The remix goes through measured balancing and bounded mastering:

@@ -31,8 +31,14 @@ def _pick_device() -> str:
     return "cpu"
 
 
-def separate(path: str | Path, model: str = "htdemucs_ft") -> tuple[np.ndarray, np.ndarray, int]:
-    """Return (vocal, instrumental, sample_rate), each (channels, samples)."""
+def separate(
+    path: str | Path, model: str = "htdemucs_ft", shifts: int = 1
+) -> tuple[np.ndarray, np.ndarray, int]:
+    """Return (vocal, instrumental, sample_rate), each (channels, samples).
+
+    shifts: Demucs test-time augmentation passes; 2+ reduces bleed at
+    roughly linear CPU cost.
+    """
     if not available():
         raise RuntimeError(
             "Song mode needs Demucs. Install with: pip install 'voxpolish[separation]' "
@@ -40,7 +46,7 @@ def separate(path: str | Path, model: str = "htdemucs_ft") -> tuple[np.ndarray, 
         )
     from demucs.api import Separator
 
-    sep = Separator(model=model, device=_pick_device())
+    sep = Separator(model=model, device=_pick_device(), shifts=max(1, int(shifts)))
     _, stems = sep.separate_audio_file(str(path))
     vocal = stems["vocals"].numpy()
     others = [v.numpy() for k, v in stems.items() if k != "vocals"]

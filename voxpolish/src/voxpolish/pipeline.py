@@ -9,7 +9,7 @@ import numpy as np
 
 from . import audio_io, measure
 from .document import EditDocument
-from .stages import breath, clean, dynamics, gate, master, render, separation, sibilance
+from .stages import bleed, breath, clean, dynamics, gate, master, render, separation, sibilance
 
 
 def mix_remix(
@@ -102,6 +102,12 @@ class Settings:
     # In voice mode, still run separation to strip background music beds.
     strip_music_bed: bool = False
     separation_model: str = "htdemucs_ft"
+    # Test-time augmentation passes for Demucs: 2+ audibly reduces bleed at
+    # roughly linear CPU cost. 1 = fastest.
+    separation_shifts: int = 1
+    # Instrumental-referenced bleed suppression on the separated vocal.
+    bleed_strength: float = 0.7
+    bleed_max_att_db: float = 15.0
     denoise_amount: float = 1.0
     enable_gate: bool = True
     enable_dynamics: bool = True
@@ -221,10 +227,23 @@ def process(
     # Stage A: ingest (+ separation in song mode / bed-stripping voice mode).
     instrumental = None
     if settings.mode == "song" or settings.strip_music_bed:
-        vocal, instrumental, sr = separation.separate(input_path, settings.separation_model)
+        vocal, instrumental, sr = separation.separate(
+            input_path, settings.separation_model, shifts=settings.separation_shifts
+        )
     else:
         vocal, sr = audio_io.load(input_path)
     raw_vocal = vocal.copy()
+
+    # Bleed suppression: runs after the raw copy so what it removes shows up
+    # in removed.wav, and before Clean so every detector sees a purer vocal.
+    if instrumental is not None and settings.bleed_strength > 0:
+        vocal, bleed_info = bleed.suppress(
+            vocal, instrumental, sr,
+            strength=settings.bleed_strength,
+            max_att_db=settings.bleed_max_att_db,
+        )
+    else:
+        bleed_info = {"applied": False}
 
     # Clean runs before analysis so every detector sees the denoised signal.
     vocal, denoise_info = clean.process(vocal, sr, settings.denoise_amount)
@@ -233,6 +252,7 @@ def process(
     if edit_doc is None:
         doc = analyze(vocal, sr, settings)
         doc.denoise = denoise_info
+        doc.analysis["bleed"] = bleed_info
     else:
         doc = edit_doc
 

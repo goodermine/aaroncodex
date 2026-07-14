@@ -38,6 +38,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--gate-floor-db", type=float, default=None)
     p.add_argument("--smoothing", type=float, default=None,
                    help="Dynamics strength 0..1 (default 0.7 voice / 0.5 song)")
+    p.add_argument("--sep-model", default=None,
+                   help="Demucs model for separation (default htdemucs_ft)")
+    p.add_argument("--sep-shifts", type=int, default=None,
+                   help="Separation quality passes: 2+ reduces bleed, costs CPU time")
+    p.add_argument("--bleed-strength", type=float, default=None,
+                   help="Instrumental-bleed suppression on the vocal stem, 0..1 "
+                        "(default 0.7; 0 disables)")
     p.add_argument("--remix-vocal-db", type=float, default=None,
                    help="MANUAL vocal balance override in the remix sum, dB. "
                         "Default: balance is measured and the original "
@@ -89,6 +96,12 @@ def main(argv: list[str] | None = None) -> int:
         settings.gate_floor_db = args.gate_floor_db
     if args.smoothing is not None:
         settings.dynamics_smoothing = args.smoothing
+    if args.sep_model is not None:
+        settings.separation_model = args.sep_model
+    if args.sep_shifts is not None:
+        settings.separation_shifts = args.sep_shifts
+    if args.bleed_strength is not None:
+        settings.bleed_strength = args.bleed_strength
     if args.remix_vocal_db is not None:
         settings.remix_vocal_db = args.remix_vocal_db
     if args.target_lufs is not None:
