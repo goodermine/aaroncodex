@@ -19,6 +19,10 @@ ABS_GATE_DB = -70.0
 # A vocal leveling target outside this window is nonsense (Shimmer measured
 # -44 dBFS from separation bleed); fall back to a robust upper estimate.
 TARGET_SANITY_DB = (-35.0, -10.0)
+# Only frames within this reach of the target are leveled. Content further
+# below the performance level is separation bleed or wash, not vocal to
+# amplify — boosting it produced Shimmer's over-amplified quiet passages.
+BOOST_REACH_DB = 15.0
 
 
 def _gated_loudness_db(levels: np.ndarray) -> float | None:
@@ -70,6 +74,8 @@ def analyze(
     noise_floor_db: float | None = None,
     max_gain_db: float = 12.0,
     catch_peaks: float = 0.5,
+    max_boost_db: float = 6.0,
+    max_slope_db_s: float = 6.0,
 ) -> tuple[list, dict]:
     """Return (gain_curve [[t, dB]...], analysis info)."""
     times, levels = dsp.frame_rms_db(mono, sr, WINDOW_S, HOP_S)
@@ -90,7 +96,8 @@ def analyze(
     else:
         target, method = _robust_target(levels, voiced)
 
-    gain = np.where(voiced, target - levels, 0.0)
+    leveled = voiced & (levels > target - BOOST_REACH_DB)
+    gain = np.where(leveled, target - levels, 0.0)
     gain = np.clip(gain, -max_gain_db, max_gain_db)
     gain = dsp.smooth_exponential(gain, HOP_S, speed_ms / 1000.0)
     gain *= float(np.clip(smoothing, 0.0, 1.0))
@@ -110,22 +117,45 @@ def analyze(
     # vocals the cuts land on the loud frames that carry the loudness, and
     # boosted quiet passages can cross the meter's relative gate — both move
     # integrated LUFS while leaving the median or total energy unchanged.
-    # Two iterations settle the moving gate.
+    #
+    # The shift is weighted by a smoothed voiced mask so bleed and silence
+    # are never boosted as if they were vocal, and the boost ceiling is
+    # re-applied INSIDE the loop: neutralization can never push local gain
+    # past max_boost_db (the Shimmer +11 dB failure).
+    weight = np.clip(
+        dsp.smooth_exponential(leveled.astype(float), HOP_S, 0.3), 0.0, 1.0
+    )
     loudness_shift = 0.0
-    for _ in range(2):
-        before = _gated_loudness_db(levels)
+    before = _gated_loudness_db(levels)
+    for _ in range(3):
         after = _gated_loudness_db(levels + gain)
         if before is None or after is None:
             break
         step = after - before
-        gain -= step
+        gain -= step * weight
         loudness_shift += step
+        gain = np.clip(gain, -max_gain_db, max_boost_db)
+
+    # Slope limit: automation may not change faster than max_slope_db_s, so
+    # neutralization/leveling can never create an audible level step.
+    max_step = max_slope_db_s * HOP_S
+    for i in range(1, len(gain)):
+        lo, hi = gain[i - 1] - max_step, gain[i - 1] + max_step
+        gain[i] = min(max(gain[i], lo), hi)
+    gain = np.clip(gain, -max_gain_db, max_boost_db)
+
+    after = _gated_loudness_db(levels + gain)
+    residual = None if (before is None or after is None) else after - before
+    diffs = np.abs(np.diff(gain)) if len(gain) > 1 else np.array([0.0])
 
     curve = [[round(float(t), 4), round(float(g), 3)] for t, g in zip(times, gain)]
     info = {
         "target_db": round(target, 2),
         "target_method": method,
         "loudness_shift_correction_db": round(loudness_shift, 3),
+        "neutrality_residual_lu": None if residual is None else round(residual, 2),
+        "gain_range_db": [round(float(gain.min()), 2), round(float(gain.max()), 2)],
+        "max_slope_db_per_s": round(float(diffs.max() / HOP_S), 2),
         "voiced_level_range_db": [
             round(float(np.min(levels[voiced])), 2),
             round(float(np.max(levels[voiced])), 2),

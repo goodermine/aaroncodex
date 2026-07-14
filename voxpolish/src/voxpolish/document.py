@@ -22,6 +22,9 @@ class Region:
     # For band-limited regions (sibilance): [low_hz, high_hz]; None = full band.
     band: list | None = None
     label: str = ""
+    # Detector confidence 0..1. Low-confidence edits never override speech
+    # guards; 1.0 (the default) keeps hand-authored regions fully trusted.
+    confidence: float = 1.0
 
     def duration(self) -> float:
         return self.end - self.start

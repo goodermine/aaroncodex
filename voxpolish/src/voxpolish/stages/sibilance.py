@@ -44,9 +44,16 @@ def analyze(
     for s, e in dsp.merge_frames_to_regions(sib, times, min_dur_s=0.03, merge_gap_s=0.02):
         frames = (times >= s) & (times <= e)
         excess = float(np.mean(np.maximum(0.0, ratio[frames] - threshold_db)))
-        reduction = -min(max_reduction_db, max(2.0, excess * (0.5 + sensitivity)))
+        # Evidence-proportional reduction: weak events (boundary smear,
+        # voiced overlap) get proportionally small cuts, and anything under
+        # 1.5 dB is not worth an edit at all. No forced minimum cut.
+        reduction = -min(max_reduction_db, excess * (0.5 + sensitivity))
+        if reduction > -1.5:
+            continue
+        conf = float(np.clip(excess / 6.0, 0.0, 1.0))
         regions.append(
             Region(start=round(s, 4), end=round(e, 4), reduction_db=round(reduction, 2),
-                   fade_ms=10.0, band=[SIB_LO, SIB_HI], label="sibilant")
+                   fade_ms=10.0, band=[SIB_LO, SIB_HI], label="sibilant",
+                   confidence=round(conf, 3))
         )
     return regions

@@ -88,6 +88,14 @@ def _r(v):
     return None if v is None else round(float(v), 2)
 
 
+# A detector must clear this confidence to override the speech guards.
+GUARD_OVERRIDE_CONFIDENCE = 0.5
+
+
+def confident_regions(regions: list, min_confidence: float = GUARD_OVERRIDE_CONFIDENCE) -> list:
+    return [r for r in regions if getattr(r, "confidence", 1.0) >= min_confidence]
+
+
 @dataclass
 class Settings:
     mode: str = "voice"  # "song" | "voice"
@@ -119,6 +127,10 @@ class Settings:
     max_instr_correction_db: float = 2.0
     max_master_gain_db: float = 8.0
     max_limiter_gr_db: float = 3.0
+    # Local dynamics safety: hard boost ceiling (after loudness-neutral
+    # correction) and maximum automation slope.
+    max_boost_db: float = 6.0
+    max_slope_db_s: float = 6.0
     extra: dict = field(default_factory=dict)
 
     @classmethod
@@ -142,10 +154,11 @@ def analyze(vocal: np.ndarray, sr: int, settings: Settings) -> EditDocument:
         mono, sr, min_pause_s=settings.min_pause_s, floor_db=settings.gate_floor_db
     )
     # Guards are always recorded, so render protects speech from breath dips
-    # (and from hand-edited pauses) even when the gate module is off.
-    doc.speech_guards = gate.speech_guards(vad_times, vad_mask)
-    # Vocal-active intervals for loudness measurement (kept separate from the
-    # guards, which later get breath holes punched into them).
+    # (and from hand-edited pauses) even when the gate module is off. They use
+    # the wider PROTECTION mask so washed lyrics below the detection threshold
+    # are covered too; measurement intervals stay on the detection mask.
+    protect = gate.protection_mask(mono, sr, vad_times, vad_mask)
+    doc.speech_guards = gate.speech_guards(vad_times, protect)
     doc.analysis["vocal_active"] = gate.speech_guards(vad_times, vad_mask)
     if settings.enable_gate:
         doc.pauses = pauses
@@ -155,6 +168,8 @@ def analyze(vocal: np.ndarray, sr: int, settings: Settings) -> EditDocument:
             mono, sr, speech_times=vad_times, speech_mask=vad_mask,
             target_db=settings.target_db, speed_ms=settings.dynamics_speed_ms,
             smoothing=settings.dynamics_smoothing, catch_peaks=settings.catch_peaks,
+            max_boost_db=settings.max_boost_db,
+            max_slope_db_s=settings.max_slope_db_s,
         )
         doc.analysis["dynamics"] = info
 
@@ -164,10 +179,13 @@ def analyze(vocal: np.ndarray, sr: int, settings: Settings) -> EditDocument:
         )
         # Energy VADs flag breaths as speech, which would guard them against
         # their own reduction. The breath detector has spectral evidence the
-        # VAD lacks, so detected breaths are punched out of the guards.
-        if doc.breaths:
+        # VAD lacks — but only HIGH-CONFIDENCE breaths may punch through the
+        # guards. Low-confidence detections (washed lyrics look breath-like)
+        # stay listed, and the guards win at render time.
+        punchers = confident_regions(doc.breaths)
+        if punchers:
             doc.speech_guards = gate.subtract_intervals(
-                doc.speech_guards, [[b.start, b.end] for b in doc.breaths]
+                doc.speech_guards, [[b.start, b.end] for b in punchers]
             )
 
     if settings.enable_sibilance:

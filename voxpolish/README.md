@@ -91,9 +91,20 @@ The remix goes through measured balancing and bounded mastering:
 
 Every measurement, applied gain, bound hit, and miss is serialized in
 `edit_document.json` under `analysis.balance` and `analysis.master`
-(final LUFS, LRA, true peak, target_reached, reasons). Leveling itself is
-protected by a zero-median-shift invariant: the Dynamics module compresses
-*around* the performance level and can no longer move it (the "Shimmer" bug).
+(final LUFS, LRA, true peak, target_reached, reasons).
+
+Leveling safety (the "Shimmer" fixes): the Dynamics module is
+loudness-neutral — its gain curve is corrected against a BS.1770-gated
+loudness so cleaned active vocal LUFS tracks raw within ~1 LU — and locally
+bounded: a hard **+6 dB boost ceiling** re-applied after the neutrality
+correction, a **6 dB/s automation slope limit** so gain can never step
+audibly, and leveling restricted to frames within 15 dB of the performance
+level so separation bleed and washed passages are never amplified as vocal.
+Protection guards use a more sensitive threshold than detection, so quiet
+washed lyrics cannot be gated as pauses; breath edits only override guards at
+high detector confidence; sibilance cuts scale with evidence (no forced
+minimum). Reports include `gain_range_db`, `max_slope_db_per_s`, and
+`neutrality_residual_lu`.
 
 ## The six modules
 

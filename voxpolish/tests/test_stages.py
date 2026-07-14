@@ -69,7 +69,11 @@ def test_dynamics_reduces_level_spread(speech_signal):
         return np.array(out)
 
     before, after = phrase_levels(mono), phrase_levels(leveled)
-    assert after.std() < before.std() / 2, f"spread {before.std():.1f} -> {after.std():.1f} dB"
+    # The +6 dB boost ceiling caps how far a 16 dB spread can close: the
+    # -30 dB phrase may rise at most 6 dB. Spread must still shrink markedly.
+    assert after.std() < before.std() - 2.0, f"spread {before.std():.1f} -> {after.std():.1f} dB"
+    gain_max = curve[:, 1].max()
+    assert gain_max <= 6.05, f"boost ceiling violated: +{gain_max:.2f} dB"
 
 
 def test_sibilance_detects_the_s_burst(speech_signal):

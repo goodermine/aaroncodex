@@ -49,8 +49,14 @@ def analyze(
     regions = []
     for s, e in dsp.merge_frames_to_regions(candidate, times, min_dur_s, merge_gap_s=0.05):
         if e - s <= max_dur_s:
+            # Confidence from the flatness margin: broadband breaths score
+            # high; washed/reverby lyric material hovers near the threshold
+            # and must never override the speech guards.
+            frames = (times >= s) & (times <= e)
+            flat_mean = float(np.mean(flat_i[frames])) if frames.any() else flatness_min
+            conf = float(np.clip((flat_mean - flatness_min) / (0.5 - flatness_min), 0.0, 1.0))
             regions.append(
                 Region(start=round(s, 4), end=round(e, 4), reduction_db=reduction_db,
-                       fade_ms=40.0, label="breath")
+                       fade_ms=40.0, label="breath", confidence=round(conf, 3))
             )
     return regions

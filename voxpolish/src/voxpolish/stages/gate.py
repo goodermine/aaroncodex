@@ -48,6 +48,28 @@ def speech_guards(
     ]
 
 
+def protection_mask(
+    mono: np.ndarray,
+    sr: int,
+    times: np.ndarray,
+    detection_mask: np.ndarray,
+    margin_db: float = 6.0,
+) -> np.ndarray:
+    """Speech mask for PROTECTION: union of the detection mask and a more
+    sensitive energy pass (noise floor + 6 dB instead of + 12 dB).
+
+    Washed or poorly-separated vocals often sit between the two thresholds:
+    too quiet for detection, but real lyric material that pauses and breath
+    dips must never touch. Protection errs wide; detection stays unchanged.
+    """
+    t2, sensitive = _energy_vad(mono, sr, margin_db)
+    if len(t2) > 1:
+        aligned = np.interp(times, t2, sensitive.astype(float)) > 0.5
+    else:
+        aligned = np.zeros(len(times), dtype=bool)
+    return detection_mask | aligned
+
+
 def subtract_intervals(intervals: list, holes: list) -> list:
     """Subtract hole intervals from [start, end] intervals, splitting as needed."""
     out = []
@@ -125,7 +147,9 @@ def analyze(
     times, speech = result
 
     raw_pauses = dsp.merge_frames_to_regions(~speech, times, min_pause_s, merge_gap_s=0.05)
-    guards = speech_guards(times, speech)
+    # Pauses are carved against the wider PROTECTION mask, so washed lyrics
+    # that the detection threshold misses can never be gated.
+    guards = speech_guards(times, protection_mask(mono, sr, times, speech))
     duration = len(mono) / sr
     regions = []
     for s, e in subtract_intervals([[s, e] for s, e in raw_pauses], guards):
