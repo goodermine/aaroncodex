@@ -10,6 +10,67 @@
     "aligning_comparison",
     "building_report"
   ],
+  "spectral_states": [
+    {
+      "name": "ready_both_sources",
+      "sources": {
+        "vocals": {"status": "ready", "descriptor_url": "/spectral/vocals/descriptor", "harmonic_tracks_url": "/spectral/vocals/harmonics"},
+        "original": {"status": "ready", "descriptor_url": "/spectral/original/descriptor", "harmonic_tracks_url": "/spectral/original/harmonics"}
+      },
+      "expected": "both toggles enabled but off; active source loads only after its toggle"
+    },
+    {
+      "name": "ready_vocals_only",
+      "sources": {
+        "vocals": {"status": "ready", "descriptor_url": "/spectral/vocals/descriptor", "harmonic_tracks_url": "/spectral/vocals/harmonics"}
+      },
+      "expected": "vocal layers work; original A/B never falls back to vocal artifacts"
+    },
+    {
+      "name": "legacy_absent",
+      "sources": {},
+      "expected": "controls disabled with re-analysis message and no spectral request"
+    },
+    {
+      "name": "export_unavailable",
+      "sources": {"vocals": {"status": "unavailable", "reason": "spectral_export_failed"}},
+      "expected": "analysis remains usable and optional layers stay disabled"
+    },
+    {
+      "name": "artifact_fetch_failure",
+      "sources": {
+        "vocals": {"status": "ready", "descriptor_url": "/spectral/missing/descriptor", "harmonic_tracks_url": "/spectral/missing/harmonics"}
+      },
+      "expected": "only the failed optional layer disables and an accessible notice remains"
+    }
+  ],
+  "ab_timeline_contract": {
+    "singer_duration_seconds": 60,
+    "aligned_contour_duration_seconds": 60,
+    "original_native_duration_seconds": 90,
+    "original_audio_duration_seconds": 92,
+    "expected": "Original A/B uses the 92 second media clock and native contour with Energy and Harmonics off or on; unavailable media metadata falls back to the 90 second native contour"
+  },
+  "component_score_states": [
+    {
+      "name": "measured_zero",
+      "score": 0,
+      "available": true,
+      "width_percent": 0
+    },
+    {
+      "name": "measured_midpoint",
+      "score": 5,
+      "available": true,
+      "width_percent": 50
+    },
+    {
+      "name": "missing",
+      "score": null,
+      "available": false,
+      "width_percent": null
+    }
+  ],
   "result_states": [
     {
       "name": "complete_verified",

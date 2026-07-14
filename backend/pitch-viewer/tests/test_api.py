@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import asyncio
+import json
 import os
 import tempfile
 import time
@@ -137,6 +138,169 @@ class ApiTests(unittest.TestCase):
         response = self.request("GET", f"/api/pitch-jobs/{job_dir.name}/report")
         self.assertNotIn(str(job_dir), response.text)
         self.assertIn("[private job artifact]", response.text)
+
+    def make_spectral_job(self, *, source="vocals", descriptor_tile_file="tile-000.png"):
+        job_dir = Path(self.temp.name) / str(uuid.uuid4())
+        source_dir = job_dir / "spectral" / source
+        source_dir.mkdir(parents=True)
+        descriptor = {
+            "version": "voxai_spectral_v1",
+            "source": source,
+            "transform": "librosa.cqt",
+            "display_only": True,
+            "fps": 21.533203125,
+            "midi_lo": 36,
+            "midi_hi": 96,
+            "n_bins": 180,
+            "harmonic_tracks_file": "harmonic-tracks.json",
+            "private_path": str(job_dir / "must-not-leak"),
+            "tiles": [{
+                "index": 0,
+                "file": descriptor_tile_file,
+                "frame_start": 0,
+                "frame_count": 1,
+                "width": 1,
+                "height": 180,
+                "private_path": str(job_dir / "must-not-leak"),
+            }],
+        }
+        (source_dir / "descriptor.json").write_text(json.dumps(descriptor), encoding="utf-8")
+        (source_dir / "harmonic-tracks.json").write_text(json.dumps({
+            "version": "voxai_spectral_v1",
+            "rate_hz": 10,
+            "t0": 0,
+            "units": "db_relative_to_strongest_available_harmonic_per_frame",
+            "values": {f"H{number}": [0.0] for number in range(1, 9)},
+            "private_path": str(job_dir / "must-not-leak"),
+        }), encoding="utf-8")
+        (source_dir / "tile-000.png").write_bytes(b"\x89PNG\r\n\x1a\nfixture")
+        manifest = {
+            "id": job_dir.name,
+            "status": "complete",
+            "stage": "complete",
+            "updated_at": time.time(),
+            "result": {"spectral": {
+                "version": "voxai_spectral_v1",
+                "status": "ready",
+                "sources": {source: {
+                    "status": "ready",
+                    "descriptor_file": f"spectral/{source}/descriptor.json",
+                    "harmonic_tracks_file": f"spectral/{source}/harmonic-tracks.json",
+                    "tile_count": 1,
+                    "artifact_bytes": 123,
+                }},
+            }},
+        }
+        (job_dir / "job.json").write_text(json.dumps(manifest), encoding="utf-8")
+        return job_dir
+
+    def test_serves_allowlisted_spectral_descriptor_tracks_and_tile(self):
+        job_dir = self.make_spectral_job()
+        job = self.request("GET", f"/api/pitch-jobs/{job_dir.name}")
+        public_source = job.json()["result"]["spectral"]["sources"]["vocals"]
+        self.assertNotIn("descriptor_file", public_source)
+        self.assertNotIn("harmonic_tracks_file", public_source)
+        self.assertEqual(
+            public_source["descriptor_url"],
+            f"/api/pitch-jobs/{job_dir.name}/spectral/vocals/descriptor",
+        )
+
+        descriptor = self.request("GET", public_source["descriptor_url"])
+        self.assertEqual(descriptor.status_code, 200)
+        self.assertTrue(descriptor.json()["display_only"])
+        self.assertNotIn("private_path", descriptor.json())
+        self.assertNotIn("file", descriptor.json()["tiles"][0])
+        self.assertEqual(
+            descriptor.json()["tiles"][0]["url"],
+            f"/api/pitch-jobs/{job_dir.name}/spectral/vocals/tiles/0",
+        )
+        self.assertIn("private", descriptor.headers["cache-control"])
+
+        tracks = self.request("GET", public_source["harmonic_tracks_url"])
+        self.assertEqual(tracks.status_code, 200)
+        self.assertEqual(set(tracks.json()["values"]), {f"H{number}" for number in range(1, 9)})
+        self.assertNotIn("private_path", tracks.json())
+
+        tile = self.request("GET", descriptor.json()["tiles"][0]["url"])
+        self.assertEqual(tile.status_code, 200)
+        self.assertEqual(tile.headers["content-type"], "image/png")
+        self.assertEqual(tile.content, b"\x89PNG\r\n\x1a\nfixture")
+
+    def test_spectral_endpoint_rejects_unknown_source_and_tile(self):
+        job_dir = self.make_spectral_job()
+        bad_source = self.request(
+            "GET", f"/api/pitch-jobs/{job_dir.name}/spectral/../../descriptor"
+        )
+        self.assertIn(bad_source.status_code, {404, 405})
+        unknown_source = self.request(
+            "GET", f"/api/pitch-jobs/{job_dir.name}/spectral/mix/descriptor"
+        )
+        self.assertEqual(unknown_source.status_code, 404)
+        unknown_tile = self.request(
+            "GET", f"/api/pitch-jobs/{job_dir.name}/spectral/vocals/tiles/9"
+        )
+        self.assertEqual(unknown_tile.status_code, 404)
+
+    def test_serves_original_spectral_source_through_same_allowlist(self):
+        job_dir = self.make_spectral_job(source="original")
+        response = self.request(
+            "GET", f"/api/pitch-jobs/{job_dir.name}/spectral/original/descriptor"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["source"], "original")
+        self.assertIn("/spectral/original/tiles/0", response.json()["tiles"][0]["url"])
+
+    def test_spectral_descriptor_rejects_traversal_filename(self):
+        job_dir = self.make_spectral_job(descriptor_tile_file="../secret.png")
+        (job_dir / "spectral" / "secret.png").write_bytes(b"secret")
+        response = self.request(
+            "GET", f"/api/pitch-jobs/{job_dir.name}/spectral/vocals/tiles/0"
+        )
+        self.assertEqual(response.status_code, 500)
+        self.assertNotEqual(response.content, b"secret")
+
+    def test_spectral_endpoint_requires_complete_ready_job(self):
+        job_dir = self.make_spectral_job()
+        manifest = self.module._read_manifest(job_dir)
+        manifest["status"] = "processing"
+        self.module._write_manifest(job_dir, manifest)
+        response = self.request(
+            "GET", f"/api/pitch-jobs/{job_dir.name}/spectral/vocals/descriptor"
+        )
+        self.assertEqual(response.status_code, 409)
+
+    def test_cleanup_removes_expired_spectral_artifacts_with_job(self):
+        job_dir = self.make_spectral_job()
+        manifest = self.module._read_manifest(job_dir)
+        manifest["updated_at"] = time.time() - self.module.JOB_TTL_SECONDS - 10
+        (job_dir / "job.json").write_text(json.dumps(manifest), encoding="utf-8")
+        self.module._cleanup()
+        self.assertFalse(job_dir.exists())
+
+    def test_viewer_worker_enables_export_with_outer_deadline(self):
+        job_dir = Path(self.temp.name) / str(uuid.uuid4())
+        job_dir.mkdir()
+        (job_dir / "upload.wav").touch()
+        self.module._write_manifest(job_dir, {
+            "id": job_dir.name,
+            "status": "queued",
+            "stage": "queued",
+            "upload_file": "upload.wav",
+            "comparison_enabled": False,
+        })
+        failed = type("Result", (), {"returncode": 2, "stdout": "analysis_failed", "stderr": ""})()
+        with patch.object(
+            self.module.time, "monotonic", return_value=1_000.0
+        ), patch.object(self.module.subprocess, "run", return_value=failed) as run:
+            self.module._process(job_dir.name)
+        command = run.call_args.args[0]
+        self.assertIn("--export-spectral", command)
+        self.assertIn("--skip-comparison", command)
+        deadline_index = command.index("--analysis-deadline-monotonic") + 1
+        self.assertEqual(
+            float(command[deadline_index]), 1_000.0 + self.module.ANALYSIS_TIMEOUT
+        )
+        self.assertEqual(run.call_args.kwargs["timeout"], self.module.ANALYSIS_TIMEOUT)
 
     @classmethod
     def request(cls, method, path, **kwargs):

@@ -16,7 +16,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from fastapi import FastAPI, Form, HTTPException, Query, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
 HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
@@ -34,6 +34,24 @@ JOB_TTL_SECONDS = 24 * 60 * 60
 MAX_ACTIVE_JOBS = 10
 ANALYSIS_TIMEOUT = int(os.getenv("VOX_PITCH_TIMEOUT", "1800"))
 ALLOWED_EXTENSIONS = {".wav", ".mp3", ".m4a", ".aac", ".ogg", ".mp4", ".mov"}
+SPECTRAL_SOURCES = frozenset({"vocals", "original"})
+SPECTRAL_DESCRIPTOR_FIELDS = (
+    "version", "source", "transform", "display_only", "t0", "fps",
+    "sample_rate", "hop_length", "duration_seconds", "total_frames",
+    "midi_lo", "midi_hi", "midi_hi_exclusive", "bins_per_semitone",
+    "bins_per_octave", "n_bins", "row_order", "row_formula",
+    "time_formula", "db_floor", "db_ceil", "pixel_encoding",
+    "tile_width_frames", "note",
+)
+SPECTRAL_TILE_FIELDS = (
+    "index", "frame_start", "frame_count", "t0", "duration_seconds",
+    "width", "height",
+)
+HARMONIC_TRACK_FIELDS = ("version", "rate_hz", "t0", "units", "values", "note")
+PRIVATE_ARTIFACT_HEADERS = {
+    "Cache-Control": "private, max-age=86400, immutable",
+    "X-Content-Type-Options": "nosniff",
+}
 executor = ThreadPoolExecutor(max_workers=max(1, int(os.getenv("VOX_PITCH_WORKERS", "1"))))
 manifest_lock = threading.Lock()
 
@@ -78,6 +96,79 @@ def _error_code(output: str, timed_out: bool = False) -> str:
     return "analysis_failed"
 
 
+def _publish_spectral_metadata(analysis: dict, job_id: str) -> None:
+    spectral = analysis.get("spectral")
+    if not isinstance(spectral, dict):
+        return
+    raw_sources = spectral.get("sources")
+    if not isinstance(raw_sources, dict):
+        analysis["spectral"] = {"status": "unavailable", "sources": {}}
+        return
+    public_sources = {}
+    for source in SPECTRAL_SOURCES:
+        state = raw_sources.get(source)
+        if not isinstance(state, dict):
+            continue
+        public = {
+            key: state[key]
+            for key in ("status", "reason", "tile_count", "artifact_bytes")
+            if key in state
+        }
+        if state.get("status") == "ready":
+            base = f"/api/pitch-jobs/{job_id}/spectral/{source}"
+            public["descriptor_url"] = f"{base}/descriptor"
+            public["harmonic_tracks_url"] = f"{base}/harmonics"
+        public_sources[source] = public
+    spectral["sources"] = public_sources
+
+
+def _spectral_source(job_id: str, source: str) -> tuple[Path, dict]:
+    if source not in SPECTRAL_SOURCES:
+        raise HTTPException(404, "Spectral source not found")
+    job_dir = _job_dir(job_id)
+    manifest = _read_manifest(job_dir)
+    if manifest.get("status") != "complete":
+        raise HTTPException(409, "Spectral artifacts are not ready")
+    state = (
+        (manifest.get("result") or {}).get("spectral", {}).get("sources", {}).get(source)
+    )
+    if not isinstance(state, dict) or state.get("status") != "ready":
+        raise HTTPException(409, "Spectral artifacts are unavailable")
+    return job_dir / "spectral" / source, state
+
+
+def _load_spectral_json(path: Path) -> dict:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise HTTPException(500, "Spectral artifact is unavailable") from exc
+    if not isinstance(value, dict):
+        raise HTTPException(500, "Spectral artifact is invalid")
+    return value
+
+
+def _validated_descriptor(job_id: str, source: str) -> tuple[Path, dict]:
+    source_dir, _ = _spectral_source(job_id, source)
+    descriptor = _load_spectral_json(source_dir / "descriptor.json")
+    if (
+        descriptor.get("version") != "voxai_spectral_v1"
+        or descriptor.get("source") != source
+        or descriptor.get("display_only") is not True
+        or descriptor.get("harmonic_tracks_file") != "harmonic-tracks.json"
+        or not isinstance(descriptor.get("tiles"), list)
+    ):
+        raise HTTPException(500, "Spectral descriptor is invalid")
+    for expected_index, tile in enumerate(descriptor["tiles"]):
+        expected_file = f"tile-{expected_index:03d}.png"
+        if (
+            not isinstance(tile, dict)
+            or tile.get("index") != expected_index
+            or tile.get("file") != expected_file
+        ):
+            raise HTTPException(500, "Spectral descriptor is invalid")
+    return source_dir, descriptor
+
+
 def _process(job_id: str) -> None:
     job_dir = RUNTIME / job_id
     manifest = _read_manifest(job_dir)
@@ -85,6 +176,7 @@ def _process(job_id: str) -> None:
     _write_manifest(job_dir, manifest)
     log_path = job_dir / "analysis.log"
     try:
+        analysis_deadline = time.monotonic() + ANALYSIS_TIMEOUT
         command = [
             sys.executable,
             str(TRACKER),
@@ -101,6 +193,9 @@ def _process(job_id: str) -> None:
             manifest.get("recording_conditions", ""),
             "--stage-file",
             str(job_dir / "stage.json"),
+            "--export-spectral",
+            "--analysis-deadline-monotonic",
+            repr(analysis_deadline),
         ]
         if not manifest.get("comparison_enabled", True):
             command.append("--skip-comparison")
@@ -140,6 +235,7 @@ def _process(job_id: str) -> None:
             }
             if reference.get("status") == "ready":
                 analysis["audio_urls"]["original"] = f"/api/pitch-jobs/{job_id}/audio?track=original"
+            _publish_spectral_metadata(analysis, job_id)
             manifest.update(status="complete", stage="complete", result=analysis)
     except subprocess.TimeoutExpired as exc:
         log_path.write_text((exc.stdout or "") + (exc.stderr or ""), encoding="utf-8")
@@ -269,6 +365,7 @@ async def get_job(job_id: str) -> dict:
         except (OSError, json.JSONDecodeError, KeyError):
             pass
     if manifest.get("status") == "complete" and isinstance(manifest.get("result"), dict):
+        _publish_spectral_metadata(manifest["result"], job_id)
         analyses = sorted((job_dir / "v2" / "output").glob("*_analysis.json"))
         if analyses:
             try:
@@ -290,6 +387,43 @@ async def get_audio(job_id: str, track: str = Query("vocals", pattern="^(vocals|
     if manifest.get("status") != "complete" or not (job_dir / file_name).exists():
         raise HTTPException(409, "Audio is not ready")
     return FileResponse(job_dir / file_name, media_type="audio/mpeg", filename=f"pitch-{track}.mp3")
+
+
+@app.get("/api/pitch-jobs/{job_id}/spectral/{source}/descriptor")
+async def get_spectral_descriptor(job_id: str, source: str) -> JSONResponse:
+    _, descriptor = _validated_descriptor(job_id, source)
+    public = {key: descriptor[key] for key in SPECTRAL_DESCRIPTOR_FIELDS if key in descriptor}
+    public["harmonic_tracks_url"] = f"/api/pitch-jobs/{job_id}/spectral/{source}/harmonics"
+    public["tiles"] = [
+        {
+            **{key: tile[key] for key in SPECTRAL_TILE_FIELDS if key in tile},
+            "url": f"/api/pitch-jobs/{job_id}/spectral/{source}/tiles/{tile['index']}",
+        }
+        for tile in descriptor["tiles"]
+    ]
+    return JSONResponse(public, headers=PRIVATE_ARTIFACT_HEADERS)
+
+
+@app.get("/api/pitch-jobs/{job_id}/spectral/{source}/harmonics")
+async def get_harmonic_tracks(job_id: str, source: str) -> JSONResponse:
+    source_dir, descriptor = _validated_descriptor(job_id, source)
+    tracks = _load_spectral_json(source_dir / descriptor["harmonic_tracks_file"])
+    if tracks.get("version") != "voxai_spectral_v1" or not isinstance(tracks.get("values"), dict):
+        raise HTTPException(500, "Harmonic tracks are invalid")
+    public = {key: tracks[key] for key in HARMONIC_TRACK_FIELDS if key in tracks}
+    return JSONResponse(public, headers=PRIVATE_ARTIFACT_HEADERS)
+
+
+@app.get("/api/pitch-jobs/{job_id}/spectral/{source}/tiles/{tile_index}")
+async def get_spectral_tile(job_id: str, source: str, tile_index: int) -> FileResponse:
+    source_dir, descriptor = _validated_descriptor(job_id, source)
+    if tile_index < 0 or tile_index >= len(descriptor["tiles"]):
+        raise HTTPException(404, "Spectral tile not found")
+    file_name = f"tile-{tile_index:03d}.png"
+    path = source_dir / file_name
+    if not path.is_file():
+        raise HTTPException(500, "Spectral tile is unavailable")
+    return FileResponse(path, media_type="image/png", headers=PRIVATE_ARTIFACT_HEADERS)
 
 
 @app.get("/api/pitch-jobs/{job_id}/report")

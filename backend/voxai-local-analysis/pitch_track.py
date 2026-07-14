@@ -8,9 +8,11 @@ import importlib.util
 import json
 import math
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 # Some system Python/librosa installations cannot write beside the installed
@@ -36,10 +38,117 @@ V2_CALIBRATION = Path(__file__).parent / "calibration" / "pro_reference.json"
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REFERENCE_FETCHER = REPO_ROOT / "scripts" / "fetch_reference.py"
 COMPARE_TOOL = Path(__file__).parent / "tools" / "compare_takes.py"
+SPECTRAL_EXPORTER = Path(__file__).parent / "spectral_export.py"
+# The optional visual exporter must never be able to exhaust the pitch
+# viewer's 30-minute global analysis budget. Keep it in a killable child,
+# cap operator overrides at ten minutes, and reserve enough of the outer
+# deadline to publish the already-complete core result.
+
+
+def _bounded_timeout_env(name: str, default: float) -> float:
+    try:
+        value = float(os.getenv(name, str(default)))
+    except (TypeError, ValueError, OverflowError):
+        return default
+    if not math.isfinite(value):
+        return default
+    return min(600.0, max(1.0, value))
+
+
+SPECTRAL_EXPORT_TIMEOUT_SECONDS = _bounded_timeout_env(
+    "VOX_SPECTRAL_EXPORT_TIMEOUT", 300.0
+)
+SPECTRAL_FINALIZATION_RESERVE_SECONDS = 30.0
 
 
 class PitchTrackError(RuntimeError):
     pass
+
+
+def _run_spectral_export(
+    wav_path: Path,
+    output_dir: Path,
+    pitch_contour: dict,
+    source: str,
+    timeout_seconds: float,
+) -> dict:
+    """Run the display-only exporter in a separately bounded process."""
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(SPECTRAL_EXPORTER),
+            str(wav_path),
+            str(output_dir),
+            source,
+        ],
+        input=json.dumps(pitch_contour, allow_nan=False),
+        capture_output=True,
+        text=True,
+        timeout=timeout_seconds,
+    )
+    if completed.returncode:
+        detail = completed.stderr.strip().splitlines()
+        raise RuntimeError(detail[-1] if detail else "spectral exporter failed")
+    descriptor = json.loads(
+        (output_dir / "descriptor.json").read_text(encoding="utf-8")
+    )
+    if (
+        not isinstance(descriptor, dict)
+        or descriptor.get("source") != source
+        or not isinstance(descriptor.get("tiles"), list)
+        or not isinstance(descriptor.get("harmonic_tracks_file"), str)
+    ):
+        raise RuntimeError("spectral exporter returned an invalid descriptor")
+    return descriptor
+
+
+def _maybe_export_spectral(
+    enabled: bool,
+    wav_path: Path,
+    output_dir: Path,
+    job_dir: Path,
+    pitch_contour: dict,
+    source: str,
+    analysis_deadline: float | None = None,
+) -> dict | None:
+    if not enabled:
+        return None
+    try:
+        timeout_seconds = SPECTRAL_EXPORT_TIMEOUT_SECONDS
+        if analysis_deadline is not None:
+            remaining = (
+                analysis_deadline
+                - time.monotonic()
+                - SPECTRAL_FINALIZATION_RESERVE_SECONDS
+            )
+            if remaining < 1.0:
+                raise TimeoutError("spectral export skipped near analysis deadline")
+            timeout_seconds = min(timeout_seconds, remaining)
+        descriptor = _run_spectral_export(
+            wav_path,
+            output_dir,
+            pitch_contour,
+            source,
+            timeout_seconds,
+        )
+        artifact_bytes = sum(path.stat().st_size for path in output_dir.iterdir() if path.is_file())
+        return {
+            "status": "ready",
+            "descriptor_file": str((output_dir / "descriptor.json").relative_to(job_dir)),
+            "harmonic_tracks_file": str((output_dir / descriptor["harmonic_tracks_file"]).relative_to(job_dir)),
+            "tile_count": len(descriptor["tiles"]),
+            "artifact_bytes": artifact_bytes,
+        }
+    except Exception as exc:
+        shutil.rmtree(output_dir, ignore_errors=True)
+        shutil.rmtree(
+            output_dir.with_name(output_dir.name + ".tmp"), ignore_errors=True
+        )
+        try:
+            (job_dir / f"spectral-{source}.log").write_text(repr(exc), encoding="utf-8")
+        except OSError:
+            pass
+        return {"status": "unavailable", "reason": "spectral_export_failed"}
 
 
 def cents_from_hz(value: float) -> float:
@@ -67,8 +176,16 @@ def _write_stage(stage_file: Path | None, stage: str) -> None:
     temporary.replace(stage_file)
 
 
+def _unlink_temporary_audio(path: Path) -> None:
+    """Never fail a completed analysis because optional cleanup was denied."""
+    try:
+        path.unlink(missing_ok=True)
+    except OSError:
+        pass
+
+
 def run_v2_analysis(wav_path: Path, job_dir: Path, performer_name: str) -> tuple[str, str]:
-    """Run shared V3 diagnostics with the V2 score in an isolated job."""
+    """Run the shared calibrated VOXAI analysis in an isolated job."""
     if not SHARED_ANALYZER.is_file() or not V2_CALIBRATION.is_file():
         raise PitchTrackError("v2_analysis_failed: shared VOXAI engine or calibration is unavailable")
     work_dir = job_dir / "v2"
@@ -211,7 +328,12 @@ def compare_with_reference(take_json: Path, reference_json: Path) -> tuple[dict,
     return comparison, aligned
 
 
-def analyze_original(reference_path: Path, job_dir: Path, original_artist: str) -> dict:
+def analyze_original(
+    reference_path: Path,
+    job_dir: Path,
+    original_artist: str,
+    export_spectral_enabled: bool = False,
+) -> dict:
     reference_dir = job_dir / "reference"
     reference_dir.mkdir(parents=True, exist_ok=True)
     duration = probe_duration(reference_path)
@@ -222,12 +344,22 @@ def analyze_original(reference_path: Path, job_dir: Path, original_artist: str) 
     _run(["ffmpeg", "-y", "-i", str(vocals_path), "-vn", "-ac", "1", "-ar", "44100", "-c:a", "pcm_s16le", str(wav_path)], "conversion_failed")
     pitch_result = analyze_wav(wav_path, duration)
     analysis_file, report_file = run_v2_analysis(wav_path, reference_dir, original_artist)
-    wav_path.unlink(missing_ok=True)
-    return {
+    result = {
         "pitch": pitch_result,
         "analysis_file": str((reference_dir / analysis_file).relative_to(job_dir)),
         "report_file": str((reference_dir / report_file).relative_to(job_dir)),
     }
+    if export_spectral_enabled:
+        # Kept private and removed by analyze() before result publication. The
+        # optional export runs only after all scoring and comparison work has
+        # finished, so its bounded child cannot steal time from core analysis.
+        result["_spectral_input"] = {
+            "wav_path": wav_path,
+            "contour": pitch_result["contour"],
+        }
+    else:
+        _unlink_temporary_audio(wav_path)
+    return result
 
 
 def _find_stem(stem_dir: Path, kind: str) -> Path | None:
@@ -289,31 +421,57 @@ def _sample_contour(
     frame_rate: float,
     target_rate: float,
     minimum_confidence: float | None = None,
-) -> tuple[list[float | None], list[float | None]]:
+) -> tuple[list[float | None], list[float | None], list[bool]]:
     step = max(1, int(round(frame_rate / target_rate)))
     values: list[float | None] = []
     confidences: list[float | None] = []
+    low_confidence: list[bool] = []
     for start in range(0, len(f0), step):
         hz_bin = f0[start : start + step]
         confidence_bin = confidence[start : start + step]
-        valid = np.isfinite(hz_bin) & np.isfinite(confidence_bin)
-        if minimum_confidence is not None:
-            valid &= confidence_bin >= minimum_confidence
-        if int(np.sum(valid)) < (1 if minimum_confidence is None else min(2, len(hz_bin))):
+        pitched = np.isfinite(hz_bin)
+        if not np.any(pitched):
             values.append(None)
             confidences.append(None)
+            low_confidence.append(False)
             continue
-        cents = np.array([cents_from_hz(float(hz)) for hz in hz_bin[valid]])
+        selected = pitched
+        uncertain = False
+        if minimum_confidence is not None:
+            reliable = (
+                pitched
+                & np.isfinite(confidence_bin)
+                & (confidence_bin >= minimum_confidence)
+            )
+            if np.any(reliable):
+                selected = reliable
+            else:
+                # A finite F0 was detected, but the bin does not contain
+                # reliable evidence. Preserve the pitch for a visibly
+                # uncertain trace instead of turning detected singing into a
+                # false silence gap.
+                uncertain = True
+        cents = np.array([cents_from_hz(float(hz)) for hz in hz_bin[selected]])
         center = float(np.median(cents))
         # Drop isolated octave/tracker outliers inside the time bin.
         close = np.abs(cents - center) <= 350.0
         if not np.any(close):
             values.append(None)
             confidences.append(None)
+            low_confidence.append(False)
             continue
         values.append(round(float(np.median(cents[close])), 1))
-        confidences.append(round(float(np.median(confidence_bin[valid])), 3))
-    return values, confidences
+        selected_confidence = confidence_bin[selected][close]
+        selected_confidence = selected_confidence[
+            np.isfinite(selected_confidence)
+        ]
+        confidences.append(
+            round(float(np.median(selected_confidence)), 3)
+            if len(selected_confidence)
+            else None
+        )
+        low_confidence.append(uncertain)
+    return values, confidences, low_confidence
 
 
 def _canonical_display_contour(
@@ -321,7 +479,7 @@ def _canonical_display_contour(
     confidence: np.ndarray,
     frame_rate: float,
     target_rate: float,
-) -> tuple[list[float | None], list[float | None]]:
+) -> tuple[list[float | None], list[float | None], list[bool]]:
     """Match the persisted VOXAI analysis contour used by reports/PDFs.
 
     pYIN has already made the voiced/unvoiced decision by returning NaN for
@@ -332,16 +490,21 @@ def _canonical_display_contour(
     step = max(1, int(round(frame_rate / target_rate)))
     values: list[float | None] = []
     confidences: list[float | None] = []
+    low_confidence: list[bool] = []
     for index in range(0, len(f0), step):
         hz = float(f0[index])
         probability = float(confidence[index])
         if not math.isfinite(hz):
             values.append(None)
             confidences.append(None)
+            low_confidence.append(False)
             continue
         values.append(round(cents_from_hz(hz), 1))
         confidences.append(round(probability, 3) if math.isfinite(probability) else None)
-    return values, confidences
+        low_confidence.append(
+            not math.isfinite(probability) or probability < RELIABLE_CONFIDENCE
+        )
+    return values, confidences, low_confidence
 
 
 def analyze_wav(wav_path: Path, duration_seconds: float) -> dict:
@@ -356,13 +519,30 @@ def analyze_wav(wav_path: Path, duration_seconds: float) -> dict:
         frame_length=2048,
         hop_length=512,
     )
+    voiced = np.asarray(voiced, dtype=bool)
+    f0 = np.asarray(f0, dtype=float).copy()
+    f0[~voiced] = np.nan
     probability = np.asarray(probability, dtype=float)
-    probability[~np.asarray(voiced, dtype=bool)] = 0.0
+    probability[~voiced] = 0.0
     frame_rate = sr / 512.0
-    display, display_confidence = _canonical_display_contour(
+    display, display_confidence, display_low_confidence = _canonical_display_contour(
         f0, probability, frame_rate, DISPLAY_RATE_HZ
     )
-    raw, raw_confidence = _sample_contour(f0, probability, frame_rate, RAW_RATE_HZ)
+    # Preserve the established diagnostic values/confidence path. A second
+    # metadata-only pass classifies bins without changing those values.
+    raw, raw_confidence, _ = _sample_contour(
+        f0,
+        probability,
+        frame_rate,
+        RAW_RATE_HZ,
+    )
+    _, _, raw_low_confidence = _sample_contour(
+        f0,
+        probability,
+        frame_rate,
+        RAW_RATE_HZ,
+        RELIABLE_CONFIDENCE,
+    )
     voiced_values = np.array([value for value in display if value is not None], dtype=float)
     confident_points = sum(
         value is not None and confidence is not None and confidence >= RELIABLE_CONFIDENCE
@@ -391,12 +571,14 @@ def analyze_wav(wav_path: Path, duration_seconds: float) -> dict:
             "units": "cents_rel_A440",
             "values": display,
             "confidence": display_confidence,
+            "low_confidence": display_low_confidence,
         },
         "diagnostic_contour": {
             "rate_hz": RAW_RATE_HZ,
             "units": "cents_rel_A440",
             "values": raw,
             "confidence": raw_confidence,
+            "low_confidence": raw_low_confidence,
         },
         "robust_min_note": note_from_cents(float(low)),
         "robust_max_note": note_from_cents(float(high)),
@@ -422,6 +604,8 @@ def analyze(
     recording_conditions: str = "",
     stage_file: Path | None = None,
     comparison_enabled: bool = True,
+    export_spectral_enabled: bool = False,
+    analysis_deadline: float | None = None,
 ) -> dict:
     job_dir.mkdir(parents=True, exist_ok=True)
     duration = probe_duration(input_path)
@@ -438,6 +622,8 @@ def analyze(
     result = analyze_wav(wav_path, duration)
     _write_stage(stage_file, "running_v2_analysis")
     v2_analysis_file, v2_report_file = run_v2_analysis(wav_path, job_dir, performer_name)
+    original_spectral_input = None
+    pending_original_spectral_input = None
     result["stem_separation"] = {"enabled": True, "model": "UVR_MDXNET_Main"}
     result["audio_files"] = {"vocals": vocal_playback.name, "instrumental": instrumental_playback.name}
     result["v2_analysis_file"] = v2_analysis_file
@@ -454,12 +640,20 @@ def analyze(
         try:
             reference_path, provenance = fetch_reference(song_name, original_artist, job_dir)
             _write_stage(stage_file, "analysing_original")
-            original = analyze_original(reference_path, job_dir, original_artist)
+            original = analyze_original(
+                reference_path,
+                job_dir,
+                original_artist,
+                export_spectral_enabled=export_spectral_enabled,
+            )
+            pending_original_spectral_input = original.pop("_spectral_input", None)
             _write_stage(stage_file, "aligning_comparison")
             comparison, aligned_contour = compare_with_reference(
                 job_dir / v2_analysis_file,
                 job_dir / original["analysis_file"],
             )
+            original_spectral_input = pending_original_spectral_input
+            pending_original_spectral_input = None
             result["reference"] = {
                 "status": "ready",
                 "provenance": provenance,
@@ -476,12 +670,54 @@ def analyze(
             }
             result["comparison"] = comparison
         except PitchTrackError as exc:
+            if pending_original_spectral_input is not None:
+                _unlink_temporary_audio(
+                    pending_original_spectral_input["wav_path"]
+                )
             result["reference"] = {"status": "unavailable", "error": str(exc).split(":", 1)[-1].strip()}
     elif not comparison_enabled:
         result["reference"] = {"status": "skipped", "reason": "single_track_mode"}
+
+    # Optional display artifacts run last, after every score and comparison is
+    # complete. Each child is independently bounded by both its exporter cap
+    # and the outer job deadline, with a publication/cleanup reserve.
+    vocal_spectral = _maybe_export_spectral(
+        export_spectral_enabled,
+        wav_path,
+        job_dir / "spectral" / "vocals",
+        job_dir,
+        result["contour"],
+        "vocals",
+        analysis_deadline,
+    )
+    if vocal_spectral is not None:
+        sources = {"vocals": vocal_spectral}
+        if original_spectral_input is not None:
+            original_spectral = _maybe_export_spectral(
+                True,
+                original_spectral_input["wav_path"],
+                job_dir / "spectral" / "original",
+                job_dir,
+                original_spectral_input["contour"],
+                "original",
+                analysis_deadline,
+            )
+            sources["original"] = original_spectral
+        source_statuses = {source["status"] for source in sources.values()}
+        result["spectral"] = {
+            "version": "voxai_spectral_v1",
+            "status": (
+                "ready" if source_statuses == {"ready"} else
+                "partial" if "ready" in source_statuses else
+                "unavailable"
+            ),
+            "sources": sources,
+        }
     _write_stage(stage_file, "building_report")
     (job_dir / "result.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
-    wav_path.unlink(missing_ok=True)
+    _unlink_temporary_audio(wav_path)
+    if original_spectral_input is not None:
+        _unlink_temporary_audio(original_spectral_input["wav_path"])
     return result
 
 
@@ -495,6 +731,8 @@ def main() -> int:
     parser.add_argument("--conditions", default="")
     parser.add_argument("--stage-file", type=Path)
     parser.add_argument("--skip-comparison", action="store_true")
+    parser.add_argument("--export-spectral", action="store_true")
+    parser.add_argument("--analysis-deadline-monotonic", type=float)
     args = parser.parse_args()
     try:
         analyze(
@@ -506,6 +744,8 @@ def main() -> int:
             recording_conditions=args.conditions.strip(),
             stage_file=args.stage_file.resolve() if args.stage_file else None,
             comparison_enabled=not args.skip_comparison,
+            export_spectral_enabled=args.export_spectral,
+            analysis_deadline=args.analysis_deadline_monotonic,
         )
     except PitchTrackError as exc:
         print(str(exc))

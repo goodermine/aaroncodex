@@ -231,6 +231,35 @@ The diagnostics output is now three artifacts, all rendered from already-measure
 
 Reports use VoceVista-style `note+cents` notation (`F♯3+24ct`) via the additive `note_detailed` field; existing `note` fields are unchanged for compatibility.
 
+### Live harmonic scope artifacts (display only)
+
+Viewer jobs may opt into post-take spectral artifacts after the normal VOXAI
+analysis succeeds. These artifacts are visual evidence only: no metric, score,
+diagnostic flag, prescription or coaching claim reads from them.
+
+- **Spectral tiles:** `librosa.cqt` over the isolated vocal, sampled at
+  44.1 kHz with a 2048-sample hop (21.5332 frames/s), 3 bins per semitone and
+  a visible C2–C7 range. Magnitudes are converted to dB relative to the take's
+  strongest CQT value, clipped to −80–0 dB, mapped linearly to 8-bit grayscale,
+  stored high-frequency-first, and split into PNG tiles no wider than 2048
+  frames. The descriptor records the exact time/MIDI mapping and declares C7
+  as the exclusive upper boundary.
+- **Harmonic tracks:** H1–H8 band peaks are sampled at `k × F0` using the
+  measured browser pitch-contour cadence. Each voiced frame is expressed in dB
+  relative to its strongest available harmonic; unvoiced and out-of-range
+  values are `null`. The internal CQT extends above the visible image solely so
+  upper harmonics can be sampled without expanding the browser plot.
+- **Limits:** CQT window support can show faint energy shortly before a sharp
+  onset, stem-separation artifacts can create false upper-band energy, and
+  display intensity is relative within the take rather than calibrated SPL.
+  These limitations are why the layer is labelled `Spectral energy — display
+  only` and cannot feed downstream numeric analysis.
+
+The exporter is flag-gated off by default. Export failure is isolated from the
+analysis pipeline and yields an unavailable layer rather than a failed score or
+report. Artifacts live under the viewer job directory and inherit its existing
+retention cleanup.
+
 ### Companion tools
 
 - **`tools/compare_takes.py take.json original.json`** — melody-match: DTW
