@@ -7,10 +7,38 @@ document trustworthy.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import numpy as np
 
 from .. import dsp
 from ..document import EditDocument
+
+
+def subtract_guards(regions: list, guards: list) -> list:
+    """Trim (splitting where needed) attenuation regions so none overlaps a
+    protected speech guard. This is the render-time safety invariant: it holds
+    even for hand-edited documents whose regions were moved onto speech."""
+    if not guards:
+        return list(regions)
+    out = []
+    for r in regions:
+        pieces = [[r.start, r.end]]
+        for gs, ge in guards:
+            trimmed = []
+            for s, e in pieces:
+                if ge <= s or gs >= e:
+                    trimmed.append([s, e])
+                    continue
+                if gs > s:
+                    trimmed.append([s, gs])
+                if ge < e:
+                    trimmed.append([ge, e])
+            pieces = trimmed
+        for s, e in pieces:
+            if e - s > 1e-3:
+                out.append(replace(r, start=s, end=e))
+    return out
 
 
 def render(audio: np.ndarray, sr: int, doc: EditDocument) -> np.ndarray:
@@ -18,13 +46,14 @@ def render(audio: np.ndarray, sr: int, doc: EditDocument) -> np.ndarray:
     n = audio.shape[1]
 
     # 1. Full-band gain envelope: dynamics curve + gate pauses + breath dips.
+    # Pauses and breaths are hard-trimmed against the speech guards first.
     env_db = np.zeros(n, dtype=np.float64)
     if doc.gain_curve:
         curve = np.asarray(doc.gain_curve, dtype=np.float64)
         t = np.arange(n) / sr
         env_db += np.interp(t, curve[:, 0], curve[:, 1])
-    env_db += dsp.fade_envelope(n, sr, doc.pauses)
-    env_db += dsp.fade_envelope(n, sr, doc.breaths)
+    env_db += dsp.fade_envelope(n, sr, subtract_guards(doc.pauses, doc.speech_guards))
+    env_db += dsp.fade_envelope(n, sr, subtract_guards(doc.breaths, doc.speech_guards))
     gain = 10 ** (env_db / 20)
 
     out = audio.astype(np.float64) * gain[None, :]

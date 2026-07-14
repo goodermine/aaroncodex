@@ -41,6 +41,9 @@ class EditDocument:
     breaths: list = field(default_factory=list)
     # Sibilance: harsh consonant events, band-limited reduction.
     sibilants: list = field(default_factory=list)
+    # Protected speech intervals [[start, end], ...]: render never lets a full-band
+    # attenuation region (pause/breath) touch these, even after hand edits.
+    speech_guards: list = field(default_factory=list)
     # Clean: model-based settings (applied before render DSP).
     denoise: dict = field(default_factory=lambda: {"amount": 0.0, "backend": "none"})
     # Analysis context useful to a UI / for debugging, not used by render.
@@ -58,6 +61,7 @@ class EditDocument:
             duration=raw.get("duration", 0.0),
             mode=raw.get("mode", "voice"),
             gain_curve=raw.get("gain_curve", []),
+            speech_guards=raw.get("speech_guards", []),
             denoise=raw.get("denoise", {"amount": 0.0, "backend": "none"}),
             analysis=raw.get("analysis", {}),
         )

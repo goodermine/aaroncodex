@@ -34,7 +34,9 @@ Full mixed song ──► Separate vocals ──► Analyze ──► Apply fixe
 **Outputs:**
 1. **Cleaned vocal stem** — the isolated, repaired vocal on its own
 2. **Remixed song** — cleaned vocal recombined with the original instrumental
-3. **Delta** — audio of everything that was removed (noise, breaths, bleed), for auditioning
+3. **Removed** — audio of the targeted removal only (noise, breaths, bleed), for
+   auditioning; intentional leveling gain is excluded by contract (a separate
+   raw-vs-final "full difference" file covers that)
 4. **Automation data** — the gain curves and event regions as exportable data (JSON/MIDI)
 
 ### 1a. Two input modes (one pipeline)

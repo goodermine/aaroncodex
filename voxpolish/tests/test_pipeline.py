@@ -18,7 +18,7 @@ def test_process_voice_mode_writes_all_outputs(speech_signal, tmp_path):
 
     outputs = process(src, tmp_path / "out", Settings.for_mode("voice"))
 
-    assert set(outputs) == {"vocal_cleaned", "delta", "edit_document"}
+    assert set(outputs) == {"vocal_cleaned", "removed", "full_difference", "edit_document"}
     cleaned, csr = audio_io.load(outputs["vocal_cleaned"])
     assert csr == sr and cleaned.shape[1] == len(mono)
 

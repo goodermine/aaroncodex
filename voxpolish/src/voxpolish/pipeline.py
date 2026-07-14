@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import numpy as np
@@ -53,6 +53,9 @@ def analyze(vocal: np.ndarray, sr: int, settings: Settings) -> EditDocument:
     pauses, vad_times, vad_mask = gate.analyze(
         mono, sr, min_pause_s=settings.min_pause_s, floor_db=settings.gate_floor_db
     )
+    # Guards are always recorded, so render protects speech from breath dips
+    # (and from hand-edited pauses) even when the gate module is off.
+    doc.speech_guards = gate.speech_guards(vad_times, vad_mask)
     if settings.enable_gate:
         doc.pauses = pauses
 
@@ -68,6 +71,13 @@ def analyze(vocal: np.ndarray, sr: int, settings: Settings) -> EditDocument:
         doc.breaths = breath.analyze(
             mono, sr, vad_times, vad_mask, reduction_db=settings.breath_reduction_db
         )
+        # Energy VADs flag breaths as speech, which would guard them against
+        # their own reduction. The breath detector has spectral evidence the
+        # VAD lacks, so detected breaths are punched out of the guards.
+        if doc.breaths:
+            doc.speech_guards = gate.subtract_intervals(
+                doc.speech_guards, [[b.start, b.end] for b in doc.breaths]
+            )
 
     if settings.enable_sibilance:
         doc.sibilants = sibilance.analyze(
@@ -123,9 +133,20 @@ def process(
     audio_io.save(out_dir / "vocal_cleaned.wav", cleaned, sr)
     outputs["vocal_cleaned"] = str(out_dir / "vocal_cleaned.wav")
 
-    delta = raw_vocal - cleaned
-    audio_io.save(out_dir / "delta.wav", delta, sr)
-    outputs["delta"] = str(out_dir / "delta.wav")
+    # Diagnostic delta contract, two distinct outputs:
+    #
+    # removed.wav — targeted removal ONLY (denoise, gate, breath, sibilance),
+    # computed against a unity-gain baseline (same doc, no dynamics curve).
+    # Audible vocal/musical content in here is a bug.
+    removal_render = render.render(vocal, sr, replace(doc, gain_curve=[]))
+    audio_io.save(out_dir / "removed.wav", raw_vocal - removal_render, sr)
+    outputs["removed"] = str(out_dir / "removed.wav")
+
+    # full_difference.wav — raw minus final, INCLUDING intentional dynamics /
+    # leveling gain. Whenever leveling is active this necessarily contains a
+    # gain-scaled copy of the vocal; that is expected and not a defect.
+    audio_io.save(out_dir / "full_difference.wav", raw_vocal - cleaned, sr)
+    outputs["full_difference"] = str(out_dir / "full_difference.wav")
 
     if instrumental is not None:
         audio_io.save(out_dir / "instrumental.wav", instrumental, sr)

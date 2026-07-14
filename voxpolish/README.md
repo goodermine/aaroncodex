@@ -20,6 +20,11 @@ applied exactly — rendering is deterministic DSP.
 cd voxpolish
 python3 -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e .                        # core: runs voice mode with DSP fallbacks
+
+# IMPORTANT on this CPU-only AMD machine: install the CPU torch wheel FIRST,
+# otherwise the extras below drag in ~2 GB of unusable CUDA/NVIDIA packages.
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+
 pip install -e '.[separation]'          # + Demucs for song mode
 pip install -e '.[clean]'               # + DeepFilterNet denoising
 pip install -e '.[vad]'                 # + Silero AI voice detection (better gating)
@@ -52,9 +57,19 @@ voxpolish process event.wav --mode voice --strip-music-bed -o out/
 voxpolish process talk.wav --from-doc out/edit_document.json -o out2/
 ```
 
-Outputs: `vocal_cleaned.wav`, `delta.wav` (everything that was removed — listen
-to verify nothing musical was lost), `edit_document.json`, and in song mode
-also `instrumental.wav` + `remix.wav`.
+Outputs:
+
+- `vocal_cleaned.wav` — the result.
+- `removed.wav` — **targeted removal only** (denoise, gate, breath, sibilance),
+  computed against a unity-gain baseline. Audible vocal or musical content in
+  this file is a bug — this is the diagnostic to listen to.
+- `full_difference.wav` — raw minus final, *including* intentional leveling
+  gain. Whenever Dynamics is active this necessarily contains a gain-scaled
+  copy of the vocal; that is expected, not a defect.
+- `edit_document.json` — every decision, editable. Dynamics info lives at
+  `analysis.dynamics`; event counts at `analysis.counts`; protected speech at
+  `speech_guards` (render never lets a pause or breath dip touch these).
+- Song mode also writes `instrumental.wav` + `remix.wav`.
 
 Useful flags: `--no-gate --no-dynamics --no-breath --no-sibilance --no-clean`,
 `--target-db -18`, `--gate-floor-db -30`, `--smoothing 0.5`.
