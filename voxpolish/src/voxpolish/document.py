@@ -51,8 +51,11 @@ class EditDocument:
     # module keeps its analysis data, amounts scale it (1.0 = as analyzed).
     bypass: dict = field(default_factory=dict)
     amounts: dict = field(
-        default_factory=lambda: {"dynamics": 1.0, "breath": 1.0, "sibilance": 1.0}
+        default_factory=lambda: {"dynamics": 1.0, "breath": 1.0, "sibilance": 1.0, "tune": 1.0}
     )
+    # Tuner data: key, notes, and the cents-correction curve from pitch
+    # analysis. Rendered by the session when present; empty = no tuner.
+    pitch: dict = field(default_factory=dict)
     # Clean: model-based settings (applied before render DSP).
     denoise: dict = field(default_factory=lambda: {"amount": 0.0, "backend": "none"})
     # Analysis context useful to a UI / for debugging, not used by render.
@@ -73,9 +76,10 @@ class EditDocument:
             speech_guards=raw.get("speech_guards", []),
             bypass=raw.get("bypass", {}),
             amounts={
-                "dynamics": 1.0, "breath": 1.0, "sibilance": 1.0,
+                "dynamics": 1.0, "breath": 1.0, "sibilance": 1.0, "tune": 1.0,
                 **raw.get("amounts", {}),
             },
+            pitch=raw.get("pitch", {}),
             denoise=raw.get("denoise", {"amount": 0.0, "backend": "none"}),
             analysis=raw.get("analysis", {}),
         )

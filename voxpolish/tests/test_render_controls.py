@@ -82,7 +82,7 @@ def test_controls_roundtrip_and_render_identically(tmp_path, speech_signal):
     audio = np.atleast_2d(mono)
     doc = _doc(audio, sr)
     doc.bypass = {"sibilance": True}
-    doc.amounts = {"dynamics": 0.8, "breath": 0.5, "sibilance": 1.2}
+    doc.amounts = {"dynamics": 0.8, "breath": 0.5, "sibilance": 1.2, "tune": 1.0}
     path = tmp_path / "doc.json"
     doc.save(path)
     loaded = EditDocument.load(path)
@@ -101,4 +101,7 @@ def test_old_documents_without_controls_still_load(tmp_path, speech_signal):
     del raw["bypass"], raw["amounts"]
     loaded = EditDocument.from_json(json.dumps(raw))
     assert loaded.bypass == {}
-    assert loaded.amounts == {"dynamics": 1.0, "breath": 1.0, "sibilance": 1.0}
+    assert loaded.amounts == {
+        "dynamics": 1.0, "breath": 1.0, "sibilance": 1.0, "tune": 1.0,
+    }
+    assert loaded.pitch == {}

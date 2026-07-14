@@ -13,8 +13,9 @@ const audio = $("audio");
 
 const COLORS = { pauses: "#e06060", breaths: "#5fbf77", sibilants: "#5fa8e0" };
 const KINDS = ["pauses", "breaths", "sibilants"];
-const AMOUNTS = ["dynamics", "breath", "sibilance"];
-const BYPASSES = { dynamics: "dynamics", gate: "gate", breath: "breath", sibilance: "sibilance" };
+const AMOUNTS = ["dynamics", "breath", "sibilance", "tune"];
+const BYPASSES = { dynamics: "dynamics", gate: "gate", breath: "breath",
+                   sibilance: "sibilance", tune: "tune" };
 
 let state = {
   revision: 0,
@@ -63,13 +64,15 @@ async function render() {
   try {
     await saveDoc();
     await api("/api/render", { method: "POST" });
+    let finalState;
     while (true) {
       await new Promise((r) => setTimeout(r, 400));
-      const s = await api("/api/render");
-      if (s.status === "done") break;
-      if (s.status === "error") throw new Error(s.error);
+      finalState = await api("/api/render");
+      if (finalState.status === "done") break;
+      if (finalState.status === "error") throw new Error(finalState.error);
     }
-    setStatus("Rendered.");
+    const notes = finalState.notes || [];
+    setStatus(notes.length ? `Rendered — ${notes.join("; ")}` : "Rendered.");
     await loadAll();
     reloadAudio();
   } catch (e) {
@@ -102,6 +105,22 @@ function syncControls() {
   $("count-pauses").textContent = state.doc.pauses.length;
   $("count-breaths").textContent = state.doc.breaths.length;
   $("count-sibilants").textContent = state.doc.sibilants.length;
+
+  // Tune row: only live when the session has a correction curve.
+  const p = state.doc.pitch || {};
+  const hasTuner = (p.curve || []).length > 0;
+  $("module-tune").classList.toggle("disabled", !hasTuner);
+  $("on-tune").disabled = !hasTuner;
+  $("amt-tune").disabled = !hasTuner;
+  if (hasTuner) {
+    $("count-tune").textContent = `${(p.notes || []).length} notes`;
+    $("tune-key").textContent =
+      `${p.key} · mean off ${p.mean_abs_dev_cents} cents`;
+  } else {
+    $("count-tune").textContent = "–";
+    $("tune-key").textContent =
+      p.error ? "analysis failed" : "no pitch data (recreate the session)";
+  }
 }
 
 function wireControls() {

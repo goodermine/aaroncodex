@@ -22,7 +22,7 @@ import numpy as np
 from .. import audio_io
 from ..document import EditDocument
 from ..pipeline import Settings, analyze
-from ..stages import clean, render
+from ..stages import clean, pitch, render
 
 PEAK_BUCKETS = 2400  # points per waveform; a few KB regardless of file size
 
@@ -72,6 +72,20 @@ class Session:
 
         doc = analyze(vocal, sr, settings)
         doc.denoise = denoise_info
+        # Tuner analysis: key, notes, and the proposed correction curve. A
+        # failure here must never kill session creation — record and move on.
+        try:
+            rep = pitch.analyze(audio_io.to_mono(vocal), sr)
+            doc.pitch = {
+                "key": rep["key"],
+                "key_confidence": rep["key_confidence"],
+                "mean_abs_dev_cents": rep["mean_abs_dev_cents"],
+                "notes": rep["notes"],
+                "curve": rep["curve"],
+                "settings": rep["settings"],
+            }
+        except Exception as e:
+            doc.pitch = {"error": str(e)}
         s._write_doc(doc, revision=1)
         s.render()
         return s
@@ -125,10 +139,25 @@ class Session:
         vocal, sr = audio_io.load(self.root / "work_vocal.wav")
         doc = self.document()
         out = render.render(vocal, sr, doc)
+        notes: list[str] = []
+
+        # Tuner layer: scale the correction curve by the Tune amount, honor
+        # the bypass, degrade gracefully if the vocoder isn't installed.
+        tune_amt = float((doc.amounts or {}).get("tune", 1.0))
+        curve = (doc.pitch or {}).get("curve") or []
+        if curve and tune_amt > 0 and not (doc.bypass or {}).get("tune"):
+            scaled = [[t, c * tune_amt] for t, c in curve]
+            try:
+                out, applied = pitch.apply_correction(out, sr, scaled)
+                if applied.get("applied"):
+                    notes.append(f"tuned (max {applied['max_applied_cents']} cents)")
+            except RuntimeError as e:
+                notes.append(f"tuner skipped: {e}")
+
         tmp = self.root / ".render-tmp.wav"
         audio_io.save(tmp, out, sr)
         os.replace(tmp, self.root / "vocal_cleaned.wav")
-        return {"rendered": True, "revision": self.revision()}
+        return {"rendered": True, "revision": self.revision(), "notes": notes}
 
     # ------------------------------------------------------------------ peaks
 

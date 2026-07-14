@@ -78,7 +78,11 @@ def create_app(session_root: Path) -> FastAPI:
         def work():
             try:
                 result = session.render()
-                render_state.update(status="done", revision=result["revision"])
+                render_state.update(
+                    status="done",
+                    revision=result["revision"],
+                    notes=result.get("notes", []),
+                )
             except Exception as e:  # surfaced to the UI, never silent
                 render_state.update(status="error", error=str(e))
             finally:
