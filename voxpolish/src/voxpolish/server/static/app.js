@@ -13,14 +13,17 @@ const audio = $("audio");
 
 const COLORS = { pauses: "#e06060", breaths: "#5fbf77", sibilants: "#5fa8e0" };
 const KINDS = ["pauses", "breaths", "sibilants"];
+const AMOUNTS = ["dynamics", "breath", "sibilance"];
+const BYPASSES = { dynamics: "dynamics", gate: "gate", breath: "breath", sibilance: "sibilance" };
 
 let state = {
   revision: 0,
   doc: null,
   peaks: null,
   duration: 0,
-  selected: null, // {kind, index}
+  selected: null,       // {kind, index}
   source: "cleaned",
+  view: { t0: 0, span: 0 }, // visible window in seconds; span 0 = fit
 };
 
 // ------------------------------------------------------------------ api
@@ -36,8 +39,9 @@ async function loadAll() {
   state.revision = d.revision;
   state.doc = d.document;
   state.duration = state.doc.duration;
+  if (!state.view.span) state.view = { t0: 0, span: state.duration };
   state.peaks = await api(`/api/peaks/${state.source}`);
-  updateCounts();
+  syncControls();
   draw();
 }
 
@@ -82,6 +86,70 @@ function setStatus(text, isError) {
   el.className = "status" + (isError ? " error" : "");
 }
 
+// ------------------------------------------------------------------ knobs
+
+function syncControls() {
+  const bypass = state.doc.bypass || {};
+  const amounts = state.doc.amounts || {};
+  for (const key of Object.keys(BYPASSES)) {
+    $(`on-${key}`).checked = !bypass[key];
+  }
+  for (const key of AMOUNTS) {
+    const pct = Math.round((amounts[key] ?? 1.0) * 100);
+    $(`amt-${key}`).value = pct;
+    $(`amtv-${key}`).textContent = `${pct}%`;
+  }
+  $("count-pauses").textContent = state.doc.pauses.length;
+  $("count-breaths").textContent = state.doc.breaths.length;
+  $("count-sibilants").textContent = state.doc.sibilants.length;
+}
+
+function wireControls() {
+  for (const key of Object.keys(BYPASSES)) {
+    $(`on-${key}`).addEventListener("change", (ev) => {
+      state.doc.bypass = state.doc.bypass || {};
+      state.doc.bypass[key] = !ev.target.checked;
+      setStatus("Changed — press Render to apply.");
+      draw();
+    });
+  }
+  for (const key of AMOUNTS) {
+    $(`amt-${key}`).addEventListener("input", (ev) => {
+      state.doc.amounts = state.doc.amounts || {};
+      state.doc.amounts[key] = ev.target.value / 100;
+      $(`amtv-${key}`).textContent = `${ev.target.value}%`;
+      setStatus("Changed — press Render to apply.");
+    });
+  }
+}
+
+// ------------------------------------------------------------------ view
+
+function clampView() {
+  const v = state.view;
+  v.span = Math.min(Math.max(v.span, 0.5), state.duration);
+  v.t0 = Math.min(Math.max(v.t0, 0), state.duration - v.span);
+}
+
+function zoom(factor, centerT) {
+  const v = state.view;
+  const c = centerT ?? v.t0 + v.span / 2;
+  const rel = (c - v.t0) / v.span;
+  v.span *= factor;
+  clampView();
+  v.t0 = c - rel * v.span;
+  clampView();
+  draw();
+}
+
+function xOf(t) {
+  return ((t - state.view.t0) / state.view.span) * canvas.clientWidth;
+}
+
+function tOf(x) {
+  return state.view.t0 + (x / canvas.clientWidth) * state.view.span;
+}
+
 // ------------------------------------------------------------------ drawing
 
 function resize() {
@@ -92,23 +160,21 @@ function resize() {
   draw();
 }
 
-function xOf(t) {
-  return (t / state.duration) * canvas.clientWidth;
-}
-
 function draw() {
   if (!state.peaks || !state.doc) return;
   const W = canvas.clientWidth, H = canvas.clientHeight, mid = H / 2;
   ctx.clearRect(0, 0, W, H);
+  const bypass = state.doc.bypass || {};
 
-  // Region overlays behind the waveform.
+  // Region overlays behind the waveform (dimmed when module is off).
+  const dimmed = { pauses: bypass.gate, breaths: bypass.breath, sibilants: bypass.sibilance };
   for (const kind of KINDS) {
-    ctx.fillStyle = COLORS[kind] + "33";
+    ctx.fillStyle = COLORS[kind] + (dimmed[kind] ? "14" : "33");
     for (const r of state.doc[kind]) {
+      if (r.end < state.view.t0 || r.start > state.view.t0 + state.view.span) continue;
       ctx.fillRect(xOf(r.start), 0, Math.max(2, xOf(r.end) - xOf(r.start)), H);
     }
   }
-  // Selected region highlight.
   if (state.selected) {
     const r = state.doc[state.selected.kind][state.selected.index];
     if (r) {
@@ -118,14 +184,17 @@ function draw() {
     }
   }
 
-  // Waveform from peaks.
+  // Waveform from peaks, windowed to the current view.
   const { min, max } = state.peaks;
   const n = min.length;
+  const bucketDur = state.duration / n;
+  const i0 = Math.max(0, Math.floor(state.view.t0 / bucketDur));
+  const i1 = Math.min(n, Math.ceil((state.view.t0 + state.view.span) / bucketDur));
   ctx.fillStyle = "#aeb6c2";
   const scale = mid * 0.92;
-  for (let i = 0; i < n; i++) {
-    const x = (i / n) * W;
-    const w = Math.max(1, W / n);
+  for (let i = i0; i < i1; i++) {
+    const x = xOf(i * bucketDur);
+    const w = Math.max(1, W / (i1 - i0));
     const y1 = mid - max[i] * scale;
     const y2 = mid - min[i] * scale;
     ctx.fillRect(x, y1, w, Math.max(1, y2 - y1));
@@ -133,27 +202,29 @@ function draw() {
 
   // Gain curve (dynamics) over the top.
   const curve = state.doc.gain_curve;
-  if (curve && curve.length) {
+  if (curve && curve.length && !bypass.dynamics) {
+    const amt = (state.doc.amounts || {}).dynamics ?? 1.0;
     ctx.strokeStyle = "#e8d44d";
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    for (let i = 0; i < curve.length; i++) {
-      const x = xOf(curve[i][0]);
-      const y = mid - (curve[i][1] / 12) * mid * 0.9;
-      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    let started = false;
+    for (const [t, g] of curve) {
+      if (t < state.view.t0 - 1 || t > state.view.t0 + state.view.span + 1) continue;
+      const x = xOf(t);
+      const y = mid - ((g * amt) / 12) * mid * 0.9;
+      started ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      started = true;
     }
     ctx.stroke();
   }
 
   // Playhead.
-  if (!audio.paused || audio.currentTime > 0) {
-    ctx.strokeStyle = "#ffffff";
-    ctx.beginPath();
-    const x = xOf(audio.currentTime);
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, H);
-    ctx.stroke();
-  }
+  ctx.strokeStyle = "#ffffff";
+  ctx.beginPath();
+  const px = xOf(audio.currentTime || 0);
+  ctx.moveTo(px, 0);
+  ctx.lineTo(px, H);
+  ctx.stroke();
 }
 
 // ------------------------------------------------------------------ regions
@@ -166,11 +237,6 @@ function regionAt(t) {
     }
   }
   return null;
-}
-
-function updateCounts() {
-  for (const kind of KINDS) $(`count-${kind}`).textContent = state.doc[kind].length;
-  $("count-gain").textContent = state.doc.gain_curve.length ? "on" : "off";
 }
 
 function showInspector() {
@@ -187,7 +253,7 @@ function deleteSelected() {
   if (!state.selected) return;
   state.doc[state.selected.kind].splice(state.selected.index, 1);
   state.selected = null;
-  updateCounts();
+  syncControls();
   showInspector();
   draw();
   setStatus("Region removed — press Render to apply.");
@@ -210,7 +276,7 @@ function fmtTime(s) {
 // ------------------------------------------------------------------ events
 
 canvas.addEventListener("click", (ev) => {
-  const t = (ev.offsetX / canvas.clientWidth) * state.duration;
+  const t = tOf(ev.offsetX);
   const hit = regionAt(t);
   if (hit) {
     state.selected = hit;
@@ -222,16 +288,32 @@ canvas.addEventListener("click", (ev) => {
   draw();
 });
 
-document.addEventListener("keydown", (ev) => {
-  if (ev.key === "Delete" || ev.key === "Backspace") {
-    if (document.activeElement.tagName !== "INPUT") deleteSelected();
+canvas.addEventListener("wheel", (ev) => {
+  ev.preventDefault();
+  if (ev.ctrlKey || ev.metaKey) {
+    zoom(ev.deltaY > 0 ? 1.25 : 0.8, tOf(ev.offsetX));
+  } else {
+    state.view.t0 += (ev.deltaY + ev.deltaX) * state.view.span * 0.0015;
+    clampView();
+    draw();
   }
-  if (ev.key === " " && document.activeElement.tagName !== "BUTTON") {
+}, { passive: false });
+
+document.addEventListener("keydown", (ev) => {
+  const tag = document.activeElement.tagName;
+  if ((ev.key === "Delete" || ev.key === "Backspace") && tag !== "INPUT") deleteSelected();
+  if (ev.key === " " && tag !== "BUTTON" && tag !== "INPUT") {
     ev.preventDefault();
     audio.paused ? audio.play() : audio.pause();
   }
 });
 
+$("zoom-in").addEventListener("click", () => zoom(0.5));
+$("zoom-out").addEventListener("click", () => zoom(2.0));
+$("zoom-fit").addEventListener("click", () => {
+  state.view = { t0: 0, span: state.duration };
+  draw();
+});
 $("delete-region").addEventListener("click", deleteSelected);
 $("render").addEventListener("click", render);
 $("play").addEventListener("click", () => (audio.paused ? audio.play() : audio.pause()));
@@ -246,11 +328,18 @@ $("source").addEventListener("change", async (ev) => {
 
 setInterval(() => {
   $("time").textContent = fmtTime(audio.currentTime || 0);
-  if (!audio.paused) draw();
+  if (!audio.paused) {
+    // Keep the playhead in view while playing.
+    const t = audio.currentTime;
+    const v = state.view;
+    if (t > v.t0 + v.span * 0.95) { v.t0 = t - v.span * 0.1; clampView(); }
+    draw();
+  }
 }, 100);
 
 window.addEventListener("resize", resize);
 
+wireControls();
 loadAll().then(() => {
   resize();
   reloadAudio();

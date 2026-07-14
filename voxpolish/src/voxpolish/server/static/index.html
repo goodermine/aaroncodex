@@ -17,6 +17,11 @@
     </select>
     <span id="time">0:00</span>
   </div>
+  <div class="zoom">
+    <button id="zoom-out" title="Zoom out">−</button>
+    <button id="zoom-fit" title="Fit whole file">Fit</button>
+    <button id="zoom-in" title="Zoom in">+</button>
+  </div>
   <div class="actions">
     <span id="status" class="status"></span>
     <button id="render" class="primary">Render</button>
@@ -25,16 +30,34 @@
 
 <main>
   <aside id="rail">
-    <div class="module" data-kind="gain"><span class="dot dyn"></span>Dynamics
-      <span class="count" id="count-gain"></span></div>
-    <div class="module" data-kind="pauses"><span class="dot gate"></span>Gate
-      <span class="count" id="count-pauses"></span></div>
-    <div class="module" data-kind="breaths"><span class="dot breath"></span>Breath
-      <span class="count" id="count-breaths"></span></div>
-    <div class="module" data-kind="sibilants"><span class="dot sib"></span>Sibilance
-      <span class="count" id="count-sibilants"></span></div>
-    <p class="hint">Click a region on the waveform to select it. Press
-      <kbd>Delete</kbd> to remove it, then Render.</p>
+    <div class="module">
+      <label><input type="checkbox" id="on-dynamics" checked>
+        <span class="dot dyn"></span>Dynamics</label>
+      <input type="range" id="amt-dynamics" min="0" max="150" value="100">
+      <span class="val" id="amtv-dynamics">100%</span>
+    </div>
+    <div class="module">
+      <label><input type="checkbox" id="on-gate" checked>
+        <span class="dot gate"></span>Gate</label>
+      <span class="count" id="count-pauses"></span>
+    </div>
+    <div class="module">
+      <label><input type="checkbox" id="on-breath" checked>
+        <span class="dot breath"></span>Breath</label>
+      <input type="range" id="amt-breath" min="0" max="150" value="100">
+      <span class="val" id="amtv-breath">100%</span>
+      <span class="count" id="count-breaths"></span>
+    </div>
+    <div class="module">
+      <label><input type="checkbox" id="on-sibilance" checked>
+        <span class="dot sib"></span>Sibilance</label>
+      <input type="range" id="amt-sibilance" min="0" max="150" value="100">
+      <span class="val" id="amtv-sibilance">100%</span>
+      <span class="count" id="count-sibilants"></span>
+    </div>
+    <p class="hint">Toggle a module off, or slide its amount, then
+      <b>Render</b>. Click a colored region and press <kbd>Delete</kbd> to
+      remove it. Scroll to pan, <kbd>Ctrl</kbd>+scroll to zoom.</p>
   </aside>
 
   <section id="editor">

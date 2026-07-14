@@ -47,6 +47,12 @@ class EditDocument:
     # Protected speech intervals [[start, end], ...]: render never lets a full-band
     # attenuation region (pause/breath) touch these, even after hand edits.
     speech_guards: list = field(default_factory=list)
+    # Render-time controls (the UI's knobs) — non-destructive: bypassing a
+    # module keeps its analysis data, amounts scale it (1.0 = as analyzed).
+    bypass: dict = field(default_factory=dict)
+    amounts: dict = field(
+        default_factory=lambda: {"dynamics": 1.0, "breath": 1.0, "sibilance": 1.0}
+    )
     # Clean: model-based settings (applied before render DSP).
     denoise: dict = field(default_factory=lambda: {"amount": 0.0, "backend": "none"})
     # Analysis context useful to a UI / for debugging, not used by render.
@@ -65,6 +71,11 @@ class EditDocument:
             mode=raw.get("mode", "voice"),
             gain_curve=raw.get("gain_curve", []),
             speech_guards=raw.get("speech_guards", []),
+            bypass=raw.get("bypass", {}),
+            amounts={
+                "dynamics": 1.0, "breath": 1.0, "sibilance": 1.0,
+                **raw.get("amounts", {}),
+            },
             denoise=raw.get("denoise", {"amount": 0.0, "backend": "none"}),
             analysis=raw.get("analysis", {}),
         )
