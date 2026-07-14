@@ -72,11 +72,28 @@ Outputs:
 - Song mode also writes `instrumental.wav` + `remix.wav`.
 
 Useful flags: `--no-gate --no-dynamics --no-breath --no-sibilance --no-clean`,
-`--target-db -18`, `--gate-floor-db -30`, `--smoothing 0.5`,
-`--remix-vocal-db -2` (vocal balance in the remix sum only — defaults to −2 dB
-in song mode so leveling doesn't push the singer forward; the exported vocal
-stem is unaffected, and the remix is normalized only downward to a −1 dBFS
-peak ceiling so relative balance and headroom are preserved).
+`--target-db -18`, `--gate-floor-db -30`, `--smoothing 0.5`.
+
+## Balance & mastering (song mode)
+
+The remix goes through measured balancing and bounded mastering:
+
+1. **Balance** — vocal-active loudness (BS.1770) of raw vocal, cleaned vocal,
+   and instrumental is measured over the speech-guard intervals (intros and
+   gaps excluded). The correction restores the recording's *own* original
+   vocal-to-backing ratio — never a fixed offset, never forced-equal LUFS.
+   Bounds: vocal ±3 dB, instrumental ±2 dB; anything beyond is reported as a
+   residual, not forced. `--remix-vocal-db` overrides measurement manually.
+2. **Mastering** — bounded normalization toward **−15 LUFS** integrated
+   (`--target-lufs`), then a **−3 dBTP** true-peak ceiling (`--true-peak-db`)
+   via a lookahead limiter capped at 3 dB gain reduction; overshoot beyond
+   the cap comes out of makeup gain (a reported loudness miss, not a crush).
+
+Every measurement, applied gain, bound hit, and miss is serialized in
+`edit_document.json` under `analysis.balance` and `analysis.master`
+(final LUFS, LRA, true peak, target_reached, reasons). Leveling itself is
+protected by a zero-median-shift invariant: the Dynamics module compresses
+*around* the performance level and can no longer move it (the "Shimmer" bug).
 
 ## The six modules
 

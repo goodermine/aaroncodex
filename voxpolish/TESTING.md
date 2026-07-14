@@ -55,7 +55,9 @@ and whether `remix.wav` sounds like the original song with a cleaner vocal.
 For each processed file, note:
 1. Runtimes (per stage if visible, else total).
 2. `edit_document.json` event counts (`analysis.counts`) and the dynamics
-   summary (`analysis.dynamics` — note the nested location).
+   summary (`analysis.dynamics` — note the nested location). For songs, also
+   capture `analysis.balance` (measured stem gains, residual) and
+   `analysis.master` (final LUFS / LRA / true peak, target_reached, reasons).
 3. Listening notes on `vocal_cleaned.wav`: does the gate clip word starts/ends?
    Do the leveled sections sound natural or pumpy?
 4. Listening notes on `removed.wav`: targeted removal only — audible vocal or

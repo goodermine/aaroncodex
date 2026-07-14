@@ -7,25 +7,85 @@ from pathlib import Path
 
 import numpy as np
 
-from . import audio_io
+from . import audio_io, measure
 from .document import EditDocument
-from .stages import breath, clean, dynamics, gate, render, separation, sibilance
+from .stages import breath, clean, dynamics, gate, master, render, separation, sibilance
 
 
-# Remix peak ceiling: the sum is scaled DOWN (never up) to keep this much
-# headroom; equal scaling preserves the vocal-to-instrumental relationship.
-REMIX_PEAK_CEILING_DB = -1.0
-
-
-def mix_remix(vocal: np.ndarray, instrumental: np.ndarray, vocal_trim_db: float = 0.0) -> np.ndarray:
-    """Sum cleaned vocal (trimmed by vocal_trim_db) with the instrumental."""
+def mix_remix(
+    vocal: np.ndarray,
+    instrumental: np.ndarray,
+    vocal_db: float = 0.0,
+    instr_db: float = 0.0,
+) -> np.ndarray:
+    """Sum the stems with per-stem gain. Peak/loudness control is mastering's job."""
     n = min(vocal.shape[1], instrumental.shape[1])
-    remix = vocal[:, :n] * 10 ** (vocal_trim_db / 20) + instrumental[:, :n]
-    ceiling = 10 ** (REMIX_PEAK_CEILING_DB / 20)
-    peak = np.max(np.abs(remix))
-    if peak > ceiling:
-        remix = remix * (ceiling / peak)
-    return remix
+    return (
+        vocal[:, :n] * 10 ** (vocal_db / 20)
+        + instrumental[:, :n] * 10 ** (instr_db / 20)
+    )
+
+
+def compute_balance(
+    raw_vocal: np.ndarray,
+    cleaned_vocal: np.ndarray,
+    instrumental: np.ndarray,
+    sr: int,
+    active_intervals: list,
+    max_vocal_db: float = 3.0,
+    max_instr_db: float = 2.0,
+) -> dict:
+    """Restore the recording's own vocal-to-backing loudness relationship.
+
+    All loudness is measured during vocal-active sections. The correction is
+    the drift the pipeline introduced (original ratio minus cleaned ratio),
+    applied to the vocal stem first, overflowing to the instrumental, both
+    bounded. No fixed offsets, no forcing equal LUFS.
+    """
+    v_raw, basis = measure.active_lufs(raw_vocal, sr, active_intervals)
+    v_clean, _ = measure.active_lufs(cleaned_vocal, sr, active_intervals)
+    i_act, _ = measure.active_lufs(instrumental, sr, active_intervals)
+
+    report = {
+        "measurement_basis": basis,
+        "raw_vocal_active_lufs": _r(v_raw),
+        "cleaned_vocal_active_lufs": _r(v_clean),
+        "instrumental_active_lufs": _r(i_act),
+        "vocal_gain_db": 0.0,
+        "instr_gain_db": 0.0,
+        "residual_db": 0.0,
+        "method": "measured",
+    }
+    if v_raw is None or v_clean is None or i_act is None:
+        report["method"] = "skipped"
+        report["reason"] = "a stem was too short or silent to measure"
+        return report
+
+    ratio_orig = v_raw - i_act
+    ratio_clean = v_clean - i_act
+    correction = ratio_orig - ratio_clean
+
+    vocal_gain = float(np.clip(correction, -max_vocal_db, max_vocal_db))
+    remainder = correction - vocal_gain
+    # Moving the instrumental the opposite way covers the remainder.
+    instr_gain = float(np.clip(-remainder, -max_instr_db, max_instr_db))
+    residual = correction - (vocal_gain - instr_gain)
+
+    report.update(
+        ratio_original_db=_r(ratio_orig),
+        ratio_cleaned_db=_r(ratio_clean),
+        correction_needed_db=_r(correction),
+        vocal_gain_db=round(vocal_gain, 2),
+        instr_gain_db=round(instr_gain, 2),
+        residual_db=round(residual, 2),
+    )
+    if abs(residual) > 0.1:
+        report["reason"] = "correction exceeded stem bounds; residual reported"
+    return report
+
+
+def _r(v):
+    return None if v is None else round(float(v), 2)
 
 
 @dataclass
@@ -47,10 +107,18 @@ class Settings:
     catch_peaks: float = 0.5
     breath_reduction_db: float = -12.0
     sibilance_sensitivity: float = 0.5
-    # Trim applied to the cleaned vocal ONLY in the remix sum (the exported
-    # vocal stem is unaffected). Restores backing-track balance when leveling
-    # pushes the singer forward.
-    remix_vocal_db: float = 0.0
+    # Manual override for the vocal's remix balance, in dB. None (default)
+    # means balance is MEASURED: the original vocal-to-backing loudness ratio
+    # is restored within the stem bounds below. The exported stem is never
+    # affected either way.
+    remix_vocal_db: float | None = None
+    # Balance / mastering targets and safety bounds (all configurable).
+    target_lufs: float = -15.0
+    true_peak_db: float = -3.0
+    max_vocal_correction_db: float = 3.0
+    max_instr_correction_db: float = 2.0
+    max_master_gain_db: float = 8.0
+    max_limiter_gr_db: float = 3.0
     extra: dict = field(default_factory=dict)
 
     @classmethod
@@ -62,9 +130,6 @@ class Settings:
             s.min_pause_s = 0.6
             s.breath_reduction_db = -6.0
             s.dynamics_smoothing = 0.5
-            # Field-test calibration: leveling pushed the singer slightly too
-            # far forward in the remix; sit the vocal back down ~2 dB.
-            s.remix_vocal_db = -2.0
         return s
 
 
@@ -79,6 +144,9 @@ def analyze(vocal: np.ndarray, sr: int, settings: Settings) -> EditDocument:
     # Guards are always recorded, so render protects speech from breath dips
     # (and from hand-edited pauses) even when the gate module is off.
     doc.speech_guards = gate.speech_guards(vad_times, vad_mask)
+    # Vocal-active intervals for loudness measurement (kept separate from the
+    # guards, which later get breath holes punched into them).
+    doc.analysis["vocal_active"] = gate.speech_guards(vad_times, vad_mask)
     if settings.enable_gate:
         doc.pauses = pauses
 
@@ -174,11 +242,31 @@ def process(
     if instrumental is not None:
         audio_io.save(out_dir / "instrumental.wav", instrumental, sr)
         outputs["instrumental"] = str(out_dir / "instrumental.wav")
-        remix = mix_remix(cleaned, instrumental, settings.remix_vocal_db)
-        doc.analysis["remix"] = {
-            "vocal_trim_db": settings.remix_vocal_db,
-            "peak_ceiling_db": REMIX_PEAK_CEILING_DB,
-        }
+
+        # Balance: restore the recording's own vocal-to-backing relationship
+        # (or honor an explicit manual trim), then master within bounds.
+        if settings.remix_vocal_db is not None:
+            balance = {"method": "manual", "vocal_gain_db": settings.remix_vocal_db,
+                       "instr_gain_db": 0.0}
+        else:
+            balance = compute_balance(
+                raw_vocal, cleaned, instrumental, sr,
+                doc.analysis.get("vocal_active", []),
+                max_vocal_db=settings.max_vocal_correction_db,
+                max_instr_db=settings.max_instr_correction_db,
+            )
+        remix = mix_remix(
+            cleaned, instrumental, balance["vocal_gain_db"], balance["instr_gain_db"]
+        )
+        remix, master_report = master.master(
+            remix, sr,
+            target_lufs=settings.target_lufs,
+            ceiling_dbtp=settings.true_peak_db,
+            max_gain_db=settings.max_master_gain_db,
+            max_limiter_gr_db=settings.max_limiter_gr_db,
+        )
+        doc.analysis["balance"] = balance
+        doc.analysis["master"] = master_report
         audio_io.save(out_dir / "remix.wav", remix, sr)
         outputs["remix"] = str(out_dir / "remix.wav")
 

@@ -14,6 +14,33 @@ from .. import dsp
 WINDOW_S = 0.4
 HOP_S = 0.1
 
+# Absolute gate: frames below this are bleed/silence, never target material.
+ABS_GATE_DB = -70.0
+# A vocal leveling target outside this window is nonsense (Shimmer measured
+# -44 dBFS from separation bleed); fall back to a robust upper estimate.
+TARGET_SANITY_DB = (-35.0, -10.0)
+
+
+def _robust_target(levels: np.ndarray, voiced: np.ndarray) -> tuple[float, str]:
+    """EBU R128-style two-pass gated target selection.
+
+    On sparse stems the plain median of "voiced" frames sits on separation
+    bleed, not singing. Gating relative to the energy mean keeps only frames
+    near the actual performance level.
+    """
+    cand = levels[voiced] if voiced.any() else levels
+    cand = cand[cand > ABS_GATE_DB]
+    if len(cand) == 0:
+        return float(np.median(levels)), "ungated-fallback"
+    energy_mean = 10 * np.log10(np.mean(10 ** (cand / 10)))
+    gated = cand[cand > energy_mean - 10]
+    target = float(np.median(gated)) if len(gated) else float(energy_mean)
+    method = "gated-median"
+    if not (TARGET_SANITY_DB[0] <= target <= TARGET_SANITY_DB[1]):
+        target = float(np.clip(np.percentile(cand, 90), *TARGET_SANITY_DB))
+        method = "sanity-fallback"
+    return target, method
+
 
 def analyze(
     mono: np.ndarray,
@@ -40,8 +67,11 @@ def analyze(
     if not voiced.any():
         voiced = levels > np.median(levels)
 
-    # Target: match the recording's own typical voiced loudness unless overridden.
-    target = float(target_db) if target_db is not None else float(np.median(levels[voiced]))
+    # Target: robust gated estimate of the performance level unless overridden.
+    if target_db is not None:
+        target, method = float(target_db), "custom"
+    else:
+        target, method = _robust_target(levels, voiced)
 
     gain = np.where(voiced, target - levels, 0.0)
     gain = np.clip(gain, -max_gain_db, max_gain_db)
@@ -57,9 +87,17 @@ def analyze(
         reduction = dsp.smooth_exponential(reduction, 0.025, 0.05)
         gain = gain + np.interp(times, ptimes, reduction)
 
+    # Zero-median-shift invariant: leveling compresses AROUND the performance
+    # level, it never moves it. Even a wrong target cannot bury the vocal.
+    active = voiced & (levels > max(ABS_GATE_DB, target - 12.0))
+    median_shift = float(np.median(gain[active])) if active.any() else 0.0
+    gain -= median_shift
+
     curve = [[round(float(t), 4), round(float(g), 3)] for t, g in zip(times, gain)]
     info = {
         "target_db": round(target, 2),
+        "target_method": method,
+        "median_shift_correction_db": round(median_shift, 3),
         "voiced_level_range_db": [
             round(float(np.min(levels[voiced])), 2),
             round(float(np.max(levels[voiced])), 2),
