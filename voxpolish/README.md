@@ -74,6 +74,27 @@ Outputs:
 Useful flags: `--no-gate --no-dynamics --no-breath --no-sibilance --no-clean`,
 `--target-db -18`, `--gate-floor-db -30`, `--smoothing 0.5`.
 
+## The editor UI (Phase 1)
+
+```bash
+pip install -e '.[ui]'
+voxpolish ui recording.wav      # analyzes into recording_session/, opens browser
+voxpolish ui recording_session  # reopen an existing session
+```
+
+Waveform with the module rail, region overlays (gate red, breath green,
+sibilance blue), the dynamics gain curve, A/B playback of original vs
+cleaned, click-to-select and Delete-to-remove regions, Render to apply.
+
+Safety architecture (see `docs/vox-cleanup-plan.md`, "Phase 1 disaster plan"):
+your original file is copied into the session and never written; every write
+is atomic; every accepted edit snapshots the previous document into
+`history/`; the on-disk Edit Document is the single source of truth (the
+browser holds no private state, stale writes are rejected by revision);
+waveforms come from small precomputed peak files and audio streams with range
+requests, so long recordings never flood the browser; renders run in a
+background worker with a single-flight lock.
+
 ## Balance & mastering (song mode)
 
 The remix goes through measured balancing and bounded mastering:

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoxPolish</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>VoxPolish</h1>
+  <div class="transport">
+    <button id="play">Play</button>
+    <select id="source">
+      <option value="cleaned">Cleaned</option>
+      <option value="original">Original</option>
+    </select>
+    <span id="time">0:00</span>
+  </div>
+  <div class="actions">
+    <span id="status" class="status"></span>
+    <button id="render" class="primary">Render</button>
+  </div>
+</header>
+
+<main>
+  <aside id="rail">
+    <div class="module" data-kind="gain"><span class="dot dyn"></span>Dynamics
+      <span class="count" id="count-gain"></span></div>
+    <div class="module" data-kind="pauses"><span class="dot gate"></span>Gate
+      <span class="count" id="count-pauses"></span></div>
+    <div class="module" data-kind="breaths"><span class="dot breath"></span>Breath
+      <span class="count" id="count-breaths"></span></div>
+    <div class="module" data-kind="sibilants"><span class="dot sib"></span>Sibilance
+      <span class="count" id="count-sibilants"></span></div>
+    <p class="hint">Click a region on the waveform to select it. Press
+      <kbd>Delete</kbd> to remove it, then Render.</p>
+  </aside>
+
+  <section id="editor">
+    <canvas id="wave"></canvas>
+    <div id="inspector" class="hidden">
+      <span id="inspector-text"></span>
+      <button id="delete-region">Delete region</button>
+    </div>
+  </section>
+</main>
+
+<audio id="audio"></audio>
+<script src="/static/app.js"></script>
+</body>
+</html>

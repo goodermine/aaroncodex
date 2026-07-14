@@ -1,0 +1,69 @@
+:root {
+  --bg: #14161a;
+  --panel: #1d2026;
+  --line: #2c313a;
+  --text: #e6e8ec;
+  --muted: #9aa1ad;
+  --accent: #e8d44d;
+  --gate: #e06060;
+  --breath: #5fbf77;
+  --sib: #5fa8e0;
+  --dyn: #e8d44d;
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font: 14px/1.45 system-ui, sans-serif;
+  height: 100vh; display: flex; flex-direction: column;
+}
+header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 16px; background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+h1 { font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase; }
+.transport { display: flex; gap: 8px; align-items: center; }
+.actions { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+button, select {
+  background: #262b33; color: var(--text);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: 6px 14px; font: inherit; cursor: pointer;
+}
+button:hover { border-color: var(--muted); }
+button.primary { background: var(--accent); color: #14161a; font-weight: 600; }
+button.primary:disabled { opacity: 0.5; cursor: wait; }
+.status { color: var(--muted); font-size: 13px; }
+.status.error { color: var(--gate); }
+#time { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+main { flex: 1; display: flex; min-height: 0; }
+#rail {
+  width: 190px; background: var(--panel);
+  border-right: 1px solid var(--line); padding: 14px 12px;
+}
+.module {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 6px; border-radius: 6px; color: var(--text);
+}
+.module .count { margin-left: auto; color: var(--muted); font-size: 12px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.dot.gate { background: var(--gate); }
+.dot.breath { background: var(--breath); }
+.dot.sib { background: var(--sib); }
+.dot.dyn { background: var(--dyn); }
+.hint { margin-top: 18px; color: var(--muted); font-size: 12px; }
+kbd {
+  background: #262b33; border: 1px solid var(--line);
+  border-radius: 4px; padding: 0 5px; font-size: 11px;
+}
+
+#editor { flex: 1; position: relative; min-width: 0; }
+#wave { width: 100%; height: 100%; display: block; cursor: crosshair; }
+#inspector {
+  position: absolute; left: 16px; bottom: 16px;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 8px; padding: 10px 14px;
+  display: flex; gap: 12px; align-items: center;
+}
+#inspector.hidden { display: none; }
+#delete-region { border-color: var(--gate); color: var(--gate); }

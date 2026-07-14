@@ -130,12 +130,59 @@ Notes:
 - Pass-through Clean using DeepFilterNet as-is
 - **Goal: prove the concept sounds good on 10 real songs before building any UI**
 
-### Phase 1 — The app (local web UI)
-- FastAPI (Python) backend running the pipeline; job queue for long renders
-- Browser UI: waveform display (peaks.js / wavesurfer.js), the six-module left rail,
-  the editable gain curve overlay, region editing (drag boundaries, X to delete, + to add)
+### Phase 0 audit (July 2026) — status vs. plan
+
+Phase 0 shipped and exceeded scope after four real-song field tests:
+- All planned modules except Lowend/dereverb, plus **unplanned** additions the
+  field tests demanded: measured stem balancing, bounded mastering
+  (−15 LUFS / −3 dBTP), BS.1770 measurement, speech-guard safety system,
+  detector confidence, local gain ceiling + slope limiting. 71 tests.
+- The "prove it on real songs first" gate was passed: three songs judged good,
+  the fourth (quiet sparse vocal) drove three correction passes now locked in
+  by regression tests.
+- Decided sequence forward: **UI first, pitch correction second**, mute-region
+  feature queued. Best input: studio recordings or clean stems (voice mode);
+  song mode remains for full mixes.
+- Still open: product name; Lowend module; dereverb.
+
+### Phase 1 — The app (local web UI) — IN PROGRESS
+- FastAPI (Python) backend serving sessions; render runs server-side with the
+  same engine as the CLI — the browser never computes audio
+- Browser UI: canvas waveform from precomputed peaks, module rail, gain-curve
+  overlay, region editing (pauses/breaths/sibilants: inspect, delete)
 - The UI reads/writes the Edit Document — render button applies it
-- Ship as: local app first (runs on the user's machine, GPU if available)
+- Ship as: local app first (`voxpolish ui recording.wav` → browser opens)
+
+### Phase 1 disaster plan — the three ways this phase kills the product
+
+**Disaster 1 — It loses Aaron's audio or work.** One overwritten master or
+one lost editing session ends trust in a tool whose whole promise is safety.
+Countermeasures, built in from the first commit: originals are never written —
+the session folder gets a copy and all writes happen inside it; every file
+write is atomic (temp file + rename, no half-written WAVs after a crash);
+every render snapshots the prior edit document into `history/` (undo by file,
+survives restarts).
+
+**Disaster 2 — The editor lies.** If what the waveform shows ever diverges
+from what render produces, the no-black-box promise is dead. Countermeasures:
+the Edit Document on disk is the single source of truth — the UI holds no
+private state, and every render re-reads the persisted document; documents are
+validated by round-tripping through the schema before being accepted; writes
+carry a revision number and stale writes are rejected (no lost-update
+clobbering); render stays deterministic (already regression-tested), so
+saved document ⇒ reproducible audio, always.
+
+**Disaster 3 — Real sessions melt it.** A 45-minute sermon WAV shipped raw to
+a browser tab, or a blocking render freezing the app, reads as "broken" even
+when the engine is fine. Countermeasures: the browser never receives raw
+audio for drawing — waveforms come from small precomputed peak files; audio
+playback streams with HTTP range requests; renders run in a background worker
+with a status endpoint and a single-flight lock (a second render request gets
+a clean "busy", not a pile-up); session state is polled, never assumed.
+
+(The fourth classic disaster — audio quality regression — is already covered
+by the 71-test suite plus the Mary/A9Max field-test loop, and stays covered:
+every UI feature goes through the same regression gate.)
 
 ### Phase 2 — Productize (decided: local-first)
 Everything runs locally on the founder's Geekom A9 Max to start — the Phase 1 app

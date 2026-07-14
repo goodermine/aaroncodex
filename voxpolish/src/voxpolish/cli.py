@@ -47,7 +47,17 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--true-peak-db", type=float, default=None,
                    help="Final true-peak ceiling, dBTP (default -3)")
 
+    u = sub.add_parser("ui", help="Open a recording in the browser editor")
+    u.add_argument("input", help="Audio file, or an existing session directory")
+    u.add_argument("-o", "--session", default=None,
+                   help="Session directory (default: <input>_session next to the file)")
+    u.add_argument("--port", type=int, default=8765)
+    u.add_argument("--no-clean", action="store_true", help="Skip model-based denoising")
+
     args = parser.parse_args(argv)
+
+    if args.command == "ui":
+        return _run_ui(args)
 
     settings = Settings.for_mode(args.mode)
     settings.strip_music_bed = args.strip_music_bed
@@ -79,6 +89,39 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Done in {elapsed:.1f}s. Outputs in {args.out}/")
     for name, path in outputs.items():
         print(f"  {name:16s} {path}")
+    return 0
+
+
+def _run_ui(args) -> int:
+    from pathlib import Path
+
+    try:
+        from .server.app import serve
+        from .server.session import Session
+    except ImportError:
+        print("The editor needs FastAPI: pip install 'voxpolish[ui]'", file=sys.stderr)
+        return 1
+
+    src = Path(args.input)
+    if src.is_dir() and Session.is_session(src):
+        root = src
+    else:
+        root = Path(args.session) if args.session else src.with_name(src.stem + "_session")
+        if not Session.is_session(root):
+            settings = Settings.for_mode("voice")
+            if args.no_clean:
+                settings.denoise_amount = 0.0
+            print(f"Analyzing {src.name} into {root}/ ...")
+            Session.create(src, root, settings)
+    url = f"http://127.0.0.1:{args.port}/"
+    print(f"VoxPolish editor: {url}  (Ctrl+C to stop)")
+    try:
+        import webbrowser
+
+        webbrowser.open(url)
+    except Exception:
+        pass
+    serve(root, port=args.port)
     return 0
 
 
