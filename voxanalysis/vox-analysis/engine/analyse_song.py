@@ -245,6 +245,9 @@ def run_stem_separation(input_path, script_path="tools/stems/batch_stems.sh"):
         "output_dir": run_output_dir,
         "vocals_path": vocals_path,
         "instrumental_path": instrumental_path,
+        # The untouched input, kept so timing can be referenced to the full mix
+        # BEFORE separation (strongest percussion; independent of stem artifacts).
+        "original_mix_path": input_path,
         "separator": "kimberleyjsn-melbandroformer"
         if "roformer" in (model_tag or "").lower()
         else (model_tag or "unknown"),
@@ -952,16 +955,19 @@ def analyse_dynamics(y, sr, f0=None, hop_length=512):
 
 def analyse_rhythm(y, sr, is_isolated_stem=False, hop_length=512):
     """
-    MODULE 6: RHYTHM AND ONSET ANALYSIS
-    ─────────────────────────────────────
-    Onset detection identifies the start of each note/syllable.
-    Onset rate (onsets/second) indicates how densely packed the delivery is.
+    MODULE 6: ONSET DENSITY & REGULARITY (of the vocal delivery)
+    ────────────────────────────────────────────────────────────
+    Describes how the VOICE ITSELF is phrased in time: onset rate
+    (onsets/second = how densely packed the delivery is) and the regularity of
+    the inter-onset intervals.
 
-    Tempo estimation via beat tracking is designed for full mixes with
-    percussive content — on an isolated vocal stem it is LOW CONFIDENCE and
-    flagged as such.
+    This is NOT timing-vs-the-song. Beat tracking on an isolated vocal has no
+    reliable pulse to lock to, so `estimated_tempo_bpm` here is indicative only
+    and flagged low-confidence. Timing accuracy against the backing is scored
+    separately and canonically by `analyse_groove` (which references the full
+    mix / instrumental beat grid).
     """
-    print("  [6/10] Rhythm and onset analysis...")
+    print("  [6/10] Onset density & regularity...")
 
     tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, hop_length=hop_length)
     tempo_val = float(tempo) if np.isscalar(tempo) else float(tempo[0])
@@ -981,8 +987,10 @@ def analyse_rhythm(y, sr, is_isolated_stem=False, hop_length=512):
         }
 
     return {
+        "measures": "onset density & regularity of the vocal delivery — NOT timing vs the backing (see groove)",
         "estimated_tempo_bpm": round(tempo_val, 1),
-        "tempo_confidence": "low (isolated vocal stem — beat tracking expects a full mix)" if is_isolated_stem else "medium",
+        "tempo_confidence": "low (isolated vocal stem — beat tracking expects a full mix; indicative only)" if is_isolated_stem else "medium",
+        "timing_vs_backing": "scored separately by analyse_groove (canonical)",
         "total_onsets": len(onsets),
         "onsets_per_second": round(len(onsets) / duration, 2),
         **ioi_stats
@@ -1668,26 +1676,93 @@ def analyse_breath(y, sr, f0, hop_length=512):
     }
 
 
-def analyse_groove(vocal_y, sr, instrumental_path, hop_length=512):
-    """
-    GROOVE / TIMING vs THE BACKING TRACK
-    ──────────────────────────────────────
-    Beat-tracks the INSTRUMENTAL stem (where beat tracking is reliable),
-    then measures each vocal onset's signed distance to the nearest
-    half-beat: negative = rushing (early), positive = dragging (late).
-    """
-    print("  Groove/timing vs instrumental...")
+def _beat_grid(path, sr, label, hop_length=512):
+    """Beat-track a backing reference. Returns (grid_dict, error). Beat tracking
+    is designed for full mixes with percussion, so both the original mix and the
+    instrumental stem are reliable references (the isolated vocal is not)."""
     try:
-        inst_y, _ = librosa.load(instrumental_path, sr=sr, mono=True)
+        ref_y, _ = librosa.load(path, sr=sr, mono=True)
     except Exception as exc:
-        return {"error": f"Could not load instrumental stem: {exc}"}
-
-    tempo, beat_frames = librosa.beat.beat_track(y=inst_y, sr=sr, hop_length=hop_length)
+        return None, f"Could not load {label}: {exc}"
+    tempo, beat_frames = librosa.beat.beat_track(y=ref_y, sr=sr, hop_length=hop_length)
     beat_times = librosa.frames_to_time(beat_frames, sr=sr, hop_length=hop_length)
     if len(beat_times) < 8:
-        return {"error": "Beat tracking found too few beats in the instrumental."}
+        return None, f"Beat tracking found too few beats in the {label}."
+    tempo_val = round(float(tempo) if np.isscalar(tempo) else float(tempo[0]), 1)
+    return {"tempo_bpm": tempo_val, "beats": beat_times}, None
 
-    # Half-beat grid: singers legitimately land on off-beats
+
+def _feel(offset_ms):
+    return "rushing" if offset_ms < -25 else "dragging" if offset_ms > 25 else "in the pocket"
+
+
+def analyse_groove(vocal_y, sr, instrumental_path, mix_path=None, hop_length=512):
+    """
+    GROOVE / TIMING vs THE BACKING TRACK  —  the canonical timing scorer.
+    ────────────────────────────────────────────────────────────────────
+    Timing-vs-the-song can't be scored from the isolated vocal (no pulse to
+    align to — that's what analyse_rhythm's low-confidence tempo reflects). So
+    the reference beat grid comes from the BACKING, where beat tracking is
+    reliable:
+
+      • primary grid  = the INSTRUMENTAL stem (mix − vocal). It is vocal-FREE,
+                        so the grid does not self-reference the onsets being
+                        scored — measuring the vocal against the full mix would
+                        let the vocal pull the beat phase and bias the offset
+                        toward zero (under-reporting real timing error).
+      • cross-check   = the ORIGINAL MIX, beat-tracked BEFORE separation
+                        (strongest, most complete percussion; independent of the
+                        stem-separation step). When its tempo agrees with the
+                        instrumental's, confidence is high — this is how we
+                        "measure timing against the pre-split audio": the mix
+                        validates the grid, the vocal-free stem scores the offset.
+      • onsets        = taken from the CLEAN vocal stem (no backing bleed).
+
+    Each vocal onset's signed distance to the nearest half-beat is the score:
+    negative = rushing (early), positive = dragging (late). Falls back to
+    whichever single reference is available (medium confidence).
+    """
+    print("  Groove/timing vs the backing...")
+
+    refs, errors = {}, {}
+    if mix_path:
+        refs["mix"], errors["mix"] = _beat_grid(mix_path, sr, "original mix", hop_length)
+    if instrumental_path:
+        refs["instrumental"], errors["instrumental"] = _beat_grid(
+            instrumental_path, sr, "instrumental stem", hop_length)
+
+    available = {k: v for k, v in refs.items() if v}
+    if not available:
+        return {"error": next((e for e in errors.values() if e),
+                              "No usable backing reference for timing.")}
+
+    # Score against the vocal-free instrumental grid (unbiased); only fall back
+    # to the mix grid when no instrumental is available.
+    grid_source = "instrumental" if "instrumental" in available else "mix"
+    beat_times = available[grid_source]["beats"]
+
+    # Independent tempo cross-check when both references beat-tracked.
+    cross_check = None
+    if "mix" in available and "instrumental" in available:
+        t_mix = available["mix"]["tempo_bpm"]
+        t_inst = available["instrumental"]["tempo_bpm"]
+        lo = min(t_mix, t_inst)
+        ratio = max(t_mix, t_inst) / lo if lo > 0 else 0.0
+        agree = abs(t_mix - t_inst) <= max(2.0, 0.03 * max(t_mix, t_inst))
+        octave = (not agree) and any(abs(ratio - r) < 0.1 for r in (2.0, 1.5, 3.0))
+        cross_check = {
+            "mix_tempo_bpm": t_mix,
+            "instrumental_tempo_bpm": t_inst,
+            "agree": bool(agree),
+            "note": ("Mix and instrumental agree on tempo." if agree
+                     else "Half/double-time ambiguity between references — timing is indicative." if octave
+                     else "References disagree on tempo — timing confidence reduced."),
+        }
+        confidence = "high" if agree else "low"
+    else:
+        confidence = "medium"  # single reference, no independent confirmation
+
+    # Half-beat grid: singers legitimately land on off-beats.
     grid = np.sort(np.concatenate([beat_times, beat_times[:-1] + np.diff(beat_times) / 2]))
     onsets = librosa.onset.onset_detect(y=vocal_y, sr=sr, hop_length=hop_length, units="time")
     onsets = [t for t in onsets if grid[0] <= t <= grid[-1]]
@@ -1712,19 +1787,23 @@ def analyse_groove(vocal_y, sr, instrumental_path, hop_length=512):
         {
             "time_range": f"{seconds_to_mmss(i * section_s)}-{seconds_to_mmss((i + 1) * section_s)}",
             "mean_offset_ms": round(float(np.mean(v)), 1),
-            "feel": "rushing" if np.mean(v) < -25 else "dragging" if np.mean(v) > 25 else "in the pocket",
+            "feel": _feel(float(np.mean(v))),
         }
         for i, v in sorted(sections.items()) if len(v) >= 3
     ]
 
     mean_off = float(np.mean(offsets_ms))
     return {
-        "method": "vocal onsets vs half-beat grid of the instrumental stem",
-        "tempo_bpm": round(float(tempo) if np.isscalar(tempo) else float(tempo[0]), 1),
+        "method": "vocal-stem onsets vs the half-beat grid of the backing (canonical timing scorer)",
+        "grid_source": "instrumental stem (mix − vocal, vocal-free)" if grid_source == "instrumental"
+                       else "original mix (pre-separation)",
+        "tempo_bpm": available[grid_source]["tempo_bpm"],
+        "confidence": confidence,
+        "cross_check": cross_check,
         "n_onsets": len(onsets),
         "mean_offset_ms": round(mean_off, 1),
         "offset_spread_ms": round(float(np.std(offsets_ms)), 1),
-        "feel": "rushing" if mean_off < -25 else "dragging" if mean_off > 25 else "in the pocket",
+        "feel": _feel(mean_off),
         "sections_20s": section_summary,
         "note": "Negative = ahead of the beat. Persistent |offset| under ~25 ms reads as tight; deliberate back-phrasing (soul/jazz) shows as consistent positive offsets — style, not error.",
     }
@@ -2653,7 +2732,9 @@ def generate_prescriptions(results, pmap, calibration=None):
     if groove and not groove.get("error"):
         off = groove.get("mean_offset_ms")
         if off is not None and abs(off) > 60:
-            uncovered.append(f"timing: {off:+} ms vs the backing track ({groove.get('feel')}) — "
+            conf = groove.get("confidence", "medium")
+            qualifier = "" if conf == "high" else f", {conf} confidence"
+            uncovered.append(f"timing: {off:+} ms vs the backing track ({groove.get('feel')}{qualifier}) — "
                              f"no dedicated library category; nearest is runs_riffs")
 
     triggers.sort(key=lambda t: -(t[1] or 0))
@@ -2816,6 +2897,14 @@ def generate_diagnostic_flags(results):
 # =============================================================================
 # REPORT GENERATION
 # =============================================================================
+
+def _groove_crosscheck_suffix(groove):
+    """Render the mix↔instrumental tempo cross-check as an inline note, if any."""
+    cc = (groove or {}).get("cross_check")
+    if not cc:
+        return ""
+    return f" — {cc.get('note', '')} (mix {cc.get('mix_tempo_bpm', 'N/A')} / inst {cc.get('instrumental_tempo_bpm', 'N/A')} BPM)"
+
 
 def generate_markdown_report(results, flags, archetype, artist_name, file_name, output_path):
     """
@@ -3097,13 +3186,15 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"",
         f"---",
         f"",
-        f"## GROOVE / TIMING" + (" (vs backing track)" if groove and not groove.get('error') else ""),
+        f"## GROOVE / TIMING" + (" (vs backing track — canonical timing scorer)" if groove and not groove.get('error') else ""),
         f"",
         f"| Metric | Value |",
         f"|---|---|",
         f"| Mean onset offset | {groove.get('mean_offset_ms', 'N/A')} ms ({groove.get('feel', 'N/A')}) |",
         f"| Timing consistency (spread) | {groove.get('offset_spread_ms', 'N/A')} ms |",
         f"| Backing tempo | {groove.get('tempo_bpm', 'N/A')} BPM |",
+        f"| Reference grid | {groove.get('grid_source', 'N/A')} |",
+        f"| Confidence | {groove.get('confidence', 'N/A')}{_groove_crosscheck_suffix(groove)} |",
         f"",
         *([f"*{groove.get('note', '')}*", f""] if groove and not groove.get("error") else [f"*Not available — requires an instrumental stem (run with --separate-stems).*", f""]),
         f"---",
@@ -3186,7 +3277,9 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"",
         f"---",
         f"",
-        f"## RHYTHM",
+        f"## ONSET DENSITY & REGULARITY (vocal delivery — not timing vs the song)",
+        f"",
+        f"*Timing accuracy against the backing is in the GROOVE / TIMING section above.*",
         f"",
         f"| Metric | Value |",
         f"|---|---|",
@@ -3364,7 +3457,11 @@ def main():
         results["onsets"] = analyse_onsets(raw_f0, sr)
         results["harmonics"] = analyse_harmonics(y, sr, raw_f0)
         if stem_metadata and stem_metadata.get("instrumental_path"):
-            results["groove"] = analyse_groove(y, sr, stem_metadata["instrumental_path"])
+            results["groove"] = analyse_groove(
+                y, sr,
+                stem_metadata["instrumental_path"],
+                mix_path=stem_metadata.get("original_mix_path"),
+            )
         results["time_diagnostics"] = analyse_time_diagnostics(
             y,
             sr,

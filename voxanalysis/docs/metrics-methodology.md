@@ -46,7 +46,8 @@ model.**
 | Formants | Praat Burg at sustained-note centres, median ± IQR; ceiling configurable (`--formant-ceiling`) | LPC fallback downsampled to 11 kHz with order sr/1000+2 |
 | Resonance | librosa spectral features, active frames only | Classification thresholds 1200/2500 Hz are heuristics |
 | Dynamics | RMS dB relative to file peak; effective range = P10–P90; phrase-level spread | Internal contrast, not absolute loudness |
-| Rhythm | librosa onsets + beat track | Tempo flagged low-confidence on isolated stems |
+| Onset density & regularity (`rhythm`) | librosa onsets on the vocal; onset rate + inter-onset regularity | Onset *density/regularity* of the delivery only; its beat-track tempo is indicative (low-confidence on an isolated stem). Timing-vs-the-song is the `groove` module, not this. |
+| Groove / timing (`groove`) | Vocal-stem onsets vs the half-beat grid of the **vocal-free instrumental** stem (unbiased); tempo cross-checked against the **original pre-split mix** | Canonical timing scorer. Confidence high when the mix and instrumental tempos agree, medium with a single reference. The mix is used as the cross-check (not the offset grid) so the vocal can't self-reference the beat phase. |
 | Harmonic balance | HPSS whole-file ratio | Texture descriptor only — explicitly *not* clinical HNR (older versions mislabelled it) |
 | Phrasing | Voiced runs merged across gaps < 0.3 s | Breath/phrase-length proxy |
 
@@ -207,7 +208,7 @@ never shift silently.
 | Registers (`registers`) | Per-note spectral-balance 2-means → chest/head split, estimated passaggio, timestamped transitions; honestly reports "no clear split" when clustering separation is weak | medium (heuristic) |
 | Vibrato onset delay (`vibrato.median_onset_delay_s`) | Time from note start until vibrato blooms (pros ~0.2–0.6 s) | medium |
 | Breath (`breath`) | Phrase-end pitch sag (final 0.5 s slope) — timestamped "ran out of air" flags | medium (intentional fall-offs also trip it) |
-| Groove (`groove`) | Vocal onsets vs half-beat grid of the singer's own instrumental stem — rushing/dragging in ms, per 20 s section | medium (needs a rhythmic backing) |
+| Groove (`groove`) | Vocal onsets vs half-beat grid of the vocal-free instrumental stem — rushing/dragging in ms, per 20 s section; tempo cross-checked against the original pre-split mix | high when mix↔instrumental tempos agree, else medium (needs a rhythmic backing) |
 | Range map (`range_map`) | Time-weighted seconds-per-semitone, comfortable core (mid-80%), extremes | high |
 
 Competitor-parity diagnostics (post-take equivalents of what VoceVista /

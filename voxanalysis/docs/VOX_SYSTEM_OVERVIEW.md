@@ -173,7 +173,7 @@ algorithms) and aggregated with the median, unless noted.
 | Register map | Chest vs head balance, estimated passaggio, transitions (heuristic) |
 | Breath / phrase-end sag | Pitch dying in the final 0.5 s (air running out) — timestamped |
 | Phrase length | Breath-management proxy |
-| Groove/timing | Vocal onsets vs the backing beat, ms early (rush) / late (drag), per section |
+| Groove/timing | Vocal onsets vs the backing beat, ms early (rush) / late (drag), per section. Canonical timing scorer: the beat grid comes from the vocal-free instrumental stem (unbiased), tempo cross-checked against the original pre-split mix; high/medium confidence reported. (The vocal-only "rhythm" module is onset density/regularity, not timing.) |
 | Range map | Time-weighted seconds-per-note; comfortable core; extremes |
 
 ### Tone / resonance (VoceVista/Sing&See vocabulary)
