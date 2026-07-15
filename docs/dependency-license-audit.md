@@ -15,23 +15,26 @@ project repositories where they carry risk (sources linked inline).
 
 ## Executive summary — can it ship commercially today?
 
-**Close.** For a **hosted** product the path is now clear:
+**All separation/licensing blockers resolved for a hosted product.**
 - **parselmouth (GPL)** — neutralized by hosting (server-side only, never
   distributed → copyleft does not trigger). No code change required.
-- **Model weights (#2 + #3)** — a concrete fix is identified: the **MIT-licensed
-  KimberleyJSN Mel-Band RoFormer** checkpoint (SOTA quality, free, self-hosted),
-  used for both separation paths. One swap closes both.
+- **Model weights (#2 + #3)** — **DONE & VALIDATED.** Both separation paths now
+  use the **MIT-licensed KimberleyJSN Mel-Band RoFormer** (`audio-separator`).
+  Demucs is removed from code and dependencies. Tested on real material —
+  RoFormer confirmed the best separator (Aaron, July 2026). The temporary
+  Demucs A/B testing fallback is retired.
 - **YouTube/yt-dlp (#4)** — resolved by design (no audio retained; download
   tooling is founder-only and not shipped).
 
-Remaining work is **engineering, not licensing**: swap Demucs/UVR for the MIT
-RoFormer checkpoint. Everything else is permissive with routine attribution.
+No licensing blockers remain. Everything shipped is permissive with routine
+attribution (`NOTICE`). Keep the hosting boundary (parselmouth stays
+server-side) and run the pre-ship gate before release.
 
 | # | Item | Where | Problem | Verdict |
 |---|------|-------|---------|---------|
 | 1 | **praat-parselmouth** | voxanalysis engine | **GPLv3+ copyleft** — forces your linked code open | **BLOCKER** |
-| 2 | **Demucs pretrained weights** | voxpolish `separation` | Code MIT, but **weights CONFIRMED CC-BY-NC (non-commercial)** | **BLOCKER — fix identified: MIT RoFormer (§2)** |
-| 3 | **UVR / audio-separator models** | voxanalysis stem sep | Package MIT, but **individual model weights vary**; some non-commercial | **Resolved by the same §2 swap** |
+| 2 | **Demucs pretrained weights** | ~~voxpolish~~ removed | Was CC-BY-NC | **RESOLVED — replaced by MIT RoFormer, validated** |
+| 3 | **UVR / audio-separator models** | ~~voxanalysis~~ pinned | Was mixed | **RESOLVED — pinned to MIT RoFormer, validated** |
 | 4 | **yt-dlp usage** | founder calibration tooling only | Public-domain software; YouTube ToS/copyright concern — **resolved for the shipped product by design** (see §4) | **RESOLVED for product; residual personal-tooling note** |
 
 Everything else (numpy, scipy, soundfile, pyloudnorm, torch, torchaudio,

@@ -1,5 +1,8 @@
 # Pinned separation model — provenance & verification
 
+> **Status:** validated on real material and adopted as the baseline separator
+> (Aaron, July 2026) — confirmed best over Demucs. Demucs A/B fallback retired.
+
 This is the single source of truth for the stem-separation model both components
 use. Disaster-1 guard from `docs/separation-model-swap-plan.md`: never let the
 engine silently use a different (possibly non-commercial) model.

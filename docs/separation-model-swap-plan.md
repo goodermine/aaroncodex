@@ -157,13 +157,12 @@ Candi (VOX analysis) is right that a separator change **shifts the measurements*
   marking the separator change. Treat RoFormer as a *new baseline*, validated
   against Demucs on 8–12 recordings (handoff), not an in-place score swap.
 
-**On "keep Demucs available as a fallback":** Demucs weights are **CC-BY-NC
-(non-commercial)** — the reason we removed them. Keeping Demucs is fine, but only
-as a **temporary fallback DURING TESTING** (offline A/B and historical
-provenance, founder-side, like the yt-dlp calibration tooling) — **it must not
-ship.** It is not wired as an automatic runtime fallback anywhere; it is only
-*selectable* via the configurable model param for A/B runs. The product default
-and the only shipped model is the MIT RoFormer.
+**VALIDATED (July 2026):** Aaron tested RoFormer on real material and confirmed
+it is the best separator. RoFormer is the adopted baseline; the temporary Demucs
+A/B testing fallback is **retired**. Demucs is gone from all VoxPolish code and
+dependencies; the Vox analysis stem helper defaults to the RoFormer. Any future
+Demucs use is founder-side offline provenance only (its weights are CC-BY-NC and
+must never ship).
 
 **Pre-ship gate (must pass before any paid release):**
 - VoxPolish `SEPARATION_MODEL` and Vox analysis `SEP_MODEL` are the MIT RoFormer.

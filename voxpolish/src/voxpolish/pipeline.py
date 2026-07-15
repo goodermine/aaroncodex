@@ -102,8 +102,8 @@ class Settings:
     # In voice mode, still run separation to strip background music beds.
     strip_music_bed: bool = False
     separation_model: str = separation.SEPARATION_MODEL
-    # Test-time augmentation passes for Demucs: 2+ audibly reduces bleed at
-    # roughly linear CPU cost. 1 = fastest.
+    # Legacy Demucs "shifts" knob — ignored by the RoFormer backend; kept so
+    # older callers/settings don't break.
     separation_shifts: int = 1
     # Instrumental-referenced bleed suppression on the separated vocal.
     bleed_strength: float = 0.7

@@ -24,8 +24,6 @@ Silero VAD — Copyright (c) Silero Team — MIT License
 DeepFilterNet — Copyright (c) Hendrik Schröter — MIT / Apache-2.0 (dual)
 WORLD Vocoder (pyworld) — Copyright (c) Masanori Morise — Modified BSD License;
   Python wrapper Copyright (c) contributors — MIT License
-Demucs (code) — Copyright (c) Meta Platforms, Inc. and affiliates — MIT License
-  (NOTE: pretrained model weights are NOT cleared — see the audit, Blocker #2)
 FastAPI — Copyright (c) Sebastián Ramírez — MIT License
 Uvicorn — Copyright (c) Encode OSS Ltd. — BSD 3-Clause License
 python-multipart — Copyright (c) Andrew Dunham — Apache-2.0 License
@@ -51,13 +49,13 @@ distribution and its upstream repository.
 NOT included / must be resolved before commercial distribution
 --------------------------------------------------------------------------------
 
-praat-parselmouth — GPL-3.0-or-later — COPYLEFT, incompatible with proprietary
-  distribution as linked. Must be replaced, isolated as a separate process, or
-  removed. See audit Blocker #1.
-Demucs pretrained weights — license unresolved (reported non-commercial). See
-  audit Blocker #2.
-UVR / audio-separator model weights — vary per model; must be pinned to
-  commercial-safe models and documented. See audit Blocker #3.
+praat-parselmouth — GPL-3.0-or-later — COPYLEFT. Resolved for a HOSTED product:
+  runs server-side only, never distributed, so copyleft is not triggered. Must
+  NOT be shipped in any downloadable/desktop build. See audit Blocker #1.
+Demucs — REMOVED. No longer a dependency; replaced by the MIT RoFormer (its
+  weights were CC-BY-NC). See audit Blocker #2.
+UVR default model weights — no longer used; separation is pinned to the MIT
+  RoFormer checkpoint. See audit Blocker #3.
 yt-dlp — Unlicense (public domain). Resolved for the shipped product by design:
   the YouTube-download tooling is founder-only calibration and is NOT included in
   the shipped product, and no audio is ever retained — only derived metrics. See

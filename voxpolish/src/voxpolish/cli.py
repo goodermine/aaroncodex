@@ -39,9 +39,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--smoothing", type=float, default=None,
                    help="Dynamics strength 0..1 (default 0.7 voice / 0.5 song)")
     p.add_argument("--sep-model", default=None,
-                   help="Demucs model for separation (default htdemucs_ft)")
+                   help="audio-separator model for separation "
+                        "(default: the MIT Mel-Band RoFormer)")
     p.add_argument("--sep-shifts", type=int, default=None,
-                   help="Separation quality passes: 2+ reduces bleed, costs CPU time")
+                   help="(legacy, ignored by the RoFormer backend)")
     p.add_argument("--bleed-strength", type=float, default=None,
                    help="Instrumental-bleed suppression on the vocal stem, 0..1 "
                         "(default 0.7; 0 disables)")
