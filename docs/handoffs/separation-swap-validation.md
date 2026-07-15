@@ -1,4 +1,4 @@
-# Handoff: validate the RoFormer separation swap on hardware (for Daisy / Aaron)
+# Handoff: validate the RoFormer separation swap on hardware (for Candi)
 
 The code swap from Demucs/UVR to the **MIT Mel-Band RoFormer** is done and the
 test suites are green, BUT the real model was **not** run in the build sandbox
