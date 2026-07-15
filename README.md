@@ -9,7 +9,7 @@ brand and, over time, common Python utilities:
 ```
 .
 ├── voxpolish/        # AI vocal cleanup + subtle tuning (CLI + local web editor)
-├── voxanalysis/      # measure & score singing (metrics engine + web viewer) — merged from vox-cloud-alpha
+├── voxanalysis/      # measure & score singing (metrics engine + web viewer)
 ├── docs/
 │   ├── vox-cleanup-plan.md   # VoxPolish product & engineering plan
 │   └── handoffs/             # development handoffs / decision records
@@ -17,10 +17,8 @@ brand and, over time, common Python utilities:
 ```
 
 The two components are complementary: **VoxPolish** repairs and polishes a vocal,
-while **Vox analysis** measures and scores it. `voxanalysis/` was merged in from
-the former `vox-cloud-alpha` repository with its full git history preserved (it
-carries its own nested README, `.gitignore`, `docs/`, and `archive/` under
-`voxanalysis/`).
+while **Vox analysis** measures and scores it. `voxanalysis/` carries its own
+nested README, `.gitignore`, and current reference documentation.
 
 ---
 
@@ -31,7 +29,7 @@ separate the vocal from the mix, clean it (denoise, de-reverb, bleed removal),
 level it, tame breaths and sibilance, and optionally apply subtle pitch
 correction — all editable, nothing a black box.
 
-- **Song mode** separates the vocal from a full mix (Demucs), suppresses
+- **Song mode** separates the vocal from a full mix (Mel-Band RoFormer), suppresses
   instrumental bleed, cleans, levels, and can remix over the original backing.
 - **Voice mode** cleans an already-isolated vocal, clean stem, talk, or podcast.
 - **Editor** — a local web app: upload a file, choose *Clean* or *Clean + Auto
@@ -82,16 +80,15 @@ cd voxpolish && pip install -e '.[ui,dev,pitch]' && python -m pytest tests/ -q
 ## Vox analysis — `voxanalysis/`
 
 Everything that **measures and scores** a vocal — the counterpart to VoxPolish's
-repair work. Merged from the `vox-cloud-alpha` monorepo, it is itself organised
-into two independent parts plus the coaching layer that ties them together:
+repair work. It is organised into two independent parts plus the coaching layer
+that ties them together:
 
 ```
 voxanalysis/
 ├── vox-analysis/       measure & score singing (the metrics engine + web viewer)
 ├── youtube-downloader/ fetch an original recording to compare against
 ├── scripts/ + openclaw-data/   coaching layer (Candi's OpenClaw pipeline + runtime data)
-├── docs/               reference documentation (methodology, manual, roster)
-└── archive/            historical handoffs, old design notes, scratch analyses
+└── docs/               reference documentation (methodology, manual, roster)
 ```
 
 - **Engine** (`voxanalysis/vox-analysis/engine/`) — `analyse_song.py` runs

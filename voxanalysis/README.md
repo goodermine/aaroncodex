@@ -1,6 +1,6 @@
-# VOX Cloud Alpha
+# VOX Analysis
 
-Private VOXAI monorepo. The repository is organised into **two independent
+The analysis component is organised into **two independent
 parts** plus the coaching layer that ties them together.
 
 ```text
@@ -8,7 +8,6 @@ vox-analysis/        PART 1 — measure & score singing (the metrics engine + we
 youtube-downloader/  PART 2 — fetch an original recording to compare against
 scripts/ + openclaw-data/   coaching layer (Candi's OpenClaw pipeline + runtime data)
 docs/                current reference documentation
-archive/             historical handoffs, old design notes, scratch analyses (kept, not deleted)
 ```
 
 The two parts are deliberately separate: you can run the analysis without ever
@@ -106,7 +105,7 @@ export VOXAI_BACKEND_DIR=/absolute/path/to/vox-analysis/engine
 ## Repository map
 
 ```text
-vox-cloud-alpha/
+aaroncodex/voxanalysis/
 ├── vox-analysis/            PART 1 — analysis metrics
 │   ├── engine/              analyse_song.py, calibration/, knowledge/, tools/
 │   └── viewer/              local web viewer (:8766)
@@ -116,8 +115,7 @@ vox-cloud-alpha/
 │   └── fetch_reference.py   agent CLI
 ├── scripts/                 coaching glue: candi_phase1.py, verify_voxai_knowledge.py
 ├── openclaw-data/vox-coach/ coaching runtime + knowledge files (Candi's data root)
-├── docs/                    current reference docs (see below)
-└── archive/                 historical material, nothing deleted
+└── docs/                    current reference docs (see below)
 ```
 
 ## Documentation

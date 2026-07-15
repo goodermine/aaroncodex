@@ -86,8 +86,7 @@ manifest just reports `reference.status: "error"`.
 
 ## Copyright care
 
-Per the product copyright rules (archived at `archive/handoffs/HANDOFF.md`): reference-track comparison requires
-copyright care. Use downloads for private comparison/analysis only, keep
+Reference-track comparison requires copyright care. Use downloads for private comparison/analysis only, keep
 this tool bound to `127.0.0.1` (the default), and delete reference media
 when it is no longer needed. Downloading YouTube content is subject to
 YouTube's Terms of Service and the rights of the content owners.
