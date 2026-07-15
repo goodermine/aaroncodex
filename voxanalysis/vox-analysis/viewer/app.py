@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import importlib.util
 import os
@@ -269,9 +270,38 @@ _cleanup(recover_interrupted=True)
 app = FastAPI(title="VOXAI-Alpha: Vocal Diagnostics and Analysis")
 
 
+# Shared VOX Suite design layer, vendored from /design via design/sync.sh.
+# Whitelisted by exact name (no path traversal) so the single-source palette
+# is served to the viewer without inlining a copy that would drift.
+_SHARED_CSS = {"vox-tokens.css", "vox-kit.css"}
+
+
+def _asset_version() -> str:
+    """Content hash of the linked shared stylesheets, stamped into index.html so
+    a redeploy busts stale browser caches instead of showing the old UI."""
+    h = hashlib.sha1()
+    for name in sorted(_SHARED_CSS):
+        path = HERE / "static" / name
+        if path.is_file():
+            h.update(path.read_bytes())
+    return h.hexdigest()[:12]
+
+
 @app.get("/", response_class=HTMLResponse)
-async def index() -> str:
-    return (HERE / "static" / "index.html").read_text(encoding="utf-8")
+async def index() -> HTMLResponse:
+    html = (HERE / "static" / "index.html").read_text(encoding="utf-8").replace(
+        "__ASSET_VERSION__", _asset_version()
+    )
+    # no-cache = cache but always revalidate; the viewer's look is mostly inline
+    # in this shell, so the document itself must never be served stale.
+    return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
+
+
+@app.get("/static/{name}")
+async def static_asset(name: str) -> FileResponse:
+    if name not in _SHARED_CSS:
+        raise HTTPException(status_code=404, detail="not found")
+    return FileResponse(HERE / "static" / name, media_type="text/css")
 
 
 @app.post("/api/pitch-jobs", status_code=202)

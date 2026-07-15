@@ -77,6 +77,9 @@ def main(argv: list[str] | None = None) -> int:
     u.add_argument("--workspace", default=None,
                    help="Workspace dir for uploads (default: ./voxpolish_workspace)")
     u.add_argument("--port", type=int, default=8765)
+    u.add_argument("--host", default="127.0.0.1",
+                   help="Bind address. Use 0.0.0.0 to reach it from other "
+                        "devices (e.g. over Tailscale); default is localhost only")
     u.add_argument("--no-clean", action="store_true", help="Skip model-based denoising")
 
     args = parser.parse_args(argv)
@@ -207,15 +210,19 @@ def _run_ui(args) -> int:
                     settings.denoise_amount = 0.0
                 print(f"Analyzing {src.name} into {root}/ ...")
                 Session.create(src, root, settings)
-    url = f"http://127.0.0.1:{args.port}/"
+    display_host = "127.0.0.1" if args.host in ("0.0.0.0", "::") else args.host
+    url = f"http://{display_host}:{args.port}/"
     print(f"VoxPolish editor: {url}  (Ctrl+C to stop)")
-    try:
-        import webbrowser
+    if args.host in ("0.0.0.0", "::"):
+        print(f"  reachable from other devices on this host's address, port {args.port}")
+    else:
+        try:
+            import webbrowser
 
-        webbrowser.open(url)
-    except Exception:
-        pass
-    serve(root, port=args.port)
+            webbrowser.open(url)
+        except Exception:
+            pass
+    serve(root, host=args.host, port=args.port)
     return 0
 
 
