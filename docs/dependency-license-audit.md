@@ -23,7 +23,7 @@ see §4). Everything else is clear (permissive) with routine attribution.
 | # | Item | Where | Problem | Verdict |
 |---|------|-------|---------|---------|
 | 1 | **praat-parselmouth** | voxanalysis engine | **GPLv3+ copyleft** — forces your linked code open | **BLOCKER** |
-| 2 | **Demucs pretrained weights** | voxpolish `separation` | Code MIT, but **weight license unstated / reported CC-BY-NC (non-commercial)** | **BLOCKER until resolved** |
+| 2 | **Demucs pretrained weights** | voxpolish `separation` | Code MIT, but **weights CONFIRMED CC-BY-NC (non-commercial)** — not usable in a paid product | **BLOCKER — replace (see §2 options)** |
 | 3 | **UVR / audio-separator models** | voxanalysis stem sep | Package MIT, but **individual model weights vary**; some non-commercial | **HIGH — verify per model** |
 | 4 | **yt-dlp usage** | founder calibration tooling only | Public-domain software; YouTube ToS/copyright concern — **resolved for the shipped product by design** (see §4) | **RESOLVED for product; residual personal-tooling note** |
 
@@ -65,24 +65,40 @@ proprietary paid product. It is used by the analysis engine
 
 Do **not** ship parselmouth linked into the product as-is.
 
-### 2. Demucs pretrained model weights — ambiguous / possibly non-commercial — BLOCKER until resolved
+### 2. Demucs pretrained model weights — CONFIRMED non-commercial — BLOCKER
 
-Demucs **code** is **MIT**
-([repo](https://github.com/facebookresearch/demucs)), which permits commercial
-use. But the **pretrained weights** (`htdemucs`, `htdemucs_ft`) are **not given
-an explicit license in the repo**, and third-party summaries report the weights
-as **CC-BY-NC 4.0 (non-commercial)**. For a paid product this ambiguity is a
-blocker: MIT code does not automatically license the weights.
+**Verified (July 2026):** Demucs **code** is MIT, but the default **pretrained
+weights** (`htdemucs`, `htdemucs_ft` / `HDEMUCS_HIGH_MUSDB_PLUS`) are
+**CC-BY-NC 4.0 — non-commercial**, because they were trained on MUSDB18-HQ
+(a non-commercial dataset). Confirmed via PyTorch/Meta's own torchaudio pipeline
+metadata and multiple model cards. The MIT license covers only the code.
 
-**Fix options:**
-- **(A) Resolve the weight license** — get an authoritative/written answer from
-  the authors, or find the model card that states the weight terms. If
-  confirmed commercial-OK, document it and proceed.
-- **(B) Switch to a separation model with clearly commercial-friendly weights**,
-  and document that model's license.
-- Until (A) or (B), treat Demucs-based separation as **not cleared for sale**.
-  (Note also: separating third-party songs raises its own copyright question
-  about the *source audio*, independent of the model license.)
+**This does not improve under hosting.** "Non-commercial" restricts the *purpose
+of use*, not distribution — a paid subscription is commercial use whether the
+weights run on a server or a laptop. So the default Demucs weights **cannot be
+used in the paid product**, hosted or shipped.
+
+**Replacement options (best per situation):**
+- **(A) Commercial stem-separation API/SDK** (e.g. LALAL.AI, AudioShake, Moises).
+  Paid per-use/subscription, but **zero licensing ambiguity and top quality**.
+  Since the product is hosted, calling a paid separation API server-side is
+  clean and offloads the whole problem. *Best for licensing clarity.*
+- **(B) Spleeter (Deezer)** — MIT code; models trained on Deezer's **own**
+  catalog (not the NC MUSDB18) and bundled in the MIT repo, so widely used
+  commercially. **Free and self-hostable**, but lower quality (≈11 kHz ceiling —
+  weak on sibilance/high end, which matters for the Sibilance module and
+  analysis). Small residual: the repo licenses "code" explicitly and models by
+  inclusion. *Best if staying free/self-hosted and quality can drop.*
+- **(C) Train/fine-tune Demucs weights yourself** on data you own or license
+  (Demucs code is MIT). **Best quality + fully owned**, but requires a cleared
+  training set and training effort. *Best long-term if quality is paramount.*
+- **(D) A specific open model with explicitly commercial weights** (some
+  Apache/MIT BS-RoFormer / MDX23C checkpoints) — verify each checkpoint
+  individually; many popular ones are non-commercial or unstated.
+
+**Note:** this same choice resolves Blocker #3 — pick **one** commercially-clear
+separation solution and use it for both VoxPolish song mode and Vox analysis
+stem separation, instead of maintaining two model stacks.
 
 ### 3. UVR / audio-separator community models — HIGH, verify per model
 
@@ -143,7 +159,7 @@ Type: **L** = library code, **W** = model weights, **T** = tool/CLI.
 | **deepfilternet** | voxpolish `clean` | **MIT / Apache-2.0** (weights incl.) | L+W | ✅ | verified dual-permissive — safe |
 | **pyworld** (WORLD) | voxpolish `pitch` | MIT (wrapper) / modified-BSD (WORLD), no patents | L | ✅ | verified — safe |
 | **demucs** (code) | voxpolish `separation` | MIT | L | ✅ | code only — **weights are Blocker #2** |
-| Demucs **weights** | runtime | unstated / reported CC-BY-NC | W | ⛔ | **Blocker #2** |
+| Demucs **weights** | runtime | **CC-BY-NC 4.0 (confirmed)** | W | ⛔ | non-commercial — **Blocker #2**, replace |
 | fastapi | both (ui) | MIT | L | ✅ | notice |
 | uvicorn | both (ui) | BSD-3-Clause | L | ✅ | notice |
 | python-multipart | both (ui) | Apache-2.0 | L | ✅ | notice + state changes if any |
