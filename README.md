@@ -126,6 +126,10 @@ Metrics methodology: [`voxanalysis/docs/metrics-methodology.md`](voxanalysis/doc
   repository and VoxPolish, while `voxanalysis/.gitignore` (preserved from the
   original repo) covers the analysis engine's runtime uploads, generated output,
   and coaching data. Only source, tests, and docs are tracked.
-- **License:** not yet chosen. Pick one before publishing — note that several
-  optional model dependencies (Demucs, DeepFilterNet, Silero, WORLD) carry their
-  own licenses to review before distribution.
+- **License:** Proprietary — all rights reserved. This is a paid product; no
+  use, copying, or distribution is permitted without a paid commercial license
+  (see [`LICENSE`](LICENSE)). Fill in the copyright holder and contact email in
+  that file. Third-party dependencies remain under their own licenses; a
+  dependency license audit is required before distribution to confirm every
+  bundled component permits proprietary commercial use — see
+  [`docs/handoffs/chatgpt-dependency-license-audit.md`](docs/handoffs/chatgpt-dependency-license-audit.md).
