@@ -143,3 +143,25 @@ RAM → (a) exceed the 30-min `STEM_TIMEOUT_SECONDS`; (b) OOM on long files;
 **NOT validated here (sandbox cannot download multi-GB models or run RoFormer):**
 the model actually downloading as the MIT weight, separation quality, and CPU
 speed/timeout behaviour. See `docs/handoffs/separation-swap-validation.md`.
+
+## Provenance & the Demucs-fallback question (Candi's feedback, July 16)
+
+Candi (VOX analysis) is right that a separator change **shifts the measurements**
+(pitch coverage, HNR, jitter/shimmer, formants), so:
+- **Every metrics JSON now records the separator + model** (implemented:
+  `run_stem_separation` stamps `separator`, `separator_model`,
+  `separator_backend`, `separator_license` into `stem_separation`, parsed from
+  the actual output filename). SHA-256 / chunk / overlap are recorded on the
+  target machine (`docs/models/separation-model.md`).
+- **Do not compare a RoFormer score with a historical Demucs score** without
+  marking the separator change. Treat RoFormer as a *new baseline*, validated
+  against Demucs on 8–12 recordings (handoff), not an in-place score swap.
+
+**One correction to "keep Demucs available as a fallback":** Demucs weights are
+**CC-BY-NC (non-commercial)** — the reason we removed them. So Demucs may be kept
+**only as an internal validation / historical-provenance tool** (founder-side,
+like the yt-dlp calibration tooling), **never as a runtime fallback in the
+shipped/hosted product.** The separation seam is configurable, so Demucs can be
+selected for offline A/B and provenance, but the product default and the only
+*shipped* model must be the MIT RoFormer. Do not wire Demucs as an automatic
+runtime fallback — that would re-introduce the exact blocker this change removed.

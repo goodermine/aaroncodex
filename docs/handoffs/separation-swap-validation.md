@@ -66,6 +66,26 @@ RoFormer is much heavier than the old MDX model. On the A9 Max CPU:
 - Decide: is CPU separation acceptable for dev, with GPU for hosting? (Expected
   answer: yes — hosting is the real target.)
 
+## 4a. VOX A/B validation matrix (Candi's protocol)
+
+Because a separator change shifts the measurements, RoFormer must be validated
+as a *new baseline* against Demucs — not assumed better. Run **8–12
+representative recordings** through **both** separators (Demucs is retained as an
+internal validation/provenance tool only — NOT a shipped runtime fallback, since
+its weights are CC-BY-NC) and compare:
+
+- Audible vocal clarity and backing-vocal bleed
+- Residual instruments in quiet vocal passages
+- Pitch-tracker voiced-frame coverage and confidence
+- Changes in pitch deviation, drift, HNR, jitter, shimmer
+- Runtime and memory use
+
+Acceptance: RoFormer becomes the baseline **only if** it produces cleaner stems
+without destabilising the measurements. Confirm each metrics JSON now carries
+the `separator` / `separator_model` / `separator_license` provenance (stamped by
+`run_stem_separation`), and that historical Demucs scores are **kept and labelled
+by separator**, never overwritten or compared cross-separator without a marker.
+
 ## 5. Report back
 
 1. Test suite count (expect 146 VoxPolish).
