@@ -120,7 +120,6 @@ def main():
         "version": "prescription_map_v1",
         "built": datetime.now().isoformat(timespec="seconds"),
         "library_path": os.path.relpath(lib_path, backend_root),
-        "library_path_absolute_at_build": lib_path,
         "library_sha256": sha,
         "n_categories": len(categories),
         "n_exercises_in_library": len(entries),
