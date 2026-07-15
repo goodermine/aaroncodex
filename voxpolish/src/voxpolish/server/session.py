@@ -103,6 +103,7 @@ class Session:
                 "key_confidence": rep["key_confidence"],
                 "mean_abs_dev_cents": rep["mean_abs_dev_cents"],
                 "notes": rep["notes"],
+                "track": rep["track"],
                 "curve": rep["curve"],
                 "settings": rep["settings"],
             }
@@ -110,6 +111,9 @@ class Session:
             doc.pitch = {"error": str(e)}
         # Clean vs Clean + Auto Tune: bypass the Tune module unless requested.
         doc.bypass = {**doc.bypass, "tune": not tune}
+        # Start Auto Tune gentle (10%): field default so first renders are
+        # subtle; the editor slider takes it up from there.
+        doc.amounts = {**doc.amounts, "tune": 0.1}
         s._write_doc(doc, revision=1)
         step("rendering")
         s.render()

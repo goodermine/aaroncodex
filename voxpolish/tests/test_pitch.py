@@ -130,4 +130,24 @@ def test_report_shape_is_serializable():
     report = pitch.analyze(x, SR)
     text = json.dumps(report)
     assert json.loads(text)["voiced_seconds"] > 0.5
-    assert {"key", "notes", "curve", "mean_abs_dev_cents"} <= set(report)
+    assert {"key", "notes", "curve", "track", "mean_abs_dev_cents"} <= set(report)
+
+
+def test_track_gives_sung_pitch_and_correction():
+    """The pitch lane needs [time, sung_midi, correction_cents] per voiced frame."""
+    flat = 440.0 * 2 ** (-40 / 1200)
+    x = _tone(flat, 1.2)
+    report = pitch.analyze(x, SR, strength=1.0, retune_ms=40.0, key=(9, "minor"))
+    track = report["track"]
+    assert track and all(len(pt) == 3 for pt in track)
+    # Sung MIDI sits just under A4 (69); correction pulls up (positive cents).
+    sung = np.array([m for _, m, _ in track])
+    corr = np.array([c for _, _, c in track])
+    assert 68.0 < np.median(sung) < 69.0
+    assert np.max(corr) > 5.0, "a 40-cent-flat note should propose upward cents"
+
+
+def test_track_is_downsampled_on_long_input():
+    x = _tone(220.0, 20.0)  # long steady tone
+    report = pitch.analyze(x, SR)
+    assert len(report["track"]) <= 1900  # capped for JSON size

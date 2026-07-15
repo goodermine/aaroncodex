@@ -97,6 +97,24 @@ kbd {
 #inspector.hidden { display: none; }
 #delete-region { border-color: var(--gate); color: var(--gate); }
 
+/* ------------------------------------------------------------- pitch lane */
+#pitch-panel { margin-top: 10px; }
+#pitch-panel.hidden { display: none; }
+.pitch-head {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 11.5px; color: var(--muted); margin-bottom: 4px;
+}
+.pitch-title { color: var(--text); font-weight: 600; }
+.legend { display: inline-flex; align-items: center; gap: 5px; }
+.sw { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.sw.sung { background: #7f8895; }
+.sw.tuned { background: #b07fe0; }
+.sw.target { background: #4a5262; height: 0; border-top: 1px dashed #5a6474; }
+#pitch {
+  width: 100%; height: 150px; max-height: 24vh; display: block;
+  background: #101216; border: 1px solid var(--line); border-radius: 8px;
+}
+
 /* ------------------------------------------------------------ landing */
 #landing {
   position: fixed; inset: 0; background: rgba(8, 9, 11, 0.82);

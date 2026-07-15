@@ -36,6 +36,18 @@ def test_tune_enabled_by_default(tuned_session):
     assert doc.bypass.get("tune") is False
 
 
+def test_tune_starts_gentle_at_ten_percent(tuned_session):
+    """Field default: Auto Tune comes up at 10% so first renders are subtle."""
+    assert tuned_session.document().amounts.get("tune") == 0.1
+
+
+def test_session_pitch_includes_track(tuned_session):
+    """The editor pitch lane needs the sung-pitch track in the document."""
+    doc = tuned_session.document()
+    assert doc.pitch.get("track")
+    assert all(len(pt) == 3 for pt in doc.pitch["track"])
+
+
 def test_clean_only_session_bypasses_tune(tmp_path):
     """The 'Clean vocal' upload choice creates a session with Tune bypassed."""
     from voxpolish.server.session import Session

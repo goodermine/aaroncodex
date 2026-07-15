@@ -74,6 +74,15 @@
   <section id="editor">
     <canvas id="wave"></canvas>
     <div id="scrollbar"><div id="scrollthumb"></div></div>
+    <div id="pitch-panel" class="hidden">
+      <div class="pitch-head">
+        <span class="pitch-title">Pitch</span>
+        <span class="legend"><i class="sw sung"></i>Sung</span>
+        <span class="legend"><i class="sw tuned"></i>Tuned</span>
+        <span class="legend"><i class="sw target"></i>Target note</span>
+      </div>
+      <canvas id="pitch"></canvas>
+    </div>
     <div id="inspector" class="hidden">
       <span id="inspector-text"></span>
       <button id="delete-region">Delete region</button>

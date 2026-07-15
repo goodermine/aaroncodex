@@ -144,10 +144,12 @@ def test_uploaded_session_is_selectable(workspace_client):
 def test_editor_serves_navigation_and_upload_affordances(workspace_client):
     """Nav/upload UI is client-side JS; guard the served assets don't regress."""
     page = workspace_client.get("/").text
-    for hook in ("landing", "scrollbar", "new-upload", "start-upload", 'name="tune"'):
+    for hook in ("landing", "scrollbar", "new-upload", "start-upload", 'name="tune"',
+                 "download", "pitch-panel"):
         assert hook in page, f"missing UI hook: {hook}"
     js = workspace_client.get("/static/app.js").text
-    for hook in ("mousedown", "drawScrollbar", "startUpload", "panBy", "markManualPan"):
+    for hook in ("mousedown", "drawScrollbar", "startUpload", "panBy",
+                 "markManualPan", "drawPitch"):
         assert hook in js, f"missing JS behavior: {hook}"
 
 

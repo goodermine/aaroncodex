@@ -9,6 +9,8 @@
 const $ = (id) => document.getElementById(id);
 const canvas = $("wave");
 const ctx = canvas.getContext("2d");
+const pitchCanvas = $("pitch");
+const pctx = pitchCanvas.getContext("2d");
 const audio = $("audio");
 
 const COLORS = { pauses: "#e06060", breaths: "#5fbf77", sibilants: "#5fa8e0" };
@@ -121,6 +123,7 @@ function syncControls() {
   $("module-tune").classList.toggle("disabled", !hasTuner);
   $("on-tune").disabled = !hasTuner;
   $("amt-tune").disabled = !hasTuner;
+  $("pitch-panel").classList.toggle("hidden", !(p.track || []).length);
   if (hasTuner) {
     $("count-tune").textContent = `${(p.notes || []).length} notes`;
     $("tune-key").textContent = `${p.key} · mean off ${p.mean_abs_dev_cents} cents`;
@@ -146,8 +149,12 @@ function wireControls() {
       state.doc.amounts[key] = ev.target.value / 100;
       $(`amtv-${key}`).textContent = `${ev.target.value}%`;
       setStatus("Changed — press Render to apply.");
+      // Live preview: gain curve scales with Dynamics, the tuned line with Tune.
+      if (key === "dynamics") draw();
+      if (key === "tune") drawPitch();
     });
   }
+  $("on-tune").addEventListener("change", drawPitch);
 }
 
 // ------------------------------------------------------------------ view
@@ -191,11 +198,16 @@ function tOf(x) {
 
 // ------------------------------------------------------------------ drawing
 
+function sizeCanvas(cv) {
+  const r = cv.getBoundingClientRect();
+  cv.width = r.width * devicePixelRatio;
+  cv.height = r.height * devicePixelRatio;
+  cv.getContext("2d").setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+}
+
 function resize() {
-  const r = canvas.getBoundingClientRect();
-  canvas.width = r.width * devicePixelRatio;
-  canvas.height = r.height * devicePixelRatio;
-  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  sizeCanvas(canvas);
+  sizeCanvas(pitchCanvas);
   draw();
 }
 
@@ -262,6 +274,70 @@ function draw() {
   ctx.stroke();
 
   drawScrollbar();
+  drawPitch();
+}
+
+// The pitch lane: sung pitch vs the tuned result, so you can SEE the change.
+function drawPitch() {
+  if ($("pitch-panel").classList.contains("hidden")) return;
+  const p = state.doc && state.doc.pitch;
+  const track = (p && p.track) || [];
+  const W = pitchCanvas.clientWidth, H = pitchCanvas.clientHeight;
+  pctx.clearRect(0, 0, W, H);
+  if (!track.length) return;
+
+  const amt = (state.doc.amounts || {}).tune ?? 1.0;
+  const tuneOn = !((state.doc.bypass || {}).tune);
+
+  // MIDI range from the sung notes, with a little padding.
+  let lo = Infinity, hi = -Infinity;
+  for (const [, m] of track) { if (m < lo) lo = m; if (m > hi) hi = m; }
+  lo = Math.floor(lo - 2); hi = Math.ceil(hi + 2);
+  if (hi - lo < 6) { hi = lo + 6; }
+  const yOf = (m) => H - ((m - lo) / (hi - lo)) * H;
+  const xp = (t) => ((t - state.view.t0) / state.view.span) * W;
+  const inView = (t) => t >= state.view.t0 - 0.5 && t <= state.view.t0 + state.view.span + 0.5;
+
+  // Semitone gridlines.
+  pctx.strokeStyle = "#1b1f26";
+  pctx.lineWidth = 1;
+  for (let m = lo; m <= hi; m++) {
+    pctx.beginPath(); pctx.moveTo(0, yOf(m)); pctx.lineTo(W, yOf(m)); pctx.stroke();
+  }
+
+  // Target-note segments (dashed).
+  pctx.strokeStyle = "#5a6474";
+  pctx.setLineDash([5, 4]);
+  pctx.lineWidth = 1.5;
+  for (const note of (p.notes || [])) {
+    if (note.end < state.view.t0 || note.start > state.view.t0 + state.view.span) continue;
+    const y = yOf(note.midi);
+    pctx.beginPath(); pctx.moveTo(xp(note.start), y); pctx.lineTo(xp(note.end), y); pctx.stroke();
+  }
+  pctx.setLineDash([]);
+
+  // Sung line (grey) and, when Tune is on, the tuned line (purple).
+  const drawLine = (color, midiOf) => {
+    pctx.strokeStyle = color; pctx.lineWidth = 1.75; pctx.beginPath();
+    let prevT = null;
+    for (const [t, m, corr] of track) {
+      if (!inView(t)) { prevT = null; continue; }
+      const x = xp(t), y = yOf(midiOf(m, corr));
+      // Break the line across gaps so unvoiced stretches aren't bridged.
+      if (prevT === null || t - prevT > 0.12) pctx.moveTo(x, y);
+      else pctx.lineTo(x, y);
+      prevT = t;
+    }
+    pctx.stroke();
+  };
+  drawLine("#7f8895", (m) => m);
+  if (tuneOn) drawLine("#b07fe0", (m, corr) => m + (corr / 100) * amt);
+
+  // Playhead.
+  pctx.strokeStyle = "#ffffff88";
+  pctx.beginPath();
+  const px = xp(audio.currentTime || 0);
+  pctx.moveTo(px, 0); pctx.lineTo(px, H); pctx.stroke();
 }
 
 function drawScrollbar() {

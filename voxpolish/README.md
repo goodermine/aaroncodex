@@ -102,6 +102,12 @@ to save the current rendered track as a WAV. Navigate with **Fit / + / −**,
 drag or scroll the waveform to pan, Ctrl+scroll to zoom at the pointer, and the
 scrollbar under the waveform; the view follows playback unless you're panning.
 
+Below the waveform, the **pitch lane** shows the sung pitch (grey) against the
+tuned result (purple) and the target notes (dashed) — so you can see exactly
+what Auto Tune changed. The tuned line updates live as you move the Tune
+amount slider. Auto Tune starts gentle at **10%** in new sessions; slide it up
+if you want more.
+
 Safety architecture (see `docs/vox-cleanup-plan.md`, "Phase 1 disaster plan"):
 your original file is copied into the session and never written; every write
 is atomic; every accepted edit snapshots the previous document into

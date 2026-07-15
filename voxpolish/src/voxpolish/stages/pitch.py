@@ -199,6 +199,18 @@ def analyze(
         i = j + 1
 
     voiced_devs = np.abs(dev_cents[voiced])
+
+    # Pitch track for the editor lane: [time, sung_midi, correction_cents] at
+    # voiced frames, downsampled so the JSON stays small on long takes. The
+    # lane draws the sung line and (sung + correction * tune_amount) as the
+    # corrected line, so you can see exactly what tuning changed.
+    vidx = np.where(voiced)[0]
+    stride = max(1, len(vidx) // 1800)
+    lane_track = [
+        [round(float(times[i]), 4), round(float(midi[i]), 3), round(float(correction[i]), 1)]
+        for i in vidx[::stride]
+    ]
+
     return {
         "applied": False,
         "key": f"{NOTE_NAMES[tonic]} {mode}",
@@ -207,6 +219,7 @@ def analyze(
         "voiced_seconds": round(float(voiced.sum() * hop_s), 2),
         "mean_abs_dev_cents": round(float(np.mean(voiced_devs)), 1) if voiced.any() else 0.0,
         "notes": notes,
+        "track": lane_track,
         "curve": [
             [round(float(t), 4), round(float(c), 1)]
             for t, c in zip(times[voiced], correction[voiced])
