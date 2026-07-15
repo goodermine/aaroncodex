@@ -15,16 +15,23 @@ project repositories where they carry risk (sources linked inline).
 
 ## Executive summary — can it ship commercially today?
 
-**Not yet — but the list is down to two.** Two hard blockers remain (parselmouth,
-model weights). The YouTube/yt-dlp concern is **resolved for the shipped product**
-by design (no audio retained, download tooling is founder-only and not shipped —
-see §4). Everything else is clear (permissive) with routine attribution.
+**Close.** For a **hosted** product the path is now clear:
+- **parselmouth (GPL)** — neutralized by hosting (server-side only, never
+  distributed → copyleft does not trigger). No code change required.
+- **Model weights (#2 + #3)** — a concrete fix is identified: the **MIT-licensed
+  KimberleyJSN Mel-Band RoFormer** checkpoint (SOTA quality, free, self-hosted),
+  used for both separation paths. One swap closes both.
+- **YouTube/yt-dlp (#4)** — resolved by design (no audio retained; download
+  tooling is founder-only and not shipped).
+
+Remaining work is **engineering, not licensing**: swap Demucs/UVR for the MIT
+RoFormer checkpoint. Everything else is permissive with routine attribution.
 
 | # | Item | Where | Problem | Verdict |
 |---|------|-------|---------|---------|
 | 1 | **praat-parselmouth** | voxanalysis engine | **GPLv3+ copyleft** — forces your linked code open | **BLOCKER** |
-| 2 | **Demucs pretrained weights** | voxpolish `separation` | Code MIT, but **weights CONFIRMED CC-BY-NC (non-commercial)** — not usable in a paid product | **BLOCKER — replace (see §2 options)** |
-| 3 | **UVR / audio-separator models** | voxanalysis stem sep | Package MIT, but **individual model weights vary**; some non-commercial | **HIGH — verify per model** |
+| 2 | **Demucs pretrained weights** | voxpolish `separation` | Code MIT, but **weights CONFIRMED CC-BY-NC (non-commercial)** | **BLOCKER — fix identified: MIT RoFormer (§2)** |
+| 3 | **UVR / audio-separator models** | voxanalysis stem sep | Package MIT, but **individual model weights vary**; some non-commercial | **Resolved by the same §2 swap** |
 | 4 | **yt-dlp usage** | founder calibration tooling only | Public-domain software; YouTube ToS/copyright concern — **resolved for the shipped product by design** (see §4) | **RESOLVED for product; residual personal-tooling note** |
 
 Everything else (numpy, scipy, soundfile, pyloudnorm, torch, torchaudio,
@@ -78,27 +85,39 @@ of use*, not distribution — a paid subscription is commercial use whether the
 weights run on a server or a laptop. So the default Demucs weights **cannot be
 used in the paid product**, hosted or shipped.
 
-**Replacement options (best per situation):**
-- **(A) Commercial stem-separation API/SDK** (e.g. LALAL.AI, AudioShake, Moises).
-  Paid per-use/subscription, but **zero licensing ambiguity and top quality**.
-  Since the product is hosted, calling a paid separation API server-side is
-  clean and offloads the whole problem. *Best for licensing clarity.*
-- **(B) Spleeter (Deezer)** — MIT code; models trained on Deezer's **own**
-  catalog (not the NC MUSDB18) and bundled in the MIT repo, so widely used
-  commercially. **Free and self-hostable**, but lower quality (≈11 kHz ceiling —
-  weak on sibilance/high end, which matters for the Sibilance module and
-  analysis). Small residual: the repo licenses "code" explicitly and models by
-  inclusion. *Best if staying free/self-hosted and quality can drop.*
-- **(C) Train/fine-tune Demucs weights yourself** on data you own or license
-  (Demucs code is MIT). **Best quality + fully owned**, but requires a cleared
-  training set and training effort. *Best long-term if quality is paramount.*
-- **(D) A specific open model with explicitly commercial weights** (some
-  Apache/MIT BS-RoFormer / MDX23C checkpoints) — verify each checkpoint
-  individually; many popular ones are non-commercial or unstated.
+**Replacement options (ranked for a hosted, privacy-minded paid product):**
 
-**Note:** this same choice resolves Blocker #3 — pick **one** commercially-clear
-separation solution and use it for both VoxPolish song mode and Vox analysis
-stem separation, instead of maintaining two model stacks.
+- **(D) ✅ RECOMMENDED — KimberleyJSN Mel-Band RoFormer vocal model (MIT).**
+  A **specific, commercially-licensed, state-of-the-art** vocal/instrumental
+  separator. Verified: the checkpoint at
+  [huggingface.co/KimberleyJSN/melbandroformer](https://huggingface.co/KimberleyJSN/melbandroformer)
+  is tagged **License: MIT** (relicensed from GPL-3.0 to MIT by the author in
+  April 2026). Mel-Band / BS-RoFormer is **current SOTA — better than Demucs,
+  far better than Spleeter** — and it separates exactly what we need
+  (vocals vs. instrumental). The runner code (lucidrains BS-RoFormer,
+  `python-audio-separator`, `melband-roformer-infer`) is all MIT. **Free,
+  self-hosted, no per-use cost, no sending user audio to a third party** — the
+  best fit for a hosted product that keeps audio private.
+  - *Caveats:* pin to **this specific checkpoint** — the `melband-roformer-infer`
+    catalogue mixes ~89 models of varying licenses, so do not use "the default."
+    The GitHub `LICENSE` file wasn't retrievable; confirmation rests on the HF
+    model-card MIT tag plus corroborating relicense reports — **save a dated copy
+    of the model card as evidence** of the grant at time of use (it was
+    relicensed recently). Training-data provenance is the author's
+    responsibility under their MIT grant.
+- **(A) Commercial stem-separation API** (LALAL.AI, AudioShake, Moises) — zero
+  licensing ambiguity and top quality, but **ongoing per-use cost** and it
+  **sends user audio to a third party** (a privacy downside for this product).
+  A fallback if you'd rather not self-host GPU inference.
+- **(B) Spleeter (Deezer)** — MIT, free, self-hostable, but **lower quality**
+  (≈11 kHz ceiling — weak on sibilance/high end). A fallback only if RoFormer
+  inference is too heavy to host.
+- **(C) Train/own Demucs weights** on cleared data (Demucs code is MIT) — best
+  only if you need full ownership and can invest in training.
+
+**Note:** option (D) also resolves Blocker #3 — standardize **both** VoxPolish
+song mode and Vox analysis stem separation on the one MIT RoFormer checkpoint,
+instead of maintaining Demucs + a grab-bag of UVR models.
 
 ### 3. UVR / audio-separator community models — HIGH, verify per model
 
@@ -179,19 +198,22 @@ Type: **L** = library code, **W** = model weights, **T** = tool/CLI.
 
 ## Recommended path to "clear to sell"
 
-1. **Resolve parselmouth (Blocker #1)** — decide replace (A) vs arm's-length
-   Praat (B); if (B), get legal sign-off on the boundary.
-2. **Resolve Demucs weights (Blocker #2)** — get the weight license in writing or
-   switch models; document the answer.
-3. **Pin & document UVR models (Blocker #3)** — choose commercial-safe model
-   files, record each license, add UVR attribution.
-4. **yt-dlp (Blocker #4) — resolved by design.** Keep the YouTube-download
+1. **parselmouth (Blocker #1) — resolved by hosting.** Keep it server-side only
+   (never distribute a binary/desktop build containing it); GPL copyleft is not
+   triggered by network use. If a downloadable build is ever needed, revisit
+   (replace, or arm's-length Praat with legal sign-off).
+2. **Swap the separation model (Blockers #2 + #3)** — replace Demucs (and the
+   UVR models) with the **MIT-licensed KimberleyJSN Mel-Band RoFormer**
+   checkpoint (§2, option D). Pin that exact checkpoint, keep a dated copy of its
+   MIT model card, and add its attribution to `NOTICE`. One swap clears both
+   weight blockers.
+3. **yt-dlp (Blocker #4) — resolved by design.** Keep the YouTube-download
    tooling and `yt-dlp` out of the shipped product (founder-only calibration),
    and retain only derived metrics, never audio. Confirm the shipped build has
    no `yt-dlp` dependency before release.
-5. **Ship the `NOTICE` file** with the product (attribution for all permissive
-   deps) — draft added alongside this report.
-6. **Have a lawyer review** items 1–4 and the final `NOTICE`/LICENSE before sale.
+4. **Ship the `NOTICE` file** with the product (attribution for all permissive
+   deps).
+5. **Have a lawyer review** the above and the final `NOTICE`/LICENSE before sale.
 
-Once 1–4 are closed and `NOTICE` ships, the permissive stack (the large majority
+Once the model swap (step 2) lands and `NOTICE` ships, the permissive stack (the majority
 of the tree) is clear for a paid closed-source product.
