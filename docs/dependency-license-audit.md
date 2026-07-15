@@ -15,15 +15,17 @@ project repositories where they carry risk (sources linked inline).
 
 ## Executive summary — can it ship commercially today?
 
-**Not yet.** Two hard blockers and one product-legal issue must be resolved
-first. Everything else is clear (permissive) with routine attribution.
+**Not yet — but the list is down to two.** Two hard blockers remain (parselmouth,
+model weights). The YouTube/yt-dlp concern is **resolved for the shipped product**
+by design (no audio retained, download tooling is founder-only and not shipped —
+see §4). Everything else is clear (permissive) with routine attribution.
 
 | # | Item | Where | Problem | Verdict |
 |---|------|-------|---------|---------|
 | 1 | **praat-parselmouth** | voxanalysis engine | **GPLv3+ copyleft** — forces your linked code open | **BLOCKER** |
 | 2 | **Demucs pretrained weights** | voxpolish `separation` | Code MIT, but **weight license unstated / reported CC-BY-NC (non-commercial)** | **BLOCKER until resolved** |
 | 3 | **UVR / audio-separator models** | voxanalysis stem sep | Package MIT, but **individual model weights vary**; some non-commercial | **HIGH — verify per model** |
-| 4 | **yt-dlp usage** | voxanalysis downloader/viewer | Software is public-domain, but **downloading YouTube content in a paid product breaches YouTube ToS / copyright** | **HIGH (product-legal, not a license)** |
+| 4 | **yt-dlp usage** | founder calibration tooling only | Public-domain software; YouTube ToS/copyright concern — **resolved for the shipped product by design** (see §4) | **RESOLVED for product; residual personal-tooling note** |
 
 Everything else (numpy, scipy, soundfile, pyloudnorm, torch, torchaudio,
 fastapi, uvicorn, python-multipart, httpx, librosa, matplotlib, pyworld,
@@ -95,16 +97,32 @@ models are non-commercial or unstated. The analysis engine uses this via
 commercial-friendly**, record each model's license in `NOTICE`, and add the
 required UVR attribution. Do not ship "whatever model the tool defaults to."
 
-### 4. yt-dlp / YouTube downloading — HIGH (product-legal, separate from license)
+### 4. yt-dlp / YouTube downloading — RESOLVED for the shipped product
 
 `yt-dlp` is released into the **public domain (Unlicense)** — no software-license
-problem. The risk is **behavioral**: a commercial product that downloads YouTube
-(or other site) content likely violates **YouTube's Terms of Service** and can
-implicate **copyright** in the fetched material. This is a product/legal
-decision, not a dependency license.
+problem. The concern was **behavioral**: downloading YouTube content in a paid
+product implicates **YouTube's Terms of Service** and **copyright** in the
+fetched audio.
 
-**Fix:** confirm with a lawyer whether the download feature can ship in a paid
-product; consider restricting it to user-owned/licensed sources, or removing it.
+**Resolution (architecture decision, July 2026):**
+- **No audio is ever retained.** The engine extracts acoustic metrics from a
+  reference recording and keeps **only the derived numeric metrics** (facts /
+  measurements), which are later used to compare songs. The copyrighted audio is
+  never stored, served, or shipped.
+- **yt-dlp and the download interface are founder-only calibration tooling.**
+  The **shipped product will not include the YouTube-download front end** or the
+  `yt-dlp` dependency; it operates on the pre-computed reference metrics.
+- Therefore the **shipped product carries no YouTube ToS exposure and stores no
+  copyrighted audio.**
+
+**Residual note (not a product blocker):** the founder's own one-time
+calibration downloading still technically touches YouTube's ToS (a personal,
+account-level matter, not something baked into the product). Because only
+derived metrics are kept — never the audio — the copyright posture is strong
+(retaining measurements about a performance, used transformatively for
+calibration). Where practical, prefer references you have rights to. Keep
+`yt-dlp` out of the distributed/hosted codebase — a private calibration script,
+not a product dependency.
 
 ---
 
@@ -134,7 +152,7 @@ Type: **L** = library code, **W** = model weights, **T** = tool/CLI.
 | librosa | voxanalysis engine | ISC | L | ✅ | notice |
 | matplotlib | voxanalysis engine | Matplotlib (BSD-style/PSF) | L | ✅ | notice |
 | **praat-parselmouth** | voxanalysis engine | **GPL-3.0-or-later** | L | ⛔ | **Blocker #1** |
-| **yt-dlp** | voxanalysis dl/viewer | Unlicense (public domain) | T | ⚠️ | license fine; **YouTube ToS — Blocker #4** |
+| **yt-dlp** | founder calibration tooling | Unlicense (public domain) | T | ✅ | not shipped in product; no audio retained — see §4 |
 | **audio-separator** | voxanalysis stem sep | MIT (package) | T | ✅ | package OK; **models = Blocker #3** |
 | UVR models | runtime | varies per model | W | ⚠️ | **Blocker #3** |
 | openai *(commented)* | engine optional | Apache-2.0 (SDK) | L | ✅ | not shipped; API sends data out if enabled |
@@ -151,7 +169,10 @@ Type: **L** = library code, **W** = model weights, **T** = tool/CLI.
    switch models; document the answer.
 3. **Pin & document UVR models (Blocker #3)** — choose commercial-safe model
    files, record each license, add UVR attribution.
-4. **Decide the yt-dlp feature (Blocker #4)** — legal call; restrict or remove.
+4. **yt-dlp (Blocker #4) — resolved by design.** Keep the YouTube-download
+   tooling and `yt-dlp` out of the shipped product (founder-only calibration),
+   and retain only derived metrics, never audio. Confirm the shipped build has
+   no `yt-dlp` dependency before release.
 5. **Ship the `NOTICE` file** with the product (attribution for all permissive
    deps) — draft added alongside this report.
 6. **Have a lawyer review** items 1–4 and the final `NOTICE`/LICENSE before sale.

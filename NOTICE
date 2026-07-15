@@ -51,6 +51,7 @@ Demucs pretrained weights — license unresolved (reported non-commercial). See
   audit Blocker #2.
 UVR / audio-separator model weights — vary per model; must be pinned to
   commercial-safe models and documented. See audit Blocker #3.
-yt-dlp — Unlicense (public domain) software, BUT downloading third-party site
-  content in a paid product raises Terms-of-Service / copyright issues. See
-  audit Blocker #4.
+yt-dlp — Unlicense (public domain). Resolved for the shipped product by design:
+  the YouTube-download tooling is founder-only calibration and is NOT included in
+  the shipped product, and no audio is ever retained — only derived metrics. See
+  audit §4. (Keep yt-dlp out of the distributed/hosted codebase.)
