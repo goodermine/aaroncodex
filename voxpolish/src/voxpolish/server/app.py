@@ -12,6 +12,7 @@ uploads process in a background job with polled progress.
 
 from __future__ import annotations
 
+import hashlib
 import threading
 from pathlib import Path
 
@@ -23,6 +24,20 @@ from .workspace import Workspace
 
 STATIC = Path(__file__).parent / "static"
 MAX_UPLOAD_BYTES = 500 * 1024 * 1024  # 500 MB: generous for a full song
+
+# Front-end assets whose content decides the cache-busting version stamped into
+# index.html. A changed file → new version → the browser refetches instead of
+# serving a stale cached UI (the "I updated it but still see the old look" bug).
+_VERSIONED_ASSETS = ("vox-tokens.css", "vox-kit.css", "style.css", "app.js")
+
+
+def _asset_version() -> str:
+    h = hashlib.sha1()
+    for name in _VERSIONED_ASSETS:
+        path = STATIC / name
+        if path.is_file():
+            h.update(path.read_bytes())
+    return h.hexdigest()[:12]
 
 
 def create_app(root: Path) -> FastAPI:
@@ -53,7 +68,10 @@ def create_app(root: Path) -> FastAPI:
 
     @app.get("/", response_class=HTMLResponse)
     def index():
-        return (STATIC / "index.html").read_text()
+        html = (STATIC / "index.html").read_text().replace("__ASSET_VERSION__", _asset_version())
+        # no-cache = cache but always revalidate, so the shell (and its versioned
+        # asset links) can never be served stale after a redeploy.
+        return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
 
     @app.get("/static/{name}")
     def static_file(name: str):
