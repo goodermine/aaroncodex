@@ -157,11 +157,20 @@ Candi (VOX analysis) is right that a separator change **shifts the measurements*
   marking the separator change. Treat RoFormer as a *new baseline*, validated
   against Demucs on 8–12 recordings (handoff), not an in-place score swap.
 
-**One correction to "keep Demucs available as a fallback":** Demucs weights are
-**CC-BY-NC (non-commercial)** — the reason we removed them. So Demucs may be kept
-**only as an internal validation / historical-provenance tool** (founder-side,
-like the yt-dlp calibration tooling), **never as a runtime fallback in the
-shipped/hosted product.** The separation seam is configurable, so Demucs can be
-selected for offline A/B and provenance, but the product default and the only
-*shipped* model must be the MIT RoFormer. Do not wire Demucs as an automatic
-runtime fallback — that would re-introduce the exact blocker this change removed.
+**On "keep Demucs available as a fallback":** Demucs weights are **CC-BY-NC
+(non-commercial)** — the reason we removed them. Keeping Demucs is fine, but only
+as a **temporary fallback DURING TESTING** (offline A/B and historical
+provenance, founder-side, like the yt-dlp calibration tooling) — **it must not
+ship.** It is not wired as an automatic runtime fallback anywhere; it is only
+*selectable* via the configurable model param for A/B runs. The product default
+and the only shipped model is the MIT RoFormer.
+
+**Pre-ship gate (must pass before any paid release):**
+- VoxPolish `SEPARATION_MODEL` and Vox analysis `SEP_MODEL` are the MIT RoFormer.
+- No Demucs (or other CC-BY-NC / non-commercial) model is configured as a
+  default or an automatic fallback in any shipped/hosted path.
+- `demucs` is not a shipped dependency (confirmed: removed from the `separation`
+  extra; audio-separator is the only separation backend).
+- Any metrics JSON produced by the shipped product shows
+  `separator_license: MIT` (the stamping flags non-MIT models as UNVERIFIED).
+Once testing is done, drop the Demucs testing fallback entirely.
