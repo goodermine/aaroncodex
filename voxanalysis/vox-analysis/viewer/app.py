@@ -274,6 +274,19 @@ async def index() -> str:
     return (HERE / "static" / "index.html").read_text(encoding="utf-8")
 
 
+# Shared VOX Suite design layer, vendored from /design via design/sync.sh.
+# Whitelisted by exact name (no path traversal) so the single-source palette
+# is served to the viewer without inlining a copy that would drift.
+_SHARED_CSS = {"vox-tokens.css", "vox-kit.css"}
+
+
+@app.get("/static/{name}")
+async def static_asset(name: str) -> FileResponse:
+    if name not in _SHARED_CSS:
+        raise HTTPException(status_code=404, detail="not found")
+    return FileResponse(HERE / "static" / name, media_type="text/css")
+
+
 @app.post("/api/pitch-jobs", status_code=202)
 async def create_job(
     request: Request,
