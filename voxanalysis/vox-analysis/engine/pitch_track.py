@@ -368,9 +368,20 @@ def _find_stem(stem_dir: Path, kind: str) -> Path | None:
         name = path.name.lower()
         if path.suffix.lower() not in {".wav", ".flac", ".mp3", ".m4a"}:
             continue
-        if kind == "vocals" and "vocals" in name and not any(token in name for token in ("no_vocals", "instrumental")):
+        # RoFormer includes "vocals" in its *model name*, so a loose substring
+        # match can select `_(Other)_vocals_mel_band_roformer` as the vocal
+        # stem. Prefer the explicit audio-separator stem labels first.
+        if kind == "vocals" and (
+            "_(vocals)_" in name
+            or (
+                "vocals" in name
+                and not any(token in name for token in ("no_vocals", "instrumental", "_(other)_"))
+            )
+        ):
             return path
-        if kind == "instrumental" and any(token in name for token in ("no_vocals", "instrumental")):
+        if kind == "instrumental" and any(
+            token in name for token in ("_(instrumental)_", "_(other)_", "no_vocals", "instrumental")
+        ):
             return path
     return None
 

@@ -104,3 +104,38 @@ def test_no_vocals_output_is_a_clear_error(tmp_path):
     finally:
         del sys.modules["audio_separator.separator"]
         del sys.modules["audio_separator"]
+
+
+def test_roformer_other_stem_is_not_mistaken_for_vocals(tmp_path):
+    """The RoFormer model name contains 'vocals', including in other-stem names."""
+    import sys
+    import types
+
+    out_dir = tmp_path / "out"
+    out_dir.mkdir()
+    other = out_dir / "song_(Other)_vocals_mel_band_roformer.wav"
+    vocals = out_dir / "song_(Vocals)_vocals_mel_band_roformer.wav"
+    other.write_bytes(b"")
+    vocals.write_bytes(b"")
+
+    class FakeSep:
+        def __init__(self, *a, **k):
+            pass
+
+        def load_model(self, *a, **k):
+            pass
+
+        def separate(self, *a, **k):
+            return [other.name, vocals.name]
+
+    pkg = types.ModuleType("audio_separator")
+    mod = types.ModuleType("audio_separator.separator")
+    mod.Separator = FakeSep
+    pkg.separator = mod
+    sys.modules["audio_separator"] = pkg
+    sys.modules["audio_separator.separator"] = mod
+    try:
+        assert separation._run_separator("song.wav", separation.SEPARATION_MODEL, out_dir) == vocals
+    finally:
+        del sys.modules["audio_separator.separator"]
+        del sys.modules["audio_separator"]

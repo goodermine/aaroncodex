@@ -95,6 +95,21 @@ by separator**, never overwritten or compared cross-separator without a marker.
 5. CPU: seconds/song, peak RAM, and whether a lighter model or GPU is needed.
 6. Any traceback verbatim.
 
+## Completed validation — 16 July 2026
+
+- VoxPolish: 147 tests passed after the output-label regression test was added.
+- The pinned `vocals_mel_band_roformer.ckpt` model was loaded and its SHA-256
+  recorded in `docs/models/separation-model.md`.
+- Ten excerpts from five real recordings: RoFormer median voiced-frame coverage
+  was 73.9% versus Demucs 70.4%; confident voiced frames 26.6% versus 19.6%;
+  median jitter 0.695% versus 0.924%; and shimmer 6.90% versus 10.72%.
+- A human full-song listen found RoFormer materially cleaner and clearer.
+- CPU remains a hosted-deployment constraint: roughly five to eight minutes
+  per full song and up to about 3.0 GiB RAM on the A9 Max. Use GPU hosting.
+- A filename collision was fixed: `_(Other)_...vocals_mel_band_roformer` can
+  never be selected as the vocal stem; only the explicit `_(Vocals)_` label is
+  accepted.
+
 Scope: do NOT change tuning/DSP defaults or other features. If separation
 quality is worse than the old Demucs/UVR on real material, report where — that
 decides whether to keep this checkpoint or pick another MIT one.

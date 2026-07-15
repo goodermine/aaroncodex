@@ -33,7 +33,9 @@ Referenced by:
    # (path varies; audio-separator prints the model dir on load)
    ```
 
-   - **SHA-256:** `TODO — fill in after first verified download`
+   - **SHA-256:** `87201f4d31afb5bc79993230fc49446918425574db48c01c405e44f365c7559e`
+     (verified on A9 Max, 16 July 2026; cached as
+     `/tmp/audio-separator-models/vocals_mel_band_roformer.ckpt`)
 
 3. **Save a dated copy/screenshot of the HF model card** showing `License: mit`
    as evidence of the grant at time of use (the relicense is recent).

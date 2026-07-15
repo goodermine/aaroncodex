@@ -6,7 +6,7 @@ repaired vocal. Phase 0 command-line proof of concept — see
 
 ```
 Full song ──► Separate vocals ──► Analyze ──► Apply fixes ──► cleaned vocal,
-              (Demucs, song mode)  (6 modules)  (render)       remix, delta,
+              (MIT RoFormer)       (6 modules)  (render)       remix, delta,
                                                                edit_document.json
 ```
 
@@ -25,7 +25,7 @@ pip install -e .                        # core: runs voice mode with DSP fallbac
 # otherwise the extras below drag in ~2 GB of unusable CUDA/NVIDIA packages.
 pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
 
-pip install -e '.[separation]'          # + Demucs for song mode
+pip install -e '.[separation]'          # + MIT RoFormer for song mode
 pip install -e '.[clean]'               # + DeepFilterNet denoising
 pip install -e '.[vad]'                 # + Silero AI voice detection (better gating)
 ```
@@ -156,9 +156,9 @@ blendable). Runs automatically between separation and Clean; what it removes
 shows up in `removed.wav`; stats land in `analysis.bleed`.
 
 - `--bleed-strength 0.9` — push harder on a leaky mix (default 0.7, 0 = off)
-- `--sep-shifts 2` — extra Demucs passes: audibly less bleed at the source,
-  roughly linear CPU cost
-- `--sep-model htdemucs` — try alternate separation models
+The separator is deliberately pinned to the MIT KimberleyJSN Mel-Band RoFormer
+checkpoint. It is not selectable from the CLI: this prevents accidental use of
+non-commercial model weights in a shipped workflow.
 
 ## Balance & mastering (song mode)
 

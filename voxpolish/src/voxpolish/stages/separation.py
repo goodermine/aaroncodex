@@ -44,7 +44,10 @@ def _run_separator(path: str | Path, model: str, out_dir: Path) -> Path:
     outputs = separator.separate(str(path))
     # Resolve output paths (audio-separator may return names relative to out_dir).
     files = [out_dir / Path(name).name for name in outputs]
-    vocal_files = [f for f in files if "vocal" in f.name.lower()]
+    # The model filename itself contains "vocals". Match the explicit stem
+    # label, otherwise an `_(other)_...vocals_mel_band_roformer` output can be
+    # mistaken for the vocal stem when it appears first in the backend output.
+    vocal_files = [f for f in files if "_(vocals)_" in f.name.lower()]
     if not vocal_files:
         raise RuntimeError(
             f"separation produced no vocals stem (outputs: {[f.name for f in files]})"
@@ -52,15 +55,11 @@ def _run_separator(path: str | Path, model: str, out_dir: Path) -> Path:
     return vocal_files[0]
 
 
-def separate(
-    path: str | Path, model: str = SEPARATION_MODEL, shifts: int = 1
-) -> tuple[np.ndarray, np.ndarray, int]:
+def separate(path: str | Path) -> tuple[np.ndarray, np.ndarray, int]:
     """Return (vocal, instrumental, sample_rate), each (channels, samples).
 
-    `shifts` is accepted for backward compatibility and ignored by this
-    backend. `model` defaults to the pinned MIT RoFormer; overriding it is
-    allowed (e.g. a lighter model if CPU speed demands) but the caller owns the
-    license implications of any non-default model.
+    The model is deliberately not configurable at runtime: the product ships
+    only the pinned MIT RoFormer checkpoint declared above.
     """
     if not available():
         raise RuntimeError(
@@ -71,7 +70,7 @@ def separate(
 
     with tempfile.TemporaryDirectory() as td:
         out_dir = Path(td)
-        vocal_path = _run_separator(path, model, out_dir)
+        vocal_path = _run_separator(path, SEPARATION_MODEL, out_dir)
         vocal, sr = audio_io.load(vocal_path)
         mix, mix_sr = audio_io.load(path)
 

@@ -146,6 +146,16 @@ class PitchMathTests(unittest.TestCase):
             self.assertEqual(pitch_track._find_stem(stem_dir, "vocals").name, "take_(Vocals)_UVR.wav")
             self.assertEqual(pitch_track._find_stem(stem_dir, "instrumental").name, "take_(Instrumental)_UVR.wav")
 
+    def test_finds_roformer_vocals_and_other_stems_without_model_name_collision(self):
+        with tempfile.TemporaryDirectory() as folder:
+            stem_dir = Path(folder)
+            vocal = stem_dir / "take_(vocals)_vocals_mel_band_roformer.flac"
+            backing = stem_dir / "take_(other)_vocals_mel_band_roformer.flac"
+            vocal.touch()
+            backing.touch()
+            self.assertEqual(pitch_track._find_stem(stem_dir, "vocals"), vocal)
+            self.assertEqual(pitch_track._find_stem(stem_dir, "instrumental"), backing)
+
     def test_reference_metadata_rejects_karaoke_substitution(self):
         with self.assertRaises(pitch_track.PitchTrackError):
             pitch_track._validate_reference_metadata(

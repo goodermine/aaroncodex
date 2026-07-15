@@ -17,10 +17,11 @@ dependencies = [
 [project.optional-dependencies]
 # Everything below is optional: the pipeline runs with DSP fallbacks without them,
 # and upgrades itself when they are installed (Apple Silicon: torch uses MPS).
-# Separation uses the MIT Mel-Band RoFormer via audio-separator (MIT), which
-# pulls its own torch/onnxruntime. Demucs is intentionally NOT used: its
+# Separation uses the MIT Mel-Band RoFormer via audio-separator (MIT). Keep
+# the CPU ONNX runtime explicit: audio-separator imports it at runtime but
+# does not consistently install it as a transitive dependency. Demucs is intentionally NOT used: its
 # pretrained weights are CC-BY-NC (non-commercial). See the audit §2.
-separation = ["audio-separator>=0.18"]
+separation = ["audio-separator>=0.18", "onnxruntime>=1.19"]
 clean = ["deepfilternet>=0.5"]
 vad = ["torch>=2.1", "silero-vad>=5.0"]
 ui = ["fastapi>=0.110", "uvicorn>=0.27", "python-multipart>=0.0.9"]

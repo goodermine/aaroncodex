@@ -205,17 +205,23 @@ def run_stem_separation(input_path, script_path="tools/stems/batch_stems.sh"):
 
     vocals_path = find_first_stem_match(
         [
+            os.path.join(run_output_dir, "**", "*_(vocals)_*.flac"),
+            os.path.join(run_output_dir, "**", "*_(vocals)_*.wav"),
             os.path.join(run_output_dir, "**", "*_(Vocals)_*.flac"),
             os.path.join(run_output_dir, "**", "*_(Vocals)_*.wav"),
             os.path.join(run_output_dir, "**", "*.vocals.wav"),
             os.path.join(run_output_dir, "**", "*vocals*.wav"),
             os.path.join(run_output_dir, "**", "*vocals*.flac"),
         ],
-        exclude_substrings=("no_vocals", "instrumental"),
+        exclude_substrings=("no_vocals", "instrumental", "_(other)_"),
     )
     instrumental_path = find_first_stem_match([
+        os.path.join(run_output_dir, "**", "*_(other)_*.flac"),
+        os.path.join(run_output_dir, "**", "*_(other)_*.wav"),
         os.path.join(run_output_dir, "**", "*_(Instrumental)_*.flac"),
         os.path.join(run_output_dir, "**", "*_(Instrumental)_*.wav"),
+        os.path.join(run_output_dir, "**", "*_(Other)_*.flac"),
+        os.path.join(run_output_dir, "**", "*_(Other)_*.wav"),
         os.path.join(run_output_dir, "**", "*.instrumental.wav"),
         os.path.join(run_output_dir, "**", "*no_vocals*.wav"),
         os.path.join(run_output_dir, "**", "*no_vocals*.flac"),
@@ -262,8 +268,8 @@ def _extract_model_tag(vocals_path):
     if not vocals_path:
         return None
     stem = os.path.splitext(os.path.basename(vocals_path))[0]
-    marker = "_(Vocals)_"
-    idx = stem.find(marker)
+    marker = "_(vocals)_"
+    idx = stem.lower().find(marker)
     if idx != -1:
         return stem[idx + len(marker):] or None
     return None

@@ -172,4 +172,14 @@ must never ship).
   extra; audio-separator is the only separation backend).
 - Any metrics JSON produced by the shipped product shows
   `separator_license: MIT` (the stamping flags non-MIT models as UNVERIFIED).
-Once testing is done, drop the Demucs testing fallback entirely.
+## Validation outcome — 16 July 2026
+
+The hardware validation is complete. RoFormer was cleaner and clearer in the
+full-song listening comparison and improved median voiced-frame coverage and
+pitch confidence across ten representative excerpts without destabilising
+median pitch drift. It is now the sole separator in the product path.
+
+The Demucs test installation and the model-selection override have been
+removed from VoxPolish. Historical Demucs metrics remain retained and labelled
+as historical provenance; they are not recomputed or directly score-compared
+with RoFormer output.
