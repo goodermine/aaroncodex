@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voxpolish"
+version = "0.1.0"
+description = "AI vocal cleanup: drop in a song or talk recording, get back a repaired vocal"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "soundfile>=0.12",
+    "pyloudnorm>=0.1",
+]
+
+[project.optional-dependencies]
+# Everything below is optional: the pipeline runs with DSP fallbacks without them,
+# and upgrades itself when they are installed (Apple Silicon: torch uses MPS).
+separation = ["demucs>=4.0", "torch>=2.1", "torchaudio>=2.1"]
+clean = ["deepfilternet>=0.5"]
+vad = ["torch>=2.1", "silero-vad>=5.0"]
+ui = ["fastapi>=0.110", "uvicorn>=0.27", "python-multipart>=0.0.9"]
+pitch = ["pyworld>=0.3"]
+dev = ["pytest>=7.0", "httpx>=0.27"]
+
+[project.scripts]
+voxpolish = "voxpolish.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

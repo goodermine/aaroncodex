@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoxPolish</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>VoxPolish</h1>
+  <div class="transport">
+    <button id="play">Play</button>
+    <select id="source">
+      <option value="cleaned">Cleaned</option>
+      <option value="original">Original</option>
+    </select>
+    <span id="time">0:00</span>
+  </div>
+  <div class="zoom">
+    <button id="zoom-out" title="Zoom out">−</button>
+    <button id="zoom-fit" title="Fit whole file">Fit</button>
+    <button id="zoom-in" title="Zoom in">+</button>
+  </div>
+  <div class="actions">
+    <span id="status" class="status"></span>
+    <button id="download">Download</button>
+    <button id="new-upload">New upload</button>
+    <button id="render" class="primary">Render</button>
+  </div>
+</header>
+
+<main>
+  <aside id="rail">
+    <div class="module">
+      <label><input type="checkbox" id="on-dynamics" checked>
+        <span class="dot dyn"></span>Dynamics</label>
+      <input type="range" id="amt-dynamics" min="0" max="150" value="100">
+      <span class="val" id="amtv-dynamics">100%</span>
+    </div>
+    <div class="module">
+      <label><input type="checkbox" id="on-gate" checked>
+        <span class="dot gate"></span>Gate</label>
+      <span class="count" id="count-pauses"></span>
+    </div>
+    <div class="module">
+      <label><input type="checkbox" id="on-breath" checked>
+        <span class="dot breath"></span>Breath</label>
+      <input type="range" id="amt-breath" min="0" max="150" value="100">
+      <span class="val" id="amtv-breath">100%</span>
+      <span class="count" id="count-breaths"></span>
+    </div>
+    <div class="module">
+      <label><input type="checkbox" id="on-sibilance" checked>
+        <span class="dot sib"></span>Sibilance</label>
+      <input type="range" id="amt-sibilance" min="0" max="150" value="100">
+      <span class="val" id="amtv-sibilance">100%</span>
+      <span class="count" id="count-sibilants"></span>
+    </div>
+    <div class="module" id="module-tune">
+      <label><input type="checkbox" id="on-tune" checked>
+        <span class="dot tune"></span>Tune</label>
+      <input type="range" id="amt-tune" min="0" max="150" value="100">
+      <span class="val" id="amtv-tune">100%</span>
+      <span class="count" id="count-tune"></span>
+      <span class="keyname" id="tune-key"></span>
+    </div>
+    <p class="hint">Toggle a module off, or slide its amount, then
+      <b>Render</b>. Click a colored region and press <kbd>Delete</kbd> to
+      remove it. Drag or scroll the waveform to pan, <kbd>Ctrl</kbd>+scroll to
+      zoom.</p>
+  </aside>
+
+  <section id="editor">
+    <canvas id="wave"></canvas>
+    <div id="scrollbar"><div id="scrollthumb"></div></div>
+    <div id="pitch-panel" class="hidden">
+      <div class="pitch-head">
+        <span class="pitch-title">Pitch</span>
+        <span class="legend"><i class="sw sung"></i>Sung</span>
+        <span class="legend"><i class="sw tuned"></i>Tuned</span>
+        <span class="legend"><i class="sw target"></i>Target note</span>
+      </div>
+      <canvas id="pitch"></canvas>
+    </div>
+    <div id="inspector" class="hidden">
+      <span id="inspector-text"></span>
+      <button id="delete-region">Delete region</button>
+    </div>
+  </section>
+</main>
+
+<!-- Upload / landing overlay -->
+<div id="landing" class="hidden">
+  <div class="card">
+    <h2>Clean up a vocal</h2>
+    <p class="sub">Drop in a vocal recording or clean stem — WAV, MP3, M4A, or FLAC.</p>
+
+    <label id="drop" for="file">
+      <input type="file" id="file" accept=".wav,.mp3,.m4a,.flac,.aif,.aiff,.ogg,audio/*">
+      <span id="drop-label">Choose a file or drag it here</span>
+    </label>
+
+    <fieldset id="choice">
+      <legend>Processing</legend>
+      <label class="opt">
+        <input type="radio" name="tune" value="tune" checked>
+        <span><b>Clean + Auto Tune</b><br>
+          <small>Cleanup plus subtle pitch correction.</small></span>
+      </label>
+      <label class="opt">
+        <input type="radio" name="tune" value="clean">
+        <span><b>Clean vocal</b><br>
+          <small>Cleanup only — no pitch correction.</small></span>
+      </label>
+    </fieldset>
+
+    <p class="caveat">Best results come from clean vocals or clean stems.
+      Noisy or full-mix sources may keep some artefacts.</p>
+
+    <div class="landing-actions">
+      <button id="start-upload" class="primary" disabled>Start</button>
+      <button id="close-landing" class="hidden">Cancel</button>
+    </div>
+    <div id="upload-progress" class="hidden">
+      <div class="bar"><div id="upload-bar"></div></div>
+      <span id="upload-stage"></span>
+    </div>
+    <p id="landing-error" class="landing-error"></p>
+  </div>
+</div>
+
+<audio id="audio"></audio>
+<script src="/static/app.js"></script>
+</body>
+</html>

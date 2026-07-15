@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# VoxPolish runtime artifacts (never commit audio/sessions)
+voxpolish_workspace/
+*_session/
+voxpolish_out/
+*.wav
+*.flac
+*.mp3
+*.m4a
+!voxpolish/tests/**/*.wav
+
+# Tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Vox analysis component keeps its own ignore rules (runtime uploads, engine
+# output, coaching data) in voxanalysis/.gitignore — preserved from the
+# original vox-cloud-alpha repository.
