@@ -1,0 +1,84 @@
+/* ============================================================================
+   VOX Suite — component kit  (Visual System v0.1)
+   Reusable, framework-free primitives shared by VoxPolish + VoxAnalysis.
+   Depends on vox-tokens.css. All classes are `vox-` prefixed so they can be
+   dropped into either app without colliding with existing styles.
+
+   Canonical copy lives in /design; run design/sync.sh to vendor into each app.
+   ============================================================================ */
+
+/* ---- motion ---------------------------------------------------------------- */
+@keyframes vox-pulse{0%,100%{opacity:1}50%{opacity:.24}}
+@keyframes vox-blink{0%,49%{opacity:1}50%,100%{opacity:.16}}
+@keyframes vox-load{from{transform:translateX(-120%)}to{transform:translateX(420%)}}
+@keyframes vox-glow-pulse{0%,100%{box-shadow:0 0 12px rgba(63,224,255,.45)}50%{box-shadow:0 0 22px rgba(63,224,255,.85)}}
+
+/* ---- state LED — the system's pulse --------------------------------------- */
+/* Colour + animation encode state together.
+     .is-standby cyan pulse · .is-working amber blink ·
+     .is-done green · .is-alert red fast-blink · .is-analyze violet          */
+.vox-led{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--vox-dim);flex:0 0 auto;vertical-align:middle}
+.vox-led.is-standby{background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan);animation:vox-pulse 1.4s ease-in-out infinite}
+.vox-led.is-working{background:var(--vox-amber);box-shadow:var(--vox-glow-amber);animation:vox-blink 1s steps(1,end) infinite}
+.vox-led.is-done{background:var(--vox-green);box-shadow:var(--vox-glow-green)}
+.vox-led.is-alert{background:var(--vox-red);box-shadow:var(--vox-glow-red);animation:vox-blink .6s steps(1,end) infinite}
+.vox-led.is-analyze{background:var(--vox-violet);box-shadow:var(--vox-glow-violet);animation:vox-pulse 1.4s ease-in-out infinite}
+
+/* ---- signal chain — where in the pipeline --------------------------------- */
+.vox-chain{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;
+  padding:14px 16px;border:1px solid var(--vox-line);border-radius:12px;background:#0a1017}
+.vox-step{position:relative;padding:12px 8px 10px;border-top:2px solid #223142;
+  font-family:var(--vox-mono);font-size:9.5px;line-height:1.4;letter-spacing:.06em;text-transform:uppercase;color:var(--vox-dim)}
+.vox-step__n{display:block;font-size:8.5px;color:#3a4a58;margin-bottom:3px}
+.vox-step.is-done{border-color:var(--vox-green);color:#8fb6a6}
+.vox-step.is-done .vox-step__n{color:var(--vox-green)}
+.vox-step.is-active{border-color:var(--vox-cyan);color:var(--vox-ink);background:linear-gradient(180deg,rgba(63,224,255,.09),transparent)}
+.vox-step.is-active .vox-step__n{color:var(--vox-cyan)}
+.vox-step.is-active::before{content:"";position:absolute;top:-5px;left:0;width:7px;height:7px;border-radius:50%;
+  background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan);animation:vox-pulse 1s ease-in-out infinite}
+
+/* ---- meters — the analog pulse -------------------------------------------- */
+/* Green→amber→red encodes headroom; amber/red surface only near clip.        */
+.vox-meter{height:8px;border-radius:3px;background:#111e28;overflow:hidden;position:relative}
+.vox-meter__fill{position:absolute;inset:0 auto 0 0;border-radius:3px;width:0;
+  background:linear-gradient(90deg,var(--vox-green) 0,var(--vox-green) 60%,var(--vox-amber) 82%,var(--vox-red) 100%);
+  transition:width .08s linear}
+.vox-meter--cyan .vox-meter__fill{background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan))}
+
+/* indeterminate progress (upload / working) */
+.vox-bar{height:3px;border-radius:3px;background:#16242f;overflow:hidden}
+.vox-bar__i{display:block;width:35%;height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan));animation:vox-load 1.3s ease-in-out infinite}
+
+/* ---- controls -------------------------------------------------------------- */
+.vox-btn{min-height:44px;display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--vox-line-2);background:linear-gradient(#18202a,#10161e);color:#dce4ec;
+  padding:9px 14px;border-radius:var(--vox-radius-sm);cursor:pointer;
+  font:700 .72rem/1.2 var(--vox-mono);letter-spacing:.06em;text-transform:uppercase;
+  transition:border-color .15s,color .15s,background .15s,transform .12s}
+.vox-btn:hover{border-color:#59697b;color:#fff}
+.vox-btn:active{transform:translateY(1px)}
+.vox-btn[aria-pressed="true"]{border-color:rgba(63,224,255,.5);background:#102630;color:var(--vox-cyan)}
+.vox-btn:disabled{opacity:.45;cursor:not-allowed}
+.vox-btn--primary{color:var(--vox-void);border-color:transparent;
+  background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:var(--vox-glow-cyan)}
+.vox-btn--primary:hover{filter:brightness(1.08);color:var(--vox-void)}
+.vox-btn--ready{animation:vox-glow-pulse 1.8s ease-in-out infinite}
+
+/* ---- chips / surfaces ------------------------------------------------------ */
+.vox-chip{font-family:var(--vox-mono);font-size:10px;letter-spacing:.06em;color:var(--vox-muted);
+  border:1px solid var(--vox-line-2);border-radius:6px;padding:5px 9px;background:#0b1520}
+.vox-chip.is-hot{color:var(--vox-cyan);border-color:rgba(63,224,255,.4)}
+.vox-card{border:1px solid var(--vox-line);border-radius:var(--vox-radius);
+  background:linear-gradient(160deg,#0d1620,#0a1017);box-shadow:0 20px 55px #0008,inset 0 1px 0 rgba(255,255,255,.03)}
+
+/* uppercase mono label */
+.vox-label{font-family:var(--vox-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-muted)}
+
+/* ---- accessibility --------------------------------------------------------- */
+.vox-focusable:focus-visible,
+.vox-btn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){
+  .vox-led,.vox-step.is-active::before,.vox-bar__i,.vox-btn--ready{animation:none!important}
+}

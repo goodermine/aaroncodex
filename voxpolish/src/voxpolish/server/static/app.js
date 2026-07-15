@@ -13,7 +13,8 @@ const pitchCanvas = $("pitch");
 const pctx = pitchCanvas.getContext("2d");
 const audio = $("audio");
 
-const COLORS = { pauses: "#e06060", breaths: "#5fbf77", sibilants: "#5fa8e0" };
+// Category colours mirror the shared design tokens --vox-cat-2/3/4 (see design/vox-tokens.css)
+const COLORS = { pauses: "#ff8f6b", breaths: "#5fd0a0", sibilants: "#59b0ff" };
 const KINDS = ["pauses", "breaths", "sibilants"];
 const AMOUNTS = ["dynamics", "breath", "sibilance", "tune"];
 const BYPASSES = { dynamics: "dynamics", gate: "gate", breath: "breath",
@@ -252,7 +253,7 @@ function draw() {
   const curve = state.doc.gain_curve;
   if (curve && curve.length && !bypass.dynamics) {
     const amt = (state.doc.amounts || {}).dynamics ?? 1.0;
-    ctx.strokeStyle = "#e8d44d";
+    ctx.strokeStyle = "#3fe0ff";  /* dynamics curve — suite cyan (was yellow) */
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     let started = false;
@@ -331,7 +332,7 @@ function drawPitch() {
     pctx.stroke();
   };
   drawLine("#7f8895", (m) => m);
-  if (tuneOn) drawLine("#b07fe0", (m, corr) => m + (corr / 100) * amt);
+  if (tuneOn) drawLine("#b78bff", (m, corr) => m + (corr / 100) * amt);
 
   // Playhead.
   pctx.strokeStyle = "#ffffff88";
