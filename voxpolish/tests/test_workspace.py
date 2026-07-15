@@ -156,3 +156,41 @@ def test_peaks_expose_duration_for_navigation(workspace_client):
     peaks = workspace_client.get("/api/peaks/original").json()
     assert peaks["duration"] > 3.5
     assert len(peaks["min"]) == len(peaks["max"]) <= 2400
+
+
+# ---------------------------------------------------------------- download
+
+
+def test_download_serves_rendered_wav_as_attachment(workspace_client):
+    _await_job(workspace_client,
+               _run_upload(workspace_client, _wav_bytes(), filename="my song.wav").json()["id"])
+    r = workspace_client.get("/api/download")
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "audio/wav"
+    disp = r.headers.get("content-disposition", "")
+    assert "attachment" in disp
+    # Friendly filename derived from the upload, safely, plus a tag. Spaces get
+    # RFC 5987 percent-encoded, so normalize before checking.
+    assert "voxpolish" in disp and ".wav" in disp
+    assert "my" in disp.replace("%20", " ")
+    assert r.content[:4] == b"RIFF"  # a real WAV
+
+
+def test_download_reflects_the_current_render(workspace_client):
+    _await_job(workspace_client, _run_upload(workspace_client, _wav_bytes()).json()["id"])
+    before = workspace_client.get("/api/download").content
+
+    # Bypass every module and re-render → the download changes.
+    d = workspace_client.get("/api/document").json()
+    doc = d["document"]
+    doc["bypass"] = {k: True for k in ("dynamics", "gate", "breath", "sibilance", "tune")}
+    workspace_client.put("/api/document", json={"revision": d["revision"], "document": doc})
+    workspace_client.post("/api/render")
+    while workspace_client.get("/api/render").json()["status"] == "running":
+        time.sleep(0.05)
+    after = workspace_client.get("/api/download").content
+    assert after != before
+
+
+def test_download_without_session_is_409(workspace_client):
+    assert workspace_client.get("/api/download").status_code == 409

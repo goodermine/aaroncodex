@@ -180,6 +180,15 @@ def create_app(root: Path) -> FastAPI:
         # FileResponse handles HTTP range requests for streaming playback.
         return FileResponse(path, media_type="audio/wav")
 
+    @app.get("/api/download")
+    def download():
+        s = require_current()
+        path = s._audio_path("cleaned")
+        if not path.exists():
+            raise HTTPException(404, "nothing rendered to download yet")
+        # filename= sets Content-Disposition: attachment, so the browser saves.
+        return FileResponse(path, media_type="audio/wav", filename=s.download_name())
+
     return app
 
 

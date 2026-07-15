@@ -59,12 +59,13 @@ class Session:
         settings: Settings | None = None,
         tune: bool = True,
         progress=None,
+        display_name: str | None = None,
     ) -> "Session":
         """Analyze a recording into a new session folder.
 
         tune: enable the Tune module for this session (default on, per the
         July 15 decision record). progress: optional callback(stage_str) for
-        the upload UI.
+        the upload UI. display_name: friendly source name for downloads.
         """
         def step(stage: str) -> None:
             if progress is not None:
@@ -75,6 +76,7 @@ class Session:
         root.mkdir(parents=True, exist_ok=True)
         (root / "history").mkdir(exist_ok=True)
         s = cls(root)
+        s._write_meta(name=Path(display_name or source).stem)
 
         # Disaster 1: the user's file is copied in, then never touched again.
         step("decoding")
@@ -127,15 +129,29 @@ class Session:
     def _meta_path(self) -> Path:
         return self.root / "session.json"
 
-    def revision(self) -> int:
+    def _read_meta(self) -> dict:
         try:
-            return json.loads(self._meta_path().read_text())["revision"]
-        except (FileNotFoundError, KeyError, json.JSONDecodeError):
-            return 1
+            return json.loads(self._meta_path().read_text())
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {}
+
+    def _write_meta(self, **updates) -> None:
+        meta = self._read_meta()
+        meta.update(updates)
+        atomic_write_text(self._meta_path(), json.dumps(meta))
+
+    def revision(self) -> int:
+        return int(self._read_meta().get("revision", 1))
+
+    def name(self) -> str:
+        return self._read_meta().get("name") or self.root.name
+
+    def download_name(self) -> str:
+        return f"{self.name()}_voxpolish.wav"
 
     def _write_doc(self, doc: EditDocument, revision: int) -> None:
         atomic_write_text(self._doc_path(), doc.to_json())
-        atomic_write_text(self._meta_path(), json.dumps({"revision": revision}))
+        self._write_meta(revision=revision)
 
     def document(self) -> EditDocument:
         return EditDocument.load(self._doc_path())

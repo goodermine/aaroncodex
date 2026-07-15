@@ -431,6 +431,10 @@ $("source").addEventListener("change", async (ev) => {
   draw();
 });
 $("new-upload").addEventListener("click", showLanding);
+$("download").addEventListener("click", () => {
+  // Cache-bust with the revision so the newest render is what downloads.
+  window.location.href = `/api/download?v=${state.revision}`;
+});
 
 setInterval(() => {
   $("time").textContent = fmtTime(audio.currentTime || 0);

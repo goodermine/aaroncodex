@@ -125,7 +125,7 @@ class Workspace:
                 Session.create(
                     upload_path, session_dir,
                     settings=Settings.for_mode("voice"),
-                    tune=tune, progress=progress,
+                    tune=tune, progress=progress, display_name=filename,
                 )
                 job.session_id = session_id
                 self.current_id = session_id

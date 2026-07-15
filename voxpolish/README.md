@@ -97,10 +97,10 @@ time; the CLI file/session workflow above still works unchanged.
 The editor: waveform with the module rail, region overlays (gate red, breath
 green, sibilance blue), the dynamics gain curve, the **Tune** module (shows the
 detected key; toggle it and re-render), A/B playback of original vs cleaned,
-click-to-select and Delete-to-remove regions, Render to apply. Navigate with
-**Fit / + / −**, drag or scroll the waveform to pan, Ctrl+scroll to zoom at the
-pointer, and the scrollbar under the waveform; the view follows playback unless
-you're panning.
+click-to-select and Delete-to-remove regions, Render to apply, and **Download**
+to save the current rendered track as a WAV. Navigate with **Fit / + / −**,
+drag or scroll the waveform to pan, Ctrl+scroll to zoom at the pointer, and the
+scrollbar under the waveform; the view follows playback unless you're panning.
 
 Safety architecture (see `docs/vox-cleanup-plan.md`, "Phase 1 disaster plan"):
 your original file is copied into the session and never written; every write
