@@ -37,7 +37,7 @@ behavior, and cache eviction.
 APP_URL=http://100.103.207.54:8877/ \
 CDP_URL=http://127.0.0.1:9225 \
 EVIDENCE_DIR=/tmp/voxai-phase-gates/phase2 \
-node backend/pitch-viewer/tests/browser/phase-gates/phase2_rendering_check.mjs
+node vox-analysis/viewer/tests/browser/phase-gates/phase2_rendering_check.mjs
 ```
 
 ### Phase 3 mobile and lifecycle behavior
@@ -53,7 +53,7 @@ APP_URL=http://100.103.207.54:8877/ \
 CDP_URL=http://127.0.0.1:9225 \
 JOB_ID=<completed-job-uuid> \
 EVIDENCE_DIR=/tmp/voxai-phase-gates/mobile \
-node backend/pitch-viewer/tests/browser/phase-gates/phase3_mobile_lifecycle_check.mjs
+node vox-analysis/viewer/tests/browser/phase-gates/phase3_mobile_lifecycle_check.mjs
 ```
 
 ### Phase 3 four-minute performance profile
@@ -69,7 +69,7 @@ APP_URL=http://100.103.207.54:8877/ \
 CDP_URL=http://127.0.0.1:9225 \
 JOB_ID=<completed-job-uuid> \
 EVIDENCE_DIR=/tmp/voxai-phase-gates/performance \
-node backend/pitch-viewer/tests/browser/phase-gates/phase3_performance_check.mjs
+node vox-analysis/viewer/tests/browser/phase-gates/phase3_performance_check.mjs
 ```
 
 The performance release budget remains: visually smooth playback, no recurring

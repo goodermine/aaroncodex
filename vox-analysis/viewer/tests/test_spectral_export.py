@@ -14,7 +14,7 @@ import soundfile as sf
 from PIL import Image
 
 
-EXPORTER_PATH = Path(__file__).parents[2] / "voxai-local-analysis" / "spectral_export.py"
+EXPORTER_PATH = Path(__file__).parents[2] / "engine" / "spectral_export.py"
 SPEC = importlib.util.spec_from_file_location("spectral_export", EXPORTER_PATH)
 spectral_export = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader

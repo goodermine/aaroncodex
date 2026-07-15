@@ -13,7 +13,7 @@ from unittest.mock import patch
 import numpy as np
 import soundfile as sf
 
-TRACKER_PATH = Path(__file__).parents[2] / "voxai-local-analysis" / "pitch_track.py"
+TRACKER_PATH = Path(__file__).parents[2] / "engine" / "pitch_track.py"
 SPEC = importlib.util.spec_from_file_location("pitch_track", TRACKER_PATH)
 pitch_track = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader

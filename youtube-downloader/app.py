@@ -17,7 +17,7 @@ Run:
 
 Requires ffmpeg on PATH (already required by the VOXAI backend).
 
-Agents should use scripts/fetch_reference.py instead of this page - it
+Agents should use youtube-downloader/fetch_reference.py instead of this page - it
 wraps the same download logic (reference_dl.py) as a one-shot CLI.
 
 Product rule reminder (HANDOFF.md): reference-track comparison requires

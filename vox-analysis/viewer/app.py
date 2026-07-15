@@ -25,9 +25,9 @@ if str(HERE) not in sys.path:
 from report_builder import build_v2_report
 
 RUNTIME = Path(os.getenv("VOX_PITCH_RUNTIME", HERE / "runtime")).resolve()
-TRACKER = (HERE.parent / "voxai-local-analysis" / "pitch_track.py").resolve()
-V2_ANALYZER = (HERE.parent / "voxai-local-analysis" / "analyse_song.py").resolve()
-V2_CALIBRATION = (HERE.parent / "voxai-local-analysis" / "calibration" / "pro_reference.json").resolve()
+TRACKER = (HERE.parent / "engine" / "pitch_track.py").resolve()
+V2_ANALYZER = (HERE.parent / "engine" / "analyse_song.py").resolve()
+V2_CALIBRATION = (HERE.parent / "engine" / "calibration" / "pro_reference.json").resolve()
 MAX_BYTES = 100 * 1024 * 1024
 MAX_DURATION = 15 * 60
 JOB_TTL_SECONDS = 24 * 60 * 60

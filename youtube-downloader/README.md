@@ -4,7 +4,7 @@ Tools for grabbing original/reference songs from YouTube so they can be
 compared against a singer's take in the VOXAI pipeline. Two front doors,
 one shared engine (`reference_dl.py`):
 
-1. **Agent CLI** (`scripts/fetch_reference.py`) — what Candi/the agent
+1. **Agent CLI** (`fetch_reference.py`) — what Candi/the agent
    runs so the user never downloads anything manually.
 2. **Web page** (`app.py`) — a yt5s-style page for humans: paste a link
    or type a song name, press **Start**, switch between **MP3** and
@@ -20,7 +20,7 @@ openclaw-data/vox-coach/uploads/reference/
 ## Setup
 
 ```bash
-cd backend/reference-downloader
+cd youtube-downloader
 pip install -r requirements.txt
 python3 app.py
 ```
@@ -57,7 +57,7 @@ The agent fetches the original song itself — by search query, no URL
 needed:
 
 ```bash
-python3 scripts/fetch_reference.py "Maneskin Beggin official audio"
+python3 youtube-downloader/fetch_reference.py "Maneskin Beggin official audio"
 ```
 
 Prints a JSON manifest with the downloaded file's path (`"status":
@@ -86,7 +86,7 @@ manifest just reports `reference.status: "error"`.
 
 ## Copyright care
 
-Per the product rules in `HANDOFF.md`: reference-track comparison requires
+Per the product copyright rules (archived at `archive/handoffs/HANDOFF.md`): reference-track comparison requires
 copyright care. Use downloads for private comparison/analysis only, keep
 this tool bound to `127.0.0.1` (the default), and delete reference media
 when it is no longer needed. Downloading YouTube content is subject to

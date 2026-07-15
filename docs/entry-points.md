@@ -19,7 +19,7 @@ belong in the web application.
 
 ## VOXAI-Alpha web
 
-`backend/pitch-viewer/` owns browser uploads, asynchronous local jobs, audio
+`vox-analysis/viewer/` owns browser uploads, asynchronous local jobs, audio
 playback, pitch visualisation, original-track comparison and web-formatted
 reports. It does not act as a Telegram bot and does not own Candi's durable
 memory. Its runtime job directory is ignored and must be replaced by durable
@@ -27,7 +27,7 @@ storage and an external queue before public production deployment.
 
 ## Shared engine contract
 
-`backend/voxai-local-analysis/` is the only acoustic-analysis implementation.
+`vox-analysis/engine/` is the only acoustic-analysis implementation.
 Both entry points must call its `analyse_song.py` and use the same calibration.
 The current product contract is:
 

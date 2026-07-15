@@ -26,7 +26,7 @@ TEMP_DIR = DATA_DIR / "temp"
 LOG_PATH = DATA_DIR / "logs" / "vox-coach.log"
 
 BACKEND_DIR = Path(
-    os.environ.get("VOXAI_BACKEND_DIR", WORKSPACE / "backend" / "voxai-local-analysis")
+    os.environ.get("VOXAI_BACKEND_DIR", WORKSPACE / "vox-analysis" / "engine")
 ).expanduser().resolve()
 BACKEND_SCRIPT = BACKEND_DIR / "analyse_song.py"
 BACKEND_PYTHON = BACKEND_DIR / "voxai_env" / "bin" / "python"
@@ -166,13 +166,13 @@ def run_backend(input_path: Path, singer_name: str) -> tuple[Path, Path]:
 
 
 def fetch_reference_track(target: str, quality: str = "320") -> dict:
-    """Download the original song for comparison via scripts/fetch_reference.py.
+    """Download the original song for comparison via youtube-downloader/fetch_reference.py.
 
     Returns the fetcher's JSON manifest. Failures are reported in the
     returned dict rather than raised - a missing reference track must not
     block the singer's analysis.
     """
-    script = WORKSPACE / "scripts" / "fetch_reference.py"
+    script = WORKSPACE / "youtube-downloader" / "fetch_reference.py"
     result = subprocess.run(
         [PYTHON_BIN, str(script), target, "--fmt", "mp3", "--quality", quality],
         capture_output=True,

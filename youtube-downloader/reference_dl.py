@@ -1,7 +1,7 @@
 """Shared download logic for VOX reference tracks.
 
 Used by both the web page (app.py) and the agent-facing CLI
-(scripts/fetch_reference.py). Accepts either a YouTube URL or a free-text
+(youtube-downloader/fetch_reference.py). Accepts either a YouTube URL or a free-text
 search query ("Maneskin Beggin official audio") and downloads the top
 match into the reference library:
 
@@ -20,7 +20,7 @@ from urllib.parse import urlparse
 
 import yt_dlp
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 REFERENCE_DIR = REPO_ROOT / "openclaw-data" / "vox-coach" / "uploads" / "reference"
 
 MP3_BITRATES = ["320", "256", "192", "128", "64"]

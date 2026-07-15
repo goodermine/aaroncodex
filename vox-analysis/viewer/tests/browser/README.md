@@ -27,7 +27,7 @@ Example against the isolated Tailnet server:
 APP_URL=http://100.103.207.54:8877/ \
 CDP_URL=http://127.0.0.1:9225 \
 EVIDENCE_DIR=/tmp/voxai-stop-ship-evidence \
-node backend/pitch-viewer/tests/browser/stop_ship_browser_check.mjs
+node vox-analysis/viewer/tests/browser/stop_ship_browser_check.mjs
 ```
 
 Use `CHECKS=ab`, `CHECKS=scores`, `CHECKS=refinements` or `CHECKS=layout` for a focused gate after a related fix.

@@ -10,7 +10,7 @@ __pycache__/
 .venv/
 venv/
 voxai_env/
-backend/voxai-local-analysis/voxai_env/
+vox-analysis/engine/voxai_env/
 
 # Local config and secrets
 .env
@@ -41,14 +41,15 @@ openclaw-data/vox-coach/reports/pdf/*
 !openclaw-data/vox-coach/memory/pending/.gitkeep
 !openclaw-data/vox-coach/reports/pdf/.gitkeep
 
-# Backend generated files
-backend/voxai-local-analysis/input/*
-backend/voxai-local-analysis/output/*
-backend/voxai-local-analysis/temp/*
-backend/voxai-local-analysis/models/*
-backend/voxai-local-analysis/reports/*
-backend/pitch-viewer/runtime/*
-!backend/pitch-viewer/runtime/.gitkeep
+# Analysis engine generated files
+vox-analysis/engine/input/*
+vox-analysis/engine/output/*
+!vox-analysis/engine/output/.gitkeep
+vox-analysis/engine/temp/*
+vox-analysis/engine/models/*
+vox-analysis/engine/reports/*
+vox-analysis/viewer/runtime/*
+!vox-analysis/viewer/runtime/.gitkeep
 
 # OS/editor
 .DS_Store

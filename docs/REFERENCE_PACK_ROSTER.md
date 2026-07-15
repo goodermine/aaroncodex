@@ -6,7 +6,7 @@ governed by the admission policy in `docs/metrics-methodology.md` (studio
 recordings only, prominent sustained-note-rich lead vocal, minimal audible
 pitch correction, balanced across voice type / era / style).
 
-The analysis JSONs live in `backend/voxai-local-analysis/calibration/references/`.
+The analysis JSONs live in `vox-analysis/engine/calibration/references/`.
 `pro_reference.json` is rebuilt from them with `tools/build_calibration.py`.
 
 ## The 50

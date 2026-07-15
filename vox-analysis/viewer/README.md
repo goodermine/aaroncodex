@@ -10,7 +10,7 @@ call the single shared engine in `../voxai-local-analysis/`; this service must
 not maintain a separate copy of the analyser or calibration.
 
 ```bash
-cd backend/pitch-viewer
+cd vox-analysis/viewer
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt

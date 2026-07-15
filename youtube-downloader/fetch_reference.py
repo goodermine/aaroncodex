@@ -7,9 +7,9 @@ JSON manifest on stdout so the calling agent can pick up the file path.
 
 Examples:
 
-    python3 scripts/fetch_reference.py "Maneskin Beggin official audio"
-    python3 scripts/fetch_reference.py "https://www.youtube.com/watch?v=..." --quality 192
-    python3 scripts/fetch_reference.py "Adele Hello" --info-only
+    python3 youtube-downloader/fetch_reference.py "Maneskin Beggin official audio"
+    python3 youtube-downloader/fetch_reference.py "https://www.youtube.com/watch?v=..." --quality 192
+    python3 youtube-downloader/fetch_reference.py "Adele Hello" --info-only
 
 Output (stdout, JSON):
 
@@ -26,7 +26,7 @@ If the same video was fetched before, the library copy is reused
 ("cached": true) instead of downloading again.
 
 Requires yt-dlp and ffmpeg (pip install -r
-backend/reference-downloader/requirements.txt).
+youtube-downloader/requirements.txt).
 
 Copyright care per HANDOFF.md: private comparison/analysis use only;
 delete reference media when no longer needed.
@@ -39,7 +39,7 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend" / "reference-downloader"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 try:
     import reference_dl as rd
@@ -50,7 +50,7 @@ except ImportError:
                 "status": "error",
                 "error": (
                     "yt-dlp is not installed. Run: "
-                    "pip install -r backend/reference-downloader/requirements.txt"
+                    "pip install -r youtube-downloader/requirements.txt"
                 ),
             }
         )
