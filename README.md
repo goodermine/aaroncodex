@@ -129,7 +129,10 @@ Metrics methodology: [`voxanalysis/docs/metrics-methodology.md`](voxanalysis/doc
 - **License:** Proprietary — © 2026 Aaron John Ellis, all rights reserved. This
   is a paid product; no use, copying, or distribution is permitted without a
   paid commercial license (see [`LICENSE`](LICENSE)). Third-party dependencies
-  remain under their own licenses; a dependency license audit is required before
-  distribution to confirm every bundled component permits proprietary commercial
-  use — see
-  [`docs/handoffs/chatgpt-dependency-license-audit.md`](docs/handoffs/chatgpt-dependency-license-audit.md).
+  remain under their own licenses; see [`NOTICE`](NOTICE) for attributions.
+- **Before selling:** the dependency license audit
+  ([`docs/dependency-license-audit.md`](docs/dependency-license-audit.md)) found
+  **blockers that must be resolved first** — notably `praat-parselmouth`
+  (GPLv3 copyleft), the Demucs pretrained weights (license unresolved), and the
+  UVR stem-separation model weights (vary per model). Read the audit's
+  "Recommended path to clear to sell" before distribution.

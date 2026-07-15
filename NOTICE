@@ -1,0 +1,56 @@
+VoxPolish + Vox Analysis
+Copyright (c) 2026 Aaron John Ellis. All rights reserved.
+
+This product includes third-party open-source software, each governed by its
+own license. The proprietary license in LICENSE covers only the first-party
+code; it does not override these components' licenses. The list below must be
+kept current and shipped with the product. See docs/dependency-license-audit.md
+for the full audit, including UNRESOLVED items that must be closed before
+commercial distribution.
+
+--------------------------------------------------------------------------------
+Permissive components (safe for proprietary commercial distribution)
+--------------------------------------------------------------------------------
+
+NumPy — Copyright (c) NumPy Developers — BSD 3-Clause License
+SciPy — Copyright (c) SciPy Developers — BSD 3-Clause License
+PySoundFile — Copyright (c) Bastian Bechtold — BSD 3-Clause License
+  (bundles libsndfile, Copyright (c) Erik de Castro Lopo, GNU LGPL v2.1;
+   dynamically linked and replaceable per LGPL terms)
+pyloudnorm — Copyright (c) Christian Steinmetz — MIT License
+PyTorch (torch) — Copyright (c) Meta Platforms, Inc. and affiliates — BSD 3-Clause
+torchaudio — Copyright (c) Meta Platforms, Inc. and affiliates — BSD 2-Clause
+Silero VAD — Copyright (c) Silero Team — MIT License
+DeepFilterNet — Copyright (c) Hendrik Schröter — MIT / Apache-2.0 (dual)
+WORLD Vocoder (pyworld) — Copyright (c) Masanori Morise — Modified BSD License;
+  Python wrapper Copyright (c) contributors — MIT License
+Demucs (code) — Copyright (c) Meta Platforms, Inc. and affiliates — MIT License
+  (NOTE: pretrained model weights are NOT cleared — see the audit, Blocker #2)
+FastAPI — Copyright (c) Sebastián Ramírez — MIT License
+Uvicorn — Copyright (c) Encode OSS Ltd. — BSD 3-Clause License
+python-multipart — Copyright (c) Andrew Dunham — Apache-2.0 License
+HTTPX — Copyright (c) Encode OSS Ltd. — BSD 3-Clause License
+librosa — Copyright (c) librosa development team — ISC License
+Matplotlib — Copyright (c) Matplotlib Development Team — Matplotlib License (BSD-style)
+audio-separator (package) — Copyright (c) Andrew Beveridge — MIT License
+  Stem-separation models are from the Ultimate Vocal Remover (UVR) project;
+  credit to UVR and its developers is required. (NOTE: individual model weights
+  are NOT cleared — see the audit, Blocker #3)
+
+Full license texts for each component are available in the component's
+distribution and its upstream repository.
+
+--------------------------------------------------------------------------------
+NOT included / must be resolved before commercial distribution
+--------------------------------------------------------------------------------
+
+praat-parselmouth — GPL-3.0-or-later — COPYLEFT, incompatible with proprietary
+  distribution as linked. Must be replaced, isolated as a separate process, or
+  removed. See audit Blocker #1.
+Demucs pretrained weights — license unresolved (reported non-commercial). See
+  audit Blocker #2.
+UVR / audio-separator model weights — vary per model; must be pinned to
+  commercial-safe models and documented. See audit Blocker #3.
+yt-dlp — Unlicense (public domain) software, BUT downloading third-party site
+  content in a paid product raises Terms-of-Service / copyright issues. See
+  audit Blocker #4.
