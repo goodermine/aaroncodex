@@ -1,0 +1,62 @@
+VoxPolish + Vox Analysis
+Copyright (c) 2026 Aaron John Ellis. All rights reserved.
+
+This product includes third-party open-source software, each governed by its
+own license. The proprietary license in LICENSE covers only the first-party
+code; it does not override these components' licenses. The list below must be
+kept current and shipped with the product. See docs/dependency-license-audit.md
+for the full audit, including UNRESOLVED items that must be closed before
+commercial distribution.
+
+--------------------------------------------------------------------------------
+Permissive components (safe for proprietary commercial distribution)
+--------------------------------------------------------------------------------
+
+NumPy — Copyright (c) NumPy Developers — BSD 3-Clause License
+SciPy — Copyright (c) SciPy Developers — BSD 3-Clause License
+PySoundFile — Copyright (c) Bastian Bechtold — BSD 3-Clause License
+  (bundles libsndfile, Copyright (c) Erik de Castro Lopo, GNU LGPL v2.1;
+   dynamically linked and replaceable per LGPL terms)
+pyloudnorm — Copyright (c) Christian Steinmetz — MIT License
+PyTorch (torch) — Copyright (c) Meta Platforms, Inc. and affiliates — BSD 3-Clause
+torchaudio — Copyright (c) Meta Platforms, Inc. and affiliates — BSD 2-Clause
+Silero VAD — Copyright (c) Silero Team — MIT License
+DeepFilterNet — Copyright (c) Hendrik Schröter — MIT / Apache-2.0 (dual)
+WORLD Vocoder (pyworld) — Copyright (c) Masanori Morise — Modified BSD License;
+  Python wrapper Copyright (c) contributors — MIT License
+FastAPI — Copyright (c) Sebastián Ramírez — MIT License
+Uvicorn — Copyright (c) Encode OSS Ltd. — BSD 3-Clause License
+python-multipart — Copyright (c) Andrew Dunham — Apache-2.0 License
+HTTPX — Copyright (c) Encode OSS Ltd. — BSD 3-Clause License
+librosa — Copyright (c) librosa development team — ISC License
+Matplotlib — Copyright (c) Matplotlib Development Team — Matplotlib License (BSD-style)
+Mel-Band RoFormer vocal model — Copyright (c) Kimberley Jensen — MIT License
+  (checkpoint: huggingface.co/KimberleyJSN/melbandroformer; recommended
+  commercial-safe separation model — see audit §2). Runner code (BS-RoFormer by
+  Phil Wang; python-audio-separator by Andrew Beveridge; melband-roformer-infer)
+  — MIT.
+
+audio-separator (package) — Copyright (c) Andrew Beveridge — MIT License
+  Stem-separation models are from the Ultimate Vocal Remover (UVR) project;
+  credit to UVR and its developers is required. (NOTE: the UVR default model
+  weights are NOT all commercial-cleared — pin to the MIT RoFormer checkpoint
+  above; see audit Blocker #3.)
+
+Full license texts for each component are available in the component's
+distribution and its upstream repository.
+
+--------------------------------------------------------------------------------
+NOT included / must be resolved before commercial distribution
+--------------------------------------------------------------------------------
+
+praat-parselmouth — GPL-3.0-or-later — COPYLEFT. Resolved for a HOSTED product:
+  runs server-side only, never distributed, so copyleft is not triggered. Must
+  NOT be shipped in any downloadable/desktop build. See audit Blocker #1.
+Demucs — REMOVED. No longer a dependency; replaced by the MIT RoFormer (its
+  weights were CC-BY-NC). See audit Blocker #2.
+UVR default model weights — no longer used; separation is pinned to the MIT
+  RoFormer checkpoint. See audit Blocker #3.
+yt-dlp — Unlicense (public domain). Resolved for the shipped product by design:
+  the YouTube-download tooling is founder-only calibration and is NOT included in
+  the shipped product, and no audio is ever retained — only derived metrics. See
+  audit §4. (Keep yt-dlp out of the distributed/hosted codebase.)

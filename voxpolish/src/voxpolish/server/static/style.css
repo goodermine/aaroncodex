@@ -1,14 +1,17 @@
+/* VoxPolish tokens now derive from the shared VOX Suite design layer
+   (vox-tokens.css). The former yellow accent is retired for suite cyan. */
 :root {
-  --bg: #14161a;
-  --panel: #1d2026;
-  --line: #2c313a;
-  --text: #e6e8ec;
-  --muted: #9aa1ad;
-  --accent: #e8d44d;
-  --gate: #e06060;
-  --breath: #5fbf77;
-  --sib: #5fa8e0;
-  --dyn: #e8d44d;
+  --bg: var(--vox-void);
+  --panel: var(--vox-panel);
+  --line: var(--vox-line);
+  --text: var(--vox-ink);
+  --muted: var(--vox-muted);
+  --accent: var(--vox-cyan);        /* was yellow */
+  --gate: var(--vox-cat-2);
+  --breath: var(--vox-cat-3);
+  --sib: var(--vox-cat-4);
+  --dyn: var(--vox-cyan);           /* was yellow */
+  --tune: var(--vox-cat-5);
 }
 * { box-sizing: border-box; margin: 0; }
 body {
@@ -25,12 +28,14 @@ h1 { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; }
 .transport, .zoom { display: flex; gap: 6px; align-items: center; }
 .actions { margin-left: auto; display: flex; gap: 10px; align-items: center; }
 button, select {
-  background: #262b33; color: var(--text);
+  background: var(--vox-raised); color: var(--text);
   border: 1px solid var(--line); border-radius: 5px;
   padding: 4px 10px; font: inherit; cursor: pointer;
 }
 button:hover { border-color: var(--muted); }
-button.primary { background: var(--accent); color: #14161a; font-weight: 600; }
+button:focus-visible, select:focus-visible,
+input:focus-visible { outline: 2px solid var(--vox-cyan); outline-offset: 2px; }
+button.primary { background: var(--accent); color: var(--vox-void); font-weight: 600; }
 button.primary:disabled { opacity: 0.5; cursor: wait; }
 .status { color: var(--muted); font-size: 12px; max-width: 340px; }
 .status.error { color: var(--gate); }
@@ -59,12 +64,12 @@ main {
 .dot.breath { background: var(--breath); }
 .dot.sib { background: var(--sib); }
 .dot.dyn { background: var(--dyn); }
-.dot.tune { background: #b07fe0; }
+.dot.tune { background: var(--tune); }
 .keyname { grid-column: 1 / -1; color: var(--muted); font-size: 11px; }
 .module.disabled { opacity: 0.45; }
 .hint { margin-top: 14px; color: var(--muted); font-size: 11.5px; }
 kbd {
-  background: #262b33; border: 1px solid var(--line);
+  background: var(--vox-raised); border: 1px solid var(--line);
   border-radius: 4px; padding: 0 4px; font-size: 10px;
 }
 
@@ -74,12 +79,12 @@ kbd {
 }
 #wave {
   width: 100%; height: 300px; max-height: 45vh; display: block;
-  cursor: grab; background: #101216;
+  cursor: grab; background: var(--vox-sunken);
   border: 1px solid var(--line); border-radius: 8px 8px 0 0;
 }
 #wave.panning { cursor: grabbing; }
 #scrollbar {
-  height: 14px; width: 100%; background: #0c0e11;
+  height: 14px; width: 100%; background: var(--vox-sunken);
   border: 1px solid var(--line); border-top: none;
   border-radius: 0 0 8px 8px; position: relative; cursor: pointer;
 }
@@ -108,11 +113,11 @@ kbd {
 .legend { display: inline-flex; align-items: center; gap: 5px; }
 .sw { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
 .sw.sung { background: #7f8895; }
-.sw.tuned { background: #b07fe0; }
+.sw.tuned { background: var(--tune); }
 .sw.target { background: #4a5262; height: 0; border-top: 1px dashed #5a6474; }
 #pitch {
   width: 100%; height: 150px; max-height: 24vh; display: block;
-  background: #101216; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--vox-sunken); border: 1px solid var(--line); border-radius: 8px;
 }
 
 /* ------------------------------------------------------------ landing */
@@ -148,7 +153,7 @@ kbd {
 .landing-actions { display: flex; gap: 10px; }
 #upload-progress { margin-top: 16px; }
 #upload-progress.hidden, #close-landing.hidden, #start-upload.hidden { display: none; }
-.bar { height: 8px; background: #0c0e11; border-radius: 4px; overflow: hidden;
+.bar { height: 8px; background: var(--vox-sunken); border-radius: 4px; overflow: hidden;
   margin-bottom: 6px; }
 #upload-bar { height: 100%; width: 0; background: var(--accent);
   transition: width 0.3s; }

@@ -230,13 +230,43 @@ def run_stem_separation(input_path, script_path="tools/stems/batch_stems.sh"):
     if instrumental_path:
         print(f"  Instrumental stem saved: {instrumental_path}")
 
+    # Separator provenance: a separator change shifts the very measurements VOX
+    # depends on (pitch coverage, HNR, jitter/shimmer), so every metrics JSON
+    # must record which separator/model produced the stem. Scores from
+    # different separators are NOT directly comparable. The model tag is parsed
+    # from the audio-separator output filename ("<base>_(Vocals)_<model>.<ext>")
+    # so it reflects what actually ran, not a configured default.
+    # (SHA-256 / chunk / overlap are recorded on the target machine — see
+    #  docs/models/separation-model.md.)
+    model_tag = _extract_model_tag(vocals_path)
     return {
         "enabled": True,
         "script_path": absolute_script_path,
         "output_dir": run_output_dir,
         "vocals_path": vocals_path,
         "instrumental_path": instrumental_path,
+        "separator": "kimberleyjsn-melbandroformer"
+        if "roformer" in (model_tag or "").lower()
+        else (model_tag or "unknown"),
+        "separator_model": model_tag or "unknown",
+        "separator_backend": "audio-separator",
+        "separator_license": "MIT"
+        if "roformer" in (model_tag or "").lower()
+        else "UNVERIFIED — non-default model, confirm commercial license",
     }
+
+
+def _extract_model_tag(vocals_path):
+    """Parse the model name from an audio-separator output filename, i.e. the
+    text between '_(Vocals)_' and the extension. Ground truth of what ran."""
+    if not vocals_path:
+        return None
+    stem = os.path.splitext(os.path.basename(vocals_path))[0]
+    marker = "_(Vocals)_"
+    idx = stem.find(marker)
+    if idx != -1:
+        return stem[idx + len(marker):] or None
+    return None
 
 
 def load_audio(wav_path):

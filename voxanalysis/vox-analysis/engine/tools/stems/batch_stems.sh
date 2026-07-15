@@ -4,11 +4,12 @@ set -euo pipefail
 INPUT_PATH=""
 OUTPUT_DIR=""
 PYTHON_BIN="python3"
-# This two-stem MDX model is supported by current audio-separator releases and
-# is practical on CPU for interactive mobile uploads. The legacy
-# UVR-MDX-NET-Inst_HQ_3 default can no longer resolve on some package versions;
-# heavier Roformer models remain available through --model when required.
-MDX_MODEL="UVR_MDXNET_Main.onnx"
+# MIT-licensed Mel-Band RoFormer (vocals) by Kimberley Jensen, via audio-
+# separator. Chosen for commercial licensing: the previous UVR/MDX default
+# weights are NOT commercially cleared (see docs/dependency-license-audit.md).
+# RoFormer is heavier than MDX — prefer GPU for hosted use; override with
+# --model for a lighter checkpoint if CPU speed demands it.
+SEP_MODEL="vocals_mel_band_roformer.ckpt"
 VENV_PATH="${HOME}/.venvs/vox-sep-uvr"
 
 usage() {
@@ -24,7 +25,7 @@ Required:
 
 Options:
   --python <bin>      Python binary (default: python3)
-  --model <name>      audio-separator model name (default: UVR-MDX-NET-Inst_HQ_3.onnx)
+  --model <name>      audio-separator model name (default: vocals_mel_band_roformer.ckpt)
   --venv <path>       Dedicated venv path (default: ~/.venvs/vox-sep-uvr)
   --help              Show help
 
@@ -47,7 +48,7 @@ while [[ $# -gt 0 ]]; do
     --python)
       PYTHON_BIN="$2"; shift 2 ;;
     --model)
-      MDX_MODEL="$2"; shift 2 ;;
+      SEP_MODEL="$2"; shift 2 ;;
     --venv)
       VENV_PATH="$2"; shift 2 ;;
     --help|-h)
@@ -98,7 +99,7 @@ setup_env() {
 run_file() {
   local file="$1"
   log "Separating: $file"
-  audio-separator -m "$MDX_MODEL" --output_dir "$OUTPUT_DIR" "$file"
+  audio-separator -m "$SEP_MODEL" --output_dir "$OUTPUT_DIR" "$file"
 }
 
 main() {
@@ -113,7 +114,7 @@ main() {
   fi
 
   log "Files detected: ${#files[@]}"
-  log "Model: $MDX_MODEL"
+  log "Model: $SEP_MODEL"
   log "Output dir: $OUTPUT_DIR"
 
   setup_env
