@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+voxai_env/
+vox-analysis/engine/voxai_env/
+
+# Local config and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# VOX runtime uploads and generated files
+openclaw-data/vox-coach/uploads/raw/*
+openclaw-data/vox-coach/uploads/processed/*
+openclaw-data/vox-coach/uploads/reference/*
+openclaw-data/vox-coach/temp/*
+openclaw-data/vox-coach/logs/*
+openclaw-data/vox-coach/memory/analyses/*
+openclaw-data/vox-coach/memory/progress/*
+openclaw-data/vox-coach/memory/pending/*
+openclaw-data/vox-coach/reports/pdf/*
+
+# Keep runtime folders present
+!openclaw-data/vox-coach/uploads/raw/.gitkeep
+!openclaw-data/vox-coach/uploads/processed/.gitkeep
+!openclaw-data/vox-coach/uploads/reference/.gitkeep
+!openclaw-data/vox-coach/temp/.gitkeep
+!openclaw-data/vox-coach/logs/.gitkeep
+!openclaw-data/vox-coach/memory/analyses/.gitkeep
+!openclaw-data/vox-coach/memory/progress/.gitkeep
+!openclaw-data/vox-coach/memory/pending/.gitkeep
+!openclaw-data/vox-coach/reports/pdf/.gitkeep
+
+# Analysis engine generated files
+vox-analysis/engine/input/*
+vox-analysis/engine/output/*
+!vox-analysis/engine/output/.gitkeep
+vox-analysis/engine/temp/*
+vox-analysis/engine/models/*
+vox-analysis/engine/reports/*
+vox-analysis/viewer/runtime/*
+!vox-analysis/viewer/runtime/.gitkeep
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
