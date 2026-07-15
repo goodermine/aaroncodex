@@ -17,7 +17,10 @@ dependencies = [
 [project.optional-dependencies]
 # Everything below is optional: the pipeline runs with DSP fallbacks without them,
 # and upgrades itself when they are installed (Apple Silicon: torch uses MPS).
-separation = ["demucs>=4.0", "torch>=2.1", "torchaudio>=2.1"]
+# Separation uses the MIT Mel-Band RoFormer via audio-separator (MIT), which
+# pulls its own torch/onnxruntime. Demucs is intentionally NOT used: its
+# pretrained weights are CC-BY-NC (non-commercial). See the audit §2.
+separation = ["audio-separator>=0.18"]
 clean = ["deepfilternet>=0.5"]
 vad = ["torch>=2.1", "silero-vad>=5.0"]
 ui = ["fastapi>=0.110", "uvicorn>=0.27", "python-multipart>=0.0.9"]

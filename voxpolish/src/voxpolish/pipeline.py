@@ -101,7 +101,7 @@ class Settings:
     mode: str = "voice"  # "song" | "voice"
     # In voice mode, still run separation to strip background music beds.
     strip_music_bed: bool = False
-    separation_model: str = "htdemucs_ft"
+    separation_model: str = separation.SEPARATION_MODEL
     # Test-time augmentation passes for Demucs: 2+ audibly reduces bleed at
     # roughly linear CPU cost. 1 = fastest.
     separation_shifts: int = 1
