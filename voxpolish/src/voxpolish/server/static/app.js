@@ -415,7 +415,7 @@ document.addEventListener("keydown", (ev) => {
 $("zoom-in").addEventListener("click", () => zoom(0.5));
 $("zoom-out").addEventListener("click", () => zoom(2.0));
 $("zoom-fit").addEventListener("click", () => {
-  state.view = { t0: 0, span: state.duration, ...{} };
+  state.view = { t0: 0, span: state.duration };
   state.pauseFollowUntil = 0;
   draw();
 });
@@ -538,7 +538,7 @@ function uploadFailed(msg) {
 // ------------------------------------------------------------------ startup
 
 async function openEditor() {
-  state.view = { t0: 0, span: 0, ...{} };
+  state.view = { t0: 0, span: 0 };
   state.selected = null;
   await loadAll();
   resize();
