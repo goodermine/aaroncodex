@@ -78,13 +78,29 @@ Useful flags: `--no-gate --no-dynamics --no-breath --no-sibilance --no-clean`,
 
 ```bash
 pip install -e '.[ui]'
+voxpolish ui                    # opens the browser on the upload screen
 voxpolish ui recording.wav      # analyzes into recording_session/, opens browser
 voxpolish ui recording_session  # reopen an existing session
 ```
 
-Waveform with the module rail, region overlays (gate red, breath green,
-sibilance blue), the dynamics gain curve, A/B playback of original vs
-cleaned, click-to-select and Delete-to-remove regions, Render to apply.
+Start from the browser: the **upload screen** accepts a WAV/MP3/M4A/FLAC vocal
+recording or clean stem (drag-and-drop or pick a file), then offers one plain
+choice before processing:
+
+- **Clean + Auto Tune** (default) — cleanup plus subtle pitch correction.
+- **Clean vocal** — cleanup only, no pitch correction.
+
+Best results come from clean vocals or clean stems; noisy or full-mix sources
+may keep some artefacts. **New upload** in the header starts another at any
+time; the CLI file/session workflow above still works unchanged.
+
+The editor: waveform with the module rail, region overlays (gate red, breath
+green, sibilance blue), the dynamics gain curve, the **Tune** module (shows the
+detected key; toggle it and re-render), A/B playback of original vs cleaned,
+click-to-select and Delete-to-remove regions, Render to apply. Navigate with
+**Fit / + / −**, drag or scroll the waveform to pan, Ctrl+scroll to zoom at the
+pointer, and the scrollbar under the waveform; the view follows playback unless
+you're panning.
 
 Safety architecture (see `docs/vox-cleanup-plan.md`, "Phase 1 disaster plan"):
 your original file is copied into the session and never written; every write

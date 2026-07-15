@@ -1,8 +1,13 @@
 """FastAPI app for the editor UI.
 
+Workspace model: many sessions under one base dir with a "current" pointer.
+The CLI opens a file as the current session; the web upload flow creates new
+sessions. All editor routes act on the current session.
+
 Disaster-3 defenses: renders run in a background worker with a single-flight
 lock (a second request gets a clean 409, never a pile-up); audio streams with
-HTTP range support; waveforms are served as small precomputed peak files.
+HTTP range support; waveforms are served as small precomputed peak files;
+uploads process in a background job with polled progress.
 """
 
 from __future__ import annotations
@@ -10,22 +15,41 @@ from __future__ import annotations
 import threading
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 
 from .session import ConflictError, Session
+from .workspace import Workspace
 
 STATIC = Path(__file__).parent / "static"
+MAX_UPLOAD_BYTES = 500 * 1024 * 1024  # 500 MB: generous for a full song
 
 
-def create_app(session_root: Path) -> FastAPI:
+def create_app(root: Path) -> FastAPI:
+    """root may be a single session folder (CLI) or a workspace base dir."""
+    root = Path(root)
+    if Session.is_session(root):
+        ws = Workspace(root.parent)
+        ws.register(root)
+    else:
+        ws = Workspace(root)
+
     app = FastAPI(title="VoxPolish", docs_url=None, redoc_url=None)
-    session = Session(Path(session_root))
-    if not Session.is_session(session.root):
-        raise RuntimeError(f"{session_root} is not a VoxPolish session")
-
     lock = threading.Lock()
-    render_state = {"status": "idle", "error": None, "revision": session.revision()}
+    # Render progress for the current session; reset whenever current changes.
+    render_state = {"status": "idle", "error": None, "revision": 0, "session": None}
+
+    def require_current() -> Session:
+        s = ws.current()
+        if s is None:
+            raise HTTPException(409, "no session loaded — upload a recording to start")
+        # Reset render state when the current session changed underneath us.
+        if render_state.get("session") != ws.current_id:
+            render_state.update(status="idle", error=None,
+                                revision=s.revision(), session=ws.current_id, notes=[])
+        return s
+
+    # ----------------------------------------------------------------- pages
 
     @app.get("/", response_class=HTMLResponse)
     def index():
@@ -39,11 +63,51 @@ def create_app(session_root: Path) -> FastAPI:
         media = {"js": "text/javascript", "css": "text/css"}.get(path.suffix[1:], "text/plain")
         return Response(path.read_text(), media_type=media)
 
+    # ------------------------------------------------------------- workspace
+
+    @app.get("/api/workspace")
+    def workspace():
+        return {"current": ws.current_id, "sessions": ws.list()}
+
+    @app.post("/api/session/{session_id}/select")
+    def select_session(session_id: str):
+        if ws.get(session_id) is None:
+            raise HTTPException(404, f"unknown session '{session_id}'")
+        ws.current_id = session_id
+        return {"current": ws.current_id}
+
+    # ---------------------------------------------------------------- upload
+
+    @app.post("/api/uploads")
+    async def create_upload(
+        file: UploadFile = File(...),
+        tune: bool = Form(True),
+    ):
+        data = await file.read()
+        if len(data) > MAX_UPLOAD_BYTES:
+            raise HTTPException(413, "file too large (500 MB max)")
+        try:
+            job = ws.start_upload(file.filename or "audio", data, tune)
+        except ValueError as e:
+            raise HTTPException(422, str(e))
+        return job.as_dict()
+
+    @app.get("/api/uploads/{job_id}")
+    def upload_status(job_id: str):
+        job = ws.job(job_id)
+        if job is None:
+            raise HTTPException(404, f"unknown job '{job_id}'")
+        return job.as_dict()
+
+    # ---------------------------------------------------------------- editor
+
     @app.get("/api/session")
     def get_session():
-        doc = session.document()
+        s = require_current()
+        doc = s.document()
         return {
-            "revision": session.revision(),
+            "id": ws.current_id,
+            "revision": s.revision(),
             "duration": doc.duration,
             "sample_rate": doc.sample_rate,
             "mode": doc.mode,
@@ -52,15 +116,15 @@ def create_app(session_root: Path) -> FastAPI:
 
     @app.get("/api/document")
     def get_document():
-        return JSONResponse(
-            content={"revision": session.revision(), "document": _doc_json(session)}
-        )
+        s = require_current()
+        return JSONResponse(content={"revision": s.revision(), "document": _doc_json(s)})
 
     @app.put("/api/document")
     async def put_document(request: Request):
+        s = require_current()
         body = await request.json()
         try:
-            new_rev = session.update_document(
+            new_rev = s.update_document(
                 _as_json(body["document"]), expected_revision=int(body["revision"])
             )
         except ConflictError as e:
@@ -71,18 +135,16 @@ def create_app(session_root: Path) -> FastAPI:
 
     @app.post("/api/render")
     def start_render():
+        s = require_current()
         if not lock.acquire(blocking=False):
             raise HTTPException(409, "a render is already running")
-        render_state.update(status="running", error=None)
+        render_state.update(status="running", error=None, session=ws.current_id)
 
         def work():
             try:
-                result = session.render()
-                render_state.update(
-                    status="done",
-                    revision=result["revision"],
-                    notes=result.get("notes", []),
-                )
+                result = s.render()
+                render_state.update(status="done", revision=result["revision"],
+                                    notes=result.get("notes", []))
             except Exception as e:  # surfaced to the UI, never silent
                 render_state.update(status="error", error=str(e))
             finally:
@@ -93,12 +155,14 @@ def create_app(session_root: Path) -> FastAPI:
 
     @app.get("/api/render")
     def render_status():
+        require_current()
         return dict(render_state)
 
     @app.get("/api/peaks/{name}")
     def peaks(name: str):
+        s = require_current()
         try:
-            return session.peaks(name)
+            return s.peaks(name)
         except KeyError:
             raise HTTPException(404, f"unknown audio '{name}'")
         except FileNotFoundError:
@@ -106,8 +170,9 @@ def create_app(session_root: Path) -> FastAPI:
 
     @app.get("/api/audio/{name}")
     def audio(name: str):
+        s = require_current()
         try:
-            path = session._audio_path(name)
+            path = s._audio_path(name)
         except KeyError:
             raise HTTPException(404, f"unknown audio '{name}'")
         if not path.exists():
@@ -130,7 +195,7 @@ def _as_json(document) -> str:
     return json.dumps(document) if not isinstance(document, str) else document
 
 
-def serve(session_root: Path, host: str = "127.0.0.1", port: int = 8765) -> None:
+def serve(root: Path, host: str = "127.0.0.1", port: int = 8765) -> None:
     import uvicorn
 
-    uvicorn.run(create_app(session_root), host=host, port=port, log_level="warning")
+    uvicorn.run(create_app(root), host=host, port=port, log_level="warning")

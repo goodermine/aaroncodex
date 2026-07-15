@@ -88,7 +88,12 @@ def analyze(
     if noise_floor_db is not None:
         voiced &= levels > noise_floor_db
     if not voiced.any():
-        voiced = levels > np.median(levels)
+        # Constant-level input (a steady tone/stem) leaves nothing above the
+        # median; treat everything at or above it as voiced so the stage has a
+        # non-empty population to work with.
+        voiced = levels >= np.median(levels)
+    if not voiced.any():
+        voiced = np.ones_like(levels, dtype=bool)
 
     # Target: robust gated estimate of the performance level unless overridden.
     if target_db is not None:

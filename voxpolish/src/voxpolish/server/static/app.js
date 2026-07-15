@@ -22,16 +22,24 @@ let state = {
   doc: null,
   peaks: null,
   duration: 0,
-  selected: null,       // {kind, index}
+  selected: null,          // {kind, index}
   source: "cleaned",
   view: { t0: 0, span: 0 }, // visible window in seconds; span 0 = fit
+  pauseFollowUntil: 0,      // suppress playhead-follow briefly after manual pan
+  ready: false,
 };
 
 // ------------------------------------------------------------------ api
 
 async function api(path, opts) {
   const res = await fetch(path, opts);
-  if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
+  if (!res.ok) {
+    let msg = res.statusText;
+    try { msg = (await res.json()).detail || msg; } catch (e) {}
+    const err = new Error(msg);
+    err.status = res.status;
+    throw err;
+  }
   return res.json();
 }
 
@@ -41,6 +49,7 @@ async function loadAll() {
   state.doc = d.document;
   state.duration = state.doc.duration;
   if (!state.view.span) state.view = { t0: 0, span: state.duration };
+  clampView();
   state.peaks = await api(`/api/peaks/${state.source}`);
   syncControls();
   draw();
@@ -114,8 +123,7 @@ function syncControls() {
   $("amt-tune").disabled = !hasTuner;
   if (hasTuner) {
     $("count-tune").textContent = `${(p.notes || []).length} notes`;
-    $("tune-key").textContent =
-      `${p.key} · mean off ${p.mean_abs_dev_cents} cents`;
+    $("tune-key").textContent = `${p.key} · mean off ${p.mean_abs_dev_cents} cents`;
   } else {
     $("count-tune").textContent = "–";
     $("tune-key").textContent =
@@ -146,8 +154,8 @@ function wireControls() {
 
 function clampView() {
   const v = state.view;
-  v.span = Math.min(Math.max(v.span, 0.5), state.duration);
-  v.t0 = Math.min(Math.max(v.t0, 0), state.duration - v.span);
+  v.span = Math.min(Math.max(v.span, 0.25), state.duration || 1);
+  v.t0 = Math.min(Math.max(v.t0, 0), Math.max(0, state.duration - v.span));
 }
 
 function zoom(factor, centerT) {
@@ -158,7 +166,19 @@ function zoom(factor, centerT) {
   clampView();
   v.t0 = c - rel * v.span;
   clampView();
+  markManualPan();
   draw();
+}
+
+function panBy(seconds) {
+  state.view.t0 += seconds;
+  clampView();
+  markManualPan();
+  draw();
+}
+
+function markManualPan() {
+  state.pauseFollowUntil = Date.now() + 2500;
 }
 
 function xOf(t) {
@@ -185,7 +205,6 @@ function draw() {
   ctx.clearRect(0, 0, W, H);
   const bypass = state.doc.bypass || {};
 
-  // Region overlays behind the waveform (dimmed when module is off).
   const dimmed = { pauses: bypass.gate, breaths: bypass.breath, sibilants: bypass.sibilance };
   for (const kind of KINDS) {
     ctx.fillStyle = COLORS[kind] + (dimmed[kind] ? "14" : "33");
@@ -203,7 +222,6 @@ function draw() {
     }
   }
 
-  // Waveform from peaks, windowed to the current view.
   const { min, max } = state.peaks;
   const n = min.length;
   const bucketDur = state.duration / n;
@@ -219,7 +237,6 @@ function draw() {
     ctx.fillRect(x, y1, w, Math.max(1, y2 - y1));
   }
 
-  // Gain curve (dynamics) over the top.
   const curve = state.doc.gain_curve;
   if (curve && curve.length && !bypass.dynamics) {
     const amt = (state.doc.amounts || {}).dynamics ?? 1.0;
@@ -237,13 +254,24 @@ function draw() {
     ctx.stroke();
   }
 
-  // Playhead.
   ctx.strokeStyle = "#ffffff";
   ctx.beginPath();
   const px = xOf(audio.currentTime || 0);
   ctx.moveTo(px, 0);
   ctx.lineTo(px, H);
   ctx.stroke();
+
+  drawScrollbar();
+}
+
+function drawScrollbar() {
+  const bar = $("scrollbar"), thumb = $("scrollthumb");
+  if (!state.duration) return;
+  const frac = Math.min(1, state.view.span / state.duration);
+  const start = state.view.t0 / state.duration;
+  const w = bar.clientWidth;
+  thumb.style.width = Math.max(20, frac * w) + "px";
+  thumb.style.left = start * w + "px";
 }
 
 // ------------------------------------------------------------------ regions
@@ -292,19 +320,47 @@ function fmtTime(s) {
   return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 }
 
-// ------------------------------------------------------------------ events
+// ------------------------------------------------------------------ pan/drag
 
-canvas.addEventListener("click", (ev) => {
-  const t = tOf(ev.offsetX);
-  const hit = regionAt(t);
-  if (hit) {
-    state.selected = hit;
-  } else {
-    state.selected = null;
-    audio.currentTime = t;
+let drag = null; // {startX, startT0, moved}
+
+canvas.addEventListener("mousedown", (ev) => {
+  drag = { startX: ev.offsetX, startT0: state.view.t0, moved: false };
+});
+
+window.addEventListener("mousemove", (ev) => {
+  if (!drag) return;
+  const rect = canvas.getBoundingClientRect();
+  const dx = ev.clientX - rect.left - drag.startX;
+  if (Math.abs(dx) > 4) drag.moved = true;
+  if (drag.moved) {
+    canvas.classList.add("panning");
+    const dt = (dx / canvas.clientWidth) * state.view.span;
+    state.view.t0 = drag.startT0 - dt;
+    clampView();
+    markManualPan();
+    draw();
   }
-  showInspector();
-  draw();
+});
+
+window.addEventListener("mouseup", (ev) => {
+  if (!drag) return;
+  canvas.classList.remove("panning");
+  if (!drag.moved) {
+    // A real click: select a region or seek the playhead.
+    const rect = canvas.getBoundingClientRect();
+    const t = tOf(ev.clientX - rect.left);
+    const hit = regionAt(t);
+    if (hit) {
+      state.selected = hit;
+    } else {
+      state.selected = null;
+      audio.currentTime = Math.max(0, Math.min(state.duration, t));
+    }
+    showInspector();
+    draw();
+  }
+  drag = null;
 });
 
 canvas.addEventListener("wheel", (ev) => {
@@ -312,13 +368,42 @@ canvas.addEventListener("wheel", (ev) => {
   if (ev.ctrlKey || ev.metaKey) {
     zoom(ev.deltaY > 0 ? 1.25 : 0.8, tOf(ev.offsetX));
   } else {
-    state.view.t0 += (ev.deltaY + ev.deltaX) * state.view.span * 0.0015;
-    clampView();
-    draw();
+    // Horizontal pan; trackpads send deltaX, wheels send deltaY.
+    const delta = Math.abs(ev.deltaX) > Math.abs(ev.deltaY) ? ev.deltaX : ev.deltaY;
+    panBy(delta * state.view.span * 0.0025);
   }
 }, { passive: false });
 
+// Scrollbar thumb + track panning.
+let thumbDrag = null;
+$("scrollthumb").addEventListener("mousedown", (ev) => {
+  ev.stopPropagation();
+  thumbDrag = { startX: ev.clientX, startT0: state.view.t0 };
+});
+window.addEventListener("mousemove", (ev) => {
+  if (!thumbDrag) return;
+  const w = $("scrollbar").clientWidth;
+  const dt = ((ev.clientX - thumbDrag.startX) / w) * state.duration;
+  state.view.t0 = thumbDrag.startT0 + dt;
+  clampView();
+  markManualPan();
+  draw();
+});
+window.addEventListener("mouseup", () => (thumbDrag = null));
+$("scrollbar").addEventListener("mousedown", (ev) => {
+  if (ev.target.id === "scrollthumb") return;
+  const w = $("scrollbar").clientWidth;
+  const frac = ev.offsetX / w;
+  state.view.t0 = frac * state.duration - state.view.span / 2;
+  clampView();
+  markManualPan();
+  draw();
+});
+
+// ------------------------------------------------------------------ keys/buttons
+
 document.addEventListener("keydown", (ev) => {
+  if (!$("landing").classList.contains("hidden")) return;
   const tag = document.activeElement.tagName;
   if ((ev.key === "Delete" || ev.key === "Backspace") && tag !== "INPUT") deleteSelected();
   if (ev.key === " " && tag !== "BUTTON" && tag !== "INPUT") {
@@ -330,7 +415,8 @@ document.addEventListener("keydown", (ev) => {
 $("zoom-in").addEventListener("click", () => zoom(0.5));
 $("zoom-out").addEventListener("click", () => zoom(2.0));
 $("zoom-fit").addEventListener("click", () => {
-  state.view = { t0: 0, span: state.duration };
+  state.view = { t0: 0, span: state.duration, ...{} };
+  state.pauseFollowUntil = 0;
   draw();
 });
 $("delete-region").addEventListener("click", deleteSelected);
@@ -344,23 +430,136 @@ $("source").addEventListener("change", async (ev) => {
   reloadAudio();
   draw();
 });
+$("new-upload").addEventListener("click", showLanding);
 
 setInterval(() => {
   $("time").textContent = fmtTime(audio.currentTime || 0);
-  if (!audio.paused) {
-    // Keep the playhead in view while playing.
+  if (!audio.paused && state.ready) {
     const t = audio.currentTime;
     const v = state.view;
-    if (t > v.t0 + v.span * 0.95) { v.t0 = t - v.span * 0.1; clampView(); }
+    // Follow the playhead only if the user hasn't panned recently.
+    if (Date.now() > state.pauseFollowUntil &&
+        (t < v.t0 || t > v.t0 + v.span * 0.95)) {
+      v.t0 = t - v.span * 0.1;
+      clampView();
+    }
     draw();
   }
 }, 100);
 
 window.addEventListener("resize", resize);
 
-wireControls();
-loadAll().then(() => {
+// ------------------------------------------------------------------ landing / upload
+
+function showLanding() {
+  $("landing").classList.remove("hidden");
+  $("close-landing").classList.toggle("hidden", !state.ready);
+  $("landing-error").textContent = "";
+  $("upload-progress").classList.add("hidden");
+  $("start-upload").classList.remove("hidden");
+}
+
+function hideLanding() {
+  $("landing").classList.add("hidden");
+}
+
+function wireLanding() {
+  const fileInput = $("file");
+  const drop = $("drop");
+  const startBtn = $("start-upload");
+
+  const setFile = (f) => {
+    if (!f) return;
+    fileInput._file = f;
+    $("drop-label").textContent = f.name;
+    drop.classList.add("has-file");
+    startBtn.disabled = false;
+  };
+
+  fileInput.addEventListener("change", () => setFile(fileInput.files[0]));
+  ["dragenter", "dragover"].forEach((e) =>
+    drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add("hover"); }));
+  ["dragleave", "drop"].forEach((e) =>
+    drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove("hover"); }));
+  drop.addEventListener("drop", (ev) => setFile(ev.dataTransfer.files[0]));
+
+  $("close-landing").addEventListener("click", hideLanding);
+  startBtn.addEventListener("click", () => startUpload(fileInput._file));
+}
+
+async function startUpload(file) {
+  if (!file) return;
+  const tune = document.querySelector('input[name="tune"]:checked').value === "tune";
+  const form = new FormData();
+  form.append("file", file);
+  form.append("tune", tune ? "true" : "false");
+
+  $("start-upload").classList.add("hidden");
+  $("close-landing").classList.add("hidden");
+  $("landing-error").textContent = "";
+  $("upload-progress").classList.remove("hidden");
+  setUploadStage("uploading", 0.15);
+
+  let job;
+  try {
+    job = await api("/api/uploads", { method: "POST", body: form });
+  } catch (e) {
+    return uploadFailed(e.message);
+  }
+
+  const STAGES = { decoding: 0.4, cleaning: 0.6, analyzing: 0.75, rendering: 0.9, done: 1 };
+  while (true) {
+    await new Promise((r) => setTimeout(r, 500));
+    let s;
+    try { s = await api(`/api/uploads/${job.id}`); }
+    catch (e) { return uploadFailed(e.message); }
+    if (s.status === "error") return uploadFailed(s.error || "processing failed");
+    setUploadStage(s.stage, STAGES[s.stage] ?? 0.3);
+    if (s.status === "done") {
+      hideLanding();
+      await openEditor();
+      return;
+    }
+  }
+}
+
+function setUploadStage(stage, frac) {
+  $("upload-stage").textContent = `${stage}…`;
+  $("upload-bar").style.width = `${Math.round(frac * 100)}%`;
+}
+
+function uploadFailed(msg) {
+  $("upload-progress").classList.add("hidden");
+  $("start-upload").classList.remove("hidden");
+  $("close-landing").classList.toggle("hidden", !state.ready);
+  $("landing-error").textContent = msg;
+}
+
+// ------------------------------------------------------------------ startup
+
+async function openEditor() {
+  state.view = { t0: 0, span: 0, ...{} };
+  state.selected = null;
+  await loadAll();
   resize();
   reloadAudio();
+  state.ready = true;
   setStatus("Ready.");
-}).catch((e) => setStatus(e.message, true));
+}
+
+async function init() {
+  wireControls();
+  wireLanding();
+  try {
+    await api("/api/session");    // 409 if no current session
+    await openEditor();
+  } catch (e) {
+    if (e.status === 409) {
+      showLanding();
+    } else {
+      setStatus(e.message, true);
+    }
+  }
+}
+
+init();

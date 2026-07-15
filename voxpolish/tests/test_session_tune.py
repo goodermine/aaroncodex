@@ -30,11 +30,23 @@ def test_session_carries_pitch_analysis(tuned_session):
     assert "key" in doc.pitch
 
 
-def test_tune_starts_bypassed_by_default(tuned_session):
-    """Field verdict: tuning is opt-in until re-approved by ear."""
+def test_tune_enabled_by_default(tuned_session):
+    """Decision record (July 15): Tune is enabled by default in new sessions."""
     doc = tuned_session.document()
-    assert doc.bypass.get("tune") is True
-    result = tuned_session.render()
+    assert doc.bypass.get("tune") is False
+
+
+def test_clean_only_session_bypasses_tune(tmp_path):
+    """The 'Clean vocal' upload choice creates a session with Tune bypassed."""
+    from voxpolish.server.session import Session
+
+    flat = 440.0 * 2 ** (-40 / 1200)
+    x = np.concatenate([_tone(440.0, 0.6), _gap(0.3), _tone(flat, 0.9)])
+    src = tmp_path / "take.wav"
+    sf.write(src, x, SR)
+    s = Session.create(src, tmp_path / "clean_only", tune=False)
+    assert s.document().bypass.get("tune") is True
+    result = s.render()
     assert not any("tuned" in n for n in result["notes"])
 
 
@@ -43,11 +55,15 @@ def test_tune_toggle_changes_the_render(tuned_session):
     from voxpolish import audio_io
 
     s = tuned_session
+    # Default session has Tune on -> baseline is tuned; bypass to get untuned.
+    doc = s.document()
+    doc.bypass = {**doc.bypass, "tune": True}
+    s.update_document(doc.to_json(), expected_revision=s.revision())
     s.render()
     untuned, _ = audio_io.load(s.root / "vocal_cleaned.wav")
 
     doc = s.document()
-    doc.bypass = {**doc.bypass, "tune": False}  # user opts in
+    doc.bypass = {**doc.bypass, "tune": False}  # user opts back in
     s.update_document(doc.to_json(), expected_revision=s.revision())
     result = s.render()
     assert any("tuned" in n for n in result["notes"]), result

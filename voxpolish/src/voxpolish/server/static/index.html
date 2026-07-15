@@ -24,6 +24,7 @@
   </div>
   <div class="actions">
     <span id="status" class="status"></span>
+    <button id="new-upload">New upload</button>
     <button id="render" class="primary">Render</button>
   </div>
 </header>
@@ -65,17 +66,59 @@
     </div>
     <p class="hint">Toggle a module off, or slide its amount, then
       <b>Render</b>. Click a colored region and press <kbd>Delete</kbd> to
-      remove it. Scroll to pan, <kbd>Ctrl</kbd>+scroll to zoom.</p>
+      remove it. Drag or scroll the waveform to pan, <kbd>Ctrl</kbd>+scroll to
+      zoom.</p>
   </aside>
 
   <section id="editor">
     <canvas id="wave"></canvas>
+    <div id="scrollbar"><div id="scrollthumb"></div></div>
     <div id="inspector" class="hidden">
       <span id="inspector-text"></span>
       <button id="delete-region">Delete region</button>
     </div>
   </section>
 </main>
+
+<!-- Upload / landing overlay -->
+<div id="landing" class="hidden">
+  <div class="card">
+    <h2>Clean up a vocal</h2>
+    <p class="sub">Drop in a vocal recording or clean stem — WAV, MP3, M4A, or FLAC.</p>
+
+    <label id="drop" for="file">
+      <input type="file" id="file" accept=".wav,.mp3,.m4a,.flac,.aif,.aiff,.ogg,audio/*">
+      <span id="drop-label">Choose a file or drag it here</span>
+    </label>
+
+    <fieldset id="choice">
+      <legend>Processing</legend>
+      <label class="opt">
+        <input type="radio" name="tune" value="tune" checked>
+        <span><b>Clean + Auto Tune</b><br>
+          <small>Cleanup plus subtle pitch correction.</small></span>
+      </label>
+      <label class="opt">
+        <input type="radio" name="tune" value="clean">
+        <span><b>Clean vocal</b><br>
+          <small>Cleanup only — no pitch correction.</small></span>
+      </label>
+    </fieldset>
+
+    <p class="caveat">Best results come from clean vocals or clean stems.
+      Noisy or full-mix sources may keep some artefacts.</p>
+
+    <div class="landing-actions">
+      <button id="start-upload" class="primary" disabled>Start</button>
+      <button id="close-landing" class="hidden">Cancel</button>
+    </div>
+    <div id="upload-progress" class="hidden">
+      <div class="bar"><div id="upload-bar"></div></div>
+      <span id="upload-stage"></span>
+    </div>
+    <p id="landing-error" class="landing-error"></p>
+  </div>
+</div>
 
 <audio id="audio"></audio>
 <script src="/static/app.js"></script>

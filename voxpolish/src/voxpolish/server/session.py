@@ -52,7 +52,24 @@ class Session:
     # -------------------------------------------------------------- creation
 
     @classmethod
-    def create(cls, source: Path, root: Path, settings: Settings | None = None) -> "Session":
+    def create(
+        cls,
+        source: Path,
+        root: Path,
+        settings: Settings | None = None,
+        tune: bool = True,
+        progress=None,
+    ) -> "Session":
+        """Analyze a recording into a new session folder.
+
+        tune: enable the Tune module for this session (default on, per the
+        July 15 decision record). progress: optional callback(stage_str) for
+        the upload UI.
+        """
+        def step(stage: str) -> None:
+            if progress is not None:
+                progress(stage)
+
         settings = settings or Settings.for_mode("voice")
         root = Path(root)
         root.mkdir(parents=True, exist_ok=True)
@@ -60,16 +77,19 @@ class Session:
         s = cls(root)
 
         # Disaster 1: the user's file is copied in, then never touched again.
+        step("decoding")
         source_copy = root / f"source{Path(source).suffix.lower()}"
         if not source_copy.exists():
             shutil.copy2(source, source_copy)
 
         vocal, sr = audio_io.load(source_copy)
+        step("cleaning")
         vocal, denoise_info = clean.process(vocal, sr, settings.denoise_amount)
         # The post-clean vocal is what render consumes; persisting it makes
         # every re-render fast (no model re-run) and deterministic.
         audio_io.save(root / "work_vocal.wav", vocal, sr)
 
+        step("analyzing")
         doc = analyze(vocal, sr, settings)
         doc.denoise = denoise_info
         # Tuner analysis: key, notes, and the proposed correction curve. A
@@ -86,11 +106,12 @@ class Session:
             }
         except Exception as e:
             doc.pitch = {"error": str(e)}
-        # Field verdict (July 15): tuning stays OUT of the default workflow —
-        # the Tune module starts bypassed; the user opts in per session.
-        doc.bypass = {**doc.bypass, "tune": True}
+        # Clean vs Clean + Auto Tune: bypass the Tune module unless requested.
+        doc.bypass = {**doc.bypass, "tune": not tune}
         s._write_doc(doc, revision=1)
+        step("rendering")
         s.render()
+        step("done")
         return s
 
     @classmethod

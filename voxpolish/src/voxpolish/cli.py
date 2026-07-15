@@ -68,10 +68,13 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--from-report", metavar="JSON", default=None,
                    help="Skip analysis; apply this (hand-edited) pitch report's curve")
 
-    u = sub.add_parser("ui", help="Open a recording in the browser editor")
-    u.add_argument("input", help="Audio file, or an existing session directory")
+    u = sub.add_parser("ui", help="Open the browser editor (with a file, or empty to upload)")
+    u.add_argument("input", nargs="?", default=None,
+                   help="Audio file or session dir; omit to open the upload screen")
     u.add_argument("-o", "--session", default=None,
                    help="Session directory (default: <input>_session next to the file)")
+    u.add_argument("--workspace", default=None,
+                   help="Workspace dir for uploads (default: ./voxpolish_workspace)")
     u.add_argument("--port", type=int, default=8765)
     u.add_argument("--no-clean", action="store_true", help="Skip model-based denoising")
 
@@ -186,17 +189,23 @@ def _run_ui(args) -> int:
         print("The editor needs FastAPI: pip install 'voxpolish[ui]'", file=sys.stderr)
         return 1
 
-    src = Path(args.input)
-    if src.is_dir() and Session.is_session(src):
-        root = src
+    if args.input is None:
+        # No file: open the workspace on the upload/landing screen.
+        root = Path(args.workspace) if args.workspace else Path.cwd() / "voxpolish_workspace"
+        root.mkdir(parents=True, exist_ok=True)
+        print(f"Workspace: {root}  — upload a recording from the browser")
     else:
-        root = Path(args.session) if args.session else src.with_name(src.stem + "_session")
-        if not Session.is_session(root):
-            settings = Settings.for_mode("voice")
-            if args.no_clean:
-                settings.denoise_amount = 0.0
-            print(f"Analyzing {src.name} into {root}/ ...")
-            Session.create(src, root, settings)
+        src = Path(args.input)
+        if src.is_dir() and Session.is_session(src):
+            root = src
+        else:
+            root = Path(args.session) if args.session else src.with_name(src.stem + "_session")
+            if not Session.is_session(root):
+                settings = Settings.for_mode("voice")
+                if args.no_clean:
+                    settings.denoise_amount = 0.0
+                print(f"Analyzing {src.name} into {root}/ ...")
+                Session.create(src, root, settings)
     url = f"http://127.0.0.1:{args.port}/"
     print(f"VoxPolish editor: {url}  (Ctrl+C to stop)")
     try:
