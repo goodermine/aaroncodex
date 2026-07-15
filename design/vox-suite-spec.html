@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VOX Suite — Visual System &amp; Design Spec</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --void:#070a0e; --panel:#0c1119; --raised:#12202b; --raised2:#0e1721; --sunken:#05090d;
+  --line:#1d2b38; --line2:#263a4a;
+  --ink:#eaf3f8; --muted:#7f93a4; --dim:#4a5c6b;
+  --cyan:#3fe0ff; --cyan-deep:#1a9fc4; --cyan-ink:#bfeffb;
+  --violet:#8b7cff;
+  --amber:#ffb547; --green:#37d98a; --red:#ff5d6c;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --glow-cyan:0 0 14px rgba(63,224,255,.55);
+  --maxw:940px;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void); color:var(--ink);
+  font-family:var(--sans); font-size:15px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(1100px 460px at 50% -10%, rgba(63,224,255,.10), transparent 62%),
+    linear-gradient(180deg,#080c11 0,#060809 100%);
+  background-attachment:fixed;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.45;
+  background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+  background-size:46px 46px;
+  mask-image:radial-gradient(130% 80% at 50% 0,#000 38%,transparent 90%);
+}
+.page{position:relative;z-index:1;width:min(var(--maxw),100%);margin:0 auto;padding:0 22px 90px}
+.mono{font-family:var(--mono)}
+a{color:var(--cyan);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---- masthead ---- */
+.mast{padding:64px 0 30px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--cyan);
+  display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.eyebrow::before{content:"";width:34px;height:1px;background:var(--cyan);box-shadow:var(--glow-cyan)}
+h1{font-size:clamp(2.3rem,6vw,3.7rem);font-weight:800;letter-spacing:-.03em;line-height:1.02;text-wrap:balance}
+h1 b{color:var(--cyan);font-weight:800}
+.lede{max-width:64ch;margin-top:18px;color:#b7c3ce;font-size:clamp(1rem,2vw,1.16rem)}
+.metaline{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted)}
+.metaline span{border:1px solid var(--line2);border-radius:6px;padding:6px 11px;background:#0a141c}
+.metaline b{color:var(--cyan-ink);font-weight:600}
+
+/* ---- decisions banner ---- */
+.decisions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 44px}
+.dcard{border:1px solid var(--line);border-radius:12px;background:linear-gradient(160deg,#0d1620,#0a1017);padding:16px 16px 15px;
+  box-shadow:0 16px 44px #0007,inset 0 1px 0 rgba(255,255,255,.03)}
+.dcard .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;gap:8px}
+.dcard .v{margin-top:9px;font-size:14.5px;font-weight:600;line-height:1.4}
+.dcard .v em{color:var(--cyan);font-style:normal}
+
+/* ---- sections ---- */
+section{margin:0 0 52px;scroll-margin-top:20px}
+.shead{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.shead .num{font-family:var(--mono);font-size:12px;color:var(--cyan);letter-spacing:.1em;flex:0 0 auto}
+h2{font-size:1.5rem;font-weight:750;letter-spacing:-.015em}
+.shead p{margin-left:auto;color:var(--muted);font-size:13px;max-width:34ch;text-align:right}
+h3{font-size:1.05rem;font-weight:700;margin:28px 0 10px;letter-spacing:-.01em}
+h3 .tick{color:var(--cyan);font-family:var(--mono);font-size:12px;margin-right:8px}
+p{margin:0 0 12px;max-width:70ch;color:#c8d2db}
+p.muted{color:var(--muted)}
+ul{margin:0 0 14px;padding-left:20px;max-width:70ch}
+li{margin:7px 0;color:#c8d2db}
+li b{color:var(--ink)}
+strong{color:var(--ink)}
+code{font-family:var(--mono);font-size:.86em;background:#0e1a24;border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--cyan-ink)}
+
+/* ---- token / swatch grid ---- */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:6px 0 18px}
+.sw{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.sw .chip{height:56px}
+.sw .meta{padding:9px 11px;font-family:var(--mono);font-size:11px;line-height:1.5}
+.sw .meta .nm{color:var(--ink);font-weight:600}
+.sw .meta .hx{color:var(--muted);letter-spacing:.04em}
+.sw .meta .role{color:var(--muted);display:block;margin-top:3px;font-family:var(--sans);letter-spacing:0}
+
+/* ---- spec table ---- */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:8px 0 20px;background:#0a1017}
+table{width:100%;border-collapse:collapse;min-width:560px;font-size:13.5px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:#0c1620}
+tr:last-child td{border-bottom:0}
+td .mono,td code{white-space:nowrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:8px}
+
+/* ---- live demo panel ---- */
+.demo{border:1px solid var(--line2);border-radius:12px;background:linear-gradient(160deg,#0c1620,#080d13);padding:18px;margin:6px 0 18px;
+  box-shadow:inset 0 0 40px #0006}
+.demo .cap{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.ledrow{display:flex;flex-wrap:wrap;gap:10px}
+.ledpill{display:flex;align-items:center;gap:9px;border:1px solid var(--line2);border-radius:8px;padding:9px 13px;background:#0a141c;
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em}
+.led{width:10px;height:10px;border-radius:50%;flex:0 0 auto;background:var(--dim)}
+.led.pulse{animation:pulse 1.4s ease-in-out infinite}
+.led.blink{animation:blink 1s steps(1,end) infinite}
+.led.cy{background:var(--cyan);box-shadow:var(--glow-cyan)}
+.led.gr{background:var(--green);box-shadow:0 0 12px rgba(55,217,138,.6)}
+.led.am{background:var(--amber);box-shadow:0 0 12px rgba(255,181,71,.6)}
+.led.rd{background:var(--red);box-shadow:0 0 12px rgba(255,93,108,.6)}
+.led.vi{background:var(--violet);box-shadow:0 0 12px rgba(139,124,255,.6)}
+.ledpill .lab{color:var(--ink)}
+.ledpill .st{color:var(--muted)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.22}}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.15}}
+
+/* signal chain demo */
+.chain{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;margin-top:4px}
+.step{position:relative;padding:12px 8px 9px;border-top:2px solid #223142;font-family:var(--mono);
+  font-size:9.5px;line-height:1.35;letter-spacing:.05em;text-transform:uppercase;color:var(--dim)}
+.step .n{display:block;font-size:8.5px;color:#39495a;margin-bottom:3px}
+.step.done{border-color:var(--green);color:#8fb6a6}
+.step.done .n{color:var(--green)}
+.step.active{border-color:var(--cyan);color:var(--ink);background:linear-gradient(180deg,rgba(63,224,255,.09),transparent)}
+.step.active .n{color:var(--cyan)}
+.step.active::before{content:"";position:absolute;top:-5px;left:0;width:7px;height:7px;border-radius:50%;
+  background:var(--cyan);box-shadow:var(--glow-cyan);animation:pulse 1s ease-in-out infinite}
+@media(max-width:640px){.chain{grid-auto-flow:row;grid-template-columns:repeat(2,1fr)}}
+
+/* meters demo */
+.meters{display:grid;gap:9px;max-width:420px}
+.vu{display:grid;grid-template-columns:34px 1fr 42px;gap:10px;align-items:center;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.lane{height:9px;border-radius:3px;background:#111e28;overflow:hidden;position:relative}
+.lane i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:linear-gradient(90deg,var(--green) 0,var(--green) 60%,var(--amber) 82%,var(--red) 100%)}
+.vu .db{text-align:right;color:var(--cyan-ink)}
+
+/* mode cards */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 8px}
+.modecard{border:1px solid var(--line);border-radius:13px;padding:18px;background:linear-gradient(160deg,#0d1620,#0a1017);position:relative;overflow:hidden}
+.modecard::before{content:"";position:absolute;inset:0 auto 0 0;width:3px}
+.modecard.polish::before{background:linear-gradient(180deg,var(--cyan),var(--cyan-deep));box-shadow:var(--glow-cyan)}
+.modecard.analyze::before{background:linear-gradient(180deg,var(--violet),#5a4fd6)}
+.modecard h4{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:9px}
+.modecard.polish h4{color:var(--cyan)}
+.modecard.analyze h4{color:var(--violet)}
+.modecard p{font-size:13px;margin:10px 0 0;color:#b7c3ce}
+.modecard ul{margin:10px 0 0;font-size:12.5px}
+.modecard li{margin:5px 0}
+.fused{border:1px dashed var(--line2);border-radius:13px;padding:16px 18px;margin-top:14px;background:#0a1219}
+.fused h4{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:9px}
+.fused .flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.fused .flow b{color:var(--ink)}
+.fused .flow .arrow{color:var(--cyan)}
+
+/* callout */
+.note{border-left:3px solid var(--cyan);background:rgba(63,224,255,.05);border-radius:0 10px 10px 0;padding:13px 16px;margin:14px 0;font-size:13.5px}
+.note.warn{border-color:var(--amber);background:rgba(255,181,71,.06)}
+.note .t{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);display:block;margin-bottom:5px}
+.note.warn .t{color:var(--amber)}
+
+/* do/dont */
+.dd{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 4px}
+.dd div{border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13px}
+.dd .do{border-color:rgba(55,217,138,.4)}
+.dd .dont{border-color:rgba(255,93,108,.35)}
+.dd h5{font-family:var(--mono);font-size:11px;letter-spacing:.1em;margin-bottom:8px}
+.dd .do h5{color:var(--green)}
+.dd .dont h5{color:var(--red)}
+.dd ul{padding-left:18px;margin:0}
+.dd li{font-size:12.5px;margin:5px 0}
+
+/* toc */
+.toc{position:sticky;top:0;z-index:5;display:flex;gap:6px;flex-wrap:wrap;padding:12px 0;margin-bottom:30px;
+  background:linear-gradient(180deg,var(--void) 70%,transparent);backdrop-filter:blur(4px)}
+.toc a{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--muted);border:1px solid var(--line);
+  border-radius:7px;padding:6px 10px;background:#0a141c}
+.toc a:hover{color:var(--cyan);border-color:var(--cyan-deep);text-decoration:none}
+
+.foot{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);color:var(--dim);font-family:var(--mono);font-size:11px;line-height:1.8}
+.foot b{color:var(--muted)}
+
+@media(max-width:720px){
+  .decisions{grid-template-columns:1fr}
+  .modes{grid-template-columns:1fr}
+  .dd{grid-template-columns:1fr}
+  .shead{flex-wrap:wrap}.shead p{margin-left:0;text-align:left;max-width:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="mast">
+    <div class="eyebrow">VOX Suite · Visual System v0.1</div>
+    <h1>One deck for the whole <b>voice pipeline.</b></h1>
+    <p class="lede">A design specification for unifying <strong>VoxPolish</strong> (repair &amp; tune) and
+      <strong>VoxAnalysis</strong> (measure &amp; score) into a single instrument-grade interface —
+      a lit control room where the UI is always telling you what it's doing.</p>
+    <div class="metaline">
+      <span>SCOPE · <b>front-end design system</b></span>
+      <span>MODE · <b>spec, pre-build</b></span>
+      <span>THEME · <b>single, dark</b></span>
+      <span>REPO · <b>voxpolish/ + voxanalysis/</b></span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Contents">
+    <a href="#intent">00 · Intent</a>
+    <a href="#structure">01 · Structure</a>
+    <a href="#color">02 · Color</a>
+    <a href="#type">03 · Type</a>
+    <a href="#telemetry">04 · Telemetry</a>
+    <a href="#components">05 · Components</a>
+    <a href="#screens">06 · Screens</a>
+    <a href="#build">07 · Build</a>
+  </nav>
+
+  <!-- locked decisions -->
+  <div class="decisions">
+    <div class="dcard">
+      <div class="k"><span class="led cy pulse"></span>Deliverable order</div>
+      <div class="v">This <em>written spec</em> first — concept mockup follows on approval.</div>
+    </div>
+    <div class="dcard">
+      <div class="k"><span class="led cy pulse"></span>Structure</div>
+      <div class="v">One shell, <em>two modes</em> — with an optional <em>fused</em> upload‑once workflow.</div>
+    </div>
+    <div class="dcard">
+      <div class="k"><span class="led cy pulse"></span>Palette</div>
+      <div class="v"><em>Cyan primary.</em> Yellow retired. Amber demoted to warnings only.</div>
+    </div>
+  </div>
+
+  <!-- 00 INTENT -->
+  <section id="intent">
+    <div class="shead"><span class="num">00</span><h2>Intent</h2><p>Why this exists and how it should feel.</p></div>
+    <p>Today the two tools look unrelated: VoxAnalysis is already a dark, cyan/mono "studio" surface with a live signal‑chain and meters; VoxPolish is a plainer charcoal editor on a lone yellow accent. They now share one repo — this system makes them share one <strong>face</strong>.</p>
+    <p>The governing metaphor is the reference image: a <strong>mastering control room</strong>. Not skeuomorphic knobs — the <em>behaviour</em> of instruments. Three principles carry the whole system:</p>
+    <ul>
+      <li><b>Always instrumented.</b> The interface continuously reports state — idle, uploading, isolating, analyzing, rendering, done — through lights, meters and a running signal chain. Nothing happens silently.</li>
+      <li><b>Cyan is the signal.</b> One confident accent for everything live and interactive. Colour means something; it is never decoration.</li>
+      <li><b>Calm until it matters.</b> Ambient motion stays low; amber and red are held in reserve so that when something needs you, it genuinely stands out.</li>
+    </ul>
+  </section>
+
+  <!-- 01 STRUCTURE -->
+  <section id="structure">
+    <div class="shead"><span class="num">01</span><h2>Structure &amp; navigation</h2><p>One shell. Two modes. An optional fused path.</p></div>
+    <p>A single persistent <strong>shell</strong> wraps both tools: a command bar (brand, system state, elapsed, master level), a <strong>mode switch</strong>, the <strong>signal chain</strong>, and the shared <strong>telemetry rail</strong>. Only the working area between the rails swaps per mode.</p>
+
+    <div class="modes">
+      <div class="modecard polish">
+        <h4><span class="led cy"></span>Polish</h4>
+        <p>Repair, level and subtly tune a take. Owns the module rail + waveform editor.</p>
+        <ul>
+          <li>Signal modules: Separation, Dynamics, Gate, Breath, Sibilance, Tune</li>
+          <li>Waveform scope · region editing · re‑render</li>
+        </ul>
+      </div>
+      <div class="modecard analyze">
+        <h4><span class="led vi"></span>Analyze</h4>
+        <p>Measure, score and compare against the verified original. Owns the readout rail + pitch scope.</p>
+        <ul>
+          <li>Live readout: pitch, cents, range, confidence, H1–H8</li>
+          <li>Calibrated scorecard · trouble spots · coaching</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fused">
+      <h4><span class="led am"></span>Fused workflow · opt‑in</h4>
+      <p class="muted" style="font-size:13px;margin:8px 0 0">Upload a take once and run the whole pipeline end‑to‑end; the same telemetry follows it across both engines. Offered as a choice, never forced — Polish and Analyze remain usable on their own.</p>
+      <div class="flow"><b>Upload</b><span class="arrow">→</span><b>Isolate</b><span class="arrow">→</span>Analyze / score<span class="arrow">→</span>Polish / repair<span class="arrow">→</span><b>Export + report</b></div>
+    </div>
+
+    <div class="note"><span class="t">Shell anatomy</span>
+      Command bar → Mode switch → Signal chain → <b>[ left rail · scope · telemetry rail ]</b> → Processing bar. The three horizontal bands are constant across modes; the rails' contents change.</div>
+  </section>
+
+  <!-- 02 COLOR -->
+  <section id="color">
+    <div class="shead"><span class="num">02</span><h2>Color system</h2><p>Cyan-forward, on a blue-biased black.</p></div>
+    <p>Neutrals are a near-black with a slight blue bias — chosen, not a default grey — so cyan reads as emission against it. Cyan is the sole brand accent. <strong>Amber, green and red are semantic only</strong>: they mean warning, healthy/complete, and critical respectively, and must not be used to "brand" or decorate.</p>
+
+    <h3><span class="tick">▹</span>Core &amp; signal</h3>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#070a0e"></div><div class="meta"><span class="nm">void</span> <span class="hx">#070A0E</span><span class="role">app background</span></div></div>
+      <div class="sw"><div class="chip" style="background:#0c1119"></div><div class="meta"><span class="nm">panel</span> <span class="hx">#0C1119</span><span class="role">cards, bars</span></div></div>
+      <div class="sw"><div class="chip" style="background:#12202b"></div><div class="meta"><span class="nm">raised</span> <span class="hx">#12202B</span><span class="role">controls, hover</span></div></div>
+      <div class="sw"><div class="chip" style="background:#1d2b38"></div><div class="meta"><span class="nm">line</span> <span class="hx">#1D2B38</span><span class="role">hairlines</span></div></div>
+      <div class="sw"><div class="chip" style="background:#3fe0ff"></div><div class="meta"><span class="nm">cyan</span> <span class="hx">#3FE0FF</span><span class="role">primary · live · interactive</span></div></div>
+      <div class="sw"><div class="chip" style="background:#1a9fc4"></div><div class="meta"><span class="nm">cyan-deep</span> <span class="hx">#1A9FC4</span><span class="role">gradients, pressed</span></div></div>
+    </div>
+
+    <h3><span class="tick">▹</span>Text &amp; secondary</h3>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#eaf3f8"></div><div class="meta"><span class="nm">ink</span> <span class="hx">#EAF3F8</span><span class="role">primary text</span></div></div>
+      <div class="sw"><div class="chip" style="background:#7f93a4"></div><div class="meta"><span class="nm">muted</span> <span class="hx">#7F93A4</span><span class="role">labels, captions</span></div></div>
+      <div class="sw"><div class="chip" style="background:#8b7cff"></div><div class="meta"><span class="nm">violet</span> <span class="hx">#8B7CFF</span><span class="role">Analyze identity · "singer" data</span></div></div>
+    </div>
+
+    <h3><span class="tick">▹</span>Semantic — reserved</h3>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#37d98a"></div><div class="meta"><span class="nm">green</span> <span class="hx">#37D98A</span><span class="role">healthy · stage done · live</span></div></div>
+      <div class="sw"><div class="chip" style="background:#ffb547"></div><div class="meta"><span class="nm">amber</span> <span class="hx">#FFB547</span><span class="role">warning · caution only</span></div></div>
+      <div class="sw"><div class="chip" style="background:#ff5d6c"></div><div class="meta"><span class="nm">red</span> <span class="hx">#FF5D6C</span><span class="role">error · clip · critical</span></div></div>
+    </div>
+
+    <div class="dd">
+      <div class="do"><h5>DO</h5><ul>
+        <li>Use cyan for every active/interactive/live element.</li>
+        <li>Let green mean "complete/healthy" consistently across both modes.</li>
+        <li>Keep violet narrow — Analyze‑mode identity and the singer pitch trace.</li>
+      </ul></div>
+      <div class="dont"><h5>DON'T</h5><ul>
+        <li>Reintroduce VoxPolish yellow anywhere.</li>
+        <li>Use amber as an accent or edge‑light — it now signals caution.</li>
+        <li>Mix cyan and violet as co‑equal accents on one surface.</li>
+      </ul></div>
+    </div>
+    <div class="note warn"><span class="t">One open call</span>
+      The reference leans hard on amber edge‑lighting. Under "cyan primary, amber = warnings," I'm proposing the ambient glow be <b>cyan</b>, with amber strictly for caution states. If you want a warm structural glow purely as decoration, we'd carve out a fourth neutral‑warm token so it doesn't collide with the warning meaning. Flagging rather than deciding.</div>
+  </section>
+
+  <!-- 03 TYPE -->
+  <section id="type">
+    <div class="shead"><span class="num">03</span><h2>Typography</h2><p>Two voices: display and instrument.</p></div>
+    <p>No web font is loaded (the Artifact/app CSP blocks font CDNs, and a silent fallback is worse than an honest system stack). The pairing is deliberate rather than a compromise: a heavy grotesque for headline weight, a monospace for every readout — because instrument panels <em>are</em> monospaced.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Role</th><th>Family</th><th>Treatment</th><th>Used for</th></tr></thead>
+      <tbody>
+        <tr><td><b>Display</b></td><td class="mono">system-ui, 800</td><td>tight <code>-0.03em</code>, balance</td><td>Headlines, big scores, the pitch note</td></tr>
+        <tr><td><b>Body</b></td><td class="mono">system-ui, 400–600</td><td>~65ch measure, 1.6 line</td><td>Prose, help, descriptions</td></tr>
+        <tr><td><b>Instrument</b></td><td class="mono">ui-monospace</td><td>uppercase, <code>.06–.18em</code> tracking, <code>tabular-nums</code></td><td>Labels, timecode, dB, Hz, state, logs, chain</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">Rule of thumb: if it's a <em>measurement or a machine word</em>, it's mono and usually uppercase. If it's language for a human, it's the sans.</p>
+  </section>
+
+  <!-- 04 TELEMETRY -->
+  <section id="telemetry">
+    <div class="shead"><span class="num">04</span><h2>Telemetry &amp; motion</h2><p>The living instrument — your core ask.</p></div>
+    <p>"Flashing lights and knowing when things are happening" becomes a small, strict vocabulary of live components. Each maps to <strong>real job stages both apps already emit</strong> (VoxAnalysis has a stage stream today; VoxPolish exposes pipeline steps) — the lights are driven, never faked.</p>
+
+    <h3><span class="tick">▹</span>State LED — the system's pulse</h3>
+    <p>One canonical status light, mirrored wherever state matters (command bar, chain, rec dot). Colour + animation encode the state together:</p>
+    <div class="demo"><div class="cap">State LED · vocabulary</div>
+      <div class="ledrow">
+        <span class="ledpill"><span class="led cy pulse"></span><span class="lab">STANDBY</span><span class="st">· cyan, slow pulse</span></span>
+        <span class="ledpill"><span class="led am blink"></span><span class="lab">WORKING</span><span class="st">· amber, blink</span></span>
+        <span class="ledpill"><span class="led gr pulse"></span><span class="lab">COMPLETE</span><span class="st">· green, settle</span></span>
+        <span class="ledpill"><span class="led rd blink"></span><span class="lab">ALERT</span><span class="st">· red, fast blink</span></span>
+        <span class="ledpill"><span class="led vi pulse"></span><span class="lab">ANALYZE</span><span class="st">· violet, mode tint</span></span>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:-4px">Note the one nuance vs. the reference: active <em>work</em> reads amber here because amber = "attention/in‑progress," while <em>done</em> is green. That keeps a glance meaningful.</p>
+
+    <h3><span class="tick">▹</span>Signal chain — where in the pipeline</h3>
+    <p>The spine of the telemetry story, extended from VoxAnalysis to both modes. Steps fill left‑to‑right: <span style="color:var(--green)">done</span> · <span style="color:var(--cyan)">active (pulsing head)</span> · dim upcoming.</p>
+    <div class="demo"><div class="cap">Polish chain · mid‑run</div>
+      <div class="chain">
+        <div class="step done"><span class="n">01</span>Upload</div>
+        <div class="step done"><span class="n">02</span>Separate</div>
+        <div class="step done"><span class="n">03</span>Clean</div>
+        <div class="step active"><span class="n">04</span>Gate·Breath</div>
+        <div class="step"><span class="n">05</span>Sibilance</div>
+        <div class="step"><span class="n">06</span>Tune</div>
+        <div class="step"><span class="n">07</span>Render</div>
+        <div class="step"><span class="n">08</span>Export</div>
+      </div>
+    </div>
+
+    <h3><span class="tick">▹</span>Meters &amp; gauges — the analog pulse</h3>
+    <p>Level meters (L/R/sum), compute gauges (GPU separation, CPU render), and the H1–H8 harmonic bars. Green→amber→red gradient encodes headroom; amber/red appear only near clip — reinforcing the semantic palette.</p>
+    <div class="demo"><div class="cap">Output levels · live</div>
+      <div class="meters">
+        <div class="vu"><span>L</span><div class="lane"><i id="vuL" style="width:64%"></i></div><span class="db" id="vuLdb">−7</span></div>
+        <div class="vu"><span>R</span><div class="lane"><i id="vuR" style="width:71%"></i></div><span class="db" id="vuRdb">−6</span></div>
+        <div class="vu"><span>SUM</span><div class="lane"><i id="vuS" style="width:78%"></i></div><span class="db" id="vuSdb">−4</span></div>
+      </div>
+    </div>
+
+    <h3><span class="tick">▹</span>Motion rules</h3>
+    <ul>
+      <li><b>Ambient is subtle:</b> waveform drift, meter float, LED pulse. Nothing races; the room breathes.</li>
+      <li><b>Events are crisp:</b> a stage completing snaps green; an alert blinks fast. Change draws the eye, steady state does not.</li>
+      <li><b>Bound to truth:</b> a meter moves because a level moved; a step lights because that stage started.</li>
+      <li><b>Respect <code>prefers-reduced-motion</code>:</b> all loops stop; components render a representative static state (this page already does).</li>
+    </ul>
+  </section>
+
+  <!-- 05 COMPONENTS -->
+  <section id="components">
+    <div class="shead"><span class="num">05</span><h2>Component inventory</h2><p>The shared kit both modes draw from.</p></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Component</th><th>Spec</th><th>State cues</th></tr></thead>
+      <tbody>
+        <tr><td><b>Command bar</b></td><td>Brand glyph (cyan waveform) · state pills · elapsed clock · mini master meter</td><td>State LED + label live</td></tr>
+        <tr><td><b>Mode switch</b></td><td>Segmented, mono caps; active pill = cyan (Polish) / violet (Analyze)</td><td>Glow on active</td></tr>
+        <tr><td><b>Signal chain</b></td><td>Equal columns, 2px top border per step</td><td>done / active / upcoming</td></tr>
+        <tr><td><b>Module row</b> <span class="muted">(Polish)</span></td><td>Swatch · name · toggle · amount track · mono meta</td><td>on = cyan toggle + glow</td></tr>
+        <tr><td><b>Readout</b> <span class="muted">(Analyze)</span></td><td>Giant mono note · cents · 2×2 stat grid · H1–H8 bars</td><td>cyan tracking pulse</td></tr>
+        <tr><td><b>Scope frame</b></td><td>Canvas in a bracketed stage; timecode + REC dot overlaid</td><td>brackets = cyan (was amber)</td></tr>
+        <tr><td><b>Transport</b></td><td>Round cyan play · mono timecode · glowing seek head</td><td>play/pause swap</td></tr>
+        <tr><td><b>Export tray</b></td><td>Transport action (Polish &amp; Fused) that opens a tray of every deliverable: polished vocal, remix (vocal+backing), isolated stem, editable <code>edit_document.json</code>, plus the analysis report + raw metrics in Fused. Per‑item download, multi‑select, and "Download all · .zip." Analyze exports a report, not audio.</td><td>disabled until render done → cyan glow + "Export ▾" on complete; "Rendering…" mid‑render; auto‑reveals on completion</td></tr>
+        <tr><td><b>Buttons</b></td><td>Mono caps, 44px min target, raised gradient</td><td>hover lighten · <code>aria-pressed</code> = cyan</td></tr>
+        <tr><td><b>Telemetry log</b></td><td>Reverse‑chron mono lines, cyan/amber/green markers</td><td>newest on top</td></tr>
+        <tr><td><b>Processing bar</b></td><td>Full‑width; cyan→cyan fill, % readout</td><td>tracks chain progress</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">All of this lives in <strong>one shared token + component stylesheet</strong> so a change to "cyan" or "state LED" propagates to both tools at once.</p>
+  </section>
+
+  <!-- 06 SCREENS -->
+  <section id="screens">
+    <div class="shead"><span class="num">06</span><h2>Screens &amp; states</h2><p>What we'll design, screen by screen.</p></div>
+    <ul>
+      <li><b>Shell / idle:</b> deck armed, STANDBY pulse, empty scope reading "awaiting take," chain dim.</li>
+      <li><b>Intake / upload:</b> bracketed drop target, performer/song fields (Analyze), Polish/Tune choice, upload progress feeding the chain.</li>
+      <li><b>Polish · working &amp; editor:</b> module rail live, waveform with editable regions, meters + gauges moving, chain advancing — ending in a <b>render → export tray</b> (polished vocal, remix, isolated stem, editable <code>edit_document.json</code>; multi‑select + zip). The export is the payoff, so the tray lights up cyan and auto‑reveals on completion.</li>
+      <li><b>Analyze · working &amp; report:</b> pitch scope, live readout rail, then the calibrated scorecard, trouble‑spot timeline, comparison, coaching racks — with its own <b>Export report</b> tray (report PDF + raw measurements JSON; no rendered audio).</li>
+      <li><b>Fused:</b> a single continuous run — one chain spanning isolate → analyze → polish → export.</li>
+      <li><b>Alert / error:</b> red LED, amber banner with plain‑language cause + fix, meters flagged if clipping.</li>
+      <li><b>Reduced‑motion &amp; mobile:</b> static representative states; rails stack, transport docks to the bottom (VoxAnalysis already does this — we keep it).</li>
+    </ul>
+  </section>
+
+  <!-- 07 BUILD -->
+  <section id="build">
+    <div class="shead"><span class="num">07</span><h2>Build approach</h2><p>How the spec becomes code.</p></div>
+    <ul>
+      <li><b>Shared design layer:</b> one <code>vox-tokens.css</code> (the palette above) + <code>vox-kit.css</code> (shell, LED, chain, meters, buttons) imported by both front‑ends. Single source of truth.</li>
+      <li><b>Canvas for instruments:</b> scope waveform, pitch lane, meters and gauges are canvas‑drawn (crisp, cheap, animatable) — VoxAnalysis already renders its scope this way.</li>
+      <li><b>Telemetry binding:</b> a tiny shared client that subscribes to each engine's stage/progress events and drives the state LED, chain, processing bar and log. Define the event contract once; both back‑ends emit to it.</li>
+      <li><b>Retire yellow:</b> replace VoxPolish's <code>--accent:#e8d44d</code> and its charcoal tokens with the shared set; re‑map module colours onto the new palette.</li>
+      <li><b>Accessibility:</b> visible focus rings (cyan, offset), 44px targets, <code>aria-pressed</code>/<code>role="status"</code> live regions, motion opt‑out — all carried from the current analyzer.</li>
+      <li><b>Sequence:</b> tokens + kit → shell + telemetry client → Polish reskin → Analyze reslot → fused path → polish pass.</li>
+    </ul>
+    <div class="note"><span class="t">Next step</span>
+      On your sign‑off of this spec, I'll build the <b>clickable concept mockup</b> of the shell (both modes, animated on simulated data) so you can see the language move before we touch the real front‑ends. A draft of it is already staged — I'll re‑tune it to "cyan‑ambient, amber‑for‑warnings" to match this spec.</div>
+  </section>
+
+  <p class="foot">
+    <b>VOX Suite — Visual System v0.1</b> · design specification, pre‑build<br>
+    Reference image treated as mood/colour only. Direction: blue‑black void · cyan = the live signal · green/amber/red = semantic. Single dark theme by intent (a lit control room).<br>
+    Decisions locked with you: written spec first · one shell + two modes + optional fused workflow · cyan primary, yellow retired, amber = warnings.
+  </p>
+</div>
+
+<script>
+(function(){
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  var L=document.getElementById("vuL"),R=document.getElementById("vuR"),S=document.getElementById("vuS");
+  var Ld=document.getElementById("vuLdb"),Rd=document.getElementById("vuRdb"),Sd=document.getElementById("vuSdb");
+  var t0=performance.now();
+  function tick(now){
+    var t=(now-t0)/1000;
+    var l=0.5+0.28*Math.sin(t*3.1), r=0.5+0.28*Math.sin(t*3.1+0.8), s=(l+r)/2*1.08;
+    L.style.width=(30+l*68)+"%"; R.style.width=(30+r*68)+"%"; S.style.width=(30+Math.min(1,s)*68)+"%";
+    Ld.textContent="−"+(2+(1-l)*15|0); Rd.textContent="−"+(2+(1-r)*15|0); Sd.textContent="−"+(1+(1-Math.min(1,s))*13|0);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

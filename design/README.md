@@ -11,6 +11,8 @@ System v0.1) for the reasoning behind every decision here.
 | `vox-tokens.css` | The palette + type + effect tokens (CSS custom properties, all `--vox-*`). |
 | `vox-kit.css` | Framework-free component primitives (`.vox-led`, `.vox-chain`, `.vox-meter`, `.vox-btn`, …). Depends on the tokens. |
 | `sync.sh` | Vendors the two CSS files into each app's static directory. |
+| `vox-suite-spec.html` | The Visual System v0.1 written spec — palette, type, telemetry vocabulary, components, screens, build plan. Self-contained; open in a browser. |
+| `vox-suite-concept.html` | Animated command-deck concept — Polish / Analyze / Fused modes with live telemetry and export trays, on simulated data. Self-contained; open in a browser. |
 
 ## Palette law
 
