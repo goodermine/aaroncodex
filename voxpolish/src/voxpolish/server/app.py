@@ -28,7 +28,7 @@ MAX_UPLOAD_BYTES = 500 * 1024 * 1024  # 500 MB: generous for a full song
 # Front-end assets whose content decides the cache-busting version stamped into
 # index.html. A changed file → new version → the browser refetches instead of
 # serving a stale cached UI (the "I updated it but still see the old look" bug).
-_VERSIONED_ASSETS = ("vox-tokens.css", "vox-kit.css", "style.css", "app.js")
+_VERSIONED_ASSETS = ("vox-tokens.css", "vox-kit.css", "style.css", "app.js", "vox-telemetry.js")
 
 
 def _asset_version() -> str:
@@ -71,6 +71,13 @@ def create_app(root: Path) -> FastAPI:
         html = (STATIC / "index.html").read_text().replace("__ASSET_VERSION__", _asset_version())
         # no-cache = cache but always revalidate, so the shell (and its versioned
         # asset links) can never be served stale after a redeploy.
+        return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
+
+    @app.get("/deck", response_class=HTMLResponse)
+    def deck():
+        """Unified VOX Suite command deck (Polish mode), on the shared kit.
+        Additive alongside the classic editor at /."""
+        html = (STATIC / "deck.html").read_text().replace("__ASSET_VERSION__", _asset_version())
         return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
 
     @app.get("/static/{name}")

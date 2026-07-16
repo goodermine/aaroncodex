@@ -153,6 +153,20 @@ def test_editor_serves_navigation_and_upload_affordances(workspace_client):
         assert hook in js, f"missing JS behavior: {hook}"
 
 
+def test_polish_command_deck_serves(workspace_client):
+    """The unified command deck (Polish mode) is served, version-stamped, kit-wired."""
+    r = workspace_client.get("/deck")
+    assert r.status_code == 200
+    assert r.headers.get("cache-control") == "no-cache"
+    page = r.text
+    assert "__ASSET_VERSION__" not in page  # version injected
+    for hook in ("vox-command", "vox-chain", "vox-module", "vox-scope", "vox-tray", "vox-procbar"):
+        assert hook in page, f"missing kit component: {hook}"
+    assert "/static/vox-telemetry.js?v=" in page
+    telem = workspace_client.get("/static/vox-telemetry.js")
+    assert telem.status_code == 200 and "adaptPolish" in telem.text
+
+
 def test_peaks_expose_duration_for_navigation(workspace_client):
     _await_job(workspace_client, _run_upload(workspace_client, _wav_bytes(seconds=4.0)).json()["id"])
     peaks = workspace_client.get("/api/peaks/original").json()
