@@ -143,9 +143,11 @@
         var r = wave.getBoundingClientRect(), d = Math.min(root.devicePixelRatio || 1, 2);
         if (wave.width !== r.width * d) { wave.width = r.width * d; wave.height = r.height * d; wx.setTransform(d, 0, 0, d, 0, 0); }
         wx.clearRect(0, 0, r.width, r.height); analyser.getByteTimeDomainData(tdat);
-        wx.strokeStyle = "#3fe0ff"; wx.lineWidth = 1.4; wx.shadowColor = "#3fe0ff"; wx.shadowBlur = 5; wx.beginPath();
+        // No per-frame shadowBlur: it's costly on mobile and thrashes compositing,
+        // which is what made the Stop button vanish. A crisp 1.6px stroke reads fine.
+        wx.strokeStyle = "#3fe0ff"; wx.lineWidth = 1.6; wx.beginPath();
         for (var i = 0; i < tdat.length; i++) { var x = i / (tdat.length - 1) * r.width, y = r.height / 2 + ((tdat[i] - 128) / 128) * r.height * 0.42; i ? wx.lineTo(x, y) : wx.moveTo(x, y); }
-        wx.stroke(); wx.shadowBlur = 0;
+        wx.stroke();
         raf = requestAnimationFrame(loop);
       })();
     }

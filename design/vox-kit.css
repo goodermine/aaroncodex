@@ -196,7 +196,10 @@
 .vox-scope__chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
 .vox-stage{position:relative;flex:1;margin:14px;border:1px solid var(--vox-line-2);border-radius:10px;overflow:hidden;
   background:radial-gradient(120% 120% at 50% 0,#0a1620,#05090d)}
-.vox-stage canvas{display:block;width:100%;height:100%}
+/* Direct child only: the full-bleed scope canvas (#scope). Without ">" this
+   also matched the recorder's nested .vrec-wave and stretched it to fill the
+   stage, pushing the Stop button off-screen. */
+.vox-stage > canvas{display:block;width:100%;height:100%}
 /* cyan brackets (were amber in the reference — palette law: cyan = the frame)  */
 .vox-bracket{position:absolute;width:24px;height:24px;border-color:var(--vox-cyan);opacity:.7;pointer-events:none;
   filter:drop-shadow(0 0 5px rgba(63,224,255,.5))}

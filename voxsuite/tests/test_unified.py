@@ -73,6 +73,17 @@ def test_light_dark_theme_toggle_is_wired():
             assert "prefers-color-scheme" in body, path           # no-flash head init
 
 
+def test_stage_canvas_rule_is_child_scoped():
+    """The full-height stage-canvas rule must target the scope canvas as a DIRECT
+    child, or it also stretches the recorder's nested waveform and pushes the
+    Stop button off-screen."""
+    with tempfile.TemporaryDirectory() as tmp:
+        css = _client(tmp).get("/static/vox-kit.css").text.replace(" ", "")
+        assert ".vox-stage>canvas{" in css
+        # the un-scoped descendant form must not survive (would re-match .vrec-wave)
+        assert ".vox-stagecanvas{" not in css
+
+
 def test_all_three_engine_apis_are_reachable():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)

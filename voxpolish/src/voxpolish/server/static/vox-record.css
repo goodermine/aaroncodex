@@ -28,10 +28,17 @@
 .vrec-levelmsg{font-family:var(--vox-mono);font-size:11px;color:var(--vox-muted);min-height:1em}
 
 .vrec-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;width:100%}
+/* Keep the live controls (Stop) on their own stable layer, above the canvas'
+   repaints, so they stay painted on iOS/WebKit. */
+.vrec-stage[data-stage="live"] .vrec-row{position:relative;z-index:1;transform:translateZ(0)}
 .vrec-check{display:inline-flex;align-items:center;gap:7px;font-family:var(--vox-mono);font-size:11px;letter-spacing:.05em;color:var(--vox-muted);cursor:pointer}
 .vrec-check input{accent-color:var(--vox-cyan)}
 
-.vrec-wave{width:100%;height:96px;display:block;border:1px solid var(--vox-line);border-radius:10px;background:#070c11}
+/* Give the live waveform its OWN compositing layer so its per-frame repaints
+   don't invalidate the Stop button below it — without this, iOS/WebKit leaves
+   the button unpainted until a scroll, then flashes and drops it. */
+.vrec-wave{width:100%;height:96px;display:block;border:1px solid var(--vox-line);border-radius:10px;background:#070c11;
+  transform:translateZ(0);-webkit-transform:translateZ(0)}
 .vrec-count{font-family:var(--vox-mono);font-size:52px;font-weight:800;color:var(--vox-cyan);text-shadow:var(--vox-glow-cyan);margin:-70px 0 18px}
 .vrec-rec{display:inline-flex;align-items:center;gap:9px;font-family:var(--vox-mono);font-size:13px;letter-spacing:.1em;color:var(--vox-ink)}
 .vrec-timer{color:var(--vox-cyan)}
