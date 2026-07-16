@@ -22,6 +22,15 @@
   .stage-msg b{color:var(--vox-ink);font-size:15px;letter-spacing:.02em}
   .vox-scope__chips .vox-chip{cursor:pointer;font:inherit;font-family:var(--vox-mono);font-size:10px;letter-spacing:.12em}
   .vox-scope__chips .vox-chip:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+  .scope-ctrls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+  .scope-layers,.scope-zoom{display:flex;gap:5px}
+  .scope-tgl,.scope-znav{font-family:var(--vox-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
+    color:var(--vox-muted);border:1px solid var(--vox-line-2);background:#0a141c;border-radius:7px;padding:6px 9px;line-height:1}
+  .scope-tgl:hover,.scope-znav:hover{color:var(--vox-ink)}
+  .scope-tgl[aria-pressed="true"]{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));border-color:transparent;box-shadow:var(--vox-glow-cyan)}
+  .scope-tgl:focus-visible,.scope-znav:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+  #stage.seekable{cursor:crosshair}
+  .vox-seek{cursor:pointer}
   /* H1–H8 harmonic energy bars (live, from the vocal FFT) */
   .vox-harm{margin-top:16px;border-top:1px solid var(--vox-line);padding-top:14px}
   .vox-harm__head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
@@ -89,8 +98,18 @@
     <section class="vox-scope">
       <div class="vox-scope__head">
         <span class="vox-scope__title">Performance <b>Scope</b></span>
-        <div class="vox-scope__chips" role="tablist" aria-label="Scope view">
-          <button class="vox-chip is-hot" id="chipPitch" data-view="pitch" role="tab" aria-selected="true" type="button">PITCH</button><button class="vox-chip" id="chipWaveform" data-view="waveform" role="tab" aria-selected="false" type="button">WAVEFORM</button><button class="vox-chip" id="chipSpectrum" data-view="spectrum" role="tab" aria-selected="false" type="button">SPECTRUM</button>
+        <div class="scope-ctrls">
+          <div class="vox-scope__chips" role="tablist" aria-label="Scope view">
+            <button class="vox-chip is-hot" id="chipPitch" data-view="pitch" role="tab" aria-selected="true" type="button">PITCH</button><button class="vox-chip" id="chipWaveform" data-view="waveform" role="tab" aria-selected="false" type="button">WAVEFORM</button><button class="vox-chip" id="chipSpectrum" data-view="spectrum" role="tab" aria-selected="false" type="button">SPECTRUM</button>
+          </div>
+          <div class="scope-layers" aria-label="Scope layers">
+            <button class="scope-tgl" id="tglAccuracy" aria-pressed="false" type="button" title="Colour the pitch line by accuracy (red = out of tune)">Accuracy</button>
+            <button class="scope-tgl" id="tglSpectro" aria-pressed="false" type="button" title="Spectrogram energy behind the pitch">Spectro</button>
+            <button class="scope-tgl" id="tglOriginal" aria-pressed="false" type="button" hidden title="Overlay the original track's pitch">Original</button>
+          </div>
+          <div class="scope-zoom" aria-label="Zoom">
+            <button class="scope-znav" id="zOut" aria-label="Zoom out" type="button">−</button><button class="scope-znav" id="zIn" aria-label="Zoom in" type="button">+</button><button class="scope-znav" id="zReset" type="button">Reset</button><button class="scope-tgl" id="zFollow" aria-pressed="true" type="button">Follow</button>
+          </div>
         </div>
       </div>
       <div class="vox-stage" id="stage">
@@ -167,8 +186,8 @@
 
   <p style="margin-top:16px;color:var(--vox-dim);font-family:var(--vox-mono);font-size:10.5px;letter-spacing:.05em;line-height:1.7">
     Command deck · Analyze mode, wired to the live job stage stream. LED, chain, processing bar &amp; log are driven by
-    <b>real</b> <code style="color:var(--vox-cyan-ink)">/api/pitch-jobs</code> state. Scope: pitch (note lanes + contour), live waveform
-    &amp; FFT spectrum with H1–H8 harmonics, full results below. <a href="/" style="color:var(--vox-cyan)">Classic view →</a>
+    <b>real</b> <code style="color:var(--vox-cyan-ink)">/api/pitch-jobs</code> state. Scope: click/drag to seek, scroll to zoom · toggle
+    accuracy colour, spectrogram &amp; original-pitch overlay · waveform &amp; FFT spectrum · H1–H8 harmonics · full results below. <a href="/" style="color:var(--vox-cyan)">Classic view →</a>
   </p>
 </div>
 
@@ -220,6 +239,8 @@
       // Mount the pitch scope from the real contour + vocal stem, if present.
       var contour=res.contour||(rep.pitch&&rep.pitch.contour);
       var vocalUrl=(res.audio_urls&&res.audio_urls.vocals)||null;
+      // Original-track pitch overlay, if a verified reference was compared.
+      refContour=(res.reference&&res.reference.status==="ready"&&(res.reference.native_contour||res.reference.contour))||null;
       if(contour)mountScope(contour,res.duration_seconds,vocalUrl);
       // Full results panel — the same report the classic view renders.
       if(window.VOXReport){VOXReport.render($("#report"),{report:rep,result:res,
@@ -343,21 +364,40 @@
     lo=Math.floor(lo)-1;hi=Math.ceil(hi)+1;return{lo:lo,hi:hi,range:Math.max(1,hi-lo)};
   }
   function mono(){return getComputedStyle(document.body).getPropertyValue("--vox-mono");}
+  // view window (zoom + pan) + layer toggles; the pitch view maps X through this.
+  var view={zoom:1,offset:0,follow:true},accuracyOn=false,spectroOn=false,originalOn=false,refContour=null,spectroImg=null;
+  function clampN(v,a,b){return Math.max(a,Math.min(b,v));}
+  function vWin(){var dur=scopeData?(scopeData.dur||1):1,win=dur/view.zoom;view.offset=clampN(view.offset,0,Math.max(0,dur-win));return{start:view.offset,win:win,end:view.offset+win,dur:dur};}
+  function xForT(t,w){var v=vWin();return PAD+(t-v.start)/v.win*(w-PAD);}
+  function tForX(x,w){var v=vWin();return v.start+(x-PAD)/(w-PAD)*v.win;}
+  // Frequency range shown on Y. With the spectrogram on, open it up two octaves
+  // so the harmonic bands above the melody are visible (as in the classic view).
+  function yBounds(){var lo=scopeData.lo,hi=spectroOn?scopeData.hi+24:scopeData.hi;return{lo:lo,hi:hi,range:Math.max(1,hi-lo)};}
+  function pitchErrorColour(cents){var m=69+cents/100,err=Math.min(50,Math.abs((m-Math.round(m))*100)),a=err<=15?0:err<=30?(err-15)/15*.22:err<=40?.22+(err-30)/10*.38:.6+(err-40)/10*.4,s=[139,124,255],e=[255,77,94];return "rgb("+s.map(function(v,i){return Math.round(v+(e[i]-v)*a);}).join(",")+")";}
   function drawScope(){
     if(!scopeData)return;
     if(scopeView==="spectrum")return drawSpectrum();
     if(scopeView==="waveform")return drawWaveform();
     drawPitch();
   }
-  function drawPitch(){
-    var w=scopeData.w,h=scopeData.h,lo=scopeData.lo,range=scopeData.range,dur=scopeData.dur||1;
-    sctx.clearRect(0,0,w,h);
-    sctx.font="10px "+mono();sctx.textBaseline="middle";
-    for(var m=lo;m<=scopeData.hi;m++){var y=h-(m-lo)/range*h;sctx.strokeStyle=(m%12===0)?"#34404e":"#202832";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(PAD,y);sctx.lineTo(w,y);sctx.stroke();if(range<=30||m%2===0){sctx.fillStyle="#7f93a4";sctx.fillText(noteName(m),6,y);}}
-    var vals=scopeData.contour.values,rate=scopeData.rate;sctx.strokeStyle="#8b7cff";sctx.lineWidth=2;sctx.shadowColor="#8b7cff";sctx.shadowBlur=6;sctx.beginPath();var pen=false;
-    for(var i=0;i<vals.length;i++){var c=vals[i];if(c==null||!isFinite(c)){pen=false;continue;}var t=i/rate;if(t>dur)break;var x=PAD+(t/dur)*(w-PAD),yy=h-((69+c/100)-lo)/range*h;if(!pen){sctx.moveTo(x,yy);pen=true;}else sctx.lineTo(x,yy);}
+  function drawContourLine(contour,color,width,byAccuracy){
+    if(!contour||!contour.values)return;var vals=contour.values,rate=contour.rate_hz||contour.rate||10,w=scopeData.w,h=scopeData.h,eb=yBounds(),lo=eb.lo,range=eb.range,v=vWin();
+    var s=Math.max(0,Math.floor(v.start*rate)),e=Math.min(vals.length,Math.ceil(v.end*rate)+1);
+    function Y(c){return h-((69+c/100)-lo)/range*h;}
+    if(byAccuracy){for(var i=s;i<e-1;i++){var c=vals[i],c2=vals[i+1];if(c==null||!isFinite(c)||c2==null||!isFinite(c2))continue;sctx.strokeStyle=pitchErrorColour(c);sctx.lineWidth=width;sctx.beginPath();sctx.moveTo(xForT(i/rate,w),Y(c));sctx.lineTo(xForT((i+1)/rate,w),Y(c2));sctx.stroke();}return;}
+    sctx.strokeStyle=color;sctx.lineWidth=width;sctx.shadowColor=color;sctx.shadowBlur=6;sctx.beginPath();var pen=false;
+    for(var i2=s;i2<e;i2++){var cc=vals[i2];if(cc==null||!isFinite(cc)){pen=false;continue;}var x=xForT(i2/rate,w),yy=Y(cc);if(!pen){sctx.moveTo(x,yy);pen=true;}else sctx.lineTo(x,yy);}
     sctx.stroke();sctx.shadowBlur=0;
-    var ct=clockObj().currentTime||0;if(ct>=0&&ct<=dur){var px=PAD+(ct/dur)*(w-PAD);sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
+  }
+  function drawPitch(){
+    var w=scopeData.w,h=scopeData.h,eb=yBounds(),lo=eb.lo,range=eb.range,v=vWin();
+    sctx.clearRect(0,0,w,h);
+    if(spectroOn&&spectroImg){var iw=spectroImg.width;sctx.save();sctx.globalAlpha=.72;sctx.globalCompositeOperation="lighter";sctx.drawImage(spectroImg,v.start/v.dur*iw,0,Math.max(1,v.win/v.dur*iw),spectroImg.height,PAD,0,w-PAD,h);sctx.restore();}
+    sctx.font="10px "+mono();sctx.textBaseline="middle";
+    for(var m=lo;m<=eb.hi;m++){var y=h-(m-lo)/range*h;sctx.strokeStyle=(m%12===0)?"#34404e":"#202832";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(PAD,y);sctx.lineTo(w,y);sctx.stroke();if(range<=30||m%2===0){sctx.fillStyle="#7f93a4";sctx.fillText(noteName(m),6,y);}}
+    if(originalOn&&refContour)drawContourLine(refContour,"#ff935c",2,false);
+    drawContourLine(scopeData.contour,"#8b7cff",2,accuracyOn);
+    var ct=clockObj().currentTime||0;if(ct>=v.start&&ct<=v.end){var px=xForT(ct,w);sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
   }
 
   // ---- live spectrum + harmonics (Web Audio FFT on the vocal stem) --------
@@ -434,6 +474,58 @@
       if(scopeData)drawScope();
     });
   });
+
+  // ---- layer toggles + zoom controls -------------------------------------
+  function setPressed(sel,on){var e=$(sel);if(e)e.setAttribute("aria-pressed",on?"true":"false");}
+  $("#tglAccuracy").addEventListener("click",function(){accuracyOn=!accuracyOn;setPressed("#tglAccuracy",accuracyOn);drawScope();});
+  $("#tglOriginal").addEventListener("click",function(){originalOn=!originalOn;setPressed("#tglOriginal",originalOn);drawScope();});
+  $("#tglSpectro").addEventListener("click",function(){spectroOn=!spectroOn;setPressed("#tglSpectro",spectroOn);if(spectroOn&&!spectroImg)buildSpectrogram();drawScope();});
+  function zoomBy(f,center){var c=center!=null?center:(clockObj().currentTime||0);view.zoom=clampN(view.zoom*f,1,40);var v=vWin();view.offset=c-v.win/2;drawScope();}
+  $("#zIn").addEventListener("click",function(){zoomBy(1.5);});
+  $("#zOut").addEventListener("click",function(){zoomBy(1/1.5);});
+  $("#zReset").addEventListener("click",function(){view.zoom=1;view.offset=0;drawScope();});
+  $("#zFollow").addEventListener("click",function(){view.follow=!view.follow;setPressed("#zFollow",view.follow);});
+
+  // ---- seek + pan + wheel-zoom -------------------------------------------
+  var seekEl=document.querySelector(".vox-seek");
+  function seekFraction(clientX){var r=seekEl.getBoundingClientRect();return clampN((clientX-r.left)/r.width,0,1);}
+  function seekTo(f){var c=clockObj(),dur=(c&&c.duration)||scopeData&&scopeData.dur||0;if(c&&dur){c.currentTime=f*dur;drawScope();scopeReadout();}}
+  seekEl.addEventListener("pointerdown",function(e){if(!scopeData)return;seekEl.setPointerCapture(e.pointerId);seekEl._drag=true;seekTo(seekFraction(e.clientX));});
+  seekEl.addEventListener("pointermove",function(e){if(seekEl._drag)seekTo(seekFraction(e.clientX));});
+  window.addEventListener("pointerup",function(){seekEl._drag=false;});
+  var drag=null;
+  scopeCanvas.addEventListener("pointerdown",function(e){if(!scopeData)return;drag={x0:e.clientX,off0:view.offset,moved:false};scopeCanvas.setPointerCapture(e.pointerId);});
+  scopeCanvas.addEventListener("pointermove",function(e){if(!drag)return;var dx=e.clientX-drag.x0;if(Math.abs(dx)>3){drag.moved=true;view.follow=false;setPressed("#zFollow",false);var r=scopeCanvas.getBoundingClientRect(),v=vWin();view.offset=drag.off0-dx/(r.width-PAD)*v.win;drawScope();}});
+  scopeCanvas.addEventListener("pointerup",function(e){if(!drag)return;if(!drag.moved&&scopeView==="pitch"){var r=scopeCanvas.getBoundingClientRect();seekTo(clampN(tForX(e.clientX-r.left,r.width),0,scopeData.dur)/(scopeData.dur||1));}drag=null;});
+  scopeCanvas.addEventListener("wheel",function(e){if(!scopeData||scopeView!=="pitch")return;e.preventDefault();var r=scopeCanvas.getBoundingClientRect(),px=e.clientX-r.left,tAt=tForX(px,r.width);view.zoom=clampN(view.zoom*(e.deltaY<0?1.25:1/1.25),1,40);var v=vWin();view.offset=tAt-(px-PAD)/(r.width-PAD)*v.win;drawScope();},{passive:false});
+
+  // ---- spectrogram (offline STFT of the vocal, or synthetic in demo) ------
+  function fft(re,im){var n=re.length;for(var i=1,j=0;i<n;i++){var bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){var tr=re[i];re[i]=re[j];re[j]=tr;var ti=im[i];im[i]=im[j];im[j]=ti;}}
+    for(var len=2;len<=n;len<<=1){var ang=-2*Math.PI/len,wr=Math.cos(ang),wi=Math.sin(ang);for(var s=0;s<n;s+=len){var cr=1,ci=0;for(var k=0;k<len>>1;k++){var a=s+k,b=s+k+(len>>1),xr=re[b]*cr-im[b]*ci,xi=re[b]*ci+im[b]*cr;re[b]=re[a]-xr;im[b]=im[a]-xi;re[a]+=xr;im[a]+=xi;var ncr=cr*wr-ci*wi;ci=cr*wi+ci*wr;cr=ncr;}}}}
+  function paintSpectroCell(px,cols,H,col,y,inten){if(y<0||y>=H)return;var o=(y*cols+col)*4;px[o]=Math.min(255,px[o]+inten*120);px[o+1]=Math.min(255,px[o+1]+inten*205);px[o+2]=Math.min(255,px[o+2]+inten*255);px[o+3]=255;}
+  function buildSpectrogram(){
+    if(!scopeData)return;
+    if(fakeClock||!deckAudio.src){buildSyntheticSpectro();return;}
+    fetch(deckAudio.src).then(function(r){return r.arrayBuffer();}).then(function(buf){
+      ensureAudio();var ctx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+      return ctx.decodeAudioData(buf.slice(0));
+    }).then(function(ab){
+      var data=ab.getChannelData(0),sr=ab.sampleRate,N=1024,H=384,eb=yBounds(),lo=eb.lo,range=eb.range;
+      var cols=clampN(Math.floor(data.length/(N/2)),200,1100),hop=Math.max(N>>1,Math.floor((data.length-N)/cols));
+      var img=document.createElement("canvas");img.width=cols;img.height=H;var ictx=img.getContext("2d"),id=ictx.createImageData(cols,H),px=id.data;
+      var re=new Float32Array(N),im=new Float32Array(N),win=new Float32Array(N),i;for(i=0;i<N;i++)win[i]=0.5-0.5*Math.cos(2*Math.PI*i/(N-1));
+      for(var col=0;col<cols;col++){var s0=col*hop;for(i=0;i<N;i++){re[i]=(data[s0+i]||0)*win[i];im[i]=0;}fft(re,im);
+        for(var bin=1;bin<N>>1;bin++){var f=bin*sr/N;if(f<45||f>4200)continue;var mag=Math.sqrt(re[bin]*re[bin]+im[bin]*im[bin]),inten=clampN((20*Math.log10(mag+1e-6)+68)/48,0,1);if(inten<=0.03)continue;var y=Math.round(H-((69+12*Math.log2(f/440)-lo)/range)*H);paintSpectroCell(px,cols,H,col,y,inten);}}
+      ictx.putImageData(id,0,0);spectroImg=img;drawScope();
+    }).catch(function(){buildSyntheticSpectro();});
+  }
+  function buildSyntheticSpectro(){
+    var cols=600,H=384,img=document.createElement("canvas");img.width=cols;img.height=H;var ictx=img.getContext("2d"),id=ictx.createImageData(cols,H),px=id.data;
+    var vals=scopeData.contour.values,rate=scopeData.rate,eb=yBounds(),lo=eb.lo,range=eb.range,dur=scopeData.dur;
+    for(var col=0;col<cols;col++){var ci=Math.round(col/cols*dur*rate),c=vals[ci];if(c==null||!isFinite(c))continue;var f0=440*Math.pow(2,((69+c/100)-69)/12);
+      for(var k=1;k<=12;k++){var f=k*f0;if(f>4200)break;var y=Math.round(H-((69+12*Math.log2(f/440)-lo)/range)*H),inten=Math.pow(0.8,k-1)*(0.55+Math.random()*0.45);paintSpectroCell(px,cols,H,col,y,inten);paintSpectroCell(px,cols,H,col,y-1,inten*0.6);}}
+    ictx.putImageData(id,0,0);spectroImg=img;drawScope();
+  }
   function scopeReadout(){
     if(!scopeData)return;var ct=clockObj().currentTime||0,i=Math.round(ct*scopeData.rate),c=scopeData.contour.values[i];
     if(c==null||!isFinite(c)){$("#readNote").textContent="—";$("#readCents").textContent="—";return;}
@@ -448,6 +540,9 @@
     scopeData={contour:contour,rate:rate,dur:duration||contour.values.length/rate,lo:b.lo,hi:b.hi,range:b.range,w:r.width,h:r.height};
     intake.classList.add("hidden");stageMsg.classList.add("hidden");scopeCanvas.classList.remove("hidden");
     if(audioUrl){fakeClock=null;deckAudio.src=audioUrl;}else{fakeClock={currentTime:0,duration:scopeData.dur,paused:true,play:function(){this.paused=false;},pause:function(){this.paused=true;}};}
+    view.zoom=1;view.offset=0;spectroImg=null;stage.classList.add("seekable");
+    $("#tglOriginal").hidden=!(refContour&&refContour.values&&refContour.values.length);
+    if(spectroOn)buildSpectrogram();
     playBtn.disabled=false;buildHarmCells();$("#harm").removeAttribute("hidden");
     fitScope();drawScope();scopeReadout();updateHarmonics();
     if(!scopeLooping){scopeLooping=true;requestAnimationFrame(scopeLoop);}
@@ -460,6 +555,7 @@
       var clk=clockObj();
       if(fakeClock&&!fakeClock.paused){fakeClock.currentTime+=dt;if(fakeClock.currentTime>=scopeData.dur){fakeClock.currentTime=0;}}
       var ct=clk.currentTime||0,dur=clk.duration||scopeData.dur||1;
+      if(view.follow&&view.zoom>1&&!clk.paused){var vw=vWin();if(ct<vw.start||ct>vw.end-vw.win*0.15)view.offset=ct-vw.win*0.4;}
       $("#tcode").innerHTML=fmt(ct)+' <span>/</span> '+fmt(dur);
       $("#seekFill").style.width=(dur?ct/dur*100:0).toFixed(1)+"%";
       drawScope();scopeReadout();updateHarmonics();
@@ -515,7 +611,9 @@
       $("#levelHead").textContent="−4.0 dB";
       VOX.drawGauge(gpuC,state==="WORKING"?72:12);VOX.drawGauge(cpuC,state==="WORKING"?54:10);
       $("#gpuVal").textContent=(state==="WORKING"?72:12)+"%";$("#cpuVal").textContent=(state==="WORKING"?54:10)+"%";
-      if(state==="COMPLETE"){$("#rRange").textContent="E3 – A5";$("#rConf").textContent="94%";$("#rDev").textContent="11 c";$("#rWithin").textContent="78%";mountScope(demoContour(),24,null);var c=clockObj();if(c&&c.play)c.play();playBtn.innerHTML="&#10073;&#10073;";}
+      if(state==="COMPLETE"){$("#rRange").textContent="E3 – A5";$("#rConf").textContent="94%";$("#rDev").textContent="11 c";$("#rWithin").textContent="78%";
+        var dc=demoContour();refContour={values:dc.values.map(function(v){return v==null?null:v+40*Math.sin(v/80);}),rate_hz:dc.rate_hz};
+        mountScope(dc,24,null);var c=clockObj();if(c&&c.play)c.play();playBtn.innerHTML="&#10073;&#10073;";}
       i++;if(!VOX.REDUCE&&i<seq.length)setTimeout(step,1600);
     }
     step();
