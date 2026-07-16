@@ -248,8 +248,11 @@
 
   // mode switch (Polish links to the editor app; Analyze is here)
   $("#modePolish").addEventListener("click",function(){
-    // Editor is a separate app/port; cross-link keeps each usable on its own.
-    var host=location.hostname;location.href=location.protocol+"//"+host+":8765/";
+    // Editor is a separate app/port.  Tailscale HTTPS proxies use 9443 for
+    // Analyze and 8443 for Polish; direct HTTP retains the app ports.
+    var host=location.hostname;
+    var polishPort=location.protocol==="https:"?8443:8765;
+    location.href=location.protocol+"//"+host+":"+polishPort+"/deck";
   });
   $("#fusedBtn").addEventListener("click",function(){
     log("info","fused pipeline arrives in the next increment");
