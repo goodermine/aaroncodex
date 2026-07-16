@@ -50,6 +50,29 @@
   --vox-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
   --vox-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 
+  /* control surfaces — recurring panel/input shades, tokenised so the light
+     theme can remap them (dark defaults keep the control-room look) */
+  --vox-surface-0:#080c11;   /* deepest input well            */
+  --vox-surface-1:#0a141c;   /* standard control / chip bg    */
+  --vox-surface-2:#16242f;   /* raised / hover control        */
+
+  /* contrast colour for text sitting ON a bright accent (cyan/violet).
+     Stays dark on the bright dark-theme accents; goes light in the light
+     theme where the accents are deepened. */
+  --vox-on-accent:#04222b;
+
+  /* container fills — whole gradients held in tokens so the light theme can
+     swap the whole "console" surface (page ground / panel cards / command bar /
+     secondary button) in one place. */
+  --vox-grad-page:
+    radial-gradient(1200px 520px at 50% -8%,rgba(63,224,255,.11),transparent 60%),
+    radial-gradient(900px 520px at 100% 118%,rgba(63,224,255,.05),transparent 55%),
+    linear-gradient(180deg,var(--vox-surface-0) 0,#060809 100%);
+  --vox-grad-panel:linear-gradient(160deg,#0d1620,#0a1017);
+  --vox-grad-bar:linear-gradient(180deg,rgba(18,32,43,.7),rgba(10,16,22,.85));
+  --vox-grad-btn:linear-gradient(#18202a,#10161e);
+  --vox-btn-ink:#dce4ec;
+
   /* effects */
   --vox-glow-cyan:0 0 14px rgba(63,224,255,.55);
   --vox-glow-violet:0 0 14px rgba(139,124,255,.5);
@@ -58,4 +81,75 @@
   --vox-glow-red:0 0 12px rgba(255,93,108,.6);
   --vox-radius:14px;
   --vox-radius-sm:8px;
+}
+
+/* ----------------------------------------------------------------------------
+   Light theme — set data-theme="light" on <html> (the vox-theme toggle does).
+   The signal displays (pitch scope, spectrogram, waveform, VU meters) are drawn
+   on <canvas> in JS with their own dark fills and deliberately STAY dark, like a
+   DAW/oscilloscope — only the chrome flips. Accents keep their identity but are
+   deepened so cyan/violet read on a light ground.
+   ------------------------------------------------------------------------- */
+:root[data-theme="light"]{
+  --vox-void:#eef2f6;
+  --vox-panel:#ffffff;
+  --vox-raised:#f5f9fc;
+  --vox-raised-2:#eef3f8;
+  --vox-sunken:#e4ebf1;
+  --vox-line:#d6e0e8;
+  --vox-line-2:#c2d1dc;
+
+  --vox-ink:#0d1a24;
+  --vox-muted:#546575;
+  --vox-dim:#8494a3;
+
+  --vox-cyan:#0b93bd;
+  --vox-cyan-deep:#0a7699;
+  --vox-cyan-ink:#075f7c;
+
+  --vox-violet:#6b5cf0;
+  --vox-violet-deep:#4a3fca;
+
+  --vox-green:#12a866;
+  --vox-amber:#b9760f;
+  --vox-red:#df374a;
+
+  --vox-surface-0:#e6edf2;
+  --vox-surface-1:#eef4f8;
+  --vox-surface-2:#dde7ef;
+
+  --vox-on-accent:#ffffff;
+
+  --vox-grad-page:
+    radial-gradient(1200px 520px at 50% -8%,rgba(11,147,189,.06),transparent 60%),
+    radial-gradient(900px 520px at 100% 118%,rgba(107,92,240,.05),transparent 55%),
+    linear-gradient(180deg,#f4f7fa 0,#e7eef3 100%);
+  --vox-grad-panel:linear-gradient(160deg,#ffffff,#f1f6fa);
+  --vox-grad-bar:linear-gradient(180deg,#ffffff,#eaf1f6);
+  --vox-grad-btn:linear-gradient(#ffffff,#eef3f7);
+  --vox-btn-ink:#243441;
+
+  --vox-glow-cyan:0 0 10px rgba(11,147,189,.26);
+  --vox-glow-violet:0 0 10px rgba(107,92,240,.24);
+  --vox-glow-green:0 0 10px rgba(18,168,102,.28);
+  --vox-glow-amber:0 0 10px rgba(185,118,15,.28);
+  --vox-glow-red:0 0 10px rgba(223,55,74,.28);
+}
+
+/* The scope card is a dark "display screen" in a light console: the canvas
+   (pitch/spectrogram/waveform) reads best on dark, and everything overlaid on
+   the stage (intake, timecode, transport) must stay light-on-dark. So in light
+   mode we restore the dark palette scoped to .vox-scope — it becomes a
+   self-contained dark module while the rails / header / chain flip light. */
+:root[data-theme="light"] .vox-scope{
+  --vox-void:#070a0e; --vox-panel:#0c1119; --vox-raised:#12202b; --vox-raised-2:#0e1721;
+  --vox-sunken:#05090d; --vox-line:#1d2b38; --vox-line-2:#263a4a;
+  --vox-ink:#eaf3f8; --vox-muted:#7f93a4; --vox-dim:#4a5c6b;
+  --vox-cyan:#3fe0ff; --vox-cyan-deep:#1a9fc4; --vox-cyan-ink:#bfeffb;
+  --vox-surface-0:#080c11; --vox-surface-1:#0a141c; --vox-surface-2:#16242f;
+  --vox-on-accent:#04222b;
+  --vox-grad-panel:linear-gradient(160deg,#0d1620,#0a1017);
+  --vox-grad-btn:linear-gradient(#18202a,#10161e); --vox-btn-ink:#dce4ec;
+  --vox-glow-cyan:0 0 14px rgba(63,224,255,.55);
+  border-color:var(--vox-line);
 }

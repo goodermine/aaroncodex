@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>VOX Suite — Command Deck · Fused</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{var t=localStorage.getItem('vox-theme')||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-record.css?v=__ASSET_VERSION__">
@@ -13,20 +14,20 @@
   .stage-msg{display:grid;place-items:center;height:100%;gap:10px;text-align:center;color:var(--vox-muted);font-family:var(--vox-mono);letter-spacing:.06em}
   .stage-msg b{color:var(--vox-ink);font-size:15px;letter-spacing:.02em}
   .intake .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:520px;margin-top:8px;text-align:left}
-  .intake input{width:100%;border:1px solid var(--vox-line-2);background:#080c11;color:var(--vox-ink);padding:10px 12px;border-radius:8px;font:inherit}
+  .intake input{width:100%;border:1px solid var(--vox-line-2);background:var(--vox-surface-0);color:var(--vox-ink);padding:10px 12px;border-radius:8px;font:inherit}
   .intake .fields label{display:grid;gap:5px;font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--vox-muted)}
   .intake .fields .full{grid-column:1/-1}
   .rail-group{margin-bottom:14px}
   .rail-group h4{margin:0 0 8px;font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-muted);display:flex;align-items:center;gap:7px}
-  .intake-modes{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--vox-line-2);border-radius:10px;background:#0a141c;margin-bottom:2px}
+  .intake-modes{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--vox-line-2);border-radius:10px;background:var(--vox-surface-1);margin-bottom:2px}
   .intake-modes button{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:0;background:transparent;color:var(--vox-muted);border-radius:7px;padding:8px 20px}
-  .intake-modes button.on{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:var(--vox-glow-cyan)}
+  .intake-modes button.on{color:var(--vox-on-accent);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:var(--vox-glow-cyan)}
   .intake-modes button:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   .intake-source{display:grid;justify-items:center;gap:12px;width:100%}
   .intake-source[hidden]{display:none}
   .hidden{display:none!important}
   .vox-newbtn{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
-    color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:#0a141c;transition:background .15s,box-shadow .15s;margin-right:10px}
+    color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:var(--vox-surface-1);transition:background .15s,box-shadow .15s;margin-right:10px}
   .vox-newbtn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
   .vox-newbtn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
 </style>
@@ -165,6 +166,7 @@
 
 <script>window.VOX_MODE="fused";</script>
 <script src="/static/vox-about.js?v=__ASSET_VERSION__"></script>
+<script src="/static/vox-theme.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-record.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>

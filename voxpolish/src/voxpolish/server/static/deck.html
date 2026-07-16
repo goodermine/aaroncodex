@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>VOX Suite — Command Deck · Polish</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{var t=localStorage.getItem('vox-theme')||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-record.css?v=__ASSET_VERSION__">
@@ -14,11 +15,11 @@
   .stage-msg b{color:var(--vox-ink);font-size:15px;letter-spacing:.02em}
   .choice{display:flex;gap:10px;margin-top:6px}
   .choice button{font-family:var(--vox-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
-    border:1px solid var(--vox-line-2);background:#0a141c;color:var(--vox-muted);border-radius:8px;padding:9px 13px;cursor:pointer}
-  .choice button.on{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));border-color:transparent;box-shadow:var(--vox-glow-cyan)}
-  .intake-modes{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--vox-line-2);border-radius:10px;background:#0a141c}
+    border:1px solid var(--vox-line-2);background:var(--vox-surface-1);color:var(--vox-muted);border-radius:8px;padding:9px 13px;cursor:pointer}
+  .choice button.on{color:var(--vox-on-accent);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));border-color:transparent;box-shadow:var(--vox-glow-cyan)}
+  .intake-modes{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--vox-line-2);border-radius:10px;background:var(--vox-surface-1)}
   .intake-modes button{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:0;background:transparent;color:var(--vox-muted);border-radius:7px;padding:8px 20px}
-  .intake-modes button.on{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:var(--vox-glow-cyan)}
+  .intake-modes button.on{color:var(--vox-on-accent);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:var(--vox-glow-cyan)}
   .intake-modes button:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   .intake-source{display:grid;justify-items:center;gap:12px;width:100%}
   .intake-source[hidden]{display:none}
@@ -27,11 +28,11 @@
   .vox-module__track:hover{box-shadow:0 0 0 1px var(--vox-line-2)}
   /* bigger, touch-friendly scrubber with a knob */
   .vox-transport .vox-seek{position:relative;height:24px;display:flex;align-items:center;cursor:pointer;touch-action:none}
-  .vox-transport .vox-seek::before{content:"";position:absolute;left:0;right:0;height:6px;border-radius:3px;background:#0a141c;border:1px solid var(--vox-line)}
+  .vox-transport .vox-seek::before{content:"";position:absolute;left:0;right:0;height:6px;border-radius:3px;background:var(--vox-surface-1);border:1px solid var(--vox-line)}
   .vox-transport .vox-seek i{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan));box-shadow:0 0 8px rgba(63,224,255,.5)}
   .vox-transport .vox-seek i::after{content:"";position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:15px;height:15px;border-radius:50%;background:var(--vox-cyan);box-shadow:0 0 10px var(--vox-cyan),0 0 0 3px rgba(63,224,255,.18)}
   .vox-newbtn{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
-    color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:#0a141c;transition:background .15s,box-shadow .15s}
+    color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:var(--vox-surface-1);transition:background .15s,box-shadow .15s}
   .vox-newbtn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
   .vox-newbtn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   .hidden{display:none!important}
@@ -156,6 +157,7 @@
 
 <script>window.VOX_MODE="polish";</script>
 <script src="/static/vox-about.js?v=__ASSET_VERSION__"></script>
+<script src="/static/vox-theme.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-record.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
