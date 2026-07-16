@@ -170,7 +170,7 @@
   var tstamp=$("#tstamp"),recLabel=$("#recLabel"),deckAudio=$("#deckAudio"),playBtn=$("#playBtn"),exportBtn=$("#exportBtn"),dlLabel=$("#dlLabel"),tray=$("#exportTray");
   var mm=VOX.miniMeter($("#miniMeter"),16),gpuC=$("#gaugeGpu"),cpuC=$("#gaugeCpu");
   VOX.drawGauge(gpuC,0);VOX.drawGauge(cpuC,0);
-  var doc=null,revision=0,peaks=null,tuneChoice=true;
+  var doc=null,revision=0,peaks=null,tuneChoice=true,denoiseAdjustable=false;
 
   // Modules: how the document's bypass/amounts/denoise map to rows.
   var MODULES=[
@@ -187,15 +187,17 @@
     if(!doc){$("#modules").innerHTML='<p style="color:var(--vox-muted);font:11px var(--vox-mono)">Upload a take to load its modules.</p>';return;}
     $("#modules").innerHTML=MODULES.map(function(m,i){
       var on=moduleOn(m),amt=Math.round(moduleAmt(m)*100),cnt=m.count&&doc[m.count]?doc[m.count].length:null;
-      var meta=cnt!=null?(cnt+" "+m.meta):m.meta;
+      var fixed=m.denoise&&!denoiseAdjustable;  // no raw/wet pair server-side: slider would be decorative
+      var meta=fixed?"fixed at import":(cnt!=null?(cnt+" "+m.meta):m.meta);
       return '<div class="vox-module'+(on?" on":"")+'" data-i="'+i+'"><div class="vox-module__top">'+
         '<span class="vox-module__swatch" style="color:'+m.color+';background:'+m.color+'"></span>'+
-        '<span class="vox-module__name">'+m.name+'</span><span class="vox-module__toggle" data-role="toggle" tabindex="0" role="switch" aria-checked="'+on+'" aria-label="'+m.name+'"></span></div>'+
-        (m.amount||m.denoise?'<div class="vox-module__track"><i style="width:'+Math.min(100,amt)+'%;background:linear-gradient(90deg,'+m.color+'55,'+m.color+')"></i></div>':'')+
-        '<div class="vox-module__meta"><span>'+meta+'</span><span>'+(m.amount||m.denoise?amt+"%":(on?"on":"off"))+'</span></div></div>';
+        '<span class="vox-module__name">'+m.name+'</span><span class="vox-module__toggle" data-role="toggle" tabindex="0" role="switch" aria-checked="'+on+'"'+(fixed?' aria-disabled="true" style="opacity:.35;cursor:not-allowed"':'')+' aria-label="'+m.name+'"></span></div>'+
+        ((m.amount||m.denoise)&&!fixed?'<div class="vox-module__track"><i style="width:'+Math.min(100,amt)+'%;background:linear-gradient(90deg,'+m.color+'55,'+m.color+')"></i></div>':'')+
+        '<div class="vox-module__meta"><span>'+meta+'</span><span>'+(fixed?(amt>0?amt+"%":"off"):(m.amount||m.denoise?amt+"%":(on?"on":"off")))+'</span></div></div>';
     }).join("");
     document.querySelectorAll("#modules .vox-module").forEach(function(row){
       var m=MODULES[+row.dataset.i],tog=row.querySelector('[data-role="toggle"]');
+      if(m.denoise&&!denoiseAdjustable){tog.addEventListener("click",function(){log("warn","clean is fixed at import — denoise engine not installed");});return;}
       function flip(){toggleModule(m);}
       tog.addEventListener("click",flip);
       tog.addEventListener("keydown",function(e){if(e.key===" "||e.key==="Enter"){e.preventDefault();flip();}});
@@ -213,13 +215,13 @@
   }
   function toggleModule(m){
     if(!doc)return;var on=moduleOn(m);
-    if(m.denoise){doc.denoise=doc.denoise||{};doc.denoise.amount=on?0:0.6;doc.denoise.backend=doc.denoise.backend||"spectral";}
+    if(m.denoise){doc.denoise=doc.denoise||{};doc.denoise.amount=on?0:0.6;}
     else{doc.bypass=doc.bypass||{};doc.bypass[m.key]=on;} // on→bypass true (turn off)
     renderModules();saveAndRender();
   }
   function setAmount(m,f){
     if(!doc)return;f=Math.round(f*100)/100;
-    if(m.denoise){doc.denoise=doc.denoise||{};doc.denoise.amount=f;doc.denoise.backend=doc.denoise.backend||"spectral";}
+    if(m.denoise){doc.denoise=doc.denoise||{};doc.denoise.amount=f;}
     else{doc.amounts=doc.amounts||{};doc.amounts[m.amount]=f;}
     renderModules();saveAndRender();
   }
@@ -238,7 +240,7 @@
   // ---- document + render ---------------------------------------------------
   function loadDoc(){
     return fetch("/api/document").then(function(r){if(!r.ok)throw r.status;return r.json();}).then(function(d){
-      doc=d.document;revision=d.revision;renderModules();
+      doc=d.document;revision=d.revision;denoiseAdjustable=!!d.denoise_adjustable;renderModules();
     });
   }
   // Edits are serialised: rapid toggles coalesce into one follow-up save (the shared

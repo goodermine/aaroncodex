@@ -169,7 +169,12 @@ def create_app(root: Path) -> FastAPI:
     @app.get("/api/document")
     def get_document():
         s = require_current()
-        return JSONResponse(content={"revision": s.revision(), "document": _doc_json(s)})
+        return JSONResponse(content={
+            "revision": s.revision(),
+            "document": _doc_json(s),
+            # whether the Clean module can actually be re-blended at render time
+            "denoise_adjustable": s.denoise_adjustable(),
+        })
 
     @app.put("/api/document")
     async def put_document(request: Request):

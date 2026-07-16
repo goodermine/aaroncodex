@@ -86,10 +86,17 @@ class Session:
 
         vocal, sr = audio_io.load(source_copy)
         step("cleaning")
-        vocal, denoise_info = clean.process(vocal, sr, settings.denoise_amount)
+        raw_vocal = vocal
+        vocal, wet_vocal, denoise_info = clean.process_split(vocal, sr, settings.denoise_amount)
         # The post-clean vocal is what render consumes; persisting it makes
         # every re-render fast (no model re-run) and deterministic.
         audio_io.save(root / "work_vocal.wav", vocal, sr)
+        # Persist the raw + fully-wet pair so render() can re-blend the Clean
+        # module to whatever amount the editor asks for — without these the
+        # slider was decorative (denoise baked in once here, never re-read).
+        if wet_vocal is not None:
+            audio_io.save(root / "raw_vocal.wav", raw_vocal, sr)
+            audio_io.save(root / "wet_vocal.wav", wet_vocal, sr)
 
         step("analyzing")
         doc = analyze(vocal, sr, settings)
@@ -124,6 +131,12 @@ class Session:
     def is_session(cls, root: Path) -> bool:
         root = Path(root)
         return (root / "edit_document.json").exists() and (root / "work_vocal.wav").exists()
+
+    def denoise_adjustable(self) -> bool:
+        """True when render() can re-blend the Clean module (raw+wet persisted).
+        False for legacy sessions and no-backend environments, where the editor
+        must present Clean as fixed instead of a slider that does nothing."""
+        return (self.root / "raw_vocal.wav").exists() and (self.root / "wet_vocal.wav").exists()
 
     # -------------------------------------------------------------- document
 
@@ -182,6 +195,18 @@ class Session:
         """Render the persisted document (never an in-memory copy)."""
         vocal, sr = audio_io.load(self.root / "work_vocal.wav")
         doc = self.document()
+        # Clean module: re-blend raw/wet to the document's amount. Sessions
+        # created before the split (or without a denoise backend) have no
+        # raw/wet pair and keep the create-time bake.
+        raw_path, wet_path = self.root / "raw_vocal.wav", self.root / "wet_vocal.wav"
+        if raw_path.exists() and wet_path.exists():
+            amount = float(((doc.denoise or {}).get("amount")) or 0.0)
+            raw, _ = audio_io.load(raw_path)
+            if amount <= 0.0:
+                vocal = raw
+            else:
+                wet, _ = audio_io.load(wet_path)
+                vocal = clean.blend(raw, wet, amount)
         out = render.render(vocal, sr, doc)
         notes: list[str] = []
 

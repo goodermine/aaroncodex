@@ -237,3 +237,43 @@ def test_download_reflects_the_current_render(workspace_client):
 
 def test_download_without_session_is_409(workspace_client):
     assert workspace_client.get("/api/download").status_code == 409
+
+
+# ------------------------------------------------------------ clean module
+
+
+def test_clean_module_amount_changes_the_render(workspace_client, tmp_path):
+    """The Clean slider must reach the audio: render() re-blends the persisted
+    raw/wet pair per doc.denoise.amount (it used to be decorative — the doc was
+    updated but render never read it)."""
+    import glob
+    from pathlib import Path
+
+    job = _await_job(workspace_client, _run_upload(workspace_client, _wav_bytes()).json()["id"])
+    d = workspace_client.get("/api/document").json()
+    assert d["denoise_adjustable"] is False  # no denoise backend in this environment
+    # Fabricate the raw/wet pair (wet = half-gain raw) directly in the session dir.
+    roots = glob.glob(str(tmp_path / "**" / "work_vocal.wav"), recursive=True)
+    assert roots, "session dir not found under tmp_path"
+    root = Path(roots[0]).parent
+    raw, sr = sf.read(root / "work_vocal.wav")
+    sf.write(root / "raw_vocal.wav", raw, sr)
+    sf.write(root / "wet_vocal.wav", raw * 0.5, sr)
+
+    def render_with_amount(amount):
+        d = workspace_client.get("/api/document").json()
+        doc = d["document"]
+        doc["denoise"] = {"amount": amount, "backend": "deepfilternet"}
+        doc["bypass"] = {k: True for k in ("dynamics", "gate", "breath", "sibilance", "tune")}
+        workspace_client.put("/api/document", json={"revision": d["revision"], "document": doc})
+        workspace_client.post("/api/render")
+        while workspace_client.get("/api/render").json()["status"] == "running":
+            time.sleep(0.05)
+        return workspace_client.get("/api/download").content
+
+    assert workspace_client.get("/api/document").json()["denoise_adjustable"] is True
+    dry = render_with_amount(0.0)
+    wet = render_with_amount(1.0)
+    half = render_with_amount(0.5)
+    assert dry != wet, "denoise amount 0 vs 1 must change the rendered audio"
+    assert half != dry and half != wet, "intermediate amount must blend"
