@@ -9,6 +9,7 @@ import importlib.util
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -231,15 +232,39 @@ def _process(job_id: str) -> None:
         ]
         if not manifest.get("comparison_enabled", True):
             command.append("--skip-comparison")
-        result = subprocess.run(
+        # Run the tracker in its own process group so a timeout can kill the whole
+        # tree (audio-separator/ffmpeg grandchildren used to survive as GPU-eating
+        # orphans). The timeout is handled locally: TimeoutExpired.stdout is *bytes*
+        # even with text=True, and the old bytes+str concat raised TypeError inside
+        # the handler, leaving the job stuck "processing" forever.
+        proc = subprocess.Popen(
             command,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
-            timeout=ANALYSIS_TIMEOUT,
+            start_new_session=(os.name == "posix"),
         )
-        log_path.write_text(result.stdout + result.stderr, encoding="utf-8")
-        if result.returncode:
-            manifest.update(status="failed", stage="failed", error=_failure(result.stdout + result.stderr))
+        timed_out = False
+        try:
+            output, _ = proc.communicate(timeout=ANALYSIS_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            if os.name == "posix":
+                try:
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                except (ProcessLookupError, PermissionError, OSError):
+                    proc.kill()
+            else:
+                proc.kill()
+            output, _ = proc.communicate()
+        try:
+            log_path.write_text(output or "", encoding="utf-8")
+        except OSError:
+            pass  # a failed log write must never leave the manifest un-finalised
+        if timed_out:
+            manifest.update(status="failed", stage="failed", error={"code": "analysis_timeout"})
+        elif proc.returncode:
+            manifest.update(status="failed", stage="failed", error=_failure(output or ""))
         else:
             analysis = json.loads((job_dir / "result.json").read_text(encoding="utf-8"))
             files = analysis.pop("audio_files", {})
@@ -269,11 +294,11 @@ def _process(job_id: str) -> None:
                 analysis["audio_urls"]["original"] = f"/api/pitch-jobs/{job_id}/audio?track=original"
             _publish_spectral_metadata(analysis, job_id)
             manifest.update(status="complete", stage="complete", result=analysis)
-    except subprocess.TimeoutExpired as exc:
-        log_path.write_text((exc.stdout or "") + (exc.stderr or ""), encoding="utf-8")
-        manifest.update(status="failed", stage="failed", error={"code": "analysis_timeout"})
     except Exception as exc:  # details stay in the private server log
-        log_path.write_text(repr(exc), encoding="utf-8")
+        try:
+            log_path.write_text(repr(exc), encoding="utf-8")
+        except OSError:
+            pass
         manifest.update(status="failed", stage="failed", error={"code": "analysis_failed"})
     _write_manifest(job_dir, manifest)
 

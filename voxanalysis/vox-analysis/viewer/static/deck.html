@@ -389,10 +389,17 @@
     fd.append("comparison",compare?"true":"false");
     $("#jobTag").textContent="SESSION · uploading";
     log("info","upload · "+file.name);
-    fetch("/api/pitch-jobs",{method:"POST",body:fd}).then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+    fetch("/api/pitch-jobs",{method:"POST",body:fd})
+      .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,status:r.status,j:j};});})
       .then(function(res){
-        if(!res.ok){log("error","upload rejected · "+((res.j&&res.j.detail&&res.j.detail.code)||res.j.detail||r.status));return;}
+        if(!res.ok||!res.j.id){
+          log("error","upload rejected · "+((res.j&&res.j.detail&&res.j.detail.code)||res.j.detail||res.status));
+          apply({mode:"analyze",state:"ALERT",job:{id:"",name:file.name},stage:{index:0,total:7},progress:0,
+                 error:res.j&&res.j.detail&&typeof res.j.detail==="object"?res.j.detail:{message:String((res.j&&res.j.detail)||"upload rejected")}});
+          return;
+        }
         var id=res.j.id;$("#jobTag").textContent="SESSION · "+id.slice(0,8);
+        if(pollStop)pollStop(); // never leave a previous job's poller running
         pollStop=VOX.poll({url:"/api/pitch-jobs/"+id,mode:"analyze",adapt:VOX.adaptViewer,onEvent:function(ev){
           ev.job.name=file.name;apply(ev);
           if(ev.state==="COMPLETE")hydrateComplete(id);

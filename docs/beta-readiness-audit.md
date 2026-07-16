@@ -6,6 +6,12 @@ report, theme, kit). Four parallel deep audits plus live runtime reproduction; e
 blocker below was verified against source, and the ones marked *(runtime-confirmed)*
 were reproduced against a running server.
 
+> **Status update (same day):** fix series 1 landed and was verified headless —
+> **B1, B2, B4, B5, B6 fixed**, plus **M1, M2, M6, M15, M16** and the minor
+> out-of-scope `r.status`/missing-catch rejection bugs. Remaining blockers:
+> **B3** (fused garbage scores), **B7** (light-theme report/guide), **B8**
+> (placebo Clean module).
+
 **Verdict: NOT beta-ready yet.** 8 release-blocking defects, ~20 major. The good news:
 the API↔UI *contracts* are largely sound (see "Verified correct" at the end), the test
 suites are green (245 tests), and most blockers are small, well-localised fixes. The

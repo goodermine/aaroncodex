@@ -78,12 +78,13 @@
     if (labEl && label) labEl.textContent = label;
   }
 
-  // Reverse-chron telemetry log (newest first), capped.
+  // Reverse-chron telemetry log (newest first), capped. Messages are escaped —
+  // decks log raw filenames, which must never reach innerHTML as markup.
   function makeLog(container, cap) {
     cap = cap || 6; var lines = [];
     return function (level, msg) {
       var cls = level === "warn" || level === "error" ? "a" : (level === "done" ? "g" : "t");
-      lines.unshift('<div><span class="' + cls + '">▸</span> ' + msg + "</div>");
+      lines.unshift('<div><span class="' + cls + '">▸</span> ' + escHtml(String(msg)) + "</div>");
       if (lines.length > cap) lines.pop();
       if (container) container.innerHTML = lines.join("");
     };
@@ -128,28 +129,41 @@
   /* ---- native -> contract adapters ---------------------------------------- */
 
   // VoxAnalysis viewer: /api/pitch-jobs/{id} -> { id, status, stage, result, error }
+  // Keys mirror engine/pitch_track.py _write_stage() calls — keep the two in sync
+  // (stale keys here made the chain snap back to "Upload / 0%" mid-run).
   var VIEWER_STAGE_KEY = {
-    queued: "upload", converting: "upload", separating_vocals: "isolate", isolate: "isolate",
-    tracking_pitch: "pitch", pitch: "pitch", analysing: "analysis", analysis: "analysis",
-    v2_analysis: "analysis", reference: "match", comparing: "align", align: "align", report: "report"
+    queued: "upload",
+    separating_vocals: "isolate", preparing_audio: "isolate",
+    tracking_pitch: "pitch",
+    running_v2_analysis: "analysis",
+    finding_original: "match", analysing_original: "match",
+    aligning_comparison: "align",
+    building_report: "report",
+    // legacy aliases (older engine builds)
+    converting: "upload", isolate: "isolate", pitch: "pitch", analysing: "analysis",
+    analysis: "analysis", v2_analysis: "analysis", reference: "match",
+    comparing: "align", align: "align", report: "report"
   };
   function adaptViewer(raw, mode) {
     mode = mode || "analyze";
-    var steps = CHAINS[mode], state, idx = 0;
-    if (raw.status === "queued") { state = "STANDBY"; idx = 0; }
+    var steps = CHAINS[mode], state, idx = 0, queued = raw.status === "queued";
+    // queued reads as WORKING: STANDBY made the deck re-show the upload intake
+    // as if nothing had been submitted while a job waited for the worker.
+    if (queued) { state = "WORKING"; idx = 0; }
     else if (raw.status === "processing") {
       state = "WORKING";
       var key = VIEWER_STAGE_KEY[raw.stage] || raw.stage;
-      idx = Math.max(0, steps.findIndex(function (s) { return s[2] === key; }));
-      if (idx < 0) idx = 1;
+      idx = steps.findIndex(function (s) { return s[2] === key; });
+      if (idx < 0) idx = 1;  // unknown stage: show the first working step, never "Upload"
     } else if (raw.status === "complete") { state = "COMPLETE"; idx = steps.length; }
     else if (raw.status === "failed") { state = "ALERT"; idx = 0; }
     else { state = "STANDBY"; }
     var total = steps.length;
     var progress = state === "COMPLETE" ? 100 : Math.round((idx / total) * 100);
+    var at = Math.min(idx, total - 1);
     return {
       mode: mode, state: state, job: { id: raw.id, name: (raw.name || "") },
-      stage: { index: Math.min(idx, total - 1), total: total, key: steps[Math.min(idx, total - 1)][2], label: steps[Math.min(idx, total - 1)][1] },
+      stage: { index: at, total: total, key: steps[at][2], label: queued ? "Queued" : steps[at][1] },
       progress: progress, error: raw.error || null
     };
   }
@@ -157,19 +171,19 @@
   // Fused orchestrator: /api/fused-jobs/{id} -> { status, stage, progress, ... }
   // (see design/fused-orchestrator.md). One job spanning both engines.
   function adaptFused(raw) {
-    var steps = CHAINS.fused, state, idx = 0;
-    if (raw.status === "queued") { state = "STANDBY"; idx = 0; }
+    var steps = CHAINS.fused, state, idx = 0, queued = raw.status === "queued";
+    if (queued) { state = "WORKING"; idx = 0; } // queued = submitted, keep the working UI
     else if (raw.status === "processing") {
       state = "WORKING";
-      idx = Math.max(0, steps.findIndex(function (s) { return s[2] === raw.stage; }));
-      if (idx < 0) idx = 1;
+      idx = steps.findIndex(function (s) { return s[2] === raw.stage; });
+      if (idx < 0) idx = 1;  // unknown stage: show the first working step, never "Upload"
     } else if (raw.status === "complete") { state = "COMPLETE"; idx = steps.length; }
     else if (raw.status === "failed") { state = "ALERT"; idx = 0; }
     else { state = "STANDBY"; }
     var total = steps.length, at = Math.min(idx, total - 1);
     return {
       mode: "fused", state: state, job: { id: raw.id, name: (raw.name || "") },
-      stage: { index: at, total: total, key: steps[at][2], label: steps[at][1] },
+      stage: { index: at, total: total, key: steps[at][2], label: queued ? "Queued" : steps[at][1] },
       progress: state === "COMPLETE" ? 100 : (raw.progress != null ? raw.progress : Math.round((idx / total) * 100)),
       analysis: raw.analysis || null, polish: raw.polish || null,
       isolation: raw.isolation || null, error: raw.error || null
@@ -197,9 +211,29 @@
     function loop() {
       if (stopped) return;
       fetch(opts.url, { headers: { "cache-control": "no-cache" } })
-        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          if (r.status === 404) {
+            // The job is gone (expired, or lost in a server restart). Silence here
+            // used to map to STANDBY and spin forever — surface it and stop.
+            if (!stopped) {
+              var steps = CHAINS[opts.mode] || [["01", "", ""]];
+              opts.onEvent({
+                mode: opts.mode || "", state: "ALERT", job: { id: "", name: "" },
+                stage: { index: 0, total: steps.length, key: steps[0][2], label: steps[0][1] },
+                progress: 0,
+                error: { code: "job_not_found", reason: "this job is no longer on the server — start a new take" }
+              });
+            }
+            return null; // terminal
+          }
+          if (!r.ok) { // transient server trouble — keep watching
+            if (!stopped) timer = setTimeout(loop, 2000);
+            return null;
+          }
+          return r.json();
+        })
         .then(function (raw) {
-          if (stopped) return;
+          if (stopped || raw == null) return;
           var ev = opts.adapt(raw, opts.mode);
           opts.onEvent(ev);
           var terminal = ev.state === "COMPLETE" || ev.state === "ALERT";

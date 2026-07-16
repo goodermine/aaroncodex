@@ -232,7 +232,7 @@
     tstamp.textContent=ev.state;
     if(ev.state==="WORKING"){recLabel.textContent="LIVE";}
     else if(ev.state==="COMPLETE"){recLabel.textContent="READY";loadWaveform();revealExport();}
-    else if(ev.state==="ALERT"){recLabel.textContent="ALERT";stageMsg.classList.remove("hidden");scopeCanvas.classList.add("hidden");stageMsg.innerHTML='<b style="color:var(--vox-red)">Render failed</b><span>'+VOX.alertText(ev)+'</span>';}
+    else if(ev.state==="ALERT"){recLabel.textContent="ALERT";stageMsg.classList.remove("hidden");intake.classList.add("hidden");scopeCanvas.classList.add("hidden");stageMsg.innerHTML='<b style="color:var(--vox-red)">Job failed</b><span>'+VOX.alertText(ev)+'</span><span>use &#8635; New take (top right) to start over</span>';}
   }
 
   // ---- document + render ---------------------------------------------------
@@ -241,16 +241,48 @@
       doc=d.document;revision=d.revision;renderModules();
     });
   }
+  // Edits are serialised: rapid toggles coalesce into one follow-up save (the shared
+  // `doc` already carries every change), and a render 409 (one already running) queues
+  // a re-render that fires when the running one completes — the stale COMPLETE is
+  // suppressed so the deck never presents old audio as the result of a new edit.
+  var saveBusy=false,saveAgain=false,renderQueued=false;
+  function onRenderEvent(ev){
+    if(ev.state==="COMPLETE"&&renderQueued){
+      renderQueued=false;setBusy("RENDER");
+      fetch("/api/render",{method:"POST"}).then(function(){startRenderPoll();});
+      return; // stale result — a newer edit is still unrendered
+    }
+    apply(ev);
+  }
+  function startRenderPoll(){
+    if(pollStop)pollStop();
+    pollStop=VOX.poll({url:"/api/render",mode:"polish",adapt:VOX.adaptPolish,onEvent:onRenderEvent});
+  }
   function saveAndRender(){
+    if(saveBusy){saveAgain=true;return;}
+    saveBusy=true;
     log("info","edit · re-rendering");
     setBusy("RENDER");
+    var done=function(){saveBusy=false;if(saveAgain){saveAgain=false;saveAndRender();}};
     fetch("/api/document",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({revision:revision,document:doc})})
-      .then(function(r){return r.json();}).then(function(j){
+      .then(function(r){
+        if(r.status===409){ // revision drift (another tab/window) — resync from server
+          log("warn","document changed elsewhere — reloaded");
+          return loadDoc().then(function(){throw {handled:true};});
+        }
+        if(!r.ok)throw {};
+        return r.json();
+      }).then(function(j){
         if(j.revision!=null)revision=j.revision;
         return fetch("/api/render",{method:"POST"});
-      }).then(function(){
-        pollStop=VOX.poll({url:"/api/render",mode:"polish",adapt:VOX.adaptPolish,onEvent:function(ev){apply(ev);}});
-      }).catch(function(){log("error","re-render failed");});
+      }).then(function(r){
+        if(r.status===409)renderQueued=true; // render running — follow up on COMPLETE
+        else if(!r.ok)throw {};
+        startRenderPoll();
+      }).then(done,function(e){
+        if(!(e&&e.handled))log("error","re-render failed");
+        done();
+      });
   }
   function setBusy(label){
     VOX.setState(stateLed,stateLabel,"WORKING");recLabel.textContent="LIVE";tstamp.textContent="WORKING";
@@ -324,6 +356,7 @@
   function resetDeck(){
     if(pollStop){pollStop();pollStop=null;}
     if(uploadTimer){clearInterval(uploadTimer);uploadTimer=null;}
+    saveBusy=false;saveAgain=false;renderQueued=false;
     try{deckAudio.pause();deckAudio.removeAttribute("src");deckAudio.load();}catch(e){}
     peaks=null;scopeCanvas.classList.add("hidden");
     tray.classList.remove("open");tray.innerHTML="";exportBtn.disabled=true;exportBtn.classList.remove("vox-btn--ready","vox-btn--primary");exportBtn.setAttribute("aria-expanded","false");dlLabel.textContent="Export";
@@ -351,8 +384,16 @@
     $("#jobTag").textContent="JOB · uploading";log("info","upload · "+file.name);
     intake.classList.add("hidden");stageMsg.classList.remove("hidden");stageMsg.innerHTML='<b>Processing…</b><span>separating &amp; cleaning</span>';
     setBusy("UPLOAD");
-    fetch("/api/uploads",{method:"POST",body:fd}).then(function(r){return r.json();}).then(function(j){
-      var id=j.id;$("#jobTag").textContent="JOB · "+file.name;
+    fetch("/api/uploads",{method:"POST",body:fd})
+      .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok,j:j};});})
+      .then(function(res){
+      if(!res.ok||!res.j.id){
+        var msg=(res.j&&res.j.detail)||"upload rejected";
+        log("error","upload rejected · "+msg);
+        apply({state:"ALERT",stage:{index:0,total:8},progress:0,error:{message:String(msg)}});
+        return;
+      }
+      var j=res.j,id=j.id;$("#jobTag").textContent="JOB · "+file.name;
       uploadTimer=setInterval(function(){
         fetch("/api/uploads/"+id).then(function(r){return r.json();}).then(function(s){
           VOX.setProgress(procFill,procPct,procLab,s.progress!=null?s.progress:60,"WORKING");
@@ -360,7 +401,10 @@
           else if(s.status==="error"){clearInterval(uploadTimer);apply({state:"ALERT",stage:{index:0,total:8},progress:0,error:{message:s.error||"processing failed"}});}
         }).catch(function(){});
       },600);
-    }).catch(function(){log("error","upload failed");});
+    }).catch(function(){
+      log("error","upload failed — network");
+      apply({state:"ALERT",stage:{index:0,total:8},progress:0,error:{message:"network error — check the connection and try again"}});
+    });
   }
 
   // mode switch: Analyze cross-links to the viewer app (separate port)

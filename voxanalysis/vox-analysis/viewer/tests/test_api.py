@@ -288,19 +288,68 @@ class ApiTests(unittest.TestCase):
             "upload_file": "upload.wav",
             "comparison_enabled": False,
         })
-        failed = type("Result", (), {"returncode": 2, "stdout": "analysis_failed", "stderr": ""})()
+        failed = type("Proc", (), {
+            "returncode": 2, "pid": 12345,
+            "communicate": lambda self, timeout=None: ("analysis_failed", None),
+        })()
         with patch.object(
             self.module.time, "monotonic", return_value=1_000.0
-        ), patch.object(self.module.subprocess, "run", return_value=failed) as run:
+        ), patch.object(self.module.subprocess, "Popen", return_value=failed) as popen:
             self.module._process(job_dir.name)
-        command = run.call_args.args[0]
+        command = popen.call_args.args[0]
         self.assertIn("--export-spectral", command)
         self.assertIn("--skip-comparison", command)
         deadline_index = command.index("--analysis-deadline-monotonic") + 1
         self.assertEqual(
             float(command[deadline_index]), 1_000.0 + self.module.ANALYSIS_TIMEOUT
         )
-        self.assertEqual(run.call_args.kwargs["timeout"], self.module.ANALYSIS_TIMEOUT)
+        # the tracker runs in its own process group so a timeout kills the whole tree
+        self.assertTrue(popen.call_args.kwargs.get("start_new_session"))
+
+    def test_timeout_finalises_the_manifest_as_failed(self):
+        """A tracker timeout must mark the job failed/analysis_timeout — the old
+        handler crashed on TimeoutExpired's bytes stdout and left it 'processing'
+        forever, permanently eating a worker slot."""
+        job_dir = Path(self.temp.name) / str(uuid.uuid4())
+        job_dir.mkdir()
+        (job_dir / "upload.wav").touch()
+        self.module._write_manifest(job_dir, {
+            "id": job_dir.name, "status": "queued", "stage": "queued",
+            "upload_file": "upload.wav", "comparison_enabled": False,
+        })
+
+        class HungProc:
+            returncode = -9
+            pid = 12345
+            calls = 0
+            def communicate(self, timeout=None):
+                HungProc.calls += 1
+                if HungProc.calls == 1:  # the run that exceeds the deadline
+                    raise self_module.subprocess.TimeoutExpired(
+                        cmd="tracker", timeout=1, output=b"partial bytes output", stderr=None)
+                return ("killed", None)  # post-kill reap
+
+        self_module = self.module
+        with patch.object(self.module.subprocess, "Popen", return_value=HungProc()), \
+             patch.object(self.module.os, "killpg", create=True), \
+             patch.object(self.module.os, "getpgid", create=True, return_value=4242):
+            self.module._process(job_dir.name)
+        manifest = json.loads((job_dir / "job.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["status"], "failed")
+        self.assertEqual(manifest["error"], {"code": "analysis_timeout"})
+
+    def test_every_engine_stage_name_is_mapped_in_deck_telemetry(self):
+        """The deck's VIEWER_STAGE_KEY must cover every stage the engine emits —
+        unmapped stages made the chain snap back to 'Upload / 0%' mid-run."""
+        import re as _re
+        here = Path(__file__).resolve().parents[1]
+        engine = (here.parent / "engine" / "pitch_track.py").read_text(encoding="utf-8")
+        telemetry = (here / "static" / "vox-telemetry.js").read_text(encoding="utf-8")
+        stages = set(_re.findall(r'_write_stage\(stage_file, "([a-z_]+)"\)', engine))
+        self.assertTrue(stages, "no engine stages found — did _write_stage move?")
+        for stage in stages:
+            self.assertIn(f"{stage}:", telemetry,
+                          f"engine stage '{stage}' missing from VIEWER_STAGE_KEY")
 
     def test_failure_reason_is_extracted_and_sanitised(self):
         m = self.module
