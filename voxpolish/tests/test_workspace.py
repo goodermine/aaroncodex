@@ -172,6 +172,9 @@ def test_polish_command_deck_serves(workspace_client):
     assert 'id="modeRecord"' in page and 'id="recMount"' in page
     assert "/static/vox-record.js?v=" in page
     assert workspace_client.get("/static/vox-record.js").status_code == 200
+    # "New take" reset + draggable module amounts + scrubbing the whole take
+    assert 'id="newBtn"' in page and "function resetDeck" in page
+    assert "function setAmount" in page and "function seekTo" in page
 
 
 def test_webm_recording_is_an_allowed_upload_format():

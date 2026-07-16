@@ -351,6 +351,9 @@ class ApiTests(unittest.TestCase):
         rec = self.request("GET", "/static/vox-record.js")
         self.assertEqual(rec.status_code, 200)
         self.assertIn("MediaRecorder", rec.text)
+        # "New take" — clears the deck so a fresh recording/upload can start
+        self.assertIn('id="newBtn"', body)
+        self.assertIn("function resetDeck", body)
 
     def test_webm_recording_upload_is_accepted(self):
         probe = type("Probe", (), {"returncode": 0, "stdout": "12.5"})()

@@ -25,6 +25,10 @@
   .intake-modes button:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   .intake-source{display:grid;justify-items:center;gap:12px;width:100%}
   .intake-source[hidden]{display:none}
+  .vox-newbtn{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+    color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:#0a141c;transition:background .15s,box-shadow .15s}
+  .vox-newbtn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
+  .vox-newbtn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   .stage-msg{display:grid;place-items:center;height:100%;gap:10px;text-align:center;color:var(--vox-muted);font-family:var(--vox-mono);letter-spacing:.06em}
   .stage-msg b{color:var(--vox-ink);font-size:15px;letter-spacing:.02em}
   .vox-scope__chips .vox-chip{cursor:pointer;font:inherit;font-family:var(--vox-mono);font-size:10px;letter-spacing:.12em}
@@ -87,6 +91,7 @@
     <button class="vox-fusedbtn" id="fusedBtn" aria-pressed="false" title="Upload-once pipeline — arriving in the Fused increment"><span class="swirl"></span>Fused run</button>
     <div class="vox-mode-caption" id="modeCaption"><b>ANALYZE</b> — measure, score &amp; compare against the original</div>
     <div class="vox-deckhead .vox-spacer" style="flex:1"></div>
+    <button class="vox-newbtn" id="newBtn" type="button" hidden>&#8635; New take</button>
     <div class="vox-jobtag vox-mono" id="jobTag">SESSION · idle</div>
   </div>
 
@@ -234,7 +239,7 @@
   var chain=$("#chain"),log=VOX.makeLog($("#log")),elapsed=$("#elapsed");
   var stage=$("#stage"),intake=$("#intake"),stageMsg=$("#stageMsg"),tstamp=$("#tstamp"),recLabel=$("#recLabel");
   var exportBtn=$("#exportBtn"),dlLabel=$("#dlLabel"),tray=$("#exportTray");
-  var mode="analyze";
+  var mode="analyze",pollStop=null;
 
   // command-bar mini meter + compute gauges
   var mm=VOX.miniMeter($("#miniMeter"),16);
@@ -322,11 +327,36 @@
     VOX.renderChain(chain,ev.mode,ev.stage.index + (ev.state==="COMPLETE"?1:0));
     VOX.setProgress(procFill,procPct,procLab,ev.progress,ev.state);
     tstamp.textContent=ev.state;
+    $("#newBtn").hidden = ev.state==="STANDBY";  // offer "New take" once a job is under way
     if(ev.state==="WORKING"){recLabel.textContent="LIVE";setStage('<b>'+ev.stage.label+'</b><span>stage '+(ev.stage.index+1)+' of '+ev.stage.total+' · analysing…</span>');}
     else if(ev.state==="COMPLETE"){recLabel.textContent="READY";setStage('<b>Analysis ready</b><span>report built · export below</span>');revealExport(ev);}
     else if(ev.state==="ALERT"){recLabel.textContent="ALERT";setStage('<b style="color:var(--vox-red)">Job failed</b><span>'+VOX.alertText(ev)+'</span>');}
     else{recLabel.textContent="ARMED";showIntake();}
   }
+
+  // Clear everything back to STANDBY so a new take can be recorded or uploaded.
+  function resetDeck(){
+    if(pollStop){pollStop();pollStop=null;}
+    [deckAudio,aux.backing.el,aux.orig.el].forEach(function(a){try{a.pause();a.removeAttribute("src");a.load();}catch(e){}});
+    aux.backing.on=false;aux.orig.on=false;
+    scopeData=null;spectroImg=null;view.zoom=1;view.offset=0;scopeCanvas.classList.add("hidden");
+    accuracyOn=spectroOn=originalOn=false;setPressed("#tglAccuracy",false);setPressed("#tglSpectro",false);setPressed("#tglOriginal",false);$("#tglOriginal").hidden=true;
+    refContour=null;instrumentalUrl=null;originalUrl=null;
+    var rp=$("#report");rp.setAttribute("hidden","");rp.innerHTML="";
+    tray.classList.remove("open");tray.innerHTML="";exportBtn.disabled=true;exportBtn.classList.remove("vox-btn--ready","vox-btn--primary");exportBtn.setAttribute("aria-expanded","false");dlLabel.textContent="Export report";
+    $("#playbackBlock").hidden=true;$("#computeBlock").hidden=false;$("#tglBacking").hidden=true;$("#tglOrig").hidden=true;
+    $("#harm").setAttribute("hidden","");
+    ["#rRange","#rConf","#rDev","#rWithin"].forEach(function(s){$(s).textContent="—";});
+    $("#readNote").textContent="—";$("#readCents").textContent="Awaiting take";
+    $("#tcode").innerHTML="00:00.0 <span>/</span> 00:00.0";$("#seekFill").style.width="0%";playBtn.disabled=true;playBtn.innerHTML="&#9654;";
+    VOX.renderChain(chain,"analyze",0);VOX.setState(stateLed,stateLabel,"STANDBY");VOX.setProgress(procFill,procPct,procLab,0,"STANDBY");
+    tstamp.textContent="STANDBY";recLabel.textContent="ARMED";$("#jobTag").textContent="SESSION · idle";$("#newBtn").hidden=true;
+    if(recMounted){$("#recMount").innerHTML="";recMounted=false;}
+    setInputMode("upload");showIntake();
+    if(location.search)history.replaceState(null,"",location.pathname);  // drop ?job= so a refresh doesn't reattach
+    log("info","deck cleared · ready for a new take");
+  }
+  $("#newBtn").addEventListener("click",resetDeck);
 
   function revealExport(ev){
     var id=ev.job.id||"";
@@ -366,7 +396,7 @@
       .then(function(res){
         if(!res.ok){log("error","upload rejected · "+((res.j&&res.j.detail&&res.j.detail.code)||res.j.detail||r.status));return;}
         var id=res.j.id;$("#jobTag").textContent="SESSION · "+id.slice(0,8);
-        VOX.poll({url:"/api/pitch-jobs/"+id,mode:"analyze",adapt:VOX.adaptViewer,onEvent:function(ev){
+        pollStop=VOX.poll({url:"/api/pitch-jobs/"+id,mode:"analyze",adapt:VOX.adaptViewer,onEvent:function(ev){
           ev.job.name=file.name;apply(ev);
           if(ev.state==="COMPLETE")hydrateComplete(id);
         }});
@@ -707,7 +737,7 @@
     // or resume watching one still in progress.
     var jid=decodeURIComponent(jobMatch[1]);$("#jobTag").textContent="SESSION · "+jid.slice(0,8);
     log("info","reattaching · "+jid.slice(0,8));
-    VOX.poll({url:"/api/pitch-jobs/"+jid,mode:"analyze",adapt:VOX.adaptViewer,onEvent:function(ev){
+    pollStop=VOX.poll({url:"/api/pitch-jobs/"+jid,mode:"analyze",adapt:VOX.adaptViewer,onEvent:function(ev){
       apply(ev);if(ev.state==="COMPLETE")hydrateComplete(jid);
     }});
   }

@@ -33,6 +33,8 @@ def test_deck_serves_versioned_kit_wired():
         # in-browser recorder (Upload | Record)
         assert 'id="modeRecord"' in r.text and 'id="recMount"' in r.text
         assert "/static/vox-record.js?v=" in r.text and c.get("/static/vox-record.js").status_code == 200
+        # "New take" — clears the fused deck so a fresh upload/recording can start
+        assert 'id="newBtn"' in r.text and "function resetDeck" in r.text
         from voxsuite.server.app import _ALLOWED
         assert ".webm" in _ALLOWED
 

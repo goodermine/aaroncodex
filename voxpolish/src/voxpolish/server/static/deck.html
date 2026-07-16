@@ -22,6 +22,18 @@
   .intake-modes button:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   .intake-source{display:grid;justify-items:center;gap:12px;width:100%}
   .intake-source[hidden]{display:none}
+  /* draggable module amount — taller, tappable track */
+  .vox-module__track{height:12px;cursor:pointer;touch-action:none}
+  .vox-module__track:hover{box-shadow:0 0 0 1px var(--vox-line-2)}
+  /* bigger, touch-friendly scrubber with a knob */
+  .vox-transport .vox-seek{position:relative;height:24px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+  .vox-transport .vox-seek::before{content:"";position:absolute;left:0;right:0;height:6px;border-radius:3px;background:#0a141c;border:1px solid var(--vox-line)}
+  .vox-transport .vox-seek i{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan));box-shadow:0 0 8px rgba(63,224,255,.5)}
+  .vox-transport .vox-seek i::after{content:"";position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:15px;height:15px;border-radius:50%;background:var(--vox-cyan);box-shadow:0 0 10px var(--vox-cyan),0 0 0 3px rgba(63,224,255,.18)}
+  .vox-newbtn{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+    color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:#0a141c;transition:background .15s,box-shadow .15s}
+  .vox-newbtn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
+  .vox-newbtn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   .hidden{display:none!important}
 </style>
 </head>
@@ -51,6 +63,7 @@
     <button class="vox-fusedbtn" id="fusedBtn" aria-pressed="false" title="Upload-once pipeline — arriving in the Fused increment"><span class="swirl"></span>Fused run</button>
     <div class="vox-mode-caption" id="modeCaption"><b>POLISH</b> — repair, level &amp; subtly tune a vocal take</div>
     <div style="flex:1"></div>
+    <button class="vox-newbtn" id="newBtn" type="button" hidden>&#8635; New take</button>
     <div class="vox-jobtag vox-mono" id="jobTag">JOB · idle</div>
   </div>
 
@@ -184,6 +197,16 @@
       function flip(){toggleModule(m);}
       tog.addEventListener("click",flip);
       tog.addEventListener("keydown",function(e){if(e.key===" "||e.key==="Enter"){e.preventDefault();flip();}});
+      // draggable amount: slide the track to set how much of the module to apply
+      var track=row.querySelector(".vox-module__track");
+      if(track&&(m.amount||m.denoise)){
+        var fill=track.querySelector("i"),pctEl=row.querySelector(".vox-module__meta span:last-child"),dragging=false;
+        var frac=function(x){var r=track.getBoundingClientRect();return Math.max(0,Math.min(1,(x-r.left)/r.width));};
+        var live=function(f){fill.style.width=(f*100)+"%";if(pctEl)pctEl.textContent=Math.round(f*100)+"%";};
+        track.addEventListener("pointerdown",function(e){dragging=true;track.setPointerCapture(e.pointerId);live(frac(e.clientX));});
+        track.addEventListener("pointermove",function(e){if(dragging)live(frac(e.clientX));});
+        track.addEventListener("pointerup",function(e){if(!dragging)return;dragging=false;setAmount(m,frac(e.clientX));});
+      }
     });
   }
   function toggleModule(m){
@@ -192,8 +215,15 @@
     else{doc.bypass=doc.bypass||{};doc.bypass[m.key]=on;} // on→bypass true (turn off)
     renderModules();saveAndRender();
   }
+  function setAmount(m,f){
+    if(!doc)return;f=Math.round(f*100)/100;
+    if(m.denoise){doc.denoise=doc.denoise||{};doc.denoise.amount=f;doc.denoise.backend=doc.denoise.backend||"spectral";}
+    else{doc.amounts=doc.amounts||{};doc.amounts[m.amount]=f;}
+    renderModules();saveAndRender();
+  }
 
   function apply(ev){
+    $("#newBtn").hidden=false;  // a job is under way — offer "New take"
     VOX.setState(stateLed,stateLabel,ev.state);
     VOX.renderChain(chain,"polish",ev.stage.index + (ev.state==="COMPLETE"?1:0));
     VOX.setProgress(procFill,procPct,procLab,ev.progress,ev.state);
@@ -217,7 +247,7 @@
         if(j.revision!=null)revision=j.revision;
         return fetch("/api/render",{method:"POST"});
       }).then(function(){
-        VOX.poll({url:"/api/render",mode:"polish",adapt:VOX.adaptPolish,onEvent:function(ev){apply(ev);}});
+        pollStop=VOX.poll({url:"/api/render",mode:"polish",adapt:VOX.adaptPolish,onEvent:function(ev){apply(ev);}});
       }).catch(function(){log("error","re-render failed");});
   }
   function setBusy(label){
@@ -253,6 +283,14 @@
   }
   playBtn.addEventListener("click",function(){if(playBtn.disabled)return;var playing=!deckAudio.paused;if(playing)deckAudio.pause();else{var p=deckAudio.play();if(p&&p.catch)p.catch(function(){});}playBtn.innerHTML=playing?"&#9654;":"&#10073;&#10073;";});
   window.addEventListener("resize",function(){if(peaks){fitScope();drawWave();}});
+  // scrubbing: drag the transport bar, or click anywhere on the waveform
+  var seekEl=document.querySelector(".vox-seek");
+  function seekFrac(x){var r=seekEl.getBoundingClientRect();return Math.max(0,Math.min(1,(x-r.left)/r.width));}
+  function seekTo(f){var dur=(peaks&&peaks.duration)||deckAudio.duration||0;if(dur){deckAudio.currentTime=f*dur;drawWave();}}
+  seekEl.addEventListener("pointerdown",function(e){if(playBtn.disabled)return;seekEl.setPointerCapture(e.pointerId);seekEl._d=true;seekTo(seekFrac(e.clientX));});
+  seekEl.addEventListener("pointermove",function(e){if(seekEl._d)seekTo(seekFrac(e.clientX));});
+  window.addEventListener("pointerup",function(){seekEl._d=false;});
+  scopeCanvas.addEventListener("pointerdown",function(e){if(!peaks)return;var r=scopeCanvas.getBoundingClientRect();seekTo(Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)));});
 
   // ---- export tray ---------------------------------------------------------
   function revealExport(){
@@ -279,7 +317,23 @@
   $("#pickBtn").addEventListener("click",function(){$("#file").click();});
   $("#file").addEventListener("change",function(){if(this.files&&this.files[0])startUpload(this.files[0]);});
   // Upload | Record input mode — the recorder hands a finished take to startUpload().
-  var recMounted=false;
+  var recMounted=false,uploadTimer=null,pollStop=null;
+  // Clear the deck back to the intake so a new take can be recorded or uploaded.
+  function resetDeck(){
+    if(pollStop){pollStop();pollStop=null;}
+    if(uploadTimer){clearInterval(uploadTimer);uploadTimer=null;}
+    try{deckAudio.pause();deckAudio.removeAttribute("src");deckAudio.load();}catch(e){}
+    peaks=null;scopeCanvas.classList.add("hidden");
+    tray.classList.remove("open");tray.innerHTML="";exportBtn.disabled=true;exportBtn.classList.remove("vox-btn--ready","vox-btn--primary");exportBtn.setAttribute("aria-expanded","false");dlLabel.textContent="Export";
+    doc=null;$("#modules").innerHTML="";
+    $("#tcode").innerHTML="00:00.0 <span>/</span> 00:00.0";$("#seekFill").style.width="0%";playBtn.disabled=true;playBtn.innerHTML="&#9654;";
+    VOX.renderChain(chain,"polish",0);VOX.setState(stateLed,stateLabel,"STANDBY");VOX.setProgress(procFill,procPct,procLab,0,"STANDBY");
+    tstamp.textContent="STANDBY";recLabel.textContent="ARMED";$("#jobTag").textContent="JOB · idle";$("#newBtn").hidden=true;
+    if(recMounted){$("#recMount").innerHTML="";recMounted=false;}
+    stageMsg.classList.add("hidden");intake.classList.remove("hidden");setInputMode("upload");
+    log("info","deck cleared · ready for a new take");
+  }
+  $("#newBtn").addEventListener("click",resetDeck);
   function setInputMode(m){var up=m==="upload";
     $("#modeUpload").classList.toggle("on",up);$("#modeUpload").setAttribute("aria-selected",up);
     $("#modeRecord").classList.toggle("on",!up);$("#modeRecord").setAttribute("aria-selected",!up);
@@ -297,11 +351,11 @@
     setBusy("UPLOAD");
     fetch("/api/uploads",{method:"POST",body:fd}).then(function(r){return r.json();}).then(function(j){
       var id=j.id;$("#jobTag").textContent="JOB · "+file.name;
-      var t=setInterval(function(){
+      uploadTimer=setInterval(function(){
         fetch("/api/uploads/"+id).then(function(r){return r.json();}).then(function(s){
           VOX.setProgress(procFill,procPct,procLab,s.progress!=null?s.progress:60,"WORKING");
-          if(s.status==="done"){clearInterval(t);log("done","cleaned · loading editor");loadDoc().then(function(){apply({state:"COMPLETE",stage:{index:7,total:8},progress:100});});}
-          else if(s.status==="error"){clearInterval(t);apply({state:"ALERT",stage:{index:0,total:8},progress:0,error:{message:s.error||"processing failed"}});}
+          if(s.status==="done"){clearInterval(uploadTimer);log("done","cleaned · loading editor");loadDoc().then(function(){apply({state:"COMPLETE",stage:{index:7,total:8},progress:100});});}
+          else if(s.status==="error"){clearInterval(uploadTimer);apply({state:"ALERT",stage:{index:0,total:8},progress:0,error:{message:s.error||"processing failed"}});}
         }).catch(function(){});
       },600);
     }).catch(function(){log("error","upload failed");});

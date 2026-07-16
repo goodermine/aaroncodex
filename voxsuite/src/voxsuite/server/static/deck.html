@@ -25,6 +25,10 @@
   .intake-source{display:grid;justify-items:center;gap:12px;width:100%}
   .intake-source[hidden]{display:none}
   .hidden{display:none!important}
+  .vox-newbtn{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+    color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:#0a141c;transition:background .15s,box-shadow .15s;margin-right:10px}
+  .vox-newbtn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
+  .vox-newbtn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
 </style>
 </head>
 <body class="vox-deck-bg">
@@ -51,6 +55,7 @@
     <button class="vox-fusedbtn is-active" id="fusedBtn" aria-pressed="true"><span class="swirl"></span>Fused run</button>
     <div class="vox-mode-caption" id="modeCaption"><b>FUSED</b> — upload once · analyze &amp; polish in one pass</div>
     <div style="flex:1"></div>
+    <button class="vox-newbtn" id="newBtn" type="button" hidden>&#8635; New take</button>
     <div class="vox-jobtag vox-mono" id="jobTag">JOB · idle</div>
   </div>
 
@@ -182,6 +187,7 @@
     VOX.renderChain(chain,"fused",ev.stage.index + (ev.state==="COMPLETE"?1:0));
     VOX.setProgress(procFill,procPct,procLab,ev.progress,ev.state);
     tstamp.textContent=ev.state;
+    $("#newBtn").hidden = ev.state==="STANDBY";  // offer "New take" once a job is under way
     var busy=ev.state==="WORKING";
     VOX.drawGauge(gpuC,busy&&ev.stage.index<=1?74:12);VOX.drawGauge(cpuC,busy&&ev.stage.index>=4?60:14);
     $("#gpuVal").textContent=(busy&&ev.stage.index<=1?74:12)+"%";$("#cpuVal").textContent=(busy&&ev.stage.index>=4?60:14)+"%";
@@ -257,7 +263,7 @@
   $("#pickBtn").addEventListener("click",function(){$("#file").click();});
   $("#file").addEventListener("change",function(){if(this.files&&this.files[0])startJob(this.files[0]);});
   // Upload | Record input mode — the recorder hands a finished take to startJob().
-  var recMounted=false;
+  var recMounted=false,pollStop=null;
   function setInputMode(m){var up=m==="upload";
     $("#modeUpload").classList.toggle("on",up);$("#modeUpload").setAttribute("aria-selected",up);
     $("#modeRecord").classList.toggle("on",!up);$("#modeRecord").setAttribute("aria-selected",!up);
@@ -276,9 +282,27 @@
     fetch("/api/fused-jobs",{method:"POST",body:fd}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});}).then(function(res){
       if(!res.ok){log("error","upload rejected");return;}
       curJob=res.j.id;$("#jobTag").textContent="JOB · "+curJob.slice(0,10);
-      VOX.poll({url:"/api/fused-jobs/"+curJob,mode:"fused",adapt:VOX.adaptFused,onEvent:apply});
+      pollStop=VOX.poll({url:"/api/fused-jobs/"+curJob,mode:"fused",adapt:VOX.adaptFused,onEvent:apply});
     }).catch(function(){log("error","upload failed — network");});
   }
+
+  // Clear everything back to STANDBY so a new take can be uploaded or recorded.
+  function resetDeck(){
+    if(pollStop){pollStop();pollStop=null;}
+    var a=$("#deckAudio");try{a.pause();a.removeAttribute("src");a.load();}catch(e){}
+    curJob=null;scopeData=null;scopeCanvas.classList.add("hidden");
+    tray.classList.remove("open");tray.innerHTML="";exportBtn.disabled=true;exportBtn.classList.remove("vox-btn--ready","vox-btn--primary");exportBtn.setAttribute("aria-expanded","false");dlLabel.textContent="Export both";
+    ["#aScore","#aRange","#aConf","#pMods","#pTune"].forEach(function(s){$(s).textContent="—";});
+    $("#pIso").textContent="Isolation pending";
+    $("#tcode").innerHTML="00:00.0 <span>/</span> 00:00.0";$("#seekFill").style.width="0%";$("#playBtn").disabled=true;$("#playBtn").innerHTML="&#9654;";
+    VOX.renderChain(chain,"fused",0);VOX.setState(stateLed,stateLabel,"STANDBY");VOX.setProgress(procFill,procPct,procLab,0,"STANDBY");
+    tstamp.textContent="STANDBY";recLabel.textContent="ARMED";$("#jobTag").textContent="JOB · idle";$("#newBtn").hidden=true;
+    if(recMounted){$("#recMount").innerHTML="";recMounted=false;}
+    setInputMode("upload");showIntake();
+    if(location.search)history.replaceState(null,"",location.pathname);  // drop ?demo= so a refresh doesn't replay
+    log("info","deck cleared · ready for a new take");
+  }
+  $("#newBtn").addEventListener("click",resetDeck);
 
   $("#modePolish").addEventListener("click",function(){location.href=location.protocol+"//"+location.hostname+":8765/deck";});
   $("#modeAnalyze").addEventListener("click",function(){location.href=location.protocol+"//"+location.hostname+":8766/deck";});
