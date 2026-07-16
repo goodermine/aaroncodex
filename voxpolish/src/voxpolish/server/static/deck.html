@@ -361,8 +361,12 @@
     }).catch(function(){log("error","upload failed");});
   }
 
-  // mode switch: Analyze cross-links to the viewer app (separate port)
-  $("#modeAnalyze").addEventListener("click",function(){location.href=location.protocol+"//"+location.hostname+":8766/deck";});
+  // Mode switch: Tailscale HTTPS proxies use 8443 for Polish and 9443 for
+  // Analyze; direct HTTP retains the app ports.
+  $("#modeAnalyze").addEventListener("click",function(){
+    var analyzePort=location.protocol==="https:"?9443:8766;
+    location.href=location.protocol+"//"+location.hostname+":"+analyzePort+"/deck";
+  });
   $("#fusedBtn").addEventListener("click",function(){log("info","fused pipeline arrives in the next increment");});
 
   // ---- ambient -------------------------------------------------------------
