@@ -8,6 +8,7 @@ import importlib.util
 import json
 import math
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -362,15 +363,40 @@ def analyze_original(
     return result
 
 
+# Backing-stem labels across separators/models: MDX/UVR use "(Instrumental)" or
+# "(No Vocals)"; Mel-Band RoFormer writes the residual as "(other)"; Demucs uses
+# "no_vocals"/"other"/"accompaniment". Any of these is the non-vocal stem.
+_BACKING_STEM_TOKENS = (
+    "instrumental", "no_vocals", "no vocals", "other",
+    "accompaniment", "backing", "karaoke", "music",
+)
+
+
+def _classify_stem(text: str) -> str | None:
+    """Return "vocals" or "instrumental" for a stem label / filename, or None.
+
+    Checked backing-first because a separator's model name can itself contain
+    "vocals" (e.g. "vocals_mel_band_roformer"), so the residual file is only
+    distinguishable by its stem label — "(other)", "(Instrumental)", etc."""
+    text = text.lower()
+    if any(token in text for token in _BACKING_STEM_TOKENS):
+        return "instrumental"
+    if "vocal" in text:
+        return "vocals"
+    return None
+
+
 def _find_stem(stem_dir: Path, kind: str) -> Path | None:
     files = sorted(path for path in stem_dir.rglob("*") if path.is_file())
     for path in files:
-        name = path.name.lower()
         if path.suffix.lower() not in {".wav", ".flac", ".mp3", ".m4a"}:
             continue
-        if kind == "vocals" and "vocals" in name and not any(token in name for token in ("no_vocals", "instrumental")):
-            return path
-        if kind == "instrumental" and any(token in name for token in ("no_vocals", "instrumental")):
+        # Prefer the parenthesised stem label the separators emit
+        # ("upload_(Vocals)_<model>", "upload_(other)_<model>"): the model name
+        # itself contains "vocals", so classify on the label, not the filename.
+        name = path.name.lower()
+        label = re.search(r"\(([^)]+)\)", name)
+        if _classify_stem(label.group(1) if label else name) == kind:
             return path
     return None
 

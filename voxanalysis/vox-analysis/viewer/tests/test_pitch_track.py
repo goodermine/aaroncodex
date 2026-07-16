@@ -146,6 +146,32 @@ class PitchMathTests(unittest.TestCase):
             self.assertEqual(pitch_track._find_stem(stem_dir, "vocals").name, "take_(Vocals)_UVR.wav")
             self.assertEqual(pitch_track._find_stem(stem_dir, "instrumental").name, "take_(Instrumental)_UVR.wav")
 
+    def test_finds_mel_band_roformer_other_backing_stem(self):
+        # Regression: Mel-Band RoFormer names the residual "(other)" and puts the
+        # model string "vocals_mel_band_roformer" in BOTH filenames. The backing
+        # stem must be recognised by its "(other)" label, not rejected.
+        with tempfile.TemporaryDirectory() as folder:
+            stem_dir = Path(folder)
+            (stem_dir / "upload_(Vocals)_vocals_mel_band_roformer.flac").touch()
+            (stem_dir / "upload_(other)_vocals_mel_band_roformer.flac").touch()
+            self.assertEqual(
+                pitch_track._find_stem(stem_dir, "vocals").name,
+                "upload_(Vocals)_vocals_mel_band_roformer.flac",
+            )
+            self.assertEqual(
+                pitch_track._find_stem(stem_dir, "instrumental").name,
+                "upload_(other)_vocals_mel_band_roformer.flac",
+            )
+
+    def test_finds_bare_named_stems(self):
+        # Demucs-style bare names (no parentheses) still classify correctly.
+        with tempfile.TemporaryDirectory() as folder:
+            stem_dir = Path(folder)
+            (stem_dir / "vocals.wav").touch()
+            (stem_dir / "no_vocals.wav").touch()
+            self.assertEqual(pitch_track._find_stem(stem_dir, "vocals").name, "vocals.wav")
+            self.assertEqual(pitch_track._find_stem(stem_dir, "instrumental").name, "no_vocals.wav")
+
     def test_reference_metadata_rejects_karaoke_substitution(self):
         with self.assertRaises(pitch_track.PitchTrackError):
             pitch_track._validate_reference_metadata(
