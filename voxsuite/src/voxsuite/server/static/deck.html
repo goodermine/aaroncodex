@@ -106,7 +106,7 @@
           <div class="fields">
             <label>Performer<input id="fPerformer" placeholder="Singer"></label>
             <label>Song title<input id="fSong" placeholder="optional"></label>
-            <label class="full">Original artist or composer<input id="fArtist" placeholder="optional — enables comparison"></label>
+            <label class="full">Original artist or composer<input id="fArtist" placeholder="optional — noted in the report"></label>
           </div>
         </div>
         <div class="stage-msg hidden" id="stageMsg"></div>
@@ -208,7 +208,22 @@
     var mods=doc.bypass?Object.keys({dynamics:1,gate:1,breath:1,sibilance:1,tune:1}).filter(function(k){return !doc.bypass[k];}).length:"—";
     $("#pMods").textContent=mods;
     $("#pTune").textContent=doc.amounts&&doc.amounts.tune!=null?Math.round(doc.amounts.tune*100)+"%":"—";
-    if(ev.isolation)$("#pIso").textContent=ev.isolation.skipped?("Isolation skipped · "+(ev.isolation.note||"")):"Isolated once · shared";
+    if(ev.isolation){
+      var skipped=!!ev.isolation.skipped;
+      $("#pIso").textContent=skipped?("Isolation skipped · "+(ev.isolation.note||"")):"Isolated once · shared";
+      $("#pIso").style.color=skipped?"var(--vox-amber)":"";
+      // Never present full-mix numbers as a confident vocal score: if isolation
+      // didn't run, flag the readout loudly instead of a quiet side-note.
+      $("#aScore").style.color=skipped?"var(--vox-amber)":"";
+      var warn=$("#isoWarn");
+      if(skipped){
+        if(!warn){warn=document.createElement("p");warn.id="isoWarn";
+          warn.style.cssText="margin:10px 0 0;padding:9px 11px;border:1px solid rgba(255,181,71,.45);border-radius:8px;background:rgba(255,181,71,.08);color:var(--vox-amber);font-size:12px;line-height:1.5";
+          $("#aScore").parentNode.appendChild(warn);}
+        warn.textContent="Vocal isolation didn't run ("+(ev.isolation.note||"unavailable")+"). If this was a full song, these numbers reflect the whole mix — not just the voice.";
+        log("warn","isolation skipped — treat scores as indicative only");
+      } else if(warn){warn.remove();}
+    }
     // Play the polished vocal through the job API (the engine reports a server-side
     // download_path, never a URL — reading p.download_url left playback dead on real
     // runs). The demo sets download_url:null and no download_path → stays disabled.
@@ -309,7 +324,8 @@
     curJob=null;scopeData=null;scopeCanvas.classList.add("hidden");
     tray.classList.remove("open");tray.innerHTML="";exportBtn.disabled=true;exportBtn.classList.remove("vox-btn--ready","vox-btn--primary");exportBtn.setAttribute("aria-expanded","false");dlLabel.textContent="Export both";
     ["#aScore","#aRange","#aConf","#pMods","#pTune"].forEach(function(s){$(s).textContent="—";});
-    $("#pIso").textContent="Isolation pending";
+    $("#pIso").textContent="Isolation pending";$("#pIso").style.color="";$("#aScore").style.color="";
+    var isoWarn=$("#isoWarn");if(isoWarn)isoWarn.remove();
     $("#tcode").innerHTML="00:00.0 <span>/</span> 00:00.0";$("#seekFill").style.width="0%";$("#playBtn").disabled=true;$("#playBtn").innerHTML="&#9654;";
     VOX.renderChain(chain,"fused",0);VOX.setState(stateLed,stateLabel,"STANDBY");VOX.setProgress(procFill,procPct,procLab,0,"STANDBY");
     tstamp.textContent="STANDBY";recLabel.textContent="ARMED";$("#jobTag").textContent="JOB · idle";$("#newBtn").hidden=true;
