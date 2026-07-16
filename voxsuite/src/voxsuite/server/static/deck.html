@@ -304,8 +304,8 @@
   }
   $("#newBtn").addEventListener("click",resetDeck);
 
-  $("#modePolish").addEventListener("click",function(){location.href=location.protocol+"//"+location.hostname+":8765/deck";});
-  $("#modeAnalyze").addEventListener("click",function(){location.href=location.protocol+"//"+location.hostname+":8766/deck";});
+  $("#modePolish").addEventListener("click",function(){location.href="/polish";});
+  $("#modeAnalyze").addEventListener("click",function(){location.href="/analyze";});
 
   var start=performance.now();
   function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+(s%60).toFixed(1).padStart(4,"0");}

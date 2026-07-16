@@ -1,7 +1,36 @@
 # Handoff: run the VOX Suite over Tailscale for multi-device testing (Candi)
 
-Goal: get **both** services running on the A9 Max, reachable over Tailscale, so
-Aaron can test on **Android, iPhone, and desktop**. The two apps:
+Goal: get the suite running on the A9 Max, reachable over Tailscale, so Aaron
+can test on **Android, iPhone, and desktop**.
+
+## ⭐ Unified server — one command, one address (recommended)
+
+The whole suite (Analyze + Polish + Fused) now runs as **one process on one
+port**, so there's a single Tailscale address and the mode tabs switch between
+Analyze / Polish / Fused as plain same-origin links — no more two servers, no
+more broken tab switching.
+
+```bash
+cd aaroncodex && git pull            # branch: claude/voiceassist-plugin-planning-krhz0d
+source .venv/bin/activate            # a single venv with both engines installed
+pip install -e voxpolish'[ui,pitch,separation]' -e voxsuite    # first time only
+vox --host 0.0.0.0 --port 8080       # binds to the tailnet; Ctrl-C to stop
+```
+
+Then open **one** URL on any device:
+
+- `http://a9max.<tailnet>.ts.net:8080/`  → lands on **Fused** (upload once → both)
+- the top-left tabs switch to **Analyze** (`/analyze`) and **Polish** (`/polish`)
+
+`vox` defaults to `--host 0.0.0.0 --port 8080`, so `vox` alone works too. Job
+state lives under `./_vox` (override with `--base` or `VOX_BASE`). **Hard-refresh**
+once so the new UI loads, not a cached copy.
+
+---
+
+## Legacy: two separate servers (superseded by `vox` above)
+
+The original setup ran two apps on two ports. Kept here for reference only.
 
 - **VoxPolish editor** — the cleanup/tune UI (default port **8765**)
 - **VoxAnalysis viewer** — the analysis UI (default port **8766**)

@@ -88,7 +88,7 @@
       <button data-mode="polish" role="tab" aria-selected="false" id="modePolish"><span class="dot"></span>Polish</button>
       <button data-mode="analyze" class="active" role="tab" aria-selected="true" id="modeAnalyze"><span class="dot"></span>Analyze</button>
     </div>
-    <button class="vox-fusedbtn" id="fusedBtn" aria-pressed="false" title="Upload-once pipeline — arriving in the Fused increment"><span class="swirl"></span>Fused run</button>
+    <button class="vox-fusedbtn" id="fusedBtn" aria-pressed="false" title="Upload once — analyze &amp; polish in one pass"><span class="swirl"></span>Fused run</button>
     <div class="vox-mode-caption" id="modeCaption"><b>ANALYZE</b> — measure, score &amp; compare against the original</div>
     <div class="vox-deckhead .vox-spacer" style="flex:1"></div>
     <button class="vox-newbtn" id="newBtn" type="button" hidden>&#8635; New take</button>
@@ -246,14 +246,9 @@
   var gpuC=$("#gaugeGpu"),cpuC=$("#gaugeCpu");
   VOX.drawGauge(gpuC,0);VOX.drawGauge(cpuC,0);
 
-  // mode switch (Polish links to the editor app; Analyze is here)
-  $("#modePolish").addEventListener("click",function(){
-    // Editor is a separate app/port; cross-link keeps each usable on its own.
-    var host=location.hostname;location.href=location.protocol+"//"+host+":8765/";
-  });
-  $("#fusedBtn").addEventListener("click",function(){
-    log("info","fused pipeline arrives in the next increment");
-  });
+  // mode switch — same-origin links in the unified deck (no ports).
+  $("#modePolish").addEventListener("click",function(){location.href="/polish";});
+  $("#fusedBtn").addEventListener("click",function(){location.href="/";});
 
   function setStage(mainHtml){intake.classList.add("hidden");$("#scope").classList.add("hidden");stageMsg.classList.remove("hidden");stageMsg.innerHTML=mainHtml;}
   function showIntake(){stageMsg.classList.add("hidden");$("#scope").classList.add("hidden");intake.classList.remove("hidden");}

@@ -60,7 +60,7 @@
       <button data-mode="polish" class="active" role="tab" aria-selected="true" id="modePolish"><span class="dot"></span>Polish</button>
       <button data-mode="analyze" role="tab" aria-selected="false" id="modeAnalyze"><span class="dot"></span>Analyze</button>
     </div>
-    <button class="vox-fusedbtn" id="fusedBtn" aria-pressed="false" title="Upload-once pipeline — arriving in the Fused increment"><span class="swirl"></span>Fused run</button>
+    <button class="vox-fusedbtn" id="fusedBtn" aria-pressed="false" title="Upload once — analyze &amp; polish in one pass"><span class="swirl"></span>Fused run</button>
     <div class="vox-mode-caption" id="modeCaption"><b>POLISH</b> — repair, level &amp; subtly tune a vocal take</div>
     <div style="flex:1"></div>
     <button class="vox-newbtn" id="newBtn" type="button" hidden>&#8635; New take</button>
@@ -362,8 +362,8 @@
   }
 
   // mode switch: Analyze cross-links to the viewer app (separate port)
-  $("#modeAnalyze").addEventListener("click",function(){location.href=location.protocol+"//"+location.hostname+":8766/deck";});
-  $("#fusedBtn").addEventListener("click",function(){log("info","fused pipeline arrives in the next increment");});
+  $("#modeAnalyze").addEventListener("click",function(){location.href="/analyze";});
+  $("#fusedBtn").addEventListener("click",function(){location.href="/";});
 
   // ---- ambient -------------------------------------------------------------
   var start=performance.now();
