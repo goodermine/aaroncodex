@@ -28,7 +28,7 @@ MAX_UPLOAD_BYTES = 500 * 1024 * 1024  # 500 MB: generous for a full song
 # Front-end assets whose content decides the cache-busting version stamped into
 # index.html. A changed file → new version → the browser refetches instead of
 # serving a stale cached UI (the "I updated it but still see the old look" bug).
-_VERSIONED_ASSETS = ("vox-tokens.css", "vox-kit.css", "style.css", "app.js", "vox-telemetry.js")
+_VERSIONED_ASSETS = ("vox-tokens.css", "vox-kit.css", "style.css", "app.js", "vox-telemetry.js", "vox-about.js")
 
 
 def _asset_version() -> str:

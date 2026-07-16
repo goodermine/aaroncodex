@@ -18,7 +18,7 @@ from ..orchestrator import JobMeta, JobRunner
 
 STATIC = Path(__file__).parent / "static"
 # Assets whose content decides the cache-bust version stamped into the deck.
-_VERSIONED = ("vox-tokens.css", "vox-kit.css", "vox-telemetry.js", "deck.html")
+_VERSIONED = ("vox-tokens.css", "vox-kit.css", "vox-telemetry.js", "vox-about.js", "deck.html")
 _MEDIA = {"css": "text/css", "js": "text/javascript", "html": "text/html"}
 
 # Accepted upload extensions (mirrors the engines' ingest surface).

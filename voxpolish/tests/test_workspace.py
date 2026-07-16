@@ -165,6 +165,9 @@ def test_polish_command_deck_serves(workspace_client):
     assert "/static/vox-telemetry.js?v=" in page
     telem = workspace_client.get("/static/vox-telemetry.js")
     assert telem.status_code == 200 and "adaptPolish" in telem.text
+    # the shared "What this does" guide, wired to Polish mode
+    assert "/static/vox-about.js?v=" in page and 'VOX_MODE="polish"' in page
+    assert workspace_client.get("/static/vox-about.js").status_code == 200
 
 
 def test_peaks_expose_duration_for_navigation(workspace_client):
