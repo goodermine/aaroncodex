@@ -491,7 +491,10 @@
   var instrumentalUrl=null,originalUrl=null;
   var aux={backing:{on:false,el:$("#backingAudio"),btn:"#tglBacking"},orig:{on:false,el:$("#origAudio"),btn:"#tglOrig"}};
   function auxKeys(){return ["backing","orig"];}
-  function syncBacking(){auxKeys().forEach(function(k){var a=aux[k];if(a.on)try{if(Math.abs((a.el.currentTime||0)-(deckAudio.currentTime||0))>0.15)a.el.currentTime=deckAudio.currentTime;}catch(e){}});}
+  // Keep auxiliary tracks aligned only at a deliberate transport boundary.
+  // Seeking them on every animation frame makes mobile browsers re-buffer the
+  // instrumental and produces audible jumps.
+  function syncBacking(){auxKeys().forEach(function(k){var a=aux[k];if(a.on)try{a.el.currentTime=deckAudio.currentTime||0;}catch(e){}});}
   function setAux(k,on){var a=aux[k];a.on=on;setPressed(a.btn,on);if(on&&!deckAudio.paused){try{a.el.currentTime=deckAudio.currentTime;}catch(e){}var p=a.el.play();if(p&&p.catch)p.catch(function(){});}else a.el.pause();}
   function setLevel(lvl){var db=lvl>0.0015?Math.max(-60,20*Math.log10(lvl)):-60;
     $("#vuL").style.width=(lvl*95+1)+"%";$("#vuR").style.width=(lvl*90+1)+"%";$("#vuS").style.width=Math.min(100,lvl*104)+"%";
@@ -579,6 +582,7 @@
   $("#tglBacking").addEventListener("click",function(){setAux("backing",!aux.backing.on);});
   $("#tglOrig").addEventListener("click",function(){setAux("orig",!aux.orig.on);});
   $("#backingVol").addEventListener("input",function(){var v=this.value/100;aux.backing.el.volume=v;aux.orig.el.volume=v;$("#backingVolVal").textContent=this.value;});
+  deckAudio.addEventListener("seeking",syncBacking);
 
   // ---- seek + pan + wheel-zoom -------------------------------------------
   var seekEl=document.querySelector(".vox-seek");
@@ -663,7 +667,6 @@
       drawScope();scopeReadout();updateHarmonics();
       if(analyser&&!clk.paused){analyser.getByteTimeDomainData(timeBins);var s=0;for(var li=0;li<timeBins.length;li++){var vv=(timeBins[li]-128)/128;s+=vv*vv;}setLevel(clampN(Math.sqrt(s/timeBins.length)*2.4,0,1));}
       else if(analyser&&clk.paused)setLevel(0);
-      if((aux.backing.on||aux.orig.on)&&!clk.paused)syncBacking();
     }
     if(!VOX.REDUCE)requestAnimationFrame(scopeLoop);else scopeLooping=false;
   }
