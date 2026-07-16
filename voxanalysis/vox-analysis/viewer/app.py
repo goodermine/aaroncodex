@@ -35,7 +35,8 @@ MAX_DURATION = 15 * 60
 JOB_TTL_SECONDS = 24 * 60 * 60
 MAX_ACTIVE_JOBS = 10
 ANALYSIS_TIMEOUT = int(os.getenv("VOX_PITCH_TIMEOUT", "1800"))
-ALLOWED_EXTENSIONS = {".wav", ".mp3", ".m4a", ".aac", ".ogg", ".mp4", ".mov"}
+# .webm covers in-browser recordings (MediaRecorder Opus); ffmpeg decodes it.
+ALLOWED_EXTENSIONS = {".wav", ".mp3", ".m4a", ".aac", ".ogg", ".mp4", ".mov", ".webm"}
 SPECTRAL_SOURCES = frozenset({"vocals", "original"})
 SPECTRAL_DESCRIPTOR_FIELDS = (
     "version", "source", "transform", "display_only", "t0", "fps",
@@ -310,6 +311,8 @@ _SHARED_ASSETS = {
     "vox-about.js": "text/javascript",
     "vox-report.js": "text/javascript",
     "vox-report.css": "text/css",
+    "vox-record.js": "text/javascript",
+    "vox-record.css": "text/css",
 }
 
 

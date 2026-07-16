@@ -344,6 +344,25 @@ class ApiTests(unittest.TestCase):
         self.assertIn("Full results", body)
         self.assertIn("buildResultsDownload", body)
         self.assertIn("job=", body)  # reattach: /deck?job=<id> reloads a finished analysis
+        # in-browser recorder (Upload | Record)
+        self.assertIn('id="modeRecord"', body)
+        self.assertIn('id="recMount"', body)
+        self.assertIn("/static/vox-record.js?v=", body)
+        rec = self.request("GET", "/static/vox-record.js")
+        self.assertEqual(rec.status_code, 200)
+        self.assertIn("MediaRecorder", rec.text)
+
+    def test_webm_recording_upload_is_accepted(self):
+        probe = type("Probe", (), {"returncode": 0, "stdout": "12.5"})()
+        with patch.object(self.module.subprocess, "run", return_value=probe), patch.object(
+            self.module.executor, "submit"
+        ):
+            response = self.request(
+                "POST", "/api/pitch-jobs",
+                data={"name": "Singer", "comparison": "false"},
+                files={"file": ("recording.webm", b"webm-bytes", "audio/webm")},
+            )
+        self.assertEqual(response.status_code, 202)
 
     def test_shared_telemetry_js_is_served(self):
         response = self.request("GET", "/static/vox-telemetry.js")

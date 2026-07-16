@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-report.css?v=__ASSET_VERSION__">
+<link rel="stylesheet" href="/static/vox-record.css?v=__ASSET_VERSION__">
 <style>
   /* Page-level composition only — all components come from the shared kit. */
   html,body{margin:0;background:var(--vox-void);color:var(--vox-ink);font-family:var(--vox-sans);font-size:14px;line-height:1.5}
@@ -18,6 +19,12 @@
   .intake .fields label{display:grid;gap:5px;font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--vox-muted)}
   .intake .fields .full{grid-column:1/-1}
   .intake .pickbtn{margin-top:4px}
+  .intake-modes{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--vox-line-2);border-radius:10px;background:#0a141c;margin-bottom:6px}
+  .intake-modes button{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:0;background:transparent;color:var(--vox-muted);border-radius:7px;padding:8px 20px}
+  .intake-modes button.on{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:var(--vox-glow-cyan)}
+  .intake-modes button:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+  .intake-source{display:grid;justify-items:center;gap:12px;width:100%}
+  .intake-source[hidden]{display:none}
   .stage-msg{display:grid;place-items:center;height:100%;gap:10px;text-align:center;color:var(--vox-muted);font-family:var(--vox-mono);letter-spacing:.06em}
   .stage-msg b{color:var(--vox-ink);font-size:15px;letter-spacing:.02em}
   .vox-scope__chips .vox-chip{cursor:pointer;font:inherit;font-family:var(--vox-mono);font-size:10px;letter-spacing:.12em}
@@ -128,11 +135,17 @@
         <canvas id="scope" class="hidden"></canvas>
         <!-- idle intake -->
         <div class="intake" id="intake">
-          <label class="drop">
-            <input id="file" type="file" accept="audio/*,video/mp4,video/quicktime" style="display:none">
-            <div class="stage-msg"><b>Load your vocal take</b><span>WAV · MP3 · M4A · AAC · OGG · MP4 · MOV</span></div>
-            <button type="button" class="vox-btn vox-btn--primary pickbtn" id="pickBtn">Choose recording</button>
-          </label>
+          <div class="intake-modes" role="tablist" aria-label="Input source">
+            <button id="modeUpload" class="on" role="tab" aria-selected="true" type="button">Upload</button><button id="modeRecord" role="tab" aria-selected="false" type="button">Record</button>
+          </div>
+          <div class="intake-source" id="intakeUpload">
+            <label class="drop">
+              <input id="file" type="file" accept="audio/*,video/mp4,video/quicktime" style="display:none">
+              <div class="stage-msg"><b>Load your vocal take</b><span>WAV · MP3 · M4A · AAC · OGG · MP4 · MOV · WEBM</span></div>
+              <button type="button" class="vox-btn vox-btn--primary pickbtn" id="pickBtn">Choose recording</button>
+            </label>
+          </div>
+          <div class="intake-source" id="intakeRecord" hidden><div id="recMount"></div></div>
           <div class="fields">
             <label>Performer<input id="fPerformer" placeholder="Singer"></label>
             <label>Song title<input id="fSong" placeholder="optional"></label>
@@ -209,6 +222,7 @@
 <script>window.VOX_MODE="analyze";</script>
 <script src="/static/vox-about.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-report.js?v=__ASSET_VERSION__"></script>
+<script src="/static/vox-record.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
 (function(){
@@ -360,6 +374,21 @@
   $("#file").addEventListener("change",function(){if(this.files&&this.files[0])startJob(this.files[0]);});
   ["dragover","drop"].forEach(function(t){stage.addEventListener(t,function(e){e.preventDefault();});});
   stage.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)startJob(f);});
+
+  // Upload | Record input mode. The recorder mounts on first switch and hands a
+  // finished take straight to the existing startJob() upload path.
+  var recMounted=false;
+  function setInputMode(m){var up=m==="upload";
+    $("#modeUpload").classList.toggle("on",up);$("#modeUpload").setAttribute("aria-selected",up);
+    $("#modeRecord").classList.toggle("on",!up);$("#modeRecord").setAttribute("aria-selected",!up);
+    $("#intakeUpload").hidden=!up;$("#intakeRecord").hidden=up;
+    if(!up&&!recMounted){recMounted=true;
+      if(window.VOXRecord)VOXRecord.mount($("#recMount"),{onAnalyze:function(file){startJob(file);}});
+      else $("#recMount").innerHTML='<p class="stage-msg"><span>Recording is unavailable in this browser — use Upload.</span></p>';
+    }
+  }
+  $("#modeUpload").addEventListener("click",function(){setInputMode("upload");});
+  $("#modeRecord").addEventListener("click",function(){setInputMode("record");});
 
   // ---- pitch scope (note lanes + singer contour + playhead, audio-synced) --
   // contour.values are cents from A4 (midi = 69 + value/100), sampled at rate_hz.
