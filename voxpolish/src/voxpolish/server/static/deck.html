@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VOX Suite — Command Deck · Polish</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
+<link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
+<style>
+  html,body{margin:0;background:var(--vox-void);color:var(--vox-ink);font-family:var(--vox-sans);font-size:14px;line-height:1.5}
+  .intake{display:grid;place-items:center;height:100%;padding:26px;text-align:center}
+  .stage-msg{display:grid;place-items:center;height:100%;gap:10px;text-align:center;color:var(--vox-muted);font-family:var(--vox-mono);letter-spacing:.06em}
+  .stage-msg b{color:var(--vox-ink);font-size:15px;letter-spacing:.02em}
+  .choice{display:flex;gap:10px;margin-top:6px}
+  .choice button{font-family:var(--vox-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    border:1px solid var(--vox-line-2);background:#0a141c;color:var(--vox-muted);border-radius:8px;padding:9px 13px;cursor:pointer}
+  .choice button.on{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));border-color:transparent;box-shadow:var(--vox-glow-cyan)}
+  .hidden{display:none!important}
+</style>
+</head>
+<body class="vox-deck-bg">
+<div class="vox-wrap">
+
+  <div class="vox-command">
+    <div class="vox-brand">
+      <span class="vox-brand__glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h3l2-7 4 15 3-11 2 5h6"/></svg>
+      </span>
+      <div><div class="vox-brand__name">VOX<b>//</b>SUITE</div><div class="vox-brand__sub">UNIFIED VOCAL COMMAND DECK</div></div>
+    </div>
+    <div class="vox-statebar">
+      <div class="vox-state"><span class="vox-led is-standby" id="stateLed"></span><span class="vox-state__k">STATE</span><span class="vox-state__v" id="stateLabel">STANDBY</span></div>
+      <div class="vox-state"><span class="vox-state__k">ENGINE</span><span class="vox-state__v" style="color:var(--vox-green)">ONLINE</span></div>
+      <div class="vox-state"><span class="vox-state__k">ELAPSED</span><span class="vox-state__v vox-tnum vox-clock" id="elapsed">00:00.0</span></div>
+      <div class="vox-mini-meter" id="miniMeter" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="vox-deckhead">
+    <div class="vox-modeswitch" role="tablist" aria-label="Suite mode">
+      <button data-mode="polish" class="active" role="tab" aria-selected="true" id="modePolish"><span class="dot"></span>Polish</button>
+      <button data-mode="analyze" role="tab" aria-selected="false" id="modeAnalyze"><span class="dot"></span>Analyze</button>
+    </div>
+    <button class="vox-fusedbtn" id="fusedBtn" aria-pressed="false" title="Upload-once pipeline — arriving in the Fused increment"><span class="swirl"></span>Fused run</button>
+    <div class="vox-mode-caption" id="modeCaption"><b>POLISH</b> — repair, level &amp; subtly tune a vocal take</div>
+    <div style="flex:1"></div>
+    <div class="vox-jobtag vox-mono" id="jobTag">JOB · idle</div>
+  </div>
+
+  <div class="vox-chain" id="chain"></div>
+
+  <div class="vox-deck">
+    <aside class="vox-rail" id="leftRail">
+      <div class="vox-rail__title"><span class="vox-led is-standby"></span>Signal Modules</div>
+      <div id="modules"></div>
+    </aside>
+
+    <section class="vox-scope">
+      <div class="vox-scope__head">
+        <span class="vox-scope__title">Performance <b>Scope</b></span>
+        <div class="vox-scope__chips">
+          <span class="vox-chip is-hot" id="scopeSource">CLEANED</span><span class="vox-chip" id="scopeOriginal">ORIGINAL</span>
+        </div>
+      </div>
+      <div class="vox-stage" id="stage">
+        <span class="vox-bracket tl"></span><span class="vox-bracket tr"></span><span class="vox-bracket bl"></span><span class="vox-bracket br"></span>
+        <span class="vox-stage__tstamp vox-mono" id="tstamp">STANDBY</span>
+        <span class="vox-stage__rec vox-mono"><span class="vox-led is-standby"></span><span id="recLabel">ARMED</span></span>
+        <canvas id="scope" class="hidden"></canvas>
+        <div class="intake" id="intake">
+          <div class="stage-msg">
+            <b>Load your vocal take</b><span>WAV · FLAC work everywhere · MP3/M4A need ffmpeg</span>
+            <div class="choice"><button id="chClean" type="button">Clean</button><button id="chTune" class="on" type="button">Clean + Auto&nbsp;Tune</button></div>
+            <button type="button" class="vox-btn vox-btn--primary" id="pickBtn" style="margin-top:4px">Choose recording</button>
+            <input id="file" type="file" accept="audio/*" style="display:none">
+          </div>
+        </div>
+        <div class="stage-msg hidden" id="stageMsg"></div>
+      </div>
+      <div class="vox-transport">
+        <button class="vox-play" id="playBtn" aria-label="Play / pause" disabled>&#9654;</button>
+        <span class="vox-timecode vox-tnum" id="tcode">00:00.0 <span>/</span> 00:00.0</span>
+        <div class="vox-seek"><i id="seekFill" style="width:0%"></i></div>
+        <button class="vox-btn vox-dl" id="exportBtn" disabled aria-expanded="false" aria-controls="exportTray">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+          <span id="dlLabel">Export</span>
+        </button>
+      </div>
+      <div class="vox-tray" id="exportTray" role="region" aria-label="Export deliverables"></div>
+      <audio id="deckAudio" preload="none" style="display:none"></audio>
+    </section>
+
+    <aside class="vox-rail vox-rail--flush">
+      <div class="vox-teleblock">
+        <h3>Output Levels <span class="vox-mono" style="color:var(--vox-green)" id="levelHead">—</span></h3>
+        <div class="vox-vu"><span>L</span><div class="vox-meter"><i class="vox-meter__fill" id="vuL"></i></div><span class="vox-vu__db vox-tnum" id="vuLdb">—</span></div>
+        <div class="vox-vu"><span>R</span><div class="vox-meter"><i class="vox-meter__fill" id="vuR"></i></div><span class="vox-vu__db vox-tnum" id="vuRdb">—</span></div>
+        <div class="vox-vu"><span>SUM</span><div class="vox-meter"><i class="vox-meter__fill" id="vuS"></i></div><span class="vox-vu__db vox-tnum" id="vuSdb">—</span></div>
+      </div>
+      <div class="vox-teleblock">
+        <h3>Compute</h3>
+        <div class="vox-gauge"><canvas id="gaugeGpu" width="116" height="116"></canvas><span class="vox-gauge__lbl">GPU · SEPARATION<b id="gpuVal">0%</b></span></div>
+        <div class="vox-gauge"><canvas id="gaugeCpu" width="116" height="116"></canvas><span class="vox-gauge__lbl">CPU · DSP RENDER<b id="cpuVal">0%</b></span></div>
+      </div>
+      <div class="vox-teleblock">
+        <h3>Telemetry Log <span class="vox-led is-standby"></span></h3>
+        <div class="vox-logline" id="log"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="vox-procbar">
+    <span class="vox-procbar__lab" id="procLab">STANDBY</span>
+    <div class="vox-procbar__track"><i id="procFill" style="width:0%"></i></div>
+    <span class="vox-procbar__pct vox-tnum" id="procPct">0%</span>
+  </div>
+
+  <div class="vox-legend">
+    <span><i style="background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan)"></i>Live signal</span>
+    <span><i style="background:var(--vox-violet)"></i>Tune</span>
+    <span><i style="background:var(--vox-green)"></i>Healthy / complete</span>
+    <span><i style="background:var(--vox-amber)"></i>Warning</span>
+    <span><i style="background:var(--vox-red)"></i>Critical</span>
+  </div>
+
+  <p style="margin-top:16px;color:var(--vox-dim);font-family:var(--vox-mono);font-size:10.5px;letter-spacing:.05em;line-height:1.7">
+    Command deck · Polish mode, wired to the editor's document + render. Toggle a module to re-render; the waveform,
+    levels &amp; export update from <b>real</b> <code style="color:var(--vox-cyan-ink)">/api</code> state. Spectral, region
+    editing and <b>Fused</b> arrive next. <a href="/" style="color:var(--vox-cyan)">Classic editor →</a>
+  </p>
+</div>
+
+<script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
+<script>
+(function(){
+  "use strict";
+  var $=function(s){return document.querySelector(s);};
+  var stateLed=$("#stateLed"),stateLabel=$("#stateLabel"),procLab=$("#procLab"),procFill=$("#procFill"),procPct=$("#procPct");
+  var chain=$("#chain"),log=VOX.makeLog($("#log")),elapsed=$("#elapsed");
+  var stage=$("#stage"),intake=$("#intake"),stageMsg=$("#stageMsg"),scopeCanvas=$("#scope"),sctx=scopeCanvas.getContext("2d");
+  var tstamp=$("#tstamp"),recLabel=$("#recLabel"),deckAudio=$("#deckAudio"),playBtn=$("#playBtn"),exportBtn=$("#exportBtn"),dlLabel=$("#dlLabel"),tray=$("#exportTray");
+  var mm=VOX.miniMeter($("#miniMeter"),16),gpuC=$("#gaugeGpu"),cpuC=$("#gaugeCpu");
+  VOX.drawGauge(gpuC,0);VOX.drawGauge(cpuC,0);
+  var doc=null,revision=0,peaks=null,tuneChoice=true;
+
+  // Modules: how the document's bypass/amounts/denoise map to rows.
+  var MODULES=[
+    {key:"clean",name:"Clean",meta:"denoise",denoise:true,color:"#3fe0ff"},
+    {key:"dynamics",name:"Dynamics",meta:"leveler",amount:"dynamics",color:"#3fe0ff"},
+    {key:"gate",name:"Gate",meta:"pauses",count:"pauses",color:"#ff8f6b"},
+    {key:"breath",name:"Breath",meta:"breaths",amount:"breath",count:"breaths",color:"#5fd0a0"},
+    {key:"sibilance",name:"Sibilance",meta:"events",amount:"sibilance",count:"sibilants",color:"#59b0ff"},
+    {key:"tune",name:"Tune",meta:"pitch",amount:"tune",color:"#8b7cff"}
+  ];
+  function moduleOn(m){return m.denoise?((doc.denoise&&doc.denoise.amount||0)>0):!(doc.bypass&&doc.bypass[m.key]);}
+  function moduleAmt(m){return m.denoise?(doc.denoise&&doc.denoise.amount||0):(doc.amounts&&doc.amounts[m.amount]!=null?doc.amounts[m.amount]:1);}
+  function renderModules(){
+    if(!doc){$("#modules").innerHTML='<p style="color:var(--vox-muted);font:11px var(--vox-mono)">Upload a take to load its modules.</p>';return;}
+    $("#modules").innerHTML=MODULES.map(function(m,i){
+      var on=moduleOn(m),amt=Math.round(moduleAmt(m)*100),cnt=m.count&&doc[m.count]?doc[m.count].length:null;
+      var meta=cnt!=null?(cnt+" "+m.meta):m.meta;
+      return '<div class="vox-module'+(on?" on":"")+'" data-i="'+i+'"><div class="vox-module__top">'+
+        '<span class="vox-module__swatch" style="color:'+m.color+';background:'+m.color+'"></span>'+
+        '<span class="vox-module__name">'+m.name+'</span><span class="vox-module__toggle" data-role="toggle" tabindex="0" role="switch" aria-checked="'+on+'" aria-label="'+m.name+'"></span></div>'+
+        (m.amount||m.denoise?'<div class="vox-module__track"><i style="width:'+Math.min(100,amt)+'%;background:linear-gradient(90deg,'+m.color+'55,'+m.color+')"></i></div>':'')+
+        '<div class="vox-module__meta"><span>'+meta+'</span><span>'+(m.amount||m.denoise?amt+"%":(on?"on":"off"))+'</span></div></div>';
+    }).join("");
+    document.querySelectorAll("#modules .vox-module").forEach(function(row){
+      var m=MODULES[+row.dataset.i],tog=row.querySelector('[data-role="toggle"]');
+      function flip(){toggleModule(m);}
+      tog.addEventListener("click",flip);
+      tog.addEventListener("keydown",function(e){if(e.key===" "||e.key==="Enter"){e.preventDefault();flip();}});
+    });
+  }
+  function toggleModule(m){
+    if(!doc)return;var on=moduleOn(m);
+    if(m.denoise){doc.denoise=doc.denoise||{};doc.denoise.amount=on?0:0.6;doc.denoise.backend=doc.denoise.backend||"spectral";}
+    else{doc.bypass=doc.bypass||{};doc.bypass[m.key]=on;} // on→bypass true (turn off)
+    renderModules();saveAndRender();
+  }
+
+  function apply(ev){
+    VOX.setState(stateLed,stateLabel,ev.state);
+    VOX.renderChain(chain,"polish",ev.stage.index + (ev.state==="COMPLETE"?1:0));
+    VOX.setProgress(procFill,procPct,procLab,ev.progress,ev.state);
+    tstamp.textContent=ev.state;
+    if(ev.state==="WORKING"){recLabel.textContent="LIVE";}
+    else if(ev.state==="COMPLETE"){recLabel.textContent="READY";loadWaveform();revealExport();}
+    else if(ev.state==="ALERT"){recLabel.textContent="ALERT";stageMsg.classList.remove("hidden");scopeCanvas.classList.add("hidden");stageMsg.innerHTML='<b style="color:var(--vox-red)">Render failed</b><span>'+((ev.error&&ev.error.message)||"see server log")+'</span>';}
+  }
+
+  // ---- document + render ---------------------------------------------------
+  function loadDoc(){
+    return fetch("/api/document").then(function(r){if(!r.ok)throw r.status;return r.json();}).then(function(d){
+      doc=d.document;revision=d.revision;renderModules();
+    });
+  }
+  function saveAndRender(){
+    log("info","edit · re-rendering");
+    setBusy("RENDER");
+    fetch("/api/document",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({revision:revision,document:doc})})
+      .then(function(r){return r.json();}).then(function(j){
+        if(j.revision!=null)revision=j.revision;
+        return fetch("/api/render",{method:"POST"});
+      }).then(function(){
+        VOX.poll({url:"/api/render",mode:"polish",adapt:VOX.adaptPolish,onEvent:function(ev){apply(ev);}});
+      }).catch(function(){log("error","re-render failed");});
+  }
+  function setBusy(label){
+    VOX.setState(stateLed,stateLabel,"WORKING");recLabel.textContent="LIVE";tstamp.textContent="WORKING";
+    VOX.setProgress(procFill,procPct,procLab,40,"WORKING");
+  }
+
+  // ---- waveform scope ------------------------------------------------------
+  function fitScope(){var r=stage.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);scopeCanvas.width=Math.max(1,Math.round(r.width*d));scopeCanvas.height=Math.max(1,Math.round(r.height*d));sctx.setTransform(d,0,0,d,0,0);}
+  function loadWaveform(){
+    fetch("/api/peaks/cleaned").then(function(r){if(!r.ok)throw r.status;return r.json();}).then(function(p){
+      peaks=p;intake.classList.add("hidden");stageMsg.classList.add("hidden");scopeCanvas.classList.remove("hidden");
+      deckAudio.src="/api/audio/cleaned";playBtn.disabled=false;fitScope();drawWave();
+      if(!waveLooping){waveLooping=true;requestAnimationFrame(waveLoop);}
+    }).catch(function(){});
+  }
+  function drawWave(){
+    if(!peaks)return;var r=stage.getBoundingClientRect(),w=r.width,h=r.height,mid=h/2,n=peaks.min.length,PAD=6;
+    sctx.clearRect(0,0,w,h);
+    sctx.strokeStyle="rgba(63,224,255,.10)";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(0,mid);sctx.lineTo(w,mid);sctx.stroke();
+    var grad=sctx.createLinearGradient(0,0,0,h);grad.addColorStop(0,"#3fe0ff");grad.addColorStop(.5,"#8fefff");grad.addColorStop(1,"#3fe0ff");
+    sctx.strokeStyle=grad;sctx.lineWidth=1;sctx.globalAlpha=.9;
+    for(var x=0;x<w;x++){var i=Math.floor(x/w*n),lo=peaks.min[i]||0,hi=peaks.max[i]||0;var y1=mid-hi*(mid-PAD),y2=mid-lo*(mid-PAD);sctx.beginPath();sctx.moveTo(x,y1);sctx.lineTo(x,y2);sctx.stroke();}
+    sctx.globalAlpha=1;
+    var dur=peaks.duration||deckAudio.duration||1,ct=deckAudio.currentTime||0;
+    if(dur){var px=ct/dur*w;sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
+  }
+  var waveLooping=false;
+  function waveLoop(){
+    if(peaks){var dur=peaks.duration||deckAudio.duration||1,ct=deckAudio.currentTime||0;
+      $("#tcode").innerHTML=fmt(ct)+' <span>/</span> '+fmt(dur);$("#seekFill").style.width=(dur?ct/dur*100:0).toFixed(1)+"%";drawWave();}
+    if(!VOX.REDUCE)requestAnimationFrame(waveLoop);else waveLooping=false;
+  }
+  playBtn.addEventListener("click",function(){if(playBtn.disabled)return;var playing=!deckAudio.paused;if(playing)deckAudio.pause();else{var p=deckAudio.play();if(p&&p.catch)p.catch(function(){});}playBtn.innerHTML=playing?"&#9654;":"&#10073;&#10073;";});
+  window.addEventListener("resize",function(){if(peaks){fitScope();drawWave();}});
+
+  // ---- export tray ---------------------------------------------------------
+  function revealExport(){
+    var items=[
+      {id:"vocal",nm:"Polished vocal",sub:"the take you approved",fmt:"WAV",cls:"",href:"/api/download"},
+      {id:"edit",nm:"Edit document",sub:"every decision · re-editable",fmt:"JSON",cls:"j",href:"#"}
+    ];
+    tray.innerHTML='<div class="vox-tray__head"><span class="vox-tray__ttl"><span class="vox-led is-done"></span>Export deliverables</span></div>'+
+      items.map(function(a){return '<div class="vox-artifact">'+
+        '<span class="vox-chk"></span>'+
+        '<span class="vox-artifact__ic '+a.cls+'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/></svg></span>'+
+        '<div><div class="vox-artifact__nm">'+a.nm+'</div><div class="vox-artifact__sub">'+a.sub+'</div></div>'+
+        '<span class="vox-fmt">'+a.fmt+'</span><span class="vox-size">—</span>'+
+        '<a class="vox-dlone" data-role="'+a.id+'" href="'+a.href+'" target="_blank" rel="noopener" aria-label="Download '+a.nm+'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg></a></div>';}).join("");
+    try{var a=tray.querySelector('[data-role="edit"]');if(a&&doc){var blob=new Blob([JSON.stringify(doc,null,2)],{type:"application/json"});a.href=URL.createObjectURL(blob);a.setAttribute("download","edit_document.json");}}catch(e){}
+    exportBtn.disabled=false;exportBtn.classList.add("vox-btn--primary","vox-btn--ready");dlLabel.textContent="Export ▾";
+    tray.classList.add("open");exportBtn.setAttribute("aria-expanded","true");log("done","render complete · ready to export");
+  }
+  exportBtn.addEventListener("click",function(){if(exportBtn.disabled)return;var o=tray.classList.toggle("open");exportBtn.setAttribute("aria-expanded",o?"true":"false");});
+
+  // ---- upload / intake -----------------------------------------------------
+  $("#chClean").addEventListener("click",function(){tuneChoice=false;this.classList.add("on");$("#chTune").classList.remove("on");});
+  $("#chTune").addEventListener("click",function(){tuneChoice=true;this.classList.add("on");$("#chClean").classList.remove("on");});
+  $("#pickBtn").addEventListener("click",function(){$("#file").click();});
+  $("#file").addEventListener("change",function(){if(this.files&&this.files[0])startUpload(this.files[0]);});
+  function startUpload(file){
+    var fd=new FormData();fd.append("file",file);fd.append("tune",tuneChoice?"true":"false");
+    $("#jobTag").textContent="JOB · uploading";log("info","upload · "+file.name);
+    intake.classList.add("hidden");stageMsg.classList.remove("hidden");stageMsg.innerHTML='<b>Processing…</b><span>separating &amp; cleaning</span>';
+    setBusy("UPLOAD");
+    fetch("/api/uploads",{method:"POST",body:fd}).then(function(r){return r.json();}).then(function(j){
+      var id=j.id;$("#jobTag").textContent="JOB · "+file.name;
+      var t=setInterval(function(){
+        fetch("/api/uploads/"+id).then(function(r){return r.json();}).then(function(s){
+          VOX.setProgress(procFill,procPct,procLab,s.progress!=null?s.progress:60,"WORKING");
+          if(s.status==="done"){clearInterval(t);log("done","cleaned · loading editor");loadDoc().then(function(){apply({state:"COMPLETE",stage:{index:7,total:8},progress:100});});}
+          else if(s.status==="error"){clearInterval(t);apply({state:"ALERT",stage:{index:0,total:8},progress:0,error:{message:s.error||"processing failed"}});}
+        }).catch(function(){});
+      },600);
+    }).catch(function(){log("error","upload failed");});
+  }
+
+  // mode switch: Analyze cross-links to the viewer app (separate port)
+  $("#modeAnalyze").addEventListener("click",function(){location.href=location.protocol+"//"+location.hostname+":8766/deck";});
+  $("#fusedBtn").addEventListener("click",function(){log("info","fused pipeline arrives in the next increment");});
+
+  // ---- ambient -------------------------------------------------------------
+  var start=performance.now();
+  function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+(s%60).toFixed(1).padStart(4,"0");}
+  function ambient(now){var t=(now-start)/1000,working=stateLabel.textContent==="WORKING";elapsed.textContent=fmt(t);
+    for(var i=0;i<mm.length;i++){var v=(Math.sin(t*6+i*0.7)*0.5+0.5)*(0.35+(working?0.6:0.1));mm[i].style.height=(4+v*18).toFixed(1)+"px";mm[i].style.opacity=(0.4+v*0.6).toFixed(2);}
+    if(!VOX.REDUCE)requestAnimationFrame(ambient);}
+  requestAnimationFrame(ambient);
+
+  // ---- boot ----------------------------------------------------------------
+  VOX.renderChain(chain,"polish",0);VOX.setState(stateLed,stateLabel,"STANDBY");log("info","deck armed · awaiting take");
+  // If a session already exists, jump straight into the editor.
+  fetch("/api/session").then(function(r){
+    if(r.ok){$("#jobTag").textContent="SESSION · loaded";return loadDoc().then(function(){loadWaveform();apply({state:"COMPLETE",stage:{index:7,total:8},progress:100});});}
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>
