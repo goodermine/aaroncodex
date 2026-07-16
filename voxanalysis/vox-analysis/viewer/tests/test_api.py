@@ -312,6 +312,10 @@ class ApiTests(unittest.TestCase):
         for hook in ("vox-command", "vox-chain", "vox-deck", "vox-tray", "vox-procbar"):
             self.assertIn(hook, body, f"missing kit component: {hook}")
         self.assertIn("/static/vox-telemetry.js?v=", body)
+        # the shared "What this does" guide, wired to Analyze mode
+        self.assertIn("/static/vox-about.js?v=", body)
+        self.assertIn('VOX_MODE="analyze"', body)
+        self.assertEqual(self.request("GET", "/static/vox-about.js").status_code, 200)
 
     def test_shared_telemetry_js_is_served(self):
         response = self.request("GET", "/static/vox-telemetry.js")

@@ -277,6 +277,7 @@ _SHARED_ASSETS = {
     "vox-tokens.css": "text/css",
     "vox-kit.css": "text/css",
     "vox-telemetry.js": "text/javascript",
+    "vox-about.js": "text/javascript",
 }
 
 

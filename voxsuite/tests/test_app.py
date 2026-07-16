@@ -27,6 +27,9 @@ def test_deck_serves_versioned_kit_wired():
             assert hook in r.text, hook
         assert "/static/vox-telemetry.js?v=" in r.text
         assert c.get("/static/vox-telemetry.js").status_code == 200
+        # the shared "What this does" guide, wired to Fused mode
+        assert "/static/vox-about.js?v=" in r.text and 'VOX_MODE="fused"' in r.text
+        assert c.get("/static/vox-about.js").status_code == 200
 
 
 def test_full_fused_lifecycle_over_http():

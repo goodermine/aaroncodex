@@ -6,7 +6,7 @@ set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root="$(cd "$here/.." && pwd)"
 
-files=(vox-tokens.css vox-kit.css vox-telemetry.js)
+files=(vox-tokens.css vox-kit.css vox-telemetry.js vox-about.js)
 
 targets=(
   "$root/voxpolish/src/voxpolish/server/static"
