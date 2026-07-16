@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VOX Suite — Command Deck · Fused</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
+<link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
+<style>
+  html,body{margin:0;background:var(--vox-void);color:var(--vox-ink);font-family:var(--vox-sans);font-size:14px;line-height:1.5}
+  .intake{display:grid;place-items:center;height:100%;padding:26px;text-align:center}
+  .stage-msg{display:grid;place-items:center;height:100%;gap:10px;text-align:center;color:var(--vox-muted);font-family:var(--vox-mono);letter-spacing:.06em}
+  .stage-msg b{color:var(--vox-ink);font-size:15px;letter-spacing:.02em}
+  .intake .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:520px;margin-top:8px;text-align:left}
+  .intake input{width:100%;border:1px solid var(--vox-line-2);background:#080c11;color:var(--vox-ink);padding:10px 12px;border-radius:8px;font:inherit}
+  .intake .fields label{display:grid;gap:5px;font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--vox-muted)}
+  .intake .fields .full{grid-column:1/-1}
+  .rail-group{margin-bottom:14px}
+  .rail-group h4{margin:0 0 8px;font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-muted);display:flex;align-items:center;gap:7px}
+  .hidden{display:none!important}
+</style>
+</head>
+<body class="vox-deck-bg">
+<div class="vox-wrap">
+
+  <div class="vox-command">
+    <div class="vox-brand">
+      <span class="vox-brand__glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h3l2-7 4 15 3-11 2 5h6"/></svg></span>
+      <div><div class="vox-brand__name">VOX<b>//</b>SUITE</div><div class="vox-brand__sub">UNIFIED VOCAL COMMAND DECK</div></div>
+    </div>
+    <div class="vox-statebar">
+      <div class="vox-state"><span class="vox-led is-standby" id="stateLed"></span><span class="vox-state__k">STATE</span><span class="vox-state__v" id="stateLabel">STANDBY</span></div>
+      <div class="vox-state"><span class="vox-state__k">ENGINE</span><span class="vox-state__v" style="color:var(--vox-green)">×2 ONLINE</span></div>
+      <div class="vox-state"><span class="vox-state__k">ELAPSED</span><span class="vox-state__v vox-tnum vox-clock" id="elapsed">00:00.0</span></div>
+      <div class="vox-mini-meter" id="miniMeter" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="vox-deckhead">
+    <div class="vox-modeswitch" role="tablist" aria-label="Suite mode">
+      <button data-mode="polish" role="tab" aria-selected="false" id="modePolish"><span class="dot"></span>Polish</button>
+      <button data-mode="analyze" role="tab" aria-selected="false" id="modeAnalyze"><span class="dot"></span>Analyze</button>
+    </div>
+    <button class="vox-fusedbtn is-active" id="fusedBtn" aria-pressed="true"><span class="swirl"></span>Fused run</button>
+    <div class="vox-mode-caption" id="modeCaption"><b>FUSED</b> — upload once · analyze &amp; polish in one pass</div>
+    <div style="flex:1"></div>
+    <div class="vox-jobtag vox-mono" id="jobTag">JOB · idle</div>
+  </div>
+
+  <div class="vox-chain" id="chain"></div>
+
+  <div class="vox-deck">
+    <aside class="vox-rail" id="leftRail">
+      <div class="rail-group">
+        <h4><span class="vox-led is-standby"></span>Analysis</h4>
+        <div class="vox-readnote vox-mono" id="aScore">—</div>
+        <div class="vox-readcents vox-mono" id="aScoreLbl">Overall / 10</div>
+        <div class="vox-readgrid" style="margin-top:10px">
+          <div class="vox-readcell"><div class="vox-readcell__k">Vocal range</div><div class="vox-readcell__v" id="aRange">—</div></div>
+          <div class="vox-readcell"><div class="vox-readcell__k">Confidence</div><div class="vox-readcell__v" id="aConf">—</div></div>
+        </div>
+      </div>
+      <div class="rail-group">
+        <h4><span class="vox-led is-standby"></span>Polish</h4>
+        <div class="vox-readgrid">
+          <div class="vox-readcell"><div class="vox-readcell__k">Modules on</div><div class="vox-readcell__v" id="pMods">—</div></div>
+          <div class="vox-readcell"><div class="vox-readcell__k">Tune</div><div class="vox-readcell__v" id="pTune">—</div></div>
+        </div>
+        <p class="vox-readcents vox-mono" id="pIso" style="margin-top:10px">Isolation pending</p>
+      </div>
+    </aside>
+
+    <section class="vox-scope">
+      <div class="vox-scope__head">
+        <span class="vox-scope__title">Fused <b>Scope</b></span>
+        <div class="vox-scope__chips"><span class="vox-chip is-hot">PITCH</span><span class="vox-chip">POLISHED</span></div>
+      </div>
+      <div class="vox-stage" id="stage">
+        <span class="vox-bracket tl"></span><span class="vox-bracket tr"></span><span class="vox-bracket bl"></span><span class="vox-bracket br"></span>
+        <span class="vox-stage__tstamp vox-mono" id="tstamp">STANDBY</span>
+        <span class="vox-stage__rec vox-mono"><span class="vox-led is-standby"></span><span id="recLabel">ARMED</span></span>
+        <canvas id="scope" class="hidden"></canvas>
+        <div class="intake" id="intake">
+          <div class="stage-msg">
+            <b>Upload once — analyze &amp; polish together</b><span>WAV · FLAC · MP3 · M4A · AAC · OGG · MP4 · MOV</span>
+            <button type="button" class="vox-btn vox-btn--primary" id="pickBtn" style="margin-top:6px">Choose recording</button>
+            <input id="file" type="file" accept="audio/*,video/mp4,video/quicktime" style="display:none">
+          </div>
+          <div class="fields">
+            <label>Performer<input id="fPerformer" placeholder="Singer"></label>
+            <label>Song title<input id="fSong" placeholder="optional"></label>
+            <label class="full">Original artist or composer<input id="fArtist" placeholder="optional — enables comparison"></label>
+          </div>
+        </div>
+        <div class="stage-msg hidden" id="stageMsg"></div>
+      </div>
+      <div class="vox-transport">
+        <button class="vox-play" id="playBtn" aria-label="Play / pause" disabled>&#9654;</button>
+        <span class="vox-timecode vox-tnum" id="tcode">00:00.0 <span>/</span> 00:00.0</span>
+        <div class="vox-seek"><i id="seekFill" style="width:0%"></i></div>
+        <button class="vox-btn vox-dl" id="exportBtn" disabled aria-expanded="false" aria-controls="exportTray">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+          <span id="dlLabel">Export both</span>
+        </button>
+      </div>
+      <div class="vox-tray" id="exportTray" role="region" aria-label="Export deliverables"></div>
+      <audio id="deckAudio" preload="none" style="display:none"></audio>
+    </section>
+
+    <aside class="vox-rail vox-rail--flush">
+      <div class="vox-teleblock">
+        <h3>Output Levels <span class="vox-mono" style="color:var(--vox-green)" id="levelHead">—</span></h3>
+        <div class="vox-vu"><span>L</span><div class="vox-meter"><i class="vox-meter__fill" id="vuL"></i></div><span class="vox-vu__db vox-tnum" id="vuLdb">—</span></div>
+        <div class="vox-vu"><span>R</span><div class="vox-meter"><i class="vox-meter__fill" id="vuR"></i></div><span class="vox-vu__db vox-tnum" id="vuRdb">—</span></div>
+        <div class="vox-vu"><span>SUM</span><div class="vox-meter"><i class="vox-meter__fill" id="vuS"></i></div><span class="vox-vu__db vox-tnum" id="vuSdb">—</span></div>
+      </div>
+      <div class="vox-teleblock">
+        <h3>Compute</h3>
+        <div class="vox-gauge"><canvas id="gaugeGpu" width="116" height="116"></canvas><span class="vox-gauge__lbl">GPU · SEPARATION<b id="gpuVal">0%</b></span></div>
+        <div class="vox-gauge"><canvas id="gaugeCpu" width="116" height="116"></canvas><span class="vox-gauge__lbl">CPU · DSP RENDER<b id="cpuVal">0%</b></span></div>
+      </div>
+      <div class="vox-teleblock">
+        <h3>Telemetry Log <span class="vox-led is-standby"></span></h3>
+        <div class="vox-logline" id="log"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="vox-procbar">
+    <span class="vox-procbar__lab" id="procLab">STANDBY</span>
+    <div class="vox-procbar__track"><i id="procFill" style="width:0%"></i></div>
+    <span class="vox-procbar__pct vox-tnum" id="procPct">0%</span>
+  </div>
+
+  <div class="vox-legend">
+    <span><i style="background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan)"></i>Live signal</span>
+    <span><i style="background:var(--vox-violet)"></i>Analyze identity</span>
+    <span><i style="background:var(--vox-green)"></i>Healthy / complete</span>
+    <span><i style="background:var(--vox-amber)"></i>Warning</span>
+    <span><i style="background:var(--vox-red)"></i>Critical</span>
+  </div>
+
+  <p style="margin-top:16px;color:var(--vox-dim);font-family:var(--vox-mono);font-size:10.5px;letter-spacing:.05em;line-height:1.7">
+    Fused run · one upload isolated <b>once</b>, then analyzed and polished in a single pass. Chain, telemetry &amp; export
+    are driven by <b>real</b> <code style="color:var(--vox-cyan-ink)">/api/fused-jobs</code> state across both engines.
+    <a href="/deck" style="color:var(--vox-cyan)">·</a>
+  </p>
+</div>
+
+<script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
+<script>
+(function(){
+  "use strict";
+  var $=function(s){return document.querySelector(s);};
+  var stateLed=$("#stateLed"),stateLabel=$("#stateLabel"),procLab=$("#procLab"),procFill=$("#procFill"),procPct=$("#procPct");
+  var chain=$("#chain"),log=VOX.makeLog($("#log")),elapsed=$("#elapsed");
+  var stage=$("#stage"),intake=$("#intake"),stageMsg=$("#stageMsg"),scopeCanvas=$("#scope"),sctx=scopeCanvas.getContext("2d");
+  var tstamp=$("#tstamp"),recLabel=$("#recLabel"),exportBtn=$("#exportBtn"),dlLabel=$("#dlLabel"),tray=$("#exportTray");
+  var mm=VOX.miniMeter($("#miniMeter"),16),gpuC=$("#gaugeGpu"),cpuC=$("#gaugeCpu");
+  VOX.drawGauge(gpuC,0);VOX.drawGauge(cpuC,0);
+  var curJob=null,scopeData=null;
+
+  function setStage(html){intake.classList.add("hidden");scopeCanvas.classList.add("hidden");stageMsg.classList.remove("hidden");stageMsg.innerHTML=html;}
+  function showIntake(){stageMsg.classList.add("hidden");scopeCanvas.classList.add("hidden");intake.classList.remove("hidden");}
+
+  function apply(ev){
+    VOX.setState(stateLed,stateLabel,ev.state);
+    VOX.renderChain(chain,"fused",ev.stage.index + (ev.state==="COMPLETE"?1:0));
+    VOX.setProgress(procFill,procPct,procLab,ev.progress,ev.state);
+    tstamp.textContent=ev.state;
+    var busy=ev.state==="WORKING";
+    VOX.drawGauge(gpuC,busy&&ev.stage.index<=1?74:12);VOX.drawGauge(cpuC,busy&&ev.stage.index>=4?60:14);
+    $("#gpuVal").textContent=(busy&&ev.stage.index<=1?74:12)+"%";$("#cpuVal").textContent=(busy&&ev.stage.index>=4?60:14)+"%";
+    if(ev.state==="WORKING"){recLabel.textContent="LIVE";setStage('<b>'+ev.stage.label+'</b><span>stage '+(ev.stage.index+1)+' of '+ev.stage.total+' · '+(ev.stage.index<=3?"analysing":"polishing")+'…</span>');
+      if(ev.isolation)$("#pIso").textContent=ev.isolation.skipped?("Isolation skipped · "+(ev.isolation.note||"")):"Isolated once · shared";}
+    else if(ev.state==="COMPLETE"){recLabel.textContent="READY";hydrate(ev);}
+    else if(ev.state==="ALERT"){recLabel.textContent="ALERT";setStage('<b style="color:var(--vox-red)">Fused run failed</b><span>'+((ev.error&&(ev.error.message||ev.error.code))||"see server log")+'</span>');}
+    else{recLabel.textContent="ARMED";showIntake();}
+  }
+
+  function hydrate(ev){
+    var a=ev.analysis||{},p=ev.polish||{},sc=a.score||{},doc=p.document||{};
+    if(sc.overall!=null){$("#aScore").textContent=sc.overall;}
+    $("#aRange").textContent=[a.robust_min_note,a.robust_max_note].filter(Boolean).join(" – ")||"—";
+    $("#aConf").textContent=sc.confidence!=null?sc.confidence:"—";
+    var mods=doc.bypass?Object.keys({dynamics:1,gate:1,breath:1,sibilance:1,tune:1}).filter(function(k){return !doc.bypass[k];}).length:"—";
+    $("#pMods").textContent=mods;
+    $("#pTune").textContent=doc.amounts&&doc.amounts.tune!=null?Math.round(doc.amounts.tune*100)+"%":"—";
+    if(ev.isolation)$("#pIso").textContent=ev.isolation.skipped?("Isolation skipped · "+(ev.isolation.note||"")):"Isolated once · shared";
+    mountScope(a.contour,a.duration_seconds,p.download_url);
+    revealExport(ev);
+  }
+
+  // pitch contour scope (cents from A4, like the Analyze deck)
+  function noteY(v,lo,range,h){return h-((69+v/100)-lo)/range*h;}
+  function fitScope(){var r=stage.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);scopeCanvas.width=Math.max(1,Math.round(r.width*d));scopeCanvas.height=Math.max(1,Math.round(r.height*d));sctx.setTransform(d,0,0,d,0,0);}
+  function mountScope(contour,dur,audioUrl){
+    intake.classList.add("hidden");stageMsg.classList.add("hidden");
+    if(!contour||!contour.values||!contour.values.length){setStage('<b>Fused run complete</b><span>report &amp; polished vocal ready · export below</span>');return;}
+    var vals=contour.values,lo=1e9,hi=-1e9;
+    for(var i=0;i<vals.length;i++){var v=vals[i];if(v==null||!isFinite(v))continue;var m=69+v/100;if(m<lo)lo=m;if(m>hi)hi=m;}
+    if(lo>hi){lo=57;hi=81;}lo=Math.floor(lo)-1;hi=Math.ceil(hi)+1;
+    scopeData={vals:vals,rate:contour.rate_hz||10,dur:dur||(vals.length/(contour.rate_hz||10)),lo:lo,hi:hi,range:Math.max(1,hi-lo)};
+    scopeCanvas.classList.remove("hidden");fitScope();drawScope();
+    if(audioUrl){$("#deckAudio").src=audioUrl;$("#playBtn").disabled=false;}
+    if(!looping){looping=true;requestAnimationFrame(loop);}
+  }
+  function drawScope(){
+    if(!scopeData)return;var r=stage.getBoundingClientRect(),w=r.width,h=r.height,lo=scopeData.lo,range=scopeData.range,PAD=44;
+    sctx.clearRect(0,0,w,h);sctx.font="10px "+getComputedStyle(document.body).getPropertyValue("--vox-mono");sctx.textBaseline="middle";
+    for(var m=lo;m<=scopeData.hi;m++){var y=h-(m-lo)/range*h;sctx.strokeStyle=(m%12===0)?"#34404e":"#202832";sctx.beginPath();sctx.moveTo(PAD,y);sctx.lineTo(w,y);sctx.stroke();if(range<=30||m%2===0){sctx.fillStyle="#7f93a4";sctx.fillText(noteName(m),6,y);}}
+    var vals=scopeData.vals,rate=scopeData.rate,dur=scopeData.dur;sctx.strokeStyle="#8b7cff";sctx.lineWidth=2;sctx.shadowColor="#8b7cff";sctx.shadowBlur=6;sctx.beginPath();var pen=false;
+    for(var i=0;i<vals.length;i++){var c=vals[i];if(c==null||!isFinite(c)){pen=false;continue;}var t=i/rate;if(t>dur)break;var x=PAD+(t/dur)*(w-PAD),yy=noteY(c,lo,range,h);if(!pen){sctx.moveTo(x,yy);pen=true;}else sctx.lineTo(x,yy);}
+    sctx.stroke();sctx.shadowBlur=0;
+    var ct=$("#deckAudio").currentTime||0;if(dur){var px=PAD+(ct/dur)*(w-PAD);sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
+  }
+  function noteName(m){var n=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"],r=Math.round(m);return n[((r%12)+12)%12]+(Math.floor(r/12)-1);}
+  var looping=false;
+  function loop(){if(scopeData){var a=$("#deckAudio"),dur=scopeData.dur||a.duration||1,ct=a.currentTime||0;$("#tcode").innerHTML=fmt(ct)+' <span>/</span> '+fmt(dur);$("#seekFill").style.width=(dur?ct/dur*100:0).toFixed(1)+"%";drawScope();}if(!VOX.REDUCE)requestAnimationFrame(loop);else looping=false;}
+  $("#playBtn").addEventListener("click",function(){var a=$("#deckAudio");if($("#playBtn").disabled)return;var playing=!a.paused;if(playing)a.pause();else{var p=a.play();if(p&&p.catch)p.catch(function(){});}$("#playBtn").innerHTML=playing?"&#9654;":"&#10073;&#10073;";});
+  window.addEventListener("resize",function(){if(scopeData){fitScope();drawScope();}});
+
+  function revealExport(ev){
+    var id=curJob||(ev.job&&ev.job.id)||"";
+    var items=[
+      {id:"report",nm:"Analysis report",sub:"calibrated VOXAI scorecard",fmt:"MD",cls:"r",href:id?"/api/fused-jobs/"+id+"/report":"#"},
+      {id:"vocal",nm:"Polished vocal",sub:"repaired · tuned · rendered",fmt:"WAV",cls:"",href:id?"/api/fused-jobs/"+id+"/download":"#"},
+      {id:"edit",nm:"Edit document",sub:"every polish decision",fmt:"JSON",cls:"j",href:"#"}
+    ];
+    tray.innerHTML='<div class="vox-tray__head"><span class="vox-tray__ttl"><span class="vox-led is-done"></span>Export · report + polished vocal</span></div>'+
+      items.map(function(a){return '<div class="vox-artifact"><span class="vox-chk"></span>'+
+        '<span class="vox-artifact__ic '+a.cls+'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/></svg></span>'+
+        '<div><div class="vox-artifact__nm">'+a.nm+'</div><div class="vox-artifact__sub">'+a.sub+'</div></div>'+
+        '<span class="vox-fmt">'+a.fmt+'</span><span class="vox-size">—</span>'+
+        '<a class="vox-dlone" data-role="'+a.id+'" href="'+a.href+'" target="_blank" rel="noopener" aria-label="Download '+a.nm+'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg></a></div>';}).join("");
+    try{var doc=(ev.polish||{}).document,a=tray.querySelector('[data-role="edit"]');if(a&&doc){var blob=new Blob([JSON.stringify(doc,null,2)],{type:"application/json"});a.href=URL.createObjectURL(blob);a.setAttribute("download","edit_document.json");}}catch(e){}
+    exportBtn.disabled=false;exportBtn.classList.add("vox-btn--primary","vox-btn--ready");dlLabel.textContent="Export both ▾";
+    tray.classList.add("open");exportBtn.setAttribute("aria-expanded","true");log("done","fused run complete · report + vocal ready");
+  }
+  exportBtn.addEventListener("click",function(){if(exportBtn.disabled)return;var o=tray.classList.toggle("open");exportBtn.setAttribute("aria-expanded",o?"true":"false");});
+
+  // upload once → fused job → poll adaptFused
+  $("#pickBtn").addEventListener("click",function(){$("#file").click();});
+  $("#file").addEventListener("change",function(){if(this.files&&this.files[0])startJob(this.files[0]);});
+  ["dragover","drop"].forEach(function(t){stage.addEventListener(t,function(e){e.preventDefault();});});
+  stage.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)startJob(f);});
+  function startJob(file){
+    var fd=new FormData();fd.append("file",file);fd.append("name",$("#fPerformer").value||"Singer");fd.append("song",$("#fSong").value||"");fd.append("artist",$("#fArtist").value||"");fd.append("tune","true");
+    $("#jobTag").textContent="JOB · uploading";log("info","upload once · "+file.name);setStage('<b>Processing…</b><span>isolating vocal</span>');
+    fetch("/api/fused-jobs",{method:"POST",body:fd}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});}).then(function(res){
+      if(!res.ok){log("error","upload rejected");return;}
+      curJob=res.j.id;$("#jobTag").textContent="JOB · "+curJob.slice(0,10);
+      VOX.poll({url:"/api/fused-jobs/"+curJob,mode:"fused",adapt:VOX.adaptFused,onEvent:apply});
+    }).catch(function(){log("error","upload failed — network");});
+  }
+
+  $("#modePolish").addEventListener("click",function(){location.href=location.protocol+"//"+location.hostname+":8765/deck";});
+  $("#modeAnalyze").addEventListener("click",function(){location.href=location.protocol+"//"+location.hostname+":8766/deck";});
+
+  var start=performance.now();
+  function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+(s%60).toFixed(1).padStart(4,"0");}
+  function ambient(now){var t=(now-start)/1000,working=stateLabel.textContent==="WORKING";elapsed.textContent=fmt(t);for(var i=0;i<mm.length;i++){var v=(Math.sin(t*6+i*0.7)*0.5+0.5)*(0.35+(working?0.6:0.1));mm[i].style.height=(4+v*18).toFixed(1)+"px";mm[i].style.opacity=(0.4+v*0.6).toFixed(2);}if(!VOX.REDUCE)requestAnimationFrame(ambient);}
+  requestAnimationFrame(ambient);
+
+  // demo preview (?demo=1) — a synthetic fused run, no backend
+  function demoContour(){var rate=10,dur=20,n=rate*dur,vals=[],notes=[-500,-200,0,300,0,-200];for(var k=0;k<n;k++){var t=k/rate,ph=Math.floor(t/1.6)%notes.length;if((t%1.6)>1.35){vals.push(null);continue;}vals.push(notes[ph]+Math.sin(t*2*Math.PI*5)*15);}return{values:vals,rate_hz:rate};}
+  function runDemo(){
+    var seq=[["queued","upload",0],["processing","isolate",1],["processing","analyze",2],["processing","score",3],["processing","clean",4],["processing","tune",5],["processing","render",6],["complete","export",7]];var i=0;
+    (function step(){var s=seq[i],raw={id:"fused_demo01",name:"aria_live.wav",status:s[0],stage:s[1],progress:s[0]==="complete"?100:Math.round(s[2]/8*100),
+      isolation:{skipped:false,note:"isolated once"},
+      analysis:s[0]==="complete"?{score:{overall:7.6,confidence:"high"},robust_min_note:"E3",robust_max_note:"B4",contour:demoContour(),duration_seconds:20}:null,
+      polish:s[0]==="complete"?{download_url:null,revision:2,document:{bypass:{},amounts:{dynamics:1,breath:1,sibilance:1,tune:0.1}}}:null};
+      curJob="fused_demo01";apply(VOX.adaptFused(raw));i++;if(!VOX.REDUCE&&i<seq.length)setTimeout(step,1200);})();
+  }
+
+  VOX.renderChain(chain,"fused",0);VOX.setState(stateLed,stateLabel,"STANDBY");log("info","fused deck armed · upload once");
+  if(/[?&]demo=1/.test(location.search))runDemo();
+})();
+</script>
+</body>
+</html>
