@@ -142,6 +142,28 @@
     };
   }
 
+  // Fused orchestrator: /api/fused-jobs/{id} -> { status, stage, progress, ... }
+  // (see design/fused-orchestrator.md). One job spanning both engines.
+  function adaptFused(raw) {
+    var steps = CHAINS.fused, state, idx = 0;
+    if (raw.status === "queued") { state = "STANDBY"; idx = 0; }
+    else if (raw.status === "processing") {
+      state = "WORKING";
+      idx = Math.max(0, steps.findIndex(function (s) { return s[2] === raw.stage; }));
+      if (idx < 0) idx = 1;
+    } else if (raw.status === "complete") { state = "COMPLETE"; idx = steps.length; }
+    else if (raw.status === "failed") { state = "ALERT"; idx = 0; }
+    else { state = "STANDBY"; }
+    var total = steps.length, at = Math.min(idx, total - 1);
+    return {
+      mode: "fused", state: state, job: { id: raw.id, name: (raw.name || "") },
+      stage: { index: at, total: total, key: steps[at][2], label: steps[at][1] },
+      progress: state === "COMPLETE" ? 100 : (raw.progress != null ? raw.progress : Math.round((idx / total) * 100)),
+      analysis: raw.analysis || null, polish: raw.polish || null,
+      isolation: raw.isolation || null, error: raw.error || null
+    };
+  }
+
   // VoxPolish: /api/render -> { status, ... } (+ upload job progress elsewhere)
   var POLISH_STATE = { idle: "STANDBY", running: "WORKING", done: "COMPLETE", error: "ALERT" };
   function adaptPolish(raw) {
@@ -184,6 +206,6 @@
     renderChain: renderChain, setState: setState, setProgress: setProgress,
     makeLog: makeLog, setMeter: setMeter,
     fitCanvas: fitCanvas, drawGauge: drawGauge, miniMeter: miniMeter,
-    adaptViewer: adaptViewer, adaptPolish: adaptPolish, poll: poll
+    adaptViewer: adaptViewer, adaptPolish: adaptPolish, adaptFused: adaptFused, poll: poll
   };
 })(window);

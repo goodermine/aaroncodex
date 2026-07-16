@@ -11,6 +11,7 @@ files=(vox-tokens.css vox-kit.css vox-telemetry.js)
 targets=(
   "$root/voxpolish/src/voxpolish/server/static"
   "$root/voxanalysis/vox-analysis/viewer/static"
+  "$root/voxsuite/src/voxsuite/server/static"
 )
 
 for target in "${targets[@]}"; do
