@@ -27,9 +27,9 @@
 /* ---- signal chain — where in the pipeline --------------------------------- */
 .vox-chain{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;
   padding:14px 16px;border:1px solid var(--vox-line);border-radius:12px;background:var(--vox-surface-1)}
-.vox-step{position:relative;padding:12px 8px 10px;border-top:2px solid #223142;
+.vox-step{position:relative;padding:12px 8px 10px;border-top:2px solid var(--vox-line-2);
   font-family:var(--vox-mono);font-size:9.5px;line-height:1.4;letter-spacing:.06em;text-transform:uppercase;color:var(--vox-dim)}
-.vox-step__n{display:block;font-size:8.5px;color:#3a4a58;margin-bottom:3px}
+.vox-step__n{display:block;font-size:8.5px;color:var(--vox-dim);margin-bottom:3px}
 .vox-step.is-done{border-color:var(--vox-green);color:#8fb6a6}
 .vox-step.is-done .vox-step__n{color:var(--vox-green)}
 .vox-step.is-active{border-color:var(--vox-cyan);color:var(--vox-ink);background:linear-gradient(180deg,rgba(63,224,255,.09),transparent)}
@@ -56,7 +56,7 @@
   padding:9px 14px;border-radius:var(--vox-radius-sm);cursor:pointer;
   font:700 .72rem/1.2 var(--vox-mono);letter-spacing:.06em;text-transform:uppercase;
   transition:border-color .15s,color .15s,background .15s,transform .12s}
-.vox-btn:hover{border-color:#59697b;color:#fff}
+.vox-btn:hover{border-color:var(--vox-muted);color:var(--vox-ink)}
 .vox-btn:active{transform:translateY(1px)}
 .vox-btn[aria-pressed="true"]{border-color:rgba(63,224,255,.5);background:#102630;color:var(--vox-cyan)}
 .vox-btn:disabled{opacity:.45;cursor:not-allowed}
@@ -336,7 +336,7 @@
   padding:max(20px,4vh) 18px 40px;overflow:auto}
 .vox-about__scrim{position:fixed;inset:0;background:rgba(3,6,9,.72);backdrop-filter:blur(4px)}
 .vox-about__panel{position:relative;width:min(920px,100%);border:1px solid var(--vox-line-2);border-radius:18px;
-  background:linear-gradient(180deg,rgba(16,26,35,.98),rgba(9,14,20,.99));
+  background:var(--vox-grad-panel);
   box-shadow:0 30px 80px #000c,inset 0 1px 0 rgba(255,255,255,.05);padding:30px clamp(20px,4vw,40px) 34px;
   animation:voxAboutIn .28s cubic-bezier(.2,.8,.2,1)}
 @keyframes voxAboutIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -352,7 +352,7 @@
   line-height:1.12;margin:14px 0 10px;max-width:24ch;text-wrap:balance;color:var(--vox-ink)}
 .vox-about__lede{color:var(--vox-muted);max-width:64ch;margin:0 0 22px;line-height:1.65}
 .vox-about__modes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.vox-about__mode{border:1px solid var(--vox-line);border-radius:13px;background:rgba(7,12,17,.7);padding:16px 16px 18px}
+.vox-about__mode{border:1px solid var(--vox-line);border-radius:13px;background:var(--vox-surface-1);padding:16px 16px 18px}
 .vox-about__mode.is-here{border-color:rgba(63,224,255,.45);box-shadow:inset 0 0 0 1px rgba(63,224,255,.12)}
 .vox-about__mode.violet.is-here{border-color:rgba(139,124,255,.5);box-shadow:inset 0 0 0 1px rgba(139,124,255,.14)}
 .vox-about__mtag{display:flex;align-items:center;gap:8px;font-family:var(--vox-mono);font-size:10px;letter-spacing:.16em;color:var(--vox-muted)}
@@ -365,13 +365,20 @@
 .vox-about__mode.cyan h3{color:var(--vox-cyan)} .vox-about__mode.violet h3{color:var(--vox-violet)}
 .vox-about__mode.cyanviolet h3{background:linear-gradient(90deg,var(--vox-cyan),var(--vox-violet));-webkit-background-clip:text;background-clip:text;color:transparent}
 .vox-about__mode h3 span{display:block;font-size:11.5px;font-weight:500;color:var(--vox-muted);letter-spacing:0;margin-top:3px}
-.vox-about__mode p{font-size:13px;color:#c4d3dd;line-height:1.6;margin:0 0 12px}
+.vox-about__mode p{font-size:13px;color:var(--vox-body);line-height:1.6;margin:0 0 12px}
 .vox-about__mode ol{margin:0;padding-left:17px;display:grid;gap:6px}
 .vox-about__mode li{font-size:12.5px;color:var(--vox-muted);line-height:1.5}
 .vox-about__start{margin-top:22px;border-top:1px solid var(--vox-line);padding-top:20px}
 .vox-about__start h4{font-family:var(--vox-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-cyan);margin:0 0 12px}
 .vox-about__start ul{margin:0;padding-left:19px;display:grid;gap:8px}
-.vox-about__start li{color:#c4d3dd;line-height:1.55}
+.vox-about__start li{color:var(--vox-body);line-height:1.55}
 .vox-about__start code{font-family:var(--vox-mono);font-size:12px;background:var(--vox-surface-1);border:1px solid var(--vox-line-2);border-radius:5px;padding:1px 6px;color:var(--vox-cyan)}
 @media (max-width:680px){.vox-about__modes{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.vox-about__panel{animation:none}}
+
+/* ---- light-theme touch-ups -------------------------------------------------
+   A few controls keep bespoke dark values above; remap them when the console
+   flips so nothing renders as a dark island in the light chrome. */
+:root[data-theme="light"] .vox-step.is-done{color:#2e7d5b}
+:root[data-theme="light"] .vox-meter{background:#d9e3ea;border:1px solid var(--vox-line)}
+:root[data-theme="light"] .vox-btn[aria-pressed="true"]{background:rgba(11,147,189,.10)}

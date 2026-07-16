@@ -110,7 +110,10 @@
     var x = canvas.getContext("2d"), w = canvas.width, h = canvas.height, cx = w / 2, cy = h / 2, r = w / 2 - 10;
     x.setTransform(1, 0, 0, 1, 0, 0);
     x.clearRect(0, 0, w, h); x.lineWidth = 9; x.lineCap = "round";
-    x.strokeStyle = "#16242f"; x.beginPath(); x.arc(cx, cy, r, .75 * Math.PI, 2.25 * Math.PI); x.stroke();
+    // track colour follows the theme (canvas can't use var() directly)
+    var track = "";
+    try { track = getComputedStyle(document.documentElement).getPropertyValue("--vox-surface-2").trim(); } catch (e) {}
+    x.strokeStyle = track || "#16242f"; x.beginPath(); x.arc(cx, cy, r, .75 * Math.PI, 2.25 * Math.PI); x.stroke();
     var end = .75 * Math.PI + 1.5 * Math.PI * (clamp(val, 0, 100) / 100), hot = val > 88;
     var grad = x.createLinearGradient(0, 0, w, h);
     if (hot) { grad.addColorStop(0, "#3fe0ff"); grad.addColorStop(1, "#ffb547"); }
