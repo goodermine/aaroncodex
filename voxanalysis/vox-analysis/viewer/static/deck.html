@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
+<link rel="stylesheet" href="/static/vox-report.css?v=__ASSET_VERSION__">
 <style>
   /* Page-level composition only — all components come from the shared kit. */
   html,body{margin:0;background:var(--vox-void);color:var(--vox-ink);font-family:var(--vox-sans);font-size:14px;line-height:1.5}
@@ -137,6 +138,10 @@
     <span class="vox-procbar__pct vox-tnum" id="procPct">0%</span>
   </div>
 
+  <!-- full analysis results (executive summary, scores, measurements, trouble
+       spots, comparison, evidence, practice plan, technical report) -->
+  <section class="vox-report" id="report" hidden></section>
+
   <div class="vox-legend">
     <span><i style="background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan)"></i>Live signal</span>
     <span><i style="background:var(--vox-violet)"></i>Analyze identity</span>
@@ -154,6 +159,7 @@
 
 <script>window.VOX_MODE="analyze";</script>
 <script src="/static/vox-about.js?v=__ASSET_VERSION__"></script>
+<script src="/static/vox-report.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
 (function(){
@@ -200,6 +206,10 @@
       var contour=res.contour||(rep.pitch&&rep.pitch.contour);
       var vocalUrl=(res.audio_urls&&res.audio_urls.vocals)||null;
       if(contour)mountScope(contour,res.duration_seconds,vocalUrl);
+      // Full results panel — the same report the classic view renders.
+      if(window.VOXReport){VOXReport.render($("#report"),{report:rep,result:res,
+        reportUrl:res.v2_report_url||("/api/pitch-jobs/"+id+"/report"),
+        onSeek:function(t){var a=$("#deckAudio");if(a){a.currentTime=t;if(a.paused){var p=a.play();if(p&&p.catch)p.catch(function(){});playBtn.innerHTML="&#10073;&#10073;";}}}});}
       // Raw measurements → downloadable JSON blob (the metrics we actually have).
       try{
         var blob=new Blob([JSON.stringify(rep,null,2)],{type:"application/json"});

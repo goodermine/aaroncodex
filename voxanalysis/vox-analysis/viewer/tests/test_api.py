@@ -332,6 +332,14 @@ class ApiTests(unittest.TestCase):
         self.assertIn("/static/vox-about.js?v=", body)
         self.assertIn('VOX_MODE="analyze"', body)
         self.assertEqual(self.request("GET", "/static/vox-about.js").status_code, 200)
+        # the full analysis results panel (executive summary, scores, measurements…)
+        self.assertIn("/static/vox-report.js?v=", body)
+        self.assertIn("/static/vox-report.css?v=", body)
+        self.assertIn('id="report"', body)
+        self.assertEqual(self.request("GET", "/static/vox-report.js").status_code, 200)
+        self.assertIn("adaptViewer", self.request("GET", "/static/vox-telemetry.js").text)
+        report_js = self.request("GET", "/static/vox-report.js").text
+        self.assertIn("Executive analysis", report_js)
 
     def test_shared_telemetry_js_is_served(self):
         response = self.request("GET", "/static/vox-telemetry.js")

@@ -1,0 +1,135 @@
+/* ============================================================================
+   VOX Suite — analysis results panel styling (pairs with vox-report.js)
+   Deck-native theme for the full report the classic viewer renders: executive
+   summary, component scores, calibrated measurements, trouble-spot timeline,
+   original comparison, evidence and practice plan. All scoped under .vox-report.
+   ============================================================================ */
+.vox-report{display:grid;gap:14px;margin-top:16px;font-family:var(--vox-sans);color:var(--vox-ink)}
+.vox-report[hidden]{display:none}
+.vox-report h2,.vox-report h3{margin:0;letter-spacing:-.01em;text-wrap:balance}
+.vox-report .kicker{font-family:var(--vox-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--vox-cyan)}
+.vox-report .quality{color:var(--vox-muted);font-size:12.5px;margin:6px 0}
+.vox-rpt-warn{border:1px solid rgba(255,181,71,.4);background:rgba(255,181,71,.08);border-radius:12px;padding:14px 16px;color:var(--vox-amber)}
+
+/* executive */
+.vox-report .executive{display:grid;grid-template-columns:1fr 260px;gap:16px;
+  border:1px solid var(--vox-line-2);border-radius:16px;background:linear-gradient(180deg,var(--vox-panel),#0b1119);padding:22px}
+.vox-report .executive-main h2{font-size:clamp(19px,2.6vw,26px);font-weight:800;margin:8px 0 10px}
+.vox-report .overview{color:#c4d3dd;line-height:1.65;margin:0 0 16px;max-width:62ch}
+.vox-report .evidence-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.vox-report .evidence-badge{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 9px;border-radius:999px;border:1px solid var(--vox-line-2);color:var(--vox-muted)}
+.vox-report .evidence-badge.measured{color:var(--vox-green);border-color:rgba(95,208,160,.4)}
+.vox-report .evidence-badge.inferred{color:var(--vox-violet);border-color:rgba(139,124,255,.4)}
+.vox-report .evidence-badge.coaching{color:var(--vox-cyan);border-color:rgba(63,224,255,.4)}
+.vox-report .evidence-badge.unverifiable{color:var(--vox-amber);border-color:rgba(255,181,71,.35)}
+.vox-report .report-band{margin:14px 0 0}
+.vox-report .report-band h3{font-size:13px;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.vox-report .report-list{margin:0;padding-left:18px;display:grid;gap:5px}
+.vox-report .report-list li{color:#c4d3dd;font-size:13px;line-height:1.5}
+.vox-report .focus{margin-top:16px;border-top:1px solid var(--vox-line);padding-top:14px}
+.vox-report .focus h3{font-size:16px;color:var(--vox-cyan);margin:6px 0 8px}
+.vox-report .focus p{margin:5px 0;color:#c4d3dd;font-size:13.5px;line-height:1.55}
+.vox-report .focus .cue{color:var(--vox-ink);font-style:italic}
+
+.vox-report .score-panel{display:grid;gap:12px;align-content:start;
+  border:1px solid var(--vox-line);border-radius:13px;background:#070c11;padding:16px}
+.vox-report .score-unit{text-align:center;padding:10px 0;border-bottom:1px solid var(--vox-line)}
+.vox-report .score-unit:last-of-type{border-bottom:0}
+.vox-report .score-value{font-family:var(--vox-mono);font-size:34px;font-weight:800;color:var(--vox-cyan);line-height:1}
+.vox-report .score-label{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--vox-muted);margin-top:5px}
+.vox-report .score-context{font-size:11.5px;color:var(--vox-muted);line-height:1.5}
+.vox-report .score-context b{color:var(--vox-ink)}
+
+/* racks */
+.vox-report .rack{border:1px solid var(--vox-line-2);border-radius:13px;background:var(--vox-panel);overflow:hidden}
+.vox-report .rack>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:15px 18px;user-select:none}
+.vox-report .rack>summary::-webkit-details-marker{display:none}
+.vox-report .rack>summary:hover{background:rgba(63,224,255,.04)}
+.vox-report .rack>summary strong{font-size:15px;font-weight:750}
+.vox-report .rack-summary{font-family:var(--vox-mono);font-size:11px;color:var(--vox-muted);text-align:right}
+.vox-report .rack[open]>summary{border-bottom:1px solid var(--vox-line)}
+.vox-report .rack-body{padding:16px 18px}
+
+/* component scores + meters */
+.vox-report .component{display:grid;grid-template-columns:150px 1fr 46px;align-items:center;gap:12px;padding:7px 0}
+.vox-report .component>span{font-size:13px;color:#c4d3dd}
+.vox-report .component>b{font-family:var(--vox-mono);text-align:right;color:var(--vox-ink)}
+.vox-report .meter{height:8px;border-radius:5px;background:#0a141c;border:1px solid var(--vox-line);overflow:hidden}
+.vox-report .meter i{display:block;height:100%;background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan));border-radius:5px}
+.vox-report .meter.unavailable{opacity:.4}
+.vox-report .meter i.singer-fill{background:linear-gradient(90deg,#6c5cff,var(--vox-violet))}
+.vox-report .meter.original-bar{margin-top:4px}
+.vox-report .meter i.original-fill{background:linear-gradient(90deg,#c77a2e,var(--vox-amber))}
+
+/* measurements */
+.vox-report .metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.vox-report .metric{border:1px solid var(--vox-line);border-radius:10px;background:#070c11;padding:11px 13px;display:grid;gap:3px}
+.vox-report .metric small{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--vox-muted)}
+.vox-report .metric strong{font-family:var(--vox-mono);font-size:17px;color:var(--vox-ink)}
+.vox-report .metric small:last-child{text-transform:none;letter-spacing:0;color:var(--vox-dim);font-family:var(--vox-sans);font-size:11px}
+
+/* trouble-spot timeline */
+.vox-report .timeline{position:relative;height:46px;margin:6px 0 4px;border-radius:9px;
+  background:linear-gradient(90deg,#0a141c,#0e1a24);border:1px solid var(--vox-line)}
+.vox-report .spot{position:absolute;top:8px;width:10px;height:30px;transform:translateX(-50%);cursor:pointer;
+  background:var(--vox-amber);border:0;border-radius:3px;box-shadow:0 0 8px rgba(255,181,71,.6)}
+.vox-report .spot span{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--vox-mono);font-size:10px;color:var(--vox-ink);background:#050a0e;border:1px solid var(--vox-line-2);
+  border-radius:6px;padding:3px 7px;opacity:0;pointer-events:none;transition:opacity .12s}
+.vox-report .spot:hover span,.vox-report .spot:focus span{opacity:1}
+.vox-report .spot:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+
+/* comparison */
+.vox-report .comparison>p{color:#c4d3dd;margin:0 0 12px}
+.vox-report .comparison-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.vox-report .comparison-cell{border:1px solid var(--vox-line);border-radius:10px;background:#070c11;padding:11px 13px}
+.vox-report .comparison-cell small{display:block;font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--vox-muted);margin-bottom:4px}
+.vox-report .comparison-cell strong{font-family:var(--vox-mono);font-size:16px;color:var(--vox-ink)}
+.vox-report .compare-components{margin-top:16px}
+.vox-report .compare-row{display:grid;grid-template-columns:130px 1fr 40px 1fr 40px;align-items:center;gap:10px;padding:6px 0}
+.vox-report .compare-row>span{font-size:12.5px;color:#c4d3dd}
+.vox-report .compare-row>b{font-family:var(--vox-mono);font-size:12px;text-align:right;color:var(--vox-violet)}
+.vox-report .compare-row>b.original-score{color:var(--vox-amber)}
+.vox-report .provenance{margin-top:16px;border-top:1px solid var(--vox-line);padding-top:12px}
+.vox-report .provenance b{color:var(--vox-ink)}
+.vox-report .provenance p{margin:4px 0;font-size:12.5px;color:#c4d3dd}
+.vox-report .context-note{margin-top:14px;border-left:2px solid var(--vox-line-2);padding-left:12px}
+.vox-report .context-note h3{font-size:12px;color:var(--vox-muted);font-family:var(--vox-mono);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.vox-report .context-note p{margin:4px 0;font-size:12.5px;color:#c4d3dd}
+
+/* practice plan */
+.vox-report .practice>p{color:#c4d3dd;margin:0 0 12px}
+.vox-report .practice-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.vox-report .practice-block{border:1px solid var(--vox-line);border-radius:11px;background:#070c11;padding:14px 15px}
+.vox-report .practice-block h3{font-size:14px;color:var(--vox-cyan);margin-bottom:8px}
+.vox-report .practice-block.long h3{color:var(--vox-violet)}
+.vox-report .practice .dose{font-family:var(--vox-mono);font-size:12px;color:var(--vox-muted);margin:0 0 8px}
+.vox-report .steps{margin:0 0 10px;padding-left:18px;display:grid;gap:5px}
+.vox-report .steps li{font-size:12.5px;color:#c4d3dd;line-height:1.5}
+.vox-report .success{font-size:12.5px;color:#c4d3dd;line-height:1.5;margin:8px 0 0}
+.vox-report .success b{color:var(--vox-ink)}
+.vox-report .practice-session{margin:8px 0;padding:9px 11px;border:1px solid var(--vox-line);border-radius:9px}
+.vox-report .practice-session b{color:var(--vox-ink)}
+.vox-report .practice-session span{font-family:var(--vox-mono);font-size:11px;color:var(--vox-cyan);margin-left:8px}
+.vox-report .practice-session p{margin:5px 0 0;font-size:12.5px;color:#c4d3dd}
+
+/* full technical markdown report */
+.vox-report .technical-body h1,.vox-report .technical-body h2,.vox-report .technical-body h3{margin:14px 0 8px;color:var(--vox-ink)}
+.vox-report .technical-body h1{font-size:18px}.vox-report .technical-body h2{font-size:15px}.vox-report .technical-body h3{font-size:13px}
+.vox-report .technical-body p,.vox-report .technical-body li{color:#c4d3dd;font-size:12.5px;line-height:1.6}
+.vox-report .technical-body code{font-family:var(--vox-mono);background:#0a141c;border:1px solid var(--vox-line);border-radius:4px;padding:1px 5px;color:var(--vox-cyan)}
+.vox-report .technical-body hr{border:0;border-top:1px solid var(--vox-line);margin:14px 0}
+.vox-report .technical-loading{color:var(--vox-muted);font-family:var(--vox-mono);font-size:12px}
+.vox-report .table-scroll{overflow-x:auto;margin:10px 0}
+.vox-report .technical-body table{border-collapse:collapse;width:100%;font-family:var(--vox-mono);font-size:11.5px}
+.vox-report .technical-body th,.vox-report .technical-body td{border:1px solid var(--vox-line);padding:6px 9px;text-align:left;white-space:nowrap}
+.vox-report .technical-body th{color:var(--vox-cyan);background:#0a141c}
+
+@media (max-width:720px){
+  .vox-report .executive{grid-template-columns:1fr}
+  .vox-report .practice-grid{grid-template-columns:1fr}
+  .vox-report .component{grid-template-columns:110px 1fr 42px}
+  .vox-report .compare-row{grid-template-columns:90px 1fr 34px 1fr 34px}
+}
