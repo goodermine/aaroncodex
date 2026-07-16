@@ -178,6 +178,29 @@
 
   function setStage(mainHtml){intake.classList.add("hidden");stageMsg.classList.remove("hidden");stageMsg.innerHTML=mainHtml;}
   function showIntake(){stageMsg.classList.add("hidden");intake.classList.remove("hidden");}
+  function setText(sel,val){var e=$(sel);if(e)e.textContent=(val==null||val==="")?"—":val;}
+
+  // On real completion, hydrate the readout rail + metrics export from the job
+  // result. Fully defensive — any missing field just leaves an em-dash; a fetch
+  // failure never breaks the deck. (The full interactive pitch scope is a later
+  // increment; this brings the headline measured values in now.)
+  function hydrateComplete(id){
+    if(!id)return;
+    fetch("/api/pitch-jobs/"+id,{headers:{"cache-control":"no-cache"}}).then(function(r){return r.json();}).then(function(j){
+      var res=j.result||{},rep=res.v2_analysis||{},sc=rep.score||{},mt=rep.metrics||{},into=mt.intonation||{};
+      setText("#rRange",[res.robust_min_note,res.robust_max_note].filter(Boolean).join(" – "));
+      setText("#rConf",sc.confidence!=null?sc.confidence:(res.quality&&res.quality.classification));
+      setText("#rDev",into.median_deviation_cents!=null?into.median_deviation_cents+" c":null);
+      setText("#rWithin",into.within_25_percent!=null?into.within_25_percent+"%":null);
+      if(sc.overall!=null){setText("#readNote",sc.overall);$("#readCents").textContent="OVERALL / 10";}
+      // Raw measurements → downloadable JSON blob (the metrics we actually have).
+      try{
+        var blob=new Blob([JSON.stringify(rep,null,2)],{type:"application/json"});
+        var a=tray.querySelector('[data-role="metrics"]');
+        if(a){a.href=URL.createObjectURL(blob);a.setAttribute("download",(res.file_name||"analysis")+"_metrics.json");}
+      }catch(e){}
+    }).catch(function(){});
+  }
 
   function apply(ev){
     VOX.setState(stateLed,stateLabel,ev.state);
@@ -193,8 +216,8 @@
   function revealExport(ev){
     var id=ev.job.id||"";
     var items=[
-      {nm:"Analysis report",sub:"calibrated VOXAI scorecard",fmt:"PDF/MD",cls:"r",href:id?"/api/pitch-jobs/"+id+"/report":"#"},
-      {nm:"Raw measurements",sub:"every measured value",fmt:"JSON",cls:"j",href:"#"}
+      {id:"report",nm:"Analysis report",sub:"calibrated VOXAI scorecard",fmt:"PDF/MD",cls:"r",href:id?"/api/pitch-jobs/"+id+"/report":"#"},
+      {id:"metrics",nm:"Raw measurements",sub:"every measured value",fmt:"JSON",cls:"j",href:"#"}
     ];
     tray.innerHTML='<div class="vox-tray__head"><span class="vox-tray__ttl"><span class="vox-led is-done"></span>Export deliverables</span></div>'+
       items.map(function(a){return '<div class="vox-artifact">'+
@@ -202,7 +225,7 @@
         '<span class="vox-artifact__ic '+a.cls+'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/></svg></span>'+
         '<div><div class="vox-artifact__nm">'+a.nm+'</div><div class="vox-artifact__sub">'+a.sub+'</div></div>'+
         '<span class="vox-fmt">'+a.fmt+'</span><span class="vox-size">—</span>'+
-        '<a class="vox-dlone" href="'+a.href+'" target="_blank" rel="noopener" aria-label="Download '+a.nm+'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg></a></div>';}).join("");
+        '<a class="vox-dlone" data-role="'+a.id+'" href="'+a.href+'" target="_blank" rel="noopener" aria-label="Download '+a.nm+'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg></a></div>';}).join("");
     exportBtn.disabled=false;exportBtn.classList.add("vox-btn--primary","vox-btn--ready");
     dlLabel.textContent="Export report ▾";
     tray.classList.add("open");exportBtn.setAttribute("aria-expanded","true");
@@ -227,7 +250,10 @@
       .then(function(res){
         if(!res.ok){log("error","upload rejected · "+((res.j&&res.j.detail&&res.j.detail.code)||res.j.detail||r.status));return;}
         var id=res.j.id;$("#jobTag").textContent="SESSION · "+id.slice(0,8);
-        VOX.poll({url:"/api/pitch-jobs/"+id,mode:"analyze",adapt:VOX.adaptViewer,onEvent:function(ev){ev.job.name=file.name;apply(ev);}});
+        VOX.poll({url:"/api/pitch-jobs/"+id,mode:"analyze",adapt:VOX.adaptViewer,onEvent:function(ev){
+          ev.job.name=file.name;apply(ev);
+          if(ev.state==="COMPLETE")hydrateComplete(id);
+        }});
       }).catch(function(){log("error","upload failed — network");});
   }
   $("#pickBtn").addEventListener("click",function(){$("#file").click();});
