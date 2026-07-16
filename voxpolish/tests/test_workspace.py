@@ -182,6 +182,18 @@ def test_webm_recording_is_an_allowed_upload_format():
     assert {".webm", ".mp4"} <= ALLOWED_EXT
 
 
+def test_cross_mode_tabs_serve_html_never_json_download(workspace_client):
+    """Standalone, the Analyze/Fused tabs hit routes that only exist unified.
+    They must return HTML (a hint page), never a JSON body — Apple browsers
+    download application/json, which reads as 'the button broke'."""
+    for other in ("/analyze", "/fused"):
+        r = workspace_client.get(other)
+        assert "text/html" in r.headers["content-type"], other
+        assert "application/json" not in r.headers["content-type"], other
+    # own mode redirects to the deck
+    assert workspace_client.get("/polish").status_code == 200
+
+
 def test_peaks_expose_duration_for_navigation(workspace_client):
     _await_job(workspace_client, _run_upload(workspace_client, _wav_bytes(seconds=4.0)).json()["id"])
     peaks = workspace_client.get("/api/peaks/original").json()

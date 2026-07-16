@@ -63,6 +63,15 @@ def test_full_fused_lifecycle_over_http():
         assert c.get(f"/api/fused-jobs/{jid}/download").status_code == 200
 
 
+def test_cross_mode_tabs_serve_html_never_json_download():
+    with tempfile.TemporaryDirectory() as tmp:
+        c = _client(tmp)
+        for other in ("/polish", "/analyze"):
+            r = c.get(other)
+            assert "text/html" in r.headers["content-type"], other
+        assert c.get("/fused").status_code == 200  # own mode → deck
+
+
 def test_rejects_unsupported_upload():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)

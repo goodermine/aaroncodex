@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from fastapi import FastAPI, Form, HTTPException, Query, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 
 HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
@@ -355,6 +355,32 @@ async def static_asset(name: str) -> FileResponse:
     if media is None:
         raise HTTPException(status_code=404, detail="not found")
     return FileResponse(HERE / "static" / name, media_type=media)
+
+
+# Mode tabs are same-origin on the unified server; standalone they'd 404 as JSON
+# (which Apple browsers download). Serve HTML here instead.
+_MODE_HINT_HTML = """<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VOX Suite — switch modes</title></head>
+<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#070a0e;color:#eaf3f8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+<div style="max-width:460px;text-align:center;padding:28px">
+<div style="font:700 12px/1 ui-monospace,monospace;letter-spacing:.22em;color:#3fe0ff">VOX//SUITE</div>
+<h1 style="font-size:20px;margin:14px 0 6px">Mode switching needs the unified deck</h1>
+<p style="color:#7f93a4;line-height:1.6">You're on a single-mode server, so this tab can't switch here. Run the unified deck to get Analyze, Polish &amp; Fused on one address:</p>
+<pre style="background:#0a141c;border:1px solid #263a4a;border-radius:8px;padding:12px;color:#bfeffb;font-size:13px;overflow:auto">vox --host 0.0.0.0 --port 8080</pre>
+<p style="margin-top:18px"><a href="/deck" style="color:#3fe0ff;text-decoration:none">&larr; Back to this deck</a></p>
+</div></body></html>"""
+
+
+@app.get("/analyze", include_in_schema=False)
+async def _mode_self() -> RedirectResponse:
+    return RedirectResponse("/deck")
+
+
+@app.get("/polish", include_in_schema=False)
+@app.get("/fused", include_in_schema=False)
+async def _mode_elsewhere() -> HTMLResponse:
+    return HTMLResponse(_MODE_HINT_HTML, status_code=404)
 
 
 @app.post("/api/pitch-jobs", status_code=202)

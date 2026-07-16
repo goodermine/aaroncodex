@@ -17,13 +17,29 @@ import threading
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 
 from .session import ConflictError, Session
 from .workspace import Workspace
 
 STATIC = Path(__file__).parent / "static"
 MAX_UPLOAD_BYTES = 500 * 1024 * 1024  # 500 MB: generous for a full song
+
+# When the deck runs standalone (single mode), the mode tabs point at sibling
+# routes that only exist on the unified server. Serve a friendly HTML page there
+# instead of a JSON 404 — Apple browsers *download* a JSON body, which reads as
+# "the button broke". Points the user at the unified deck.
+_MODE_HINT_HTML = """<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VOX Suite — switch modes</title></head>
+<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#070a0e;color:#eaf3f8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+<div style="max-width:460px;text-align:center;padding:28px">
+<div style="font:700 12px/1 ui-monospace,monospace;letter-spacing:.22em;color:#3fe0ff">VOX//SUITE</div>
+<h1 style="font-size:20px;margin:14px 0 6px">Mode switching needs the unified deck</h1>
+<p style="color:#7f93a4;line-height:1.6">You're on a single-mode server, so this tab can't switch here. Run the unified deck to get Analyze, Polish &amp; Fused on one address:</p>
+<pre style="background:#0a141c;border:1px solid #263a4a;border-radius:8px;padding:12px;color:#bfeffb;font-size:13px;overflow:auto">vox --host 0.0.0.0 --port 8080</pre>
+<p style="margin-top:18px"><a href="/deck" style="color:#3fe0ff;text-decoration:none">&larr; Back to this deck</a></p>
+</div></body></html>"""
 
 # Front-end assets whose content decides the cache-busting version stamped into
 # index.html. A changed file → new version → the browser refetches instead of
@@ -87,6 +103,17 @@ def create_app(root: Path) -> FastAPI:
             raise HTTPException(404)
         media = {"js": "text/javascript", "css": "text/css"}.get(path.suffix[1:], "text/plain")
         return Response(path.read_text(), media_type=media)
+
+    # Mode tabs are same-origin on the unified server; standalone they'd 404 as
+    # JSON (which Apple browsers download). Serve HTML here instead.
+    @app.get("/polish", include_in_schema=False)
+    def _mode_self():
+        return RedirectResponse("/deck")
+
+    @app.get("/analyze", include_in_schema=False)
+    @app.get("/fused", include_in_schema=False)
+    def _mode_elsewhere():
+        return HTMLResponse(_MODE_HINT_HTML, status_code=404)
 
     # ------------------------------------------------------------- workspace
 

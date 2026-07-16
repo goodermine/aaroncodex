@@ -373,6 +373,16 @@ class ApiTests(unittest.TestCase):
         self.assertIn("javascript", response.headers["content-type"])
         self.assertIn("adaptViewer", response.text)
 
+    def test_cross_mode_tabs_serve_html_never_json_download(self):
+        """Standalone, the Polish/Fused tabs hit unified-only routes; they must
+        return HTML, never a JSON body (Apple browsers download it)."""
+        for other in ("/polish", "/fused"):
+            r = self.request("GET", other)
+            self.assertIn("text/html", r.headers["content-type"], other)
+        own = self.request("GET", "/analyze")  # own mode → redirect to the deck
+        self.assertEqual(own.status_code, 307)
+        self.assertEqual(own.headers["location"], "/deck")
+
     def test_static_route_still_rejects_traversal(self):
         self.assertEqual(self.request("GET", "/static/app.py").status_code, 404)
 
