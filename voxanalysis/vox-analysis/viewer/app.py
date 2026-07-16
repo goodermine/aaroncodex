@@ -7,6 +7,7 @@ import hashlib
 import json
 import importlib.util
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -95,6 +96,35 @@ def _error_code(output: str, timed_out: bool = False) -> str:
         if code in output:
             return code
     return "analysis_failed"
+
+
+def _error_reason(output: str, code: str) -> str | None:
+    """A short, sanitised human reason pulled from the tool output, shown next to
+    the code so a failure explains itself without opening the server log. Never
+    leaks absolute paths or multi-line dumps."""
+    lines = [line.strip() for line in (output or "").splitlines() if line.strip()]
+    reason = ""
+    for line in reversed(lines):  # prefer the line carrying the code: "<code>: <detail>"
+        if code in line:
+            reason = line.split(code, 1)[1].lstrip(": ").strip()
+            if reason:
+                break
+    if not reason and lines:
+        reason = lines[-1]
+    if not reason:
+        return None
+    reason = re.sub(r"/\S+/([^/\s]+)", r"\1", reason)   # absolute path -> basename
+    reason = re.sub(r"\s+", " ", reason).strip()
+    return reason[:200] or None
+
+
+def _failure(output: str, code: str | None = None) -> dict:
+    code = code or _error_code(output)
+    error = {"code": code}
+    reason = _error_reason(output, code)
+    if reason and reason != code:
+        error["reason"] = reason
+    return error
 
 
 def _publish_spectral_metadata(analysis: dict, job_id: str) -> None:
@@ -208,7 +238,7 @@ def _process(job_id: str) -> None:
         )
         log_path.write_text(result.stdout + result.stderr, encoding="utf-8")
         if result.returncode:
-            manifest.update(status="failed", stage="failed", error={"code": _error_code(result.stdout + result.stderr)})
+            manifest.update(status="failed", stage="failed", error=_failure(result.stdout + result.stderr))
         else:
             analysis = json.loads((job_dir / "result.json").read_text(encoding="utf-8"))
             files = analysis.pop("audio_files", {})

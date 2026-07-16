@@ -188,7 +188,7 @@
     tstamp.textContent=ev.state;
     if(ev.state==="WORKING"){recLabel.textContent="LIVE";}
     else if(ev.state==="COMPLETE"){recLabel.textContent="READY";loadWaveform();revealExport();}
-    else if(ev.state==="ALERT"){recLabel.textContent="ALERT";stageMsg.classList.remove("hidden");scopeCanvas.classList.add("hidden");stageMsg.innerHTML='<b style="color:var(--vox-red)">Render failed</b><span>'+((ev.error&&ev.error.message)||"see server log")+'</span>';}
+    else if(ev.state==="ALERT"){recLabel.textContent="ALERT";stageMsg.classList.remove("hidden");scopeCanvas.classList.add("hidden");stageMsg.innerHTML='<b style="color:var(--vox-red)">Render failed</b><span>'+VOX.alertText(ev)+'</span>';}
   }
 
   // ---- document + render ---------------------------------------------------

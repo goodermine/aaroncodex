@@ -176,7 +176,7 @@
     if(ev.state==="WORKING"){recLabel.textContent="LIVE";setStage('<b>'+ev.stage.label+'</b><span>stage '+(ev.stage.index+1)+' of '+ev.stage.total+' · '+(ev.stage.index<=3?"analysing":"polishing")+'…</span>');
       if(ev.isolation)$("#pIso").textContent=ev.isolation.skipped?("Isolation skipped · "+(ev.isolation.note||"")):"Isolated once · shared";}
     else if(ev.state==="COMPLETE"){recLabel.textContent="READY";hydrate(ev);}
-    else if(ev.state==="ALERT"){recLabel.textContent="ALERT";setStage('<b style="color:var(--vox-red)">Fused run failed</b><span>'+((ev.error&&(ev.error.message||ev.error.code))||"see server log")+'</span>');}
+    else if(ev.state==="ALERT"){recLabel.textContent="ALERT";setStage('<b style="color:var(--vox-red)">Fused run failed</b><span>'+VOX.alertText(ev)+'</span>');}
     else{recLabel.textContent="ARMED";showIntake();}
   }
 

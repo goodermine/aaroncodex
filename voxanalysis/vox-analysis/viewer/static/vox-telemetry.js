@@ -40,6 +40,18 @@
   function el(html) { var t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
+  var ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
+  function escHtml(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ESC[c]; }); }
+
+  // A failed event, rendered as escaped "<code> · <reason>" — safe to inject as
+  // HTML. reason comes from the server's short, sanitised failure detail so a
+  // failure explains itself on-screen without opening a log.
+  function alertText(ev) {
+    var e = (ev && ev.error) || {}, reason = e.reason || e.message || "", code = e.code || "error";
+    return escHtml(code) + (reason && reason !== code
+      ? ' <em style="font-style:normal;color:var(--vox-muted)">· ' + escHtml(reason) + "</em>" : "");
+  }
+
   /* ---- render helpers ------------------------------------------------------ */
 
   // Build/refresh a .vox-chain from a mode + active step index.
@@ -202,7 +214,7 @@
 
   root.VOX = {
     CHAINS: CHAINS, STATE_LED: STATE_LED, REDUCE: REDUCE,
-    el: el, clamp: clamp,
+    el: el, clamp: clamp, escHtml: escHtml, alertText: alertText,
     renderChain: renderChain, setState: setState, setProgress: setProgress,
     makeLog: makeLog, setMeter: setMeter,
     fitCanvas: fitCanvas, drawGauge: drawGauge, miniMeter: miniMeter,

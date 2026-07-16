@@ -216,7 +216,7 @@
     tstamp.textContent=ev.state;
     if(ev.state==="WORKING"){recLabel.textContent="LIVE";setStage('<b>'+ev.stage.label+'</b><span>stage '+(ev.stage.index+1)+' of '+ev.stage.total+' · analysing…</span>');}
     else if(ev.state==="COMPLETE"){recLabel.textContent="READY";setStage('<b>Analysis ready</b><span>report built · export below</span>');revealExport(ev);}
-    else if(ev.state==="ALERT"){recLabel.textContent="ALERT";setStage('<b style="color:var(--vox-red)">Job failed</b><span>'+((ev.error&&(ev.error.code||ev.error.message))||"see server log")+'</span>');}
+    else if(ev.state==="ALERT"){recLabel.textContent="ALERT";setStage('<b style="color:var(--vox-red)">Job failed</b><span>'+VOX.alertText(ev)+'</span>');}
     else{recLabel.textContent="ARMED";showIntake();}
   }
 

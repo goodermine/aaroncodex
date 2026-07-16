@@ -302,6 +302,22 @@ class ApiTests(unittest.TestCase):
         )
         self.assertEqual(run.call_args.kwargs["timeout"], self.module.ANALYSIS_TIMEOUT)
 
+    def test_failure_reason_is_extracted_and_sanitised(self):
+        m = self.module
+        out = ("Traceback...\n"
+               "voxanalysis.PitchTrackError: stem_separation_failed: both vocals and "
+               "instrumental stems are required\n")
+        err = m._failure(out)
+        self.assertEqual(err["code"], "stem_separation_failed")
+        self.assertEqual(err["reason"], "both vocals and instrumental stems are required")
+        # absolute paths are reduced to basenames, never leaked
+        reason = m._error_reason("stem_separation_failed: missing /home/x/.venvs/vox-sep-uvr/bin/audio-separator",
+                                 "stem_separation_failed")
+        self.assertIn("audio-separator", reason)
+        self.assertNotIn("/home/", reason)
+        # no distinct detail → no reason key (code alone)
+        self.assertNotIn("reason", m._failure("stem_separation_failed"))
+
     def test_deck_shell_serves_command_deck(self):
         """The unified command deck is served, version-stamped, kit-wired."""
         response = self.request("GET", "/deck")
