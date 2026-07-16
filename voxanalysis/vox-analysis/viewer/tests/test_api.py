@@ -302,6 +302,26 @@ class ApiTests(unittest.TestCase):
         )
         self.assertEqual(run.call_args.kwargs["timeout"], self.module.ANALYSIS_TIMEOUT)
 
+    def test_deck_shell_serves_command_deck(self):
+        """The unified command deck is served, version-stamped, kit-wired."""
+        response = self.request("GET", "/deck")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("cache-control"), "no-cache")
+        body = response.text
+        self.assertNotIn("__ASSET_VERSION__", body)  # version injected
+        for hook in ("vox-command", "vox-chain", "vox-deck", "vox-tray", "vox-procbar"):
+            self.assertIn(hook, body, f"missing kit component: {hook}")
+        self.assertIn("/static/vox-telemetry.js?v=", body)
+
+    def test_shared_telemetry_js_is_served(self):
+        response = self.request("GET", "/static/vox-telemetry.js")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("javascript", response.headers["content-type"])
+        self.assertIn("adaptViewer", response.text)
+
+    def test_static_route_still_rejects_traversal(self):
+        self.assertEqual(self.request("GET", "/static/app.py").status_code, 404)
+
     @classmethod
     def request(cls, method, path, **kwargs):
         async def send():
