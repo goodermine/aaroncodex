@@ -30,7 +30,16 @@
   .scope-tgl[aria-pressed="true"]{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));border-color:transparent;box-shadow:var(--vox-glow-cyan)}
   .scope-tgl:focus-visible,.scope-znav:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   #stage.seekable{cursor:crosshair}
-  .vox-seek{cursor:pointer}
+  /* bigger, touch-friendly scrubber with a draggable knob */
+  .vox-transport .vox-seek{position:relative;height:24px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+  .vox-transport .vox-seek::before{content:"";position:absolute;left:0;right:0;height:6px;border-radius:3px;background:#0a141c;border:1px solid var(--vox-line)}
+  .vox-transport .vox-seek i{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan));box-shadow:0 0 8px rgba(63,224,255,.5)}
+  .vox-transport .vox-seek i::after{content:"";position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:15px;height:15px;border-radius:50%;background:var(--vox-cyan);box-shadow:0 0 10px var(--vox-cyan),0 0 0 3px rgba(63,224,255,.18)}
+  /* playback (backing music) panel */
+  .pb-tgl{display:block;width:100%;text-align:left;margin-bottom:9px}
+  .pb-vol{display:flex;align-items:center;gap:9px;margin-bottom:2px}
+  .pb-vol span{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.12em;color:var(--vox-muted)}
+  .pb-vol input[type=range]{flex:1;accent-color:var(--vox-cyan);height:4px}
   /* H1–H8 harmonic energy bars (live, from the vocal FFT) */
   .vox-harm{margin-top:16px;border-top:1px solid var(--vox-line);padding-top:14px}
   .vox-harm__head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
@@ -144,6 +153,7 @@
       </div>
       <div class="vox-tray" id="exportTray" role="region" aria-label="Export deliverables"></div>
       <audio id="deckAudio" preload="none" style="display:none"></audio>
+      <audio id="backingAudio" preload="none" style="display:none"></audio>
     </section>
 
     <aside class="vox-rail vox-rail--flush">
@@ -153,10 +163,15 @@
         <div class="vox-vu"><span>R</span><div class="vox-meter"><i class="vox-meter__fill" id="vuR"></i></div><span class="vox-vu__db vox-tnum" id="vuRdb">—</span></div>
         <div class="vox-vu"><span>SUM</span><div class="vox-meter"><i class="vox-meter__fill" id="vuS"></i></div><span class="vox-vu__db vox-tnum" id="vuSdb">—</span></div>
       </div>
-      <div class="vox-teleblock">
+      <div class="vox-teleblock" id="computeBlock">
         <h3>Compute</h3>
         <div class="vox-gauge"><canvas id="gaugeGpu" width="116" height="116"></canvas><span class="vox-gauge__lbl">GPU · SEPARATION<b id="gpuVal">0%</b></span></div>
         <div class="vox-gauge"><canvas id="gaugeCpu" width="116" height="116"></canvas><span class="vox-gauge__lbl">CPU · DSP RENDER<b id="cpuVal">0%</b></span></div>
+      </div>
+      <div class="vox-teleblock" id="playbackBlock" hidden>
+        <h3>Playback <span class="vox-mono" style="color:var(--vox-muted)" id="backingLabel">backing</span></h3>
+        <button class="scope-tgl pb-tgl" id="tglBacking" aria-pressed="false" type="button">&#9834; Play backing music</button>
+        <div class="pb-vol"><span>VOL</span><input type="range" id="backingVol" min="0" max="100" value="75" aria-label="Backing volume"><span id="backingVolVal">75</span></div>
       </div>
       <div class="vox-teleblock">
         <h3>Telemetry Log <span class="vox-led is-standby"></span></h3>
@@ -241,6 +256,10 @@
       var vocalUrl=(res.audio_urls&&res.audio_urls.vocals)||null;
       // Original-track pitch overlay, if a verified reference was compared.
       refContour=(res.reference&&res.reference.status==="ready"&&(res.reference.native_contour||res.reference.contour))||null;
+      // Backing music: the separated instrumental (or the original mix) to play under the vocal.
+      var urls=res.audio_urls||{};
+      backingUrl=urls.instrumental||urls.original||null;
+      $("#backingLabel").textContent=urls.instrumental?"backing":(urls.original?"original":"backing");
       if(contour)mountScope(contour,res.duration_seconds,vocalUrl);
       // Full results panel — the same report the classic view renders.
       if(window.VOXReport){VOXReport.render($("#report"),{report:rep,result:res,
@@ -406,6 +425,14 @@
   // view and the H1–H8 harmonic-energy bars (sampled at k×F0). In ?demo mode
   // (no real audio) a synthetic spectrum with harmonic peaks stands in.
   var scopeView="pitch",audioCtx=null,analyser=null,freqBins=null,timeBins=null,harmCells=[];
+  // backing-music playback (the separated instrumental / original), synced to the vocal
+  var backingUrl=null,backingOn=false,backingAudio=$("#backingAudio");
+  function syncBacking(){if(!backingOn||!backingUrl)return;try{if(Math.abs((backingAudio.currentTime||0)-(deckAudio.currentTime||0))>0.15)backingAudio.currentTime=deckAudio.currentTime;}catch(e){}}
+  function setBacking(on){backingOn=on;setPressed("#tglBacking",on);if(!backingUrl)return;if(on&&!deckAudio.paused){try{backingAudio.currentTime=deckAudio.currentTime;}catch(e){}var p=backingAudio.play();if(p&&p.catch)p.catch(function(){});}else backingAudio.pause();}
+  function setLevel(lvl){var db=lvl>0.0015?Math.max(-60,20*Math.log10(lvl)):-60;
+    $("#vuL").style.width=(lvl*95+1)+"%";$("#vuR").style.width=(lvl*90+1)+"%";$("#vuS").style.width=Math.min(100,lvl*104)+"%";
+    var t=db<=-60?"−∞":(db>=0?"0":db.toFixed(0));$("#vuLdb").textContent=t;$("#vuRdb").textContent=t;$("#vuSdb").textContent=t;
+    $("#levelHead").textContent=db<=-60?"−∞":db.toFixed(1)+" dB";}
   function ensureAudio(){
     if(analyser||fakeClock||!deckAudio.src)return;
     try{
@@ -485,11 +512,13 @@
   $("#zOut").addEventListener("click",function(){zoomBy(1/1.5);});
   $("#zReset").addEventListener("click",function(){view.zoom=1;view.offset=0;drawScope();});
   $("#zFollow").addEventListener("click",function(){view.follow=!view.follow;setPressed("#zFollow",view.follow);});
+  $("#tglBacking").addEventListener("click",function(){setBacking(!backingOn);});
+  $("#backingVol").addEventListener("input",function(){backingAudio.volume=this.value/100;$("#backingVolVal").textContent=this.value;});
 
   // ---- seek + pan + wheel-zoom -------------------------------------------
   var seekEl=document.querySelector(".vox-seek");
   function seekFraction(clientX){var r=seekEl.getBoundingClientRect();return clampN((clientX-r.left)/r.width,0,1);}
-  function seekTo(f){var c=clockObj(),dur=(c&&c.duration)||scopeData&&scopeData.dur||0;if(c&&dur){c.currentTime=f*dur;drawScope();scopeReadout();}}
+  function seekTo(f){var c=clockObj(),dur=(c&&c.duration)||scopeData&&scopeData.dur||0;if(c&&dur){var t=f*dur;c.currentTime=t;var v=vWin();if(view.zoom>1&&(t<v.start||t>v.end))view.offset=t-v.win/2;syncBacking();drawScope();scopeReadout();}}
   seekEl.addEventListener("pointerdown",function(e){if(!scopeData)return;seekEl.setPointerCapture(e.pointerId);seekEl._drag=true;seekTo(seekFraction(e.clientX));});
   seekEl.addEventListener("pointermove",function(e){if(seekEl._drag)seekTo(seekFraction(e.clientX));});
   window.addEventListener("pointerup",function(){seekEl._drag=false;});
@@ -542,6 +571,10 @@
     if(audioUrl){fakeClock=null;deckAudio.src=audioUrl;}else{fakeClock={currentTime:0,duration:scopeData.dur,paused:true,play:function(){this.paused=false;},pause:function(){this.paused=true;}};}
     view.zoom=1;view.offset=0;spectroImg=null;stage.classList.add("seekable");
     $("#tglOriginal").hidden=!(refContour&&refContour.values&&refContour.values.length);
+    // backing-music panel (real jobs with a separated instrumental / original)
+    backingOn=false;setPressed("#tglBacking",false);
+    if(backingUrl){backingAudio.src=backingUrl;backingAudio.volume=(($("#backingVol").value||75)/100);$("#playbackBlock").removeAttribute("hidden");$("#computeBlock").hidden=true;}
+    else{$("#playbackBlock").hidden=true;$("#computeBlock").hidden=false;}
     if(spectroOn)buildSpectrogram();
     playBtn.disabled=false;buildHarmCells();$("#harm").removeAttribute("hidden");
     fitScope();drawScope();scopeReadout();updateHarmonics();
@@ -559,12 +592,17 @@
       $("#tcode").innerHTML=fmt(ct)+' <span>/</span> '+fmt(dur);
       $("#seekFill").style.width=(dur?ct/dur*100:0).toFixed(1)+"%";
       drawScope();scopeReadout();updateHarmonics();
+      if(analyser&&!clk.paused){analyser.getByteTimeDomainData(timeBins);var s=0;for(var li=0;li<timeBins.length;li++){var vv=(timeBins[li]-128)/128;s+=vv*vv;}setLevel(clampN(Math.sqrt(s/timeBins.length)*2.4,0,1));}
+      else if(analyser&&clk.paused)setLevel(0);
+      if(backingOn&&!clk.paused)syncBacking();
     }
     if(!VOX.REDUCE)requestAnimationFrame(scopeLoop);else scopeLooping=false;
   }
   playBtn.addEventListener("click",function(){
     if(playBtn.disabled)return;var clk=clockObj(),playing=!clk.paused;
-    if(playing){clk.pause();}else{ensureAudio();if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();var p=clk.play&&clk.play();if(p&&p.catch)p.catch(function(){});}
+    if(playing){clk.pause();if(backingOn)backingAudio.pause();}
+    else{ensureAudio();if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();var p=clk.play&&clk.play();if(p&&p.catch)p.catch(function(){});
+      if(backingOn&&backingUrl){try{backingAudio.currentTime=clk.currentTime;}catch(e){}var q=backingAudio.play();if(q&&q.catch)q.catch(function(){});}}
     playBtn.innerHTML=playing?"&#9654;":"&#10073;&#10073;";
   });
   stage.addEventListener("resize",fitScope);window.addEventListener("resize",function(){if(scopeData)fitScope();});
