@@ -108,6 +108,7 @@
         </button>
       </div>
       <div class="vox-tray" id="exportTray" role="region" aria-label="Export deliverables"></div>
+      <audio id="deckAudio" preload="none" style="display:none"></audio>
     </section>
 
     <aside class="vox-rail vox-rail--flush">
@@ -146,8 +147,8 @@
 
   <p style="margin-top:16px;color:var(--vox-dim);font-family:var(--vox-mono);font-size:10.5px;letter-spacing:.05em;line-height:1.7">
     Command deck · Analyze mode, wired to the live job stage stream. LED, chain, processing bar &amp; log are driven by
-    <b>real</b> <code style="color:var(--vox-cyan-ink)">/api/pitch-jobs</code> state. Full pitch scope &amp; report reslot follows;
-    <b>Polish</b> and <b>Fused</b> arrive in the next increments. <a href="/" style="color:var(--vox-cyan)">Classic view →</a>
+    <b>real</b> <code style="color:var(--vox-cyan-ink)">/api/pitch-jobs</code> state. Pitch scope live — note lanes, singer contour &amp;
+    playhead; spectral overlays, zoom, <b>Polish</b> and <b>Fused</b> arrive next. <a href="/" style="color:var(--vox-cyan)">Classic view →</a>
   </p>
 </div>
 
@@ -176,8 +177,8 @@
     log("info","fused pipeline arrives in the next increment");
   });
 
-  function setStage(mainHtml){intake.classList.add("hidden");stageMsg.classList.remove("hidden");stageMsg.innerHTML=mainHtml;}
-  function showIntake(){stageMsg.classList.add("hidden");intake.classList.remove("hidden");}
+  function setStage(mainHtml){intake.classList.add("hidden");$("#scope").classList.add("hidden");stageMsg.classList.remove("hidden");stageMsg.innerHTML=mainHtml;}
+  function showIntake(){stageMsg.classList.add("hidden");$("#scope").classList.add("hidden");intake.classList.remove("hidden");}
   function setText(sel,val){var e=$(sel);if(e)e.textContent=(val==null||val==="")?"—":val;}
 
   // On real completion, hydrate the readout rail + metrics export from the job
@@ -193,6 +194,10 @@
       setText("#rDev",into.median_deviation_cents!=null?into.median_deviation_cents+" c":null);
       setText("#rWithin",into.within_25_percent!=null?into.within_25_percent+"%":null);
       if(sc.overall!=null){setText("#readNote",sc.overall);$("#readCents").textContent="OVERALL / 10";}
+      // Mount the pitch scope from the real contour + vocal stem, if present.
+      var contour=res.contour||(rep.pitch&&rep.pitch.contour);
+      var vocalUrl=(res.audio_urls&&res.audio_urls.vocals)||null;
+      if(contour)mountScope(contour,res.duration_seconds,vocalUrl);
       // Raw measurements → downloadable JSON blob (the metrics we actually have).
       try{
         var blob=new Blob([JSON.stringify(rep,null,2)],{type:"application/json"});
@@ -261,6 +266,78 @@
   ["dragover","drop"].forEach(function(t){stage.addEventListener(t,function(e){e.preventDefault();});});
   stage.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)startJob(f);});
 
+  // ---- pitch scope (note lanes + singer contour + playhead, audio-synced) --
+  // contour.values are cents from A4 (midi = 69 + value/100), sampled at rate_hz.
+  // Faithful reslot of the classic viewer's core scope: note-lane grid, the
+  // singer trace in violet (palette: "singer" = violet), a cyan playhead synced
+  // to playback, and a live note/cents readout. (Spectral overlays + zoom/pan
+  // remain a later layer.)
+  var scopeCanvas=$("#scope"),sctx=scopeCanvas.getContext("2d"),deckAudio=$("#deckAudio"),playBtn=$("#playBtn"),seekWrap=null;
+  var PAD=44,scopeData=null,fakeClock=null,lastT=0;
+  function noteName(m){var n=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"],r=Math.round(m);return n[((r%12)+12)%12]+(Math.floor(r/12)-1);}
+  function clockObj(){return fakeClock||deckAudio;}
+  function fitScope(){
+    var r=stage.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
+    scopeCanvas.width=Math.max(1,Math.round(r.width*d));scopeCanvas.height=Math.max(1,Math.round(r.height*d));
+    sctx.setTransform(d,0,0,d,0,0);scopeData&&(scopeData.w=r.width,scopeData.h=r.height);
+  }
+  function computeBounds(values){
+    var lo=1e9,hi=-1e9;
+    for(var i=0;i<values.length;i++){var v=values[i];if(v==null||!isFinite(v))continue;var m=69+v/100;if(m<lo)lo=m;if(m>hi)hi=m;}
+    if(lo>hi){lo=57;hi=81;}
+    lo=Math.floor(lo)-1;hi=Math.ceil(hi)+1;return{lo:lo,hi:hi,range:Math.max(1,hi-lo)};
+  }
+  function drawScope(){
+    if(!scopeData)return;var w=scopeData.w,h=scopeData.h,lo=scopeData.lo,range=scopeData.range,dur=scopeData.dur||1;
+    sctx.clearRect(0,0,w,h);
+    // note lanes
+    sctx.font="10px "+getComputedStyle(document.body).getPropertyValue("--vox-mono");sctx.textBaseline="middle";
+    for(var m=lo;m<=scopeData.hi;m++){var y=h-(m-lo)/range*h;sctx.strokeStyle=(m%12===0)?"#34404e":"#202832";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(PAD,y);sctx.lineTo(w,y);sctx.stroke();if(range<=30||m%2===0){sctx.fillStyle="#7f93a4";sctx.fillText(noteName(m),6,y);}}
+    // singer contour (violet)
+    var vals=scopeData.contour.values,rate=scopeData.rate;sctx.strokeStyle="#8b7cff";sctx.lineWidth=2;sctx.shadowColor="#8b7cff";sctx.shadowBlur=6;sctx.beginPath();var pen=false;
+    for(var i=0;i<vals.length;i++){var c=vals[i];if(c==null||!isFinite(c)){pen=false;continue;}var t=i/rate;if(t>dur)break;var x=PAD+(t/dur)*(w-PAD),yy=h-((69+c/100)-lo)/range*h;if(!pen){sctx.moveTo(x,yy);pen=true;}else sctx.lineTo(x,yy);}
+    sctx.stroke();sctx.shadowBlur=0;
+    // playhead (cyan)
+    var ct=clockObj().currentTime||0;if(ct>=0&&ct<=dur){var px=PAD+(ct/dur)*(w-PAD);sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
+  }
+  function scopeReadout(){
+    if(!scopeData)return;var ct=clockObj().currentTime||0,i=Math.round(ct*scopeData.rate),c=scopeData.contour.values[i];
+    if(c==null||!isFinite(c)){$("#readNote").textContent="—";$("#readCents").textContent="—";return;}
+    var m=69+c/100,cents=Math.round((m-Math.round(m))*100);
+    $("#readNote").innerHTML=noteName(m)+' <small>'+(cents>=0?"+":"")+cents+'c</small>';
+    $("#readCents").textContent=(clockObj().paused?"PAUSED · ":"TRACKING · ")+ (440*Math.pow(2,(Math.round(m)-69)/12)).toFixed(1)+" Hz";
+  }
+  function mountScope(contour,duration,audioUrl){
+    if(!contour||!contour.values||!contour.values.length)return false;
+    var rate=Number(contour.rate_hz||contour.rate||100)||100;
+    var b=computeBounds(contour.values),r=stage.getBoundingClientRect();
+    scopeData={contour:contour,rate:rate,dur:duration||contour.values.length/rate,lo:b.lo,hi:b.hi,range:b.range,w:r.width,h:r.height};
+    intake.classList.add("hidden");stageMsg.classList.add("hidden");scopeCanvas.classList.remove("hidden");
+    if(audioUrl){fakeClock=null;deckAudio.src=audioUrl;}else{fakeClock={currentTime:0,duration:scopeData.dur,paused:true,play:function(){this.paused=false;},pause:function(){this.paused=true;}};}
+    playBtn.disabled=false;fitScope();drawScope();scopeReadout();
+    if(!scopeLooping){scopeLooping=true;requestAnimationFrame(scopeLoop);}
+    return true;
+  }
+  var scopeLooping=false;
+  function scopeLoop(now){
+    var dt=(now-(lastT||now))/1000;lastT=now;
+    if(scopeData){
+      var clk=clockObj();
+      if(fakeClock&&!fakeClock.paused){fakeClock.currentTime+=dt;if(fakeClock.currentTime>=scopeData.dur){fakeClock.currentTime=0;}}
+      var ct=clk.currentTime||0,dur=clk.duration||scopeData.dur||1;
+      $("#tcode").innerHTML=fmt(ct)+' <span>/</span> '+fmt(dur);
+      $("#seekFill").style.width=(dur?ct/dur*100:0).toFixed(1)+"%";
+      drawScope();scopeReadout();
+    }
+    if(!VOX.REDUCE)requestAnimationFrame(scopeLoop);else scopeLooping=false;
+  }
+  playBtn.addEventListener("click",function(){
+    if(playBtn.disabled)return;var clk=clockObj(),playing=!clk.paused;
+    if(playing){clk.pause();}else{var p=clk.play&&clk.play();if(p&&p.catch)p.catch(function(){});}
+    playBtn.innerHTML=playing?"&#9654;":"&#10073;&#10073;";
+  });
+  stage.addEventListener("resize",fitScope);window.addEventListener("resize",function(){if(scopeData)fitScope();});
+
   // ---- ambient animation (LED pulse / meter float — decorative, not data) --
   var start=performance.now();
   function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+(s%60).toFixed(1).padStart(4,"0");}
@@ -271,6 +348,20 @@
     if(!VOX.REDUCE)requestAnimationFrame(ambient);
   }
   requestAnimationFrame(ambient);
+
+  // synthetic singer contour for the ?demo preview (cents from A4 @ 100 fps)
+  function demoContour(){
+    var rate=100,dur=24,n=rate*dur,vals=[],notes=[-500,-300,0,200,400,200,0,-300];
+    for(var k=0;k<n;k++){
+      var t=k/rate,phrase=Math.floor(t/1.6)%notes.length,base=notes[phrase];
+      // unvoiced gaps between phrases
+      if((t%1.6)>1.35){vals.push(null);continue;}
+      var vib=Math.sin(t*2*Math.PI*5)*18*Math.min(1,(t%1.6)/0.4);
+      var scoop=(t%1.6)<0.12?(-40*(1-(t%1.6)/0.12)):0;
+      vals.push(base+vib+scoop);
+    }
+    return {values:vals,rate_hz:rate};
+  }
 
   // ---- demo feed (?demo=1) — preview without a backend job -----------------
   function runDemo(){
@@ -289,8 +380,8 @@
       $("#levelHead").textContent="−4.0 dB";
       VOX.drawGauge(gpuC,state==="WORKING"?72:12);VOX.drawGauge(cpuC,state==="WORKING"?54:10);
       $("#gpuVal").textContent=(state==="WORKING"?72:12)+"%";$("#cpuVal").textContent=(state==="WORKING"?54:10)+"%";
-      if(state==="COMPLETE"){$("#rRange").textContent="E3 – A5";$("#rConf").textContent="94%";$("#rDev").textContent="11 c";$("#rWithin").textContent="78%";$("#readNote").innerHTML='A4 <small>+6c</small>';$("#readCents").textContent="440.0 Hz";}
-      i++;if(!VOX.REDUCE&&i<seq.length*3)setTimeout(step,1600);
+      if(state==="COMPLETE"){$("#rRange").textContent="E3 – A5";$("#rConf").textContent="94%";$("#rDev").textContent="11 c";$("#rWithin").textContent="78%";mountScope(demoContour(),24,null);var c=clockObj();if(c&&c.play)c.play();playBtn.innerHTML="&#10073;&#10073;";}
+      i++;if(!VOX.REDUCE&&i<seq.length)setTimeout(step,1600);
     }
     step();
   }
