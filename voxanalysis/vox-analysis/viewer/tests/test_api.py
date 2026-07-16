@@ -340,6 +340,10 @@ class ApiTests(unittest.TestCase):
         self.assertIn("adaptViewer", self.request("GET", "/static/vox-telemetry.js").text)
         report_js = self.request("GET", "/static/vox-report.js").text
         self.assertIn("Executive analysis", report_js)
+        # downloadable deliverables + reattach-by-URL
+        self.assertIn("Full results", body)
+        self.assertIn("buildResultsDownload", body)
+        self.assertIn("job=", body)  # reattach: /deck?job=<id> reloads a finished analysis
 
     def test_shared_telemetry_js_is_served(self):
         response = self.request("GET", "/static/vox-telemetry.js")

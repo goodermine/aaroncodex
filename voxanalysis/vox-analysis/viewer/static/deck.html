@@ -224,7 +224,8 @@
       // Full results panel — the same report the classic view renders.
       if(window.VOXReport){VOXReport.render($("#report"),{report:rep,result:res,
         reportUrl:res.v2_report_url||("/api/pitch-jobs/"+id+"/report"),
-        onSeek:function(t){var a=$("#deckAudio");if(a){a.currentTime=t;if(a.paused){var p=a.play();if(p&&p.catch)p.catch(function(){});playBtn.innerHTML="&#10073;&#10073;";}}}});}
+        onSeek:function(t){var a=$("#deckAudio");if(a){a.currentTime=t;if(a.paused){var p=a.play();if(p&&p.catch)p.catch(function(){});playBtn.innerHTML="&#10073;&#10073;";}}}});
+        buildResultsDownload(id,res);}
       // Raw measurements → downloadable JSON blob (the metrics we actually have).
       try{
         var blob=new Blob([JSON.stringify(rep,null,2)],{type:"application/json"});
@@ -233,6 +234,32 @@
       }catch(e){}
     }).catch(function(){});
   }
+
+  // Build a self-contained, styled HTML of the full results — exactly what's on
+  // screen — so it can be saved, printed or shared. Pre-loads the technical
+  // markdown into the panel first so the download is complete.
+  function buildResultsDownload(id,res){
+    var reportUrl="/api/pitch-jobs/"+id+"/report",text=function(r){return r.ok?r.text():"";};
+    fetch(reportUrl).then(text).then(function(md){
+      var host=$("#voxTechnicalReport");
+      if(host&&md&&window.VOXReport){host.innerHTML=VOXReport.markdownReport(md);host.dataset.loaded="1";}
+      return Promise.all([fetch("/static/vox-report.css").then(text),fetch("/static/vox-tokens.css").then(text)]);
+    }).then(function(css){
+      var report=$("#report");if(!report)return;
+      var doc='<!doctype html><html lang="en"><head><meta charset="utf-8">'+
+        '<meta name="viewport" content="width=device-width,initial-scale=1"><title>VOX Analysis — results</title><style>'+
+        css[1]+"\n"+css[0]+"\nbody{margin:0;background:var(--vox-void);color:var(--vox-ink);font-family:var(--vox-sans)}"+
+        ".wrap{max-width:1080px;margin:0 auto;padding:26px 20px 64px}.vh{font-family:var(--vox-mono);letter-spacing:.14em;font-size:14px;color:var(--vox-cyan);margin:0 0 6px}"+
+        ".vs{color:var(--vox-muted);font-family:var(--vox-mono);font-size:11px;margin:0 0 20px}"+
+        ".vox-report .rack{ }details[open]>summary~*{display:block}</style></head>"+
+        '<body class="vox-deck-bg"><div class="wrap"><div class="vh">VOX//SUITE · ANALYSIS RESULTS</div>'+
+        '<div class="vs">'+esc(res.file_name||"vocal take")+"</div>"+
+        '<section class="vox-report">'+report.innerHTML+"</section></div></body></html>";
+      var blob=new Blob([doc],{type:"text/html"}),a=tray.querySelector('[data-role="results"]');
+      if(a){a.href=URL.createObjectURL(blob);a.setAttribute("download",(res.file_name||"vox-analysis").replace(/\.[^.]+$/,"")+"_results.html");}
+    }).catch(function(){});
+  }
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 
   function apply(ev){
     VOX.setState(stateLed,stateLabel,ev.state);
@@ -248,7 +275,8 @@
   function revealExport(ev){
     var id=ev.job.id||"";
     var items=[
-      {id:"report",nm:"Analysis report",sub:"calibrated VOXAI scorecard",fmt:"PDF/MD",cls:"r",href:id?"/api/pitch-jobs/"+id+"/report":"#"},
+      {id:"results",nm:"Full results",sub:"the report you see · shareable page",fmt:"HTML",cls:"r",href:"#"},
+      {id:"report",nm:"Technical report",sub:"all measurements · markdown",fmt:"MD",cls:"r",href:id?"/api/pitch-jobs/"+id+"/report":"#"},
       {id:"metrics",nm:"Raw measurements",sub:"every measured value",fmt:"JSON",cls:"j",href:"#"}
     ];
     tray.innerHTML='<div class="vox-tray__head"><span class="vox-tray__ttl"><span class="vox-led is-done"></span>Export deliverables</span></div>'+
@@ -497,7 +525,17 @@
   VOX.renderChain(chain,"analyze",0);
   VOX.setState(stateLed,stateLabel,"STANDBY");
   log("info","deck armed · awaiting take");
+  var jobMatch=location.search.match(/[?&]job=([^&]+)/);
   if(/[?&]demo=1/.test(location.search))runDemo();
+  else if(jobMatch){
+    // Reattach to an existing job: reload a finished analysis (results + exports)
+    // or resume watching one still in progress.
+    var jid=decodeURIComponent(jobMatch[1]);$("#jobTag").textContent="SESSION · "+jid.slice(0,8);
+    log("info","reattaching · "+jid.slice(0,8));
+    VOX.poll({url:"/api/pitch-jobs/"+jid,mode:"analyze",adapt:VOX.adaptViewer,onEvent:function(ev){
+      apply(ev);if(ev.state==="COMPLETE")hydrateComplete(jid);
+    }});
+  }
 })();
 </script>
 </body>
