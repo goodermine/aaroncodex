@@ -9,8 +9,10 @@ System v0.1) for the reasoning behind every decision here.
 | File | What it is |
 |---|---|
 | `vox-tokens.css` | The palette + type + effect tokens (CSS custom properties, all `--vox-*`). |
-| `vox-kit.css` | Framework-free component primitives (`.vox-led`, `.vox-chain`, `.vox-meter`, `.vox-btn`, …). Depends on the tokens. |
+| `vox-kit.css` | Framework-free primitives (`.vox-led`, `.vox-chain`, `.vox-meter`, `.vox-btn`, …) **plus the full command-deck shell layer** (`.vox-command`, `.vox-modeswitch`, `.vox-deck`, `.vox-rail`, `.vox-module`, `.vox-readout`, `.vox-scope`, `.vox-transport`, `.vox-tray`, `.vox-teleblock`, `.vox-procbar`). Depends on the tokens. |
 | `sync.sh` | Vendors the two CSS files into each app's static directory. |
+| `telemetry-contract.md` | The one event shape both back-ends emit (state, chain stage, progress, levels, log) so the shell's LED / chain / procbar / meters bind to real job stages. |
+| `vox-suite-spec.html` · `vox-suite-concept.html` | Reference only: the written Visual System v0.1 and the animated command-deck concept. Open in a browser; not production code. |
 
 ## Palette law
 
