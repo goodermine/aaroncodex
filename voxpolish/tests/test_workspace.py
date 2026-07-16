@@ -168,6 +168,15 @@ def test_polish_command_deck_serves(workspace_client):
     # the shared "What this does" guide, wired to Polish mode
     assert "/static/vox-about.js?v=" in page and 'VOX_MODE="polish"' in page
     assert workspace_client.get("/static/vox-about.js").status_code == 200
+    # in-browser recorder (Upload | Record)
+    assert 'id="modeRecord"' in page and 'id="recMount"' in page
+    assert "/static/vox-record.js?v=" in page
+    assert workspace_client.get("/static/vox-record.js").status_code == 200
+
+
+def test_webm_recording_is_an_allowed_upload_format():
+    from voxpolish.server.workspace import ALLOWED_EXT
+    assert {".webm", ".mp4"} <= ALLOWED_EXT
 
 
 def test_peaks_expose_duration_for_navigation(workspace_client):

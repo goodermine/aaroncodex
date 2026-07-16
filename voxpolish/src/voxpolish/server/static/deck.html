@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
+<link rel="stylesheet" href="/static/vox-record.css?v=__ASSET_VERSION__">
 <style>
   html,body{margin:0;background:var(--vox-void);color:var(--vox-ink);font-family:var(--vox-sans);font-size:14px;line-height:1.5}
   .intake{display:grid;place-items:center;height:100%;padding:26px;text-align:center}
@@ -15,6 +16,12 @@
   .choice button{font-family:var(--vox-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
     border:1px solid var(--vox-line-2);background:#0a141c;color:var(--vox-muted);border-radius:8px;padding:9px 13px;cursor:pointer}
   .choice button.on{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));border-color:transparent;box-shadow:var(--vox-glow-cyan)}
+  .intake-modes{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--vox-line-2);border-radius:10px;background:#0a141c}
+  .intake-modes button{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:0;background:transparent;color:var(--vox-muted);border-radius:7px;padding:8px 20px}
+  .intake-modes button.on{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:var(--vox-glow-cyan)}
+  .intake-modes button:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+  .intake-source{display:grid;justify-items:center;gap:12px;width:100%}
+  .intake-source[hidden]{display:none}
   .hidden{display:none!important}
 </style>
 </head>
@@ -68,12 +75,16 @@
         <span class="vox-stage__rec vox-mono"><span class="vox-led is-standby"></span><span id="recLabel">ARMED</span></span>
         <canvas id="scope" class="hidden"></canvas>
         <div class="intake" id="intake">
-          <div class="stage-msg">
-            <b>Load your vocal take</b><span>WAV · FLAC work everywhere · MP3/M4A need ffmpeg</span>
-            <div class="choice"><button id="chClean" type="button">Clean</button><button id="chTune" class="on" type="button">Clean + Auto&nbsp;Tune</button></div>
-            <button type="button" class="vox-btn vox-btn--primary" id="pickBtn" style="margin-top:4px">Choose recording</button>
+          <div class="intake-modes" role="tablist" aria-label="Input source">
+            <button id="modeUpload" class="on" role="tab" aria-selected="true" type="button">Upload</button><button id="modeRecord" role="tab" aria-selected="false" type="button">Record</button>
+          </div>
+          <div class="choice"><button id="chClean" type="button">Clean</button><button id="chTune" class="on" type="button">Clean + Auto&nbsp;Tune</button></div>
+          <div class="intake-source" id="intakeUpload">
+            <div class="stage-msg"><b>Load your vocal take</b><span>WAV · FLAC · MP3 · M4A · WEBM</span></div>
+            <button type="button" class="vox-btn vox-btn--primary" id="pickBtn">Choose recording</button>
             <input id="file" type="file" accept="audio/*" style="display:none">
           </div>
+          <div class="intake-source" id="intakeRecord" hidden><div id="recMount"></div></div>
         </div>
         <div class="stage-msg hidden" id="stageMsg"></div>
       </div>
@@ -132,6 +143,7 @@
 
 <script>window.VOX_MODE="polish";</script>
 <script src="/static/vox-about.js?v=__ASSET_VERSION__"></script>
+<script src="/static/vox-record.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
 (function(){
@@ -266,6 +278,18 @@
   $("#chTune").addEventListener("click",function(){tuneChoice=true;this.classList.add("on");$("#chClean").classList.remove("on");});
   $("#pickBtn").addEventListener("click",function(){$("#file").click();});
   $("#file").addEventListener("change",function(){if(this.files&&this.files[0])startUpload(this.files[0]);});
+  // Upload | Record input mode — the recorder hands a finished take to startUpload().
+  var recMounted=false;
+  function setInputMode(m){var up=m==="upload";
+    $("#modeUpload").classList.toggle("on",up);$("#modeUpload").setAttribute("aria-selected",up);
+    $("#modeRecord").classList.toggle("on",!up);$("#modeRecord").setAttribute("aria-selected",!up);
+    $("#intakeUpload").hidden=!up;$("#intakeRecord").hidden=up;
+    if(!up&&!recMounted){recMounted=true;
+      if(window.VOXRecord)VOXRecord.mount($("#recMount"),{onAnalyze:function(file){startUpload(file);}});
+      else $("#recMount").innerHTML='<p class="stage-msg"><span>Recording is unavailable in this browser — use Upload.</span></p>';}
+  }
+  $("#modeUpload").addEventListener("click",function(){setInputMode("upload");});
+  $("#modeRecord").addEventListener("click",function(){setInputMode("record");});
   function startUpload(file){
     var fd=new FormData();fd.append("file",file);fd.append("tune",tuneChoice?"true":"false");
     $("#jobTag").textContent="JOB · uploading";log("info","upload · "+file.name);

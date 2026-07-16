@@ -30,6 +30,11 @@ def test_deck_serves_versioned_kit_wired():
         # the shared "What this does" guide, wired to Fused mode
         assert "/static/vox-about.js?v=" in r.text and 'VOX_MODE="fused"' in r.text
         assert c.get("/static/vox-about.js").status_code == 200
+        # in-browser recorder (Upload | Record)
+        assert 'id="modeRecord"' in r.text and 'id="recMount"' in r.text
+        assert "/static/vox-record.js?v=" in r.text and c.get("/static/vox-record.js").status_code == 200
+        from voxsuite.server.app import _ALLOWED
+        assert ".webm" in _ALLOWED
 
 
 def test_full_fused_lifecycle_over_http():

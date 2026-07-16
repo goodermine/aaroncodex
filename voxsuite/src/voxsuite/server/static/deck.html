@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
+<link rel="stylesheet" href="/static/vox-record.css?v=__ASSET_VERSION__">
 <style>
   html,body{margin:0;background:var(--vox-void);color:var(--vox-ink);font-family:var(--vox-sans);font-size:14px;line-height:1.5}
   .intake{display:grid;place-items:center;height:100%;padding:26px;text-align:center}
@@ -17,6 +18,12 @@
   .intake .fields .full{grid-column:1/-1}
   .rail-group{margin-bottom:14px}
   .rail-group h4{margin:0 0 8px;font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-muted);display:flex;align-items:center;gap:7px}
+  .intake-modes{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--vox-line-2);border-radius:10px;background:#0a141c;margin-bottom:2px}
+  .intake-modes button{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:0;background:transparent;color:var(--vox-muted);border-radius:7px;padding:8px 20px}
+  .intake-modes button.on{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:var(--vox-glow-cyan)}
+  .intake-modes button:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+  .intake-source{display:grid;justify-items:center;gap:12px;width:100%}
+  .intake-source[hidden]{display:none}
   .hidden{display:none!important}
 </style>
 </head>
@@ -81,11 +88,15 @@
         <span class="vox-stage__rec vox-mono"><span class="vox-led is-standby"></span><span id="recLabel">ARMED</span></span>
         <canvas id="scope" class="hidden"></canvas>
         <div class="intake" id="intake">
-          <div class="stage-msg">
-            <b>Upload once — analyze &amp; polish together</b><span>WAV · FLAC · MP3 · M4A · AAC · OGG · MP4 · MOV</span>
-            <button type="button" class="vox-btn vox-btn--primary" id="pickBtn" style="margin-top:6px">Choose recording</button>
+          <div class="intake-modes" role="tablist" aria-label="Input source">
+            <button id="modeUpload" class="on" role="tab" aria-selected="true" type="button">Upload</button><button id="modeRecord" role="tab" aria-selected="false" type="button">Record</button>
+          </div>
+          <div class="intake-source" id="intakeUpload">
+            <div class="stage-msg"><b>Upload once — analyze &amp; polish together</b><span>WAV · FLAC · MP3 · M4A · AAC · OGG · MP4 · MOV · WEBM</span></div>
+            <button type="button" class="vox-btn vox-btn--primary" id="pickBtn">Choose recording</button>
             <input id="file" type="file" accept="audio/*,video/mp4,video/quicktime" style="display:none">
           </div>
+          <div class="intake-source" id="intakeRecord" hidden><div id="recMount"></div></div>
           <div class="fields">
             <label>Performer<input id="fPerformer" placeholder="Singer"></label>
             <label>Song title<input id="fSong" placeholder="optional"></label>
@@ -149,6 +160,7 @@
 
 <script>window.VOX_MODE="fused";</script>
 <script src="/static/vox-about.js?v=__ASSET_VERSION__"></script>
+<script src="/static/vox-record.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
 (function(){
@@ -244,6 +256,18 @@
   // upload once → fused job → poll adaptFused
   $("#pickBtn").addEventListener("click",function(){$("#file").click();});
   $("#file").addEventListener("change",function(){if(this.files&&this.files[0])startJob(this.files[0]);});
+  // Upload | Record input mode — the recorder hands a finished take to startJob().
+  var recMounted=false;
+  function setInputMode(m){var up=m==="upload";
+    $("#modeUpload").classList.toggle("on",up);$("#modeUpload").setAttribute("aria-selected",up);
+    $("#modeRecord").classList.toggle("on",!up);$("#modeRecord").setAttribute("aria-selected",!up);
+    $("#intakeUpload").hidden=!up;$("#intakeRecord").hidden=up;
+    if(!up&&!recMounted){recMounted=true;
+      if(window.VOXRecord)VOXRecord.mount($("#recMount"),{onAnalyze:function(file){startJob(file);}});
+      else $("#recMount").innerHTML='<p class="stage-msg"><span>Recording is unavailable in this browser — use Upload.</span></p>';}
+  }
+  $("#modeUpload").addEventListener("click",function(){setInputMode("upload");});
+  $("#modeRecord").addEventListener("click",function(){setInputMode("record");});
   ["dragover","drop"].forEach(function(t){stage.addEventListener(t,function(e){e.preventDefault();});});
   stage.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)startJob(f);});
   function startJob(file){

@@ -18,7 +18,8 @@ from .session import Session, atomic_write_bytes
 
 # Formats we accept for upload. Extension-validated up front; the actual
 # decode (and its errors) happen in Session.create via audio_io.
-ALLOWED_EXT = {".wav", ".mp3", ".m4a", ".flac", ".aif", ".aiff", ".ogg"}
+# .webm / .mp4 cover in-browser recordings (MediaRecorder); ffmpeg decodes them.
+ALLOWED_EXT = {".wav", ".mp3", ".m4a", ".flac", ".aif", ".aiff", ".ogg", ".webm", ".mp4"}
 SAFE_ID = re.compile(r"^[A-Za-z0-9._-]+$")
 
 
