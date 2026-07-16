@@ -20,6 +20,17 @@
   .intake .pickbtn{margin-top:4px}
   .stage-msg{display:grid;place-items:center;height:100%;gap:10px;text-align:center;color:var(--vox-muted);font-family:var(--vox-mono);letter-spacing:.06em}
   .stage-msg b{color:var(--vox-ink);font-size:15px;letter-spacing:.02em}
+  .vox-scope__chips .vox-chip{cursor:pointer;font:inherit;font-family:var(--vox-mono);font-size:10px;letter-spacing:.12em}
+  .vox-scope__chips .vox-chip:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+  /* H1–H8 harmonic energy bars (live, from the vocal FFT) */
+  .vox-harm{margin-top:16px;border-top:1px solid var(--vox-line);padding-top:14px}
+  .vox-harm__head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+  .vox-harm__k{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--vox-muted)}
+  .vox-harm__bars{display:flex;gap:6px;align-items:flex-end;height:88px}
+  .vox-harm__bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%}
+  .vox-harm__track{flex:1;width:100%;background:#0a141c;border:1px solid var(--vox-line);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden}
+  .vox-harm__fill{width:100%;background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:0 0 8px rgba(63,224,255,.4);border-radius:0 0 3px 3px}
+  .vox-harm__lbl{font-family:var(--vox-mono);font-size:9px;color:var(--vox-muted)}
   .hidden{display:none!important}
 </style>
 </head>
@@ -69,13 +80,17 @@
         <div class="vox-readcell"><div class="vox-readcell__k">Median dev.</div><div class="vox-readcell__v" id="rDev">—</div></div>
         <div class="vox-readcell"><div class="vox-readcell__k">Within ±25c</div><div class="vox-readcell__v" id="rWithin">—</div></div>
       </div>
+      <div class="vox-harm" id="harm" hidden>
+        <div class="vox-harm__head"><span class="vox-harm__k">Harmonic energy</span><span class="vox-harm__k" id="harmF0">— Hz</span></div>
+        <div class="vox-harm__bars" id="harmBars"></div>
+      </div>
     </aside>
 
     <section class="vox-scope">
       <div class="vox-scope__head">
         <span class="vox-scope__title">Performance <b>Scope</b></span>
-        <div class="vox-scope__chips">
-          <span class="vox-chip is-hot">PITCH</span><span class="vox-chip">WAVEFORM</span><span class="vox-chip">SPECTRUM</span>
+        <div class="vox-scope__chips" role="tablist" aria-label="Scope view">
+          <button class="vox-chip is-hot" id="chipPitch" data-view="pitch" role="tab" aria-selected="true" type="button">PITCH</button><button class="vox-chip" id="chipWaveform" data-view="waveform" role="tab" aria-selected="false" type="button">WAVEFORM</button><button class="vox-chip" id="chipSpectrum" data-view="spectrum" role="tab" aria-selected="false" type="button">SPECTRUM</button>
         </div>
       </div>
       <div class="vox-stage" id="stage">
@@ -152,8 +167,8 @@
 
   <p style="margin-top:16px;color:var(--vox-dim);font-family:var(--vox-mono);font-size:10.5px;letter-spacing:.05em;line-height:1.7">
     Command deck · Analyze mode, wired to the live job stage stream. LED, chain, processing bar &amp; log are driven by
-    <b>real</b> <code style="color:var(--vox-cyan-ink)">/api/pitch-jobs</code> state. Pitch scope live — note lanes, singer contour &amp;
-    playhead; spectral overlays, zoom, <b>Polish</b> and <b>Fused</b> arrive next. <a href="/" style="color:var(--vox-cyan)">Classic view →</a>
+    <b>real</b> <code style="color:var(--vox-cyan-ink)">/api/pitch-jobs</code> state. Scope: pitch (note lanes + contour), live waveform
+    &amp; FFT spectrum with H1–H8 harmonics, full results below. <a href="/" style="color:var(--vox-cyan)">Classic view →</a>
   </p>
 </div>
 
@@ -299,19 +314,98 @@
     if(lo>hi){lo=57;hi=81;}
     lo=Math.floor(lo)-1;hi=Math.ceil(hi)+1;return{lo:lo,hi:hi,range:Math.max(1,hi-lo)};
   }
+  function mono(){return getComputedStyle(document.body).getPropertyValue("--vox-mono");}
   function drawScope(){
-    if(!scopeData)return;var w=scopeData.w,h=scopeData.h,lo=scopeData.lo,range=scopeData.range,dur=scopeData.dur||1;
+    if(!scopeData)return;
+    if(scopeView==="spectrum")return drawSpectrum();
+    if(scopeView==="waveform")return drawWaveform();
+    drawPitch();
+  }
+  function drawPitch(){
+    var w=scopeData.w,h=scopeData.h,lo=scopeData.lo,range=scopeData.range,dur=scopeData.dur||1;
     sctx.clearRect(0,0,w,h);
-    // note lanes
-    sctx.font="10px "+getComputedStyle(document.body).getPropertyValue("--vox-mono");sctx.textBaseline="middle";
+    sctx.font="10px "+mono();sctx.textBaseline="middle";
     for(var m=lo;m<=scopeData.hi;m++){var y=h-(m-lo)/range*h;sctx.strokeStyle=(m%12===0)?"#34404e":"#202832";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(PAD,y);sctx.lineTo(w,y);sctx.stroke();if(range<=30||m%2===0){sctx.fillStyle="#7f93a4";sctx.fillText(noteName(m),6,y);}}
-    // singer contour (violet)
     var vals=scopeData.contour.values,rate=scopeData.rate;sctx.strokeStyle="#8b7cff";sctx.lineWidth=2;sctx.shadowColor="#8b7cff";sctx.shadowBlur=6;sctx.beginPath();var pen=false;
     for(var i=0;i<vals.length;i++){var c=vals[i];if(c==null||!isFinite(c)){pen=false;continue;}var t=i/rate;if(t>dur)break;var x=PAD+(t/dur)*(w-PAD),yy=h-((69+c/100)-lo)/range*h;if(!pen){sctx.moveTo(x,yy);pen=true;}else sctx.lineTo(x,yy);}
     sctx.stroke();sctx.shadowBlur=0;
-    // playhead (cyan)
     var ct=clockObj().currentTime||0;if(ct>=0&&ct<=dur){var px=PAD+(ct/dur)*(w-PAD);sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
   }
+
+  // ---- live spectrum + harmonics (Web Audio FFT on the vocal stem) --------
+  // Rather than port the classic viewer's precomputed spectral-tile machinery,
+  // the deck analyses the playing stem directly: a real FFT drives the SPECTRUM
+  // view and the H1–H8 harmonic-energy bars (sampled at k×F0). In ?demo mode
+  // (no real audio) a synthetic spectrum with harmonic peaks stands in.
+  var scopeView="pitch",audioCtx=null,analyser=null,freqBins=null,timeBins=null,harmCells=[];
+  function ensureAudio(){
+    if(analyser||fakeClock||!deckAudio.src)return;
+    try{
+      audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      var src=audioCtx.createMediaElementSource(deckAudio);
+      analyser=audioCtx.createAnalyser();analyser.fftSize=4096;analyser.smoothingTimeConstant=0.72;
+      src.connect(analyser);analyser.connect(audioCtx.destination);
+      freqBins=new Uint8Array(analyser.frequencyBinCount);timeBins=new Uint8Array(analyser.fftSize);
+    }catch(e){analyser=null;}
+  }
+  function currentF0(){
+    if(!scopeData)return null;var ct=clockObj().currentTime||0,i=Math.round(ct*scopeData.rate),c=scopeData.contour.values[i];
+    if(c==null||!isFinite(c))return null;return 440*Math.pow(2,((69+c/100)-69)/12);
+  }
+  function readFreq(){
+    if(analyser){analyser.getByteFrequencyData(freqBins);return{mag:freqBins,n:freqBins.length,nyq:audioCtx.sampleRate/2};}
+    var n=512,nyq=11025,f0=currentF0()||220,arr=new Float32Array(n),playing=!clockObj().paused;
+    for(var i=0;i<n;i++){var f=i/n*nyq;arr[i]=Math.max(0,110-0.009*f)+(Math.sin(i*12.9+ (clockObj().currentTime||0))*0.5+0.5)*(playing?16:6);}
+    if(playing)for(var k=1;k<=10;k++){var f=k*f0;if(f>nyq)break;var bin=Math.round(f/nyq*n),amp=205*Math.pow(0.73,k-1);for(var d=-2;d<=2;d++){var b=bin+d;if(b>=0&&b<n)arr[b]=Math.min(255,Math.max(arr[b],amp*Math.exp(-d*d/2)));}}
+    return{mag:arr,n:n,nyq:nyq};
+  }
+  function drawSpectrum(){
+    var w=scopeData.w,h=scopeData.h,PADB=18;sctx.clearRect(0,0,w,h);
+    var sp=readFreq(),n=sp.n,nyq=sp.nyq,fMin=50,fMax=Math.min(10000,nyq),lw=Math.log(fMax/fMin);
+    function X(f){return PAD+(Math.log(f/fMin)/lw)*(w-PAD);}
+    sctx.font="9px "+mono();sctx.textBaseline="alphabetic";
+    [100,1000,10000].forEach(function(f){if(f>fMax)return;var x=X(f);sctx.strokeStyle="#1a2530";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(x,0);sctx.lineTo(x,h-PADB);sctx.stroke();sctx.fillStyle="#7f93a4";sctx.fillText(f>=1000?(f/1000)+"k":f+"",x+3,h-5);});
+    var pts=[];for(var i=1;i<n;i++){var f=i/n*nyq;if(f<fMin)continue;if(f>fMax)break;pts.push([X(f),(h-PADB)-Math.min(255,sp.mag[i])/255*(h-PADB-6)]);}
+    if(pts.length){
+      var grad=sctx.createLinearGradient(0,0,0,h);grad.addColorStop(0,"rgba(63,224,255,.5)");grad.addColorStop(1,"rgba(63,224,255,.02)");
+      sctx.beginPath();sctx.moveTo(pts[0][0],h-PADB);pts.forEach(function(p){sctx.lineTo(p[0],p[1]);});sctx.lineTo(pts[pts.length-1][0],h-PADB);sctx.closePath();sctx.fillStyle=grad;sctx.fill();
+      sctx.beginPath();pts.forEach(function(p,i){i?sctx.lineTo(p[0],p[1]):sctx.moveTo(p[0],p[1]);});sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.3;sctx.shadowColor="#3fe0ff";sctx.shadowBlur=5;sctx.stroke();sctx.shadowBlur=0;
+    }
+    var f0=currentF0();if(f0)for(var k=1;k<=8;k++){var f=k*f0;if(f<fMin||f>fMax)break;var x=X(f);sctx.strokeStyle=k===1?"rgba(139,124,255,.9)":"rgba(139,124,255,.32)";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(x,14);sctx.lineTo(x,h-PADB);sctx.stroke();sctx.fillStyle="#8b7cff";sctx.fillText("H"+k,x+2,11);}
+  }
+  function drawWaveform(){
+    var w=scopeData.w,h=scopeData.h,mid=h/2;sctx.clearRect(0,0,w,h);
+    sctx.strokeStyle="rgba(63,224,255,.12)";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(0,mid);sctx.lineTo(w,mid);sctx.stroke();
+    var data,n;
+    if(analyser){analyser.getByteTimeDomainData(timeBins);data=timeBins;n=timeBins.length;}
+    else{n=600;data=new Uint8Array(n);var t=clockObj().currentTime||0,playing=!clockObj().paused,amp=playing?58:6;for(var i=0;i<n;i++){var e=Math.exp(-Math.pow((i/n)-0.5,2)*2.5);data[i]=128+Math.sin((i/n)*Math.PI*2*9+t*5)*amp*e;}}
+    sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.4;sctx.shadowColor="#3fe0ff";sctx.shadowBlur=5;sctx.beginPath();
+    for(var i=0;i<n;i++){var x=i/(n-1)*w,y=mid+((data[i]-128)/128)*(h*0.42);i?sctx.lineTo(x,y):sctx.moveTo(x,y);}
+    sctx.stroke();sctx.shadowBlur=0;
+  }
+  function buildHarmCells(){
+    var host=$("#harmBars");if(!host)return;host.innerHTML="";harmCells=[];
+    for(var k=1;k<=8;k++){var cell=document.createElement("div");cell.className="vox-harm__bar";
+      cell.innerHTML='<div class="vox-harm__track"><i class="vox-harm__fill" style="height:0%"></i></div><div class="vox-harm__lbl">H'+k+'</div>';
+      host.appendChild(cell);harmCells.push(cell.querySelector(".vox-harm__fill"));}
+  }
+  function updateHarmonics(){
+    if(!harmCells.length)return;var f0=currentF0();
+    $("#harmF0").textContent=f0?Math.round(f0)+" Hz":"— Hz";
+    if(!f0){for(var k=0;k<8;k++)harmCells[k].style.height="0%";return;}
+    var sp=readFreq(),n=sp.n,nyq=sp.nyq,mags=[];
+    for(var k=1;k<=8;k++){var bin=Math.round(k*f0/nyq*n),mag=0;for(var d=-1;d<=1;d++){var b=bin+d;if(b>=0&&b<n)mag=Math.max(mag,Math.min(255,sp.mag[b]));}mags.push(mag);}
+    var max=Math.max.apply(null,mags)||1;
+    for(var k2=0;k2<8;k2++)harmCells[k2].style.height=Math.round(mags[k2]/max*100)+"%";
+  }
+  // scope-view chips
+  document.querySelectorAll(".vox-scope__chips .vox-chip").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      scopeView=btn.dataset.view;
+      document.querySelectorAll(".vox-scope__chips .vox-chip").forEach(function(x){var on=x===btn;x.classList.toggle("is-hot",on);x.setAttribute("aria-selected",on?"true":"false");});
+      if(scopeData)drawScope();
+    });
+  });
   function scopeReadout(){
     if(!scopeData)return;var ct=clockObj().currentTime||0,i=Math.round(ct*scopeData.rate),c=scopeData.contour.values[i];
     if(c==null||!isFinite(c)){$("#readNote").textContent="—";$("#readCents").textContent="—";return;}
@@ -326,7 +420,8 @@
     scopeData={contour:contour,rate:rate,dur:duration||contour.values.length/rate,lo:b.lo,hi:b.hi,range:b.range,w:r.width,h:r.height};
     intake.classList.add("hidden");stageMsg.classList.add("hidden");scopeCanvas.classList.remove("hidden");
     if(audioUrl){fakeClock=null;deckAudio.src=audioUrl;}else{fakeClock={currentTime:0,duration:scopeData.dur,paused:true,play:function(){this.paused=false;},pause:function(){this.paused=true;}};}
-    playBtn.disabled=false;fitScope();drawScope();scopeReadout();
+    playBtn.disabled=false;buildHarmCells();$("#harm").removeAttribute("hidden");
+    fitScope();drawScope();scopeReadout();updateHarmonics();
     if(!scopeLooping){scopeLooping=true;requestAnimationFrame(scopeLoop);}
     return true;
   }
@@ -339,13 +434,13 @@
       var ct=clk.currentTime||0,dur=clk.duration||scopeData.dur||1;
       $("#tcode").innerHTML=fmt(ct)+' <span>/</span> '+fmt(dur);
       $("#seekFill").style.width=(dur?ct/dur*100:0).toFixed(1)+"%";
-      drawScope();scopeReadout();
+      drawScope();scopeReadout();updateHarmonics();
     }
     if(!VOX.REDUCE)requestAnimationFrame(scopeLoop);else scopeLooping=false;
   }
   playBtn.addEventListener("click",function(){
     if(playBtn.disabled)return;var clk=clockObj(),playing=!clk.paused;
-    if(playing){clk.pause();}else{var p=clk.play&&clk.play();if(p&&p.catch)p.catch(function(){});}
+    if(playing){clk.pause();}else{ensureAudio();if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();var p=clk.play&&clk.play();if(p&&p.catch)p.catch(function(){});}
     playBtn.innerHTML=playing?"&#9654;":"&#10073;&#10073;";
   });
   stage.addEventListener("resize",fitScope);window.addEventListener("resize",function(){if(scopeData)fitScope();});
