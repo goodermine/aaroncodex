@@ -1,0 +1,61 @@
+/* ============================================================================
+   VOX Suite — design tokens  (Visual System v0.1)
+   Single source of truth for the shared palette across VoxPolish + VoxAnalysis.
+   Canonical copy lives in /design; run design/sync.sh to vendor into each app.
+
+   Palette law (see design/README.md):
+     · cyan   = the primary brand accent — everything live / interactive
+     · violet = Analyze-mode identity + the "singer" pitch trace (narrow use)
+     · green / amber / red = SEMANTIC ONLY (healthy·done / warning / critical)
+   Deliberately single-theme: a lit control room, dark ground.
+   ============================================================================ */
+:root{
+  /* ground — near-black with a slight blue bias, chosen not defaulted */
+  --vox-void:#070a0e;
+  --vox-panel:#0c1119;
+  --vox-raised:#12202b;
+  --vox-raised-2:#0e1721;
+  --vox-sunken:#05090d;
+  --vox-line:#1d2b38;
+  --vox-line-2:#263a4a;
+
+  /* text */
+  --vox-ink:#eaf3f8;
+  --vox-muted:#7f93a4;   /* cyan-biased grey */
+  --vox-dim:#4a5c6b;
+
+  /* primary signal */
+  --vox-cyan:#3fe0ff;
+  --vox-cyan-deep:#1a9fc4;
+  --vox-cyan-ink:#bfeffb;
+
+  /* secondary identity */
+  --vox-violet:#8b7cff;
+  --vox-violet-deep:#5a4fd6;
+
+  /* semantic — reserved, do not use as accents */
+  --vox-green:#37d98a;
+  --vox-amber:#ffb547;
+  --vox-red:#ff5d6c;
+
+  /* categorical data palette (waveform regions, chart series).
+     Distinct hues for information encoding — kept separate from chrome. */
+  --vox-cat-1:#3fe0ff;   /* dynamics / primary   */
+  --vox-cat-2:#ff8f6b;   /* gate / pauses        */
+  --vox-cat-3:#5fd0a0;   /* breath               */
+  --vox-cat-4:#59b0ff;   /* sibilance            */
+  --vox-cat-5:#b78bff;   /* tune                 */
+
+  /* type */
+  --vox-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --vox-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+
+  /* effects */
+  --vox-glow-cyan:0 0 14px rgba(63,224,255,.55);
+  --vox-glow-violet:0 0 14px rgba(139,124,255,.5);
+  --vox-glow-green:0 0 12px rgba(55,217,138,.6);
+  --vox-glow-amber:0 0 12px rgba(255,181,71,.6);
+  --vox-glow-red:0 0 12px rgba(255,93,108,.6);
+  --vox-radius:14px;
+  --vox-radius-sm:8px;
+}
