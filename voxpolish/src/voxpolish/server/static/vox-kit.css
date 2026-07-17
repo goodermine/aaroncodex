@@ -146,6 +146,7 @@
 
 /* ---- deck grid + rails ----------------------------------------------------- */
 .vox-deck{display:grid;grid-template-columns:248px minmax(0,1fr) 260px;gap:14px;align-items:start}
+.vox-deck>*{min-width:0}
 .vox-rail{border:1px solid var(--vox-line);border-radius:var(--vox-radius);
   background:var(--vox-grad-panel);box-shadow:0 20px 55px #0008,inset 0 1px 0 rgba(255,255,255,.03);
   padding:14px;min-height:520px}
@@ -199,7 +200,7 @@
 /* Direct child only: the full-bleed scope canvas (#scope). Without ">" this
    also matched the recorder's nested .vrec-wave and stretched it to fill the
    stage, pushing the Stop button off-screen. */
-.vox-stage > canvas{display:block;width:100%;height:100%}
+.vox-stage > canvas{display:block;width:100%;max-width:100%;height:100%}
 /* cyan brackets (were amber in the reference — palette law: cyan = the frame)  */
 .vox-bracket{position:absolute;width:24px;height:24px;border-color:var(--vox-cyan);opacity:.7;pointer-events:none;
   filter:drop-shadow(0 0 5px rgba(63,224,255,.5))}
