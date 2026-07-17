@@ -38,6 +38,9 @@ def test_deck_serves_versioned_kit_wired():
         # full analysis results under the deck (same renderer as Analyze mode)
         assert 'id="report"' in r.text and "/static/vox-report.js?v=" in r.text
         assert c.get("/static/vox-report.js").status_code == 200
+        # file input lists explicit extensions — iOS greys out files on
+        # wildcard-only accept attributes ("couldn't select any files")
+        assert ".m4a" in r.text and 'accept="audio/*' in r.text
         from voxsuite.server.app import _ALLOWED
         assert ".webm" in _ALLOWED
 

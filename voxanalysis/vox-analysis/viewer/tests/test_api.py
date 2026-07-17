@@ -403,6 +403,9 @@ class ApiTests(unittest.TestCase):
         # "New take" — clears the deck so a fresh recording/upload can start
         self.assertIn('id="newBtn"', body)
         self.assertIn("function resetDeck", body)
+        # file input lists explicit extensions (iOS wildcard-only accept greys files)
+        self.assertIn('accept="audio/*', body)
+        self.assertIn(".m4a", body)
 
     def test_webm_recording_upload_is_accepted(self):
         probe = type("Probe", (), {"returncode": 0, "stdout": "12.5"})()

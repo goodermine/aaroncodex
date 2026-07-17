@@ -189,7 +189,8 @@
       '<div class="focus"><div class="kicker">Primary coaching focus</div><h3>' + shown(focus.pillar) + "</h3><p>" + shown(focus.why) + "</p><p><b>" + shown(focus.drill) +
       '</b></p><p class="cue">' + shown(focus.cue) + "</p><p>" + shown(focus.target) + "</p></div></section>" +
       '<aside class="score-panel"><div class="score-unit"><div class="score-value">' + shown(s.overall) + '</div><div class="score-label">Overall / 10</div></div>' +
-      '<div class="score-unit"><div class="score-value">' + shown(s.capture_fair) + '</div><div class="score-label">Capture-fair / 10</div></div>' +
+      '<div class="score-unit"><div class="score-value">' + shown(s.capture_fair) + '</div><div class="score-label">Capture-fair / 10</div>' +
+      '<div class="score-context" style="margin-top:6px">Same rubric minus the mic/room-sensitive voice-quality metrics — <b>quote this one for live or rough captures</b>.</div></div>' +
       '<div class="score-context"><b>' + shown(s.confidence) + " confidence</b> · Capture status: " + esc(capture) + ". Scores must be read with the visible capture warnings above.</div></aside></div>";
     var profile = rack("Technical profile", "Core component scores", components || '<p class="quality">Not available.</p>', true);
     var measurements = rack("Core measurements", "Pitch, voice, dynamics, range and calibrated diagnostics", '<div class="metric-grid">' + metrics + "</div>", true);

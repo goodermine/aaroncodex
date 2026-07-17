@@ -175,6 +175,8 @@ def test_polish_command_deck_serves(workspace_client):
     # "New take" reset + draggable module amounts + scrubbing the whole take
     assert 'id="newBtn"' in page and "function resetDeck" in page
     assert "function setAmount" in page and "function seekTo" in page
+    # file input lists explicit extensions (iOS wildcard-only accept greys files)
+    assert 'accept="audio/*' in page and ".m4a" in page
 
 
 def test_webm_recording_is_an_allowed_upload_format():
