@@ -73,6 +73,15 @@ def test_light_dark_theme_toggle_is_wired():
             assert "prefers-color-scheme" in body, path           # no-flash head init
 
 
+def test_report_ships_copy_full_results():
+    """Every rendered report must carry the one-tap full-results copy — the
+    complete analysis, not a curated summary, is what gets pasted around."""
+    with tempfile.TemporaryDirectory() as tmp:
+        js = _client(tmp).get("/static/vox-report.js").text
+        assert "buildDigest" in js and "Copy full results" in js
+        assert "Capture-fair" in js  # digest always carries the capture-fair line
+
+
 def test_stage_canvas_rule_is_child_scoped():
     """The full-height stage-canvas rule must target the scope canvas as a DIRECT
     child, or it also stretches the recorder's nested waveform and pushes the

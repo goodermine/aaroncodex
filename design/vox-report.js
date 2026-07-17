@@ -141,6 +141,47 @@
     return rack("Coaching and practice", "Targeted next actions", body);
   }
 
+  // Plain-text digest of the ENTIRE analysis — every score, metric and caveat,
+  // nothing summarised away. One tap copies it so the full result (not a
+  // curated excerpt) is what gets pasted into chats and coaching write-ups.
+  function buildDigest(report, result) {
+    var s = report.score || {}, m = report.metrics || {}, L = [];
+    function line(t) { L.push(t); }
+    function flat(obj) {
+      var parts = [];
+      for (var k in obj) { var v = obj[k]; if (typeof v === "number" || typeof v === "string" || typeof v === "boolean") parts.push(k + ": " + v); }
+      return parts.join(" · ");
+    }
+    line("VOX ANALYSIS — FULL RESULTS");
+    if (report.headline) line(report.headline);
+    line("");
+    line("SCORES");
+    line("Overall: " + (s.overall != null ? s.overall + "/10" : "—") + "  (" + (s.confidence || "—") + " confidence)");
+    line("Capture-fair: " + (s.capture_fair != null ? s.capture_fair + "/10" : "—") + "  — same rubric minus mic/room-sensitive voice-quality metrics; quote this for live or rough captures");
+    (s.components || []).forEach(function (c) {
+      line("- " + (c.label || c.key || "?") + ": " + (c.score != null ? c.score : "—") + (c.basis ? "  [" + c.basis + "]" : ""));
+    });
+    if (result.robust_min_note || result.robust_max_note) { line(""); line("RANGE: " + (result.robust_min_note || "?") + " – " + (result.robust_max_note || "?")); }
+    line("");
+    line("METRICS");
+    for (var group in m) { if (m[group] && typeof m[group] === "object") { var f = flat(m[group]); if (f) line(group + " — " + f); } }
+    var trouble = report.trouble_spots || [];
+    if (trouble.length) {
+      line(""); line("TROUBLE SPOTS (" + trouble.length + ")");
+      trouble.forEach(function (t) { line("- " + (t.time || "?") + "  " + (t.note || "?") + "  drift " + (t.drift_cents != null ? t.drift_cents + "c" : "?")); });
+    }
+    var focus = report.main_focus || {};
+    if (focus.pillar || focus.title || focus.why) { line(""); line("PRIMARY FOCUS: " + (focus.pillar || focus.title || "—") + (focus.why ? " — " + focus.why : "")); }
+    function block(title, arr) { if (arr && arr.length) { line(""); line(title); arr.forEach(function (i) { line("- " + i); }); } }
+    block("WORKING WELL", report.what_is_working);
+    block("MEASURED", report.measured);
+    block("INFERRED (verify by ear)", report.inferred);
+    block("UNVERIFIABLE FROM AUDIO", report.unverifiable);
+    line("");
+    line("Deterministic VOXAI rubric — identical audio gives identical scores; calibrated against 50 professional reference vocals.");
+    return L.join("\n");
+  }
+
   function render(container, opts) {
     opts = opts || {};
     var report = opts.report, result = opts.result || {}, reportUrl = opts.reportUrl, onSeek = opts.onSeek || function () {};
@@ -202,8 +243,21 @@
     var technical = '<details class="rack technical-report" id="voxTechnicalRack"><summary><div><div class="kicker">Analysis rack</div><strong>Full technical report</strong></div>' +
       '<span class="rack-summary">Calibrated VOXAI analysis</span></summary><div class="rack-body technical-body" id="voxTechnicalReport"><p class="quality">Open this rack to load the full report.</p></div></details>';
 
-    container.innerHTML = executive + profile + measurements + troubleRack + comparisonHtml(report, result) + evidence + practiceHtml(report.practice_plan) + technical;
+    var actions = '<div class="report-actions"><button type="button" class="vox-rpt-copy">&#10697; Copy full results</button>' +
+      '<span class="report-actions__hint">copies every score, metric and caveat as text — paste the whole thing, not a summary</span></div>';
+    container.innerHTML = actions + executive + profile + measurements + troubleRack + comparisonHtml(report, result) + evidence + practiceHtml(report.practice_plan) + technical;
     container.removeAttribute("hidden");
+    var copyBtn = container.querySelector(".vox-rpt-copy");
+    if (copyBtn) copyBtn.addEventListener("click", function () {
+      var digest = buildDigest(report, result);
+      function done(ok) { copyBtn.textContent = ok ? "✓ Copied — paste it all" : "Copy failed — use Export instead"; setTimeout(function () { copyBtn.innerHTML = "&#10697; Copy full results"; }, 2600); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(digest).then(function () { done(true); }, function () { done(false); });
+      else {
+        var ta = document.createElement("textarea"); ta.value = digest; document.body.appendChild(ta); ta.select();
+        try { done(document.execCommand("copy")); } catch (e) { done(false); }
+        ta.remove();
+      }
+    });
     container.querySelectorAll(".spot").forEach(function (elm) { elm.onclick = function () { onSeek(Number(elm.dataset.time)); }; });
     var techRack = container.querySelector("#voxTechnicalRack");
     if (techRack) techRack.addEventListener("toggle", function (e) {

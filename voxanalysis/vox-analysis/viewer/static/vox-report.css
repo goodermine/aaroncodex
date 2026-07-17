@@ -6,6 +6,13 @@
    ============================================================================ */
 .vox-report{display:grid;gap:14px;margin-top:16px;font-family:var(--vox-sans);color:var(--vox-ink)}
 .vox-report[hidden]{display:none}
+.vox-report .report-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.vox-report .vox-rpt-copy{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+  color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:9px 14px;background:var(--vox-surface-1);
+  transition:background .15s,box-shadow .15s;min-height:44px}
+.vox-report .vox-rpt-copy:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
+.vox-report .vox-rpt-copy:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+.vox-report .report-actions__hint{font-size:12px;color:var(--vox-muted)}
 .vox-report h2,.vox-report h3{margin:0;letter-spacing:-.01em;text-wrap:balance}
 .vox-report .kicker{font-family:var(--vox-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--vox-cyan)}
 .vox-report .quality{color:var(--vox-muted);font-size:12.5px;margin:6px 0}

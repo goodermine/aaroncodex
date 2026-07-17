@@ -94,6 +94,11 @@ We audited every engine↔UI path for beta readiness and fixed all 8 blockers:
 When something misbehaves: say **which mode**, **what you did**, and the message
 in the **Telemetry Log** (right rail) — those log lines are our breadcrumbs.
 
+**Reporting results — the rule:** every results write-up starts with **⧉ Copy
+full results** (top of the report panel) and pastes the whole digest — every
+score (including capture-fair), every metric, trouble spots and caveats.
+Narrative on top is welcome; numbers must never be trimmed to a summary.
+
 ## 6. Known limits (real, not bugs to report)
 
 - **One job at a time is the happy path.** Parallel uploads from two devices at
