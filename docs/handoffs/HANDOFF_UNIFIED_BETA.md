@@ -10,9 +10,16 @@ cd aaroncodex
 git pull                              # branch: main (or claude/voiceassist-plugin-planning-krhz0d — same code)
 python3 -m venv .venv && source .venv/bin/activate     # ONE venv at the repo root
 pip install -e voxpolish'[ui,pitch,separation]' -e voxsuite
+pip install -r voxanalysis/vox-analysis/viewer/requirements.txt   # analyze engine deps
 ```
 
 If `git pull` complains about divergence: `git fetch origin && git reset --hard origin/main`.
+
+**Shortcut if you already have a suite venv** (e.g. `.venv-suite/` with torch &
+audio-separator in it): skip the `python3 -m venv` line, `source` that venv
+instead, and run the two `pip install` lines into it — same result, no
+re-downloading the big model dependencies. `vox` runs from whichever venv the
+packages are installed in.
 
 ## 2. Run it (every time)
 
