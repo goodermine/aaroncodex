@@ -30,7 +30,14 @@ class FakeEngines:
             raise RuntimeError("boom-analyze")
         report = Path(workdir) / "report.md"
         report.write_text("# report\n")
-        return {"report_path": str(report), "score": {"overall": 7.4}, "contour": {"values": [0, 1]}}
+        # Mirrors RealEngines.analyze: full report dict + duration alongside the
+        # summary fields, so the deck's results panel renders in fake-driven runs.
+        return {"report_path": str(report), "score": {"overall": 7.4},
+                "contour": {"values": [0, 1], "rate_hz": 10}, "duration_seconds": 2.0,
+                "report": {"headline": "Fake headline", "overview": "Fake overview.",
+                           "score": {"overall": 7.4, "components": [
+                               {"key": "intonation", "label": "Intonation", "score": 8.0, "basis": "Measured"}]},
+                           "metrics": {}, "measured": [], "inferred": [], "unverifiable": []}}
 
     def polish(self, stem, workdir, meta):
         self.calls.append("polish")

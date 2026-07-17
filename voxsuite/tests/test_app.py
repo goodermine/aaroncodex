@@ -35,6 +35,9 @@ def test_deck_serves_versioned_kit_wired():
         assert "/static/vox-record.js?v=" in r.text and c.get("/static/vox-record.js").status_code == 200
         # "New take" — clears the fused deck so a fresh upload/recording can start
         assert 'id="newBtn"' in r.text and "function resetDeck" in r.text
+        # full analysis results under the deck (same renderer as Analyze mode)
+        assert 'id="report"' in r.text and "/static/vox-report.js?v=" in r.text
+        assert c.get("/static/vox-report.js").status_code == 200
         from voxsuite.server.app import _ALLOWED
         assert ".webm" in _ALLOWED
 

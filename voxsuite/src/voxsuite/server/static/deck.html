@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-record.css?v=__ASSET_VERSION__">
+<link rel="stylesheet" href="/static/vox-report.css?v=__ASSET_VERSION__">
 <style>
   html,body{margin:0;background:var(--vox-void);color:var(--vox-ink);font-family:var(--vox-sans);font-size:14px;line-height:1.5}
   .intake{display:grid;place-items:center;height:100%;padding:26px;text-align:center}
@@ -149,6 +150,8 @@
     <span class="vox-procbar__pct vox-tnum" id="procPct">0%</span>
   </div>
 
+  <div id="report" hidden></div>
+
   <div class="vox-legend">
     <span><i style="background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan)"></i>Live signal</span>
     <span><i style="background:var(--vox-violet)"></i>Analyze identity</span>
@@ -168,6 +171,7 @@
 <script src="/static/vox-about.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-theme.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-record.js?v=__ASSET_VERSION__"></script>
+<script src="/static/vox-report.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
 (function(){
@@ -229,6 +233,12 @@
     // runs). The demo sets download_url:null and no download_path → stays disabled.
     var audioUrl=p.download_path?("/api/fused-jobs/"+encodeURIComponent(curJob||ev.job.id||"")+"/download"):(p.download_url||null);
     mountScope(a.contour,a.duration_seconds,audioUrl);
+    // Full analysis results under the deck (same renderer as the Analyze mode).
+    if(a.report&&window.VOXReport){
+      var rp=$("#report");rp.removeAttribute("hidden");
+      VOXReport.render(rp,{report:a.report,result:{duration_seconds:a.duration_seconds},
+        onSeek:function(t){var au=$("#deckAudio");try{au.currentTime=t;}catch(e){}}});
+    }
     revealExport(ev);
   }
 
@@ -250,9 +260,21 @@
     if(!scopeData)return;var r=stage.getBoundingClientRect(),w=r.width,h=r.height,lo=scopeData.lo,range=scopeData.range,PAD=44;
     sctx.clearRect(0,0,w,h);sctx.font="10px "+getComputedStyle(document.body).getPropertyValue("--vox-mono");sctx.textBaseline="middle";
     for(var m=lo;m<=scopeData.hi;m++){var y=h-(m-lo)/range*h;sctx.strokeStyle=(m%12===0)?"#34404e":"#202832";sctx.beginPath();sctx.moveTo(PAD,y);sctx.lineTo(w,y);sctx.stroke();if(range<=30||m%2===0){sctx.fillStyle="#7f93a4";sctx.fillText(noteName(m),6,y);}}
-    var vals=scopeData.vals,rate=scopeData.rate,dur=scopeData.dur;sctx.strokeStyle="#8b7cff";sctx.lineWidth=2;sctx.shadowColor="#8b7cff";sctx.shadowBlur=6;sctx.beginPath();var pen=false;
-    for(var i=0;i<vals.length;i++){var c=vals[i];if(c==null||!isFinite(c)){pen=false;continue;}var t=i/rate;if(t>dur)break;var x=PAD+(t/dur)*(w-PAD),yy=noteY(c,lo,range,h);if(!pen){sctx.moveTo(x,yy);pen=true;}else sctx.lineTo(x,yy);}
-    sctx.stroke();sctx.shadowBlur=0;
+    // Accuracy-coloured contour (parity with the Analyze scope): violet in tune,
+    // amber past 25 cents off the nearest semitone, red past 45. Segments are
+    // batched per colour so long takes stay cheap to redraw.
+    var vals=scopeData.vals,rate=scopeData.rate,dur=scopeData.dur;sctx.lineWidth=2;
+    function segColor(c){var d=Math.abs(c-Math.round(c/100)*100);return d>45?"#ff5d6c":(d>25?"#ffb547":"#8b7cff");}
+    var pen=false,curCol=null;
+    for(var i=0;i<vals.length;i++){var c=vals[i];
+      if(c==null||!isFinite(c)){if(pen)sctx.stroke();pen=false;curCol=null;continue;}
+      var t=i/rate;if(t>dur)break;
+      var x=PAD+(t/dur)*(w-PAD),yy=noteY(c,lo,range,h),col=segColor(c);
+      if(!pen){sctx.strokeStyle=col;curCol=col;sctx.beginPath();sctx.moveTo(x,yy);pen=true;}
+      else if(col!==curCol){sctx.lineTo(x,yy);sctx.stroke();sctx.strokeStyle=col;curCol=col;sctx.beginPath();sctx.moveTo(x,yy);}
+      else sctx.lineTo(x,yy);
+    }
+    if(pen)sctx.stroke();
     var ct=$("#deckAudio").currentTime||0;if(dur){var px=PAD+(ct/dur)*(w-PAD);sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
   }
   function noteName(m){var n=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"],r=Math.round(m);return n[((r%12)+12)%12]+(Math.floor(r/12)-1);}
@@ -326,6 +348,7 @@
     ["#aScore","#aRange","#aConf","#pMods","#pTune"].forEach(function(s){$(s).textContent="—";});
     $("#pIso").textContent="Isolation pending";$("#pIso").style.color="";$("#aScore").style.color="";
     var isoWarn=$("#isoWarn");if(isoWarn)isoWarn.remove();
+    var rp=$("#report");rp.setAttribute("hidden","");rp.innerHTML="";
     $("#tcode").innerHTML="00:00.0 <span>/</span> 00:00.0";$("#seekFill").style.width="0%";$("#playBtn").disabled=true;$("#playBtn").innerHTML="&#9654;";
     VOX.renderChain(chain,"fused",0);VOX.setState(stateLed,stateLabel,"STANDBY");VOX.setProgress(procFill,procPct,procLab,0,"STANDBY");
     tstamp.textContent="STANDBY";recLabel.textContent="ARMED";$("#jobTag").textContent="JOB · idle";$("#newBtn").hidden=true;
