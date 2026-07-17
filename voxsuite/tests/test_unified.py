@@ -98,6 +98,15 @@ def test_report_ships_copy_full_results():
         assert "Capture-fair" in js  # digest always carries the capture-fair line
 
 
+def test_wrap_is_border_box():
+    """.vox-wrap must be border-box: content-box made it viewport+padding wide,
+    phones expanded their layout viewport past the breakpoints, and the whole
+    mobile layer switched off (right-edge clipping on real devices)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        kit = _client(tmp).get("/static/vox-kit.css").text.replace(" ", "")
+        assert "box-sizing:border-box" in kit.split(".vox-wrap{",1)[1].split("}")[0]
+
+
 def test_stage_canvas_rule_is_child_scoped():
     """The full-height stage-canvas rule must target the scope canvas as a DIRECT
     child, or it also stretches the recorder's nested waveform and pushes the

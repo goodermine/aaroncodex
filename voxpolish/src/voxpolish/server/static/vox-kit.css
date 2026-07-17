@@ -90,7 +90,10 @@
   background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
     linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
   background-size:44px 44px;mask-image:radial-gradient(120% 90% at 50% 0,#000 40%,transparent 92%)}
-.vox-wrap{position:relative;z-index:1;width:min(1320px,100%);margin:0 auto;padding:16px 20px 60px}
+.vox-wrap{position:relative;z-index:1;box-sizing:border-box;width:min(1320px,100%);margin:0 auto;padding:16px 20px 60px}
+/* border-box: without it the wrap was always viewport+padding wide, which made
+   phones expand their layout viewport past the 760px breakpoint and disabled
+   the whole mobile layer (content clipped ~20px at the right edge). */
 .vox-mono{font-family:var(--vox-mono)}
 .vox-tnum{font-variant-numeric:tabular-nums}
 
