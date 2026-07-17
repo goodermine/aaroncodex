@@ -52,6 +52,9 @@
         : '<p class="quality">Not available for this recording.</p>') + "</div>";
   }
   function rack(title, summary, body, open, className) {
+    // Phones read the executive summary first and open racks on demand —
+    // starting them expanded is what made the report feel like a metric wall.
+    if (open && typeof matchMedia === "function" && matchMedia("(max-width:760px)").matches) open = false;
     return '<details class="rack ' + (className || "") + '" ' + (open ? "open" : "") +
       '><summary><div><div class="kicker">Analysis rack</div><strong>' + esc(title) + "</strong></div>" +
       '<span class="rack-summary">' + esc(summary) + '</span></summary><div class="rack-body">' + body + "</div></details>";

@@ -31,7 +31,7 @@ from fastapi.routing import APIRoute
 # The shared kit + the Fused deck shell live in voxsuite's static dir, which is
 # a superset of what every deck references — so one /static serves all three.
 STATIC = Path(__file__).parent / "static"
-_MEDIA = {"css": "text/css", "js": "text/javascript", "html": "text/html", "json": "application/json"}
+_MEDIA = {"css": "text/css", "js": "text/javascript", "html": "text/html", "json": "application/json", "png": "image/png", "webmanifest": "application/manifest+json"}
 
 
 def _analysis_root() -> Path:

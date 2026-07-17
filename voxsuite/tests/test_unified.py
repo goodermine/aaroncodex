@@ -73,6 +73,22 @@ def test_light_dark_theme_toggle_is_wired():
             assert "prefers-color-scheme" in body, path           # no-flash head init
 
 
+def test_phone_layer_and_pwa_are_wired():
+    """Phone declutter + install-to-home-screen: console rail tagged for the
+    drawer, manifest + icons served, decks link them."""
+    with tempfile.TemporaryDirectory() as tmp:
+        c = _client(tmp)
+        for path in ("/", "/analyze", "/polish"):
+            body = c.get(path).text
+            assert "vox-rail--console" in body, path
+            assert "site.webmanifest" in body, path
+        assert c.get("/static/site.webmanifest").status_code == 200
+        icon = c.get("/static/vox-icon-192.png")
+        assert icon.status_code == 200 and icon.content[:4] == b"\x89PNG"
+        kit = c.get("/static/vox-kit.css").text
+        assert ".vox-console-btn" in kit and "vox-console-open" in kit
+
+
 def test_report_ships_copy_full_results():
     """Every rendered report must carry the one-tap full-results copy — the
     complete analysis, not a curated summary, is what gets pasted around."""

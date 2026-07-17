@@ -249,6 +249,24 @@
     return function stop() { stopped = true; if (timer) clearTimeout(timer); };
   }
 
+  // Phone console drawer: the telemetry/compute rail (.vox-rail--console) hides
+  // on small screens behind a floating toggle so results stay uncluttered.
+  function mountConsoleToggle() {
+    var rail = document.querySelector(".vox-rail--console");
+    if (!rail || document.querySelector(".vox-console-btn")) return;
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "vox-console-btn"; b.setAttribute("aria-pressed", "false");
+    b.textContent = "Console";
+    b.addEventListener("click", function () {
+      var on = document.body.classList.toggle("vox-console-open");
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      if (on) rail.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "nearest" });
+    });
+    document.body.appendChild(b);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountConsoleToggle);
+  else mountConsoleToggle();
+
   root.VOX = {
     CHAINS: CHAINS, STATE_LED: STATE_LED, REDUCE: REDUCE,
     el: el, clamp: clamp, escHtml: escHtml, alertText: alertText,

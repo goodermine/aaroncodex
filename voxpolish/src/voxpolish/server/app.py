@@ -101,8 +101,10 @@ def create_app(root: Path) -> FastAPI:
         path = STATIC / name
         if not path.is_file() or path.parent != STATIC:
             raise HTTPException(404)
-        media = {"js": "text/javascript", "css": "text/css"}.get(path.suffix[1:], "text/plain")
-        return Response(path.read_text(), media_type=media)
+        media = {"js": "text/javascript", "css": "text/css", "png": "image/png",
+                 "webmanifest": "application/manifest+json"}.get(path.suffix[1:], "text/plain")
+        # FileResponse streams bytes — the old read_text() corrupted binary assets.
+        return FileResponse(path, media_type=media)
 
     # Mode tabs are same-origin on the unified server; standalone they'd 404 as
     # JSON (which Apple browsers download). Serve HTML here instead.

@@ -135,8 +135,13 @@
 .vox-report .technical-body th{color:var(--vox-cyan);background:var(--vox-surface-1)}
 
 @media (max-width:720px){
-  .vox-report .executive{grid-template-columns:1fr}
+  .vox-report .executive{grid-template-columns:1fr;padding:16px}
   .vox-report .practice-grid{grid-template-columns:1fr}
   .vox-report .component{grid-template-columns:110px 1fr 42px}
   .vox-report .compare-row{grid-template-columns:90px 1fr 34px 1fr 34px}
+  .vox-report .metric-grid{grid-template-columns:1fr 1fr}
+  .vox-report .metric strong{font-size:19px}
+  /* timeline markers become tappable */
+  .vox-report .timeline{height:56px}
+  .vox-report .spot{width:18px;height:40px;top:8px;border-radius:5px}
 }

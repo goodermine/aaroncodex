@@ -339,6 +339,10 @@ _SHARED_ASSETS = {
     "vox-report.css": "text/css",
     "vox-record.js": "text/javascript",
     "vox-record.css": "text/css",
+    "site.webmanifest": "application/manifest+json",
+    "vox-icon-512.png": "image/png",
+    "vox-icon-192.png": "image/png",
+    "vox-icon-180.png": "image/png",
 }
 
 

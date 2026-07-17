@@ -5,6 +5,9 @@
 <title>VOX Suite — Command Deck</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>try{var t=localStorage.getItem('vox-theme')||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+<link rel="manifest" href="/static/site.webmanifest">
+<link rel="apple-touch-icon" href="/static/vox-icon-180.png">
+<meta name="theme-color" content="#070a0e">
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-report.css?v=__ASSET_VERSION__">
@@ -30,6 +33,8 @@
     color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:var(--vox-surface-1);transition:background .15s,box-shadow .15s}
   .vox-newbtn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
   .vox-newbtn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+  /* horizontal drag/pinch belongs to the scope; vertical swipes still scroll */
+  #scope{touch-action:pan-y}
   .stage-msg{display:grid;place-items:center;height:100%;gap:10px;text-align:center;color:var(--vox-muted);font-family:var(--vox-mono);letter-spacing:.06em}
   .stage-msg b{color:var(--vox-ink);font-size:15px;letter-spacing:.02em}
   .vox-scope__chips .vox-chip{cursor:pointer;font:inherit;font-family:var(--vox-mono);font-size:10px;letter-spacing:.12em}
@@ -176,7 +181,7 @@
       <audio id="origAudio" preload="none" style="display:none"></audio>
     </section>
 
-    <aside class="vox-rail vox-rail--flush">
+    <aside class="vox-rail vox-rail--flush vox-rail--console">
       <div class="vox-teleblock">
         <h3>Output Levels <span class="vox-mono" style="color:var(--vox-green)" id="levelHead">—</span></h3>
         <div class="vox-vu"><span>L</span><div class="vox-meter"><i class="vox-meter__fill" id="vuL"></i></div><span class="vox-vu__db vox-tnum" id="vuLdb">—</span></div>
@@ -595,10 +600,26 @@
   seekEl.addEventListener("pointerdown",function(e){if(!scopeData)return;seekEl.setPointerCapture(e.pointerId);seekEl._drag=true;seekTo(seekFraction(e.clientX));});
   seekEl.addEventListener("pointermove",function(e){if(seekEl._drag)seekTo(seekFraction(e.clientX));});
   window.addEventListener("pointerup",function(){seekEl._drag=false;});
-  var drag=null;
-  scopeCanvas.addEventListener("pointerdown",function(e){if(!scopeData)return;drag={x0:e.clientX,off0:view.offset,moved:false};scopeCanvas.setPointerCapture(e.pointerId);});
-  scopeCanvas.addEventListener("pointermove",function(e){if(!drag)return;var dx=e.clientX-drag.x0;if(Math.abs(dx)>3){drag.moved=true;view.follow=false;setPressed("#zFollow",false);var r=scopeCanvas.getBoundingClientRect(),v=vWin();view.offset=drag.off0-dx/(r.width-PAD)*v.win;drawScope();}});
-  scopeCanvas.addEventListener("pointerup",function(e){if(!drag)return;if(!drag.moved&&scopeView==="pitch"){var r=scopeCanvas.getBoundingClientRect();seekTo(clampN(tForX(e.clientX-r.left,r.width),0,scopeData.dur)/(scopeData.dur||1));}drag=null;});
+  // Drag pans; a second finger pinches (mobile) using the same anchor math as
+  // wheel-zoom, so the point between your fingers stays put.
+  var drag=null,pinch=null,pts={};
+  function ptIds(){return Object.keys(pts);}
+  function pinchDist(){var a=pts[ptIds()[0]],b=pts[ptIds()[1]];return Math.hypot(a.x-b.x,a.y-b.y);}
+  function pinchMidX(){var a=pts[ptIds()[0]],b=pts[ptIds()[1]];return (a.x+b.x)/2;}
+  scopeCanvas.addEventListener("pointerdown",function(e){
+    if(!scopeData)return;pts[e.pointerId]={x:e.clientX,y:e.clientY};try{scopeCanvas.setPointerCapture(e.pointerId);}catch(err){}
+    if(ptIds().length===2&&scopeView==="pitch"){drag=null;view.follow=false;setPressed("#zFollow",false);
+      var r=scopeCanvas.getBoundingClientRect();pinch={d0:pinchDist(),zoom0:view.zoom,tAt:tForX(pinchMidX()-r.left,r.width)};}
+    else if(ptIds().length===1)drag={x0:e.clientX,off0:view.offset,moved:false};});
+  scopeCanvas.addEventListener("pointermove",function(e){
+    if(pts[e.pointerId])pts[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(pinch&&ptIds().length===2){var r=scopeCanvas.getBoundingClientRect(),d=pinchDist();
+      if(d>0&&pinch.d0>0){view.zoom=clampN(pinch.zoom0*(d/pinch.d0),1,40);var px=pinchMidX()-r.left,v=vWin();view.offset=pinch.tAt-(px-PAD)/(r.width-PAD)*v.win;drawScope();}return;}
+    if(!drag)return;var dx=e.clientX-drag.x0;if(Math.abs(dx)>3){drag.moved=true;view.follow=false;setPressed("#zFollow",false);var r2=scopeCanvas.getBoundingClientRect(),v2=vWin();view.offset=drag.off0-dx/(r2.width-PAD)*v2.win;drawScope();}});
+  function endPointer(e){delete pts[e.pointerId];if(ptIds().length<2)pinch=null;}
+  scopeCanvas.addEventListener("pointerup",function(e){var wasPinch=!!pinch||ptIds().length>1;endPointer(e);
+    if(drag&&!wasPinch){if(!drag.moved&&scopeView==="pitch"){var r=scopeCanvas.getBoundingClientRect();seekTo(clampN(tForX(e.clientX-r.left,r.width),0,scopeData.dur)/(scopeData.dur||1));}drag=null;}});
+  scopeCanvas.addEventListener("pointercancel",function(e){endPointer(e);drag=null;});
   scopeCanvas.addEventListener("wheel",function(e){if(!scopeData||scopeView!=="pitch")return;e.preventDefault();var r=scopeCanvas.getBoundingClientRect(),px=e.clientX-r.left,tAt=tForX(px,r.width);view.zoom=clampN(view.zoom*(e.deltaY<0?1.25:1/1.25),1,40);var v=vWin();view.offset=tAt-(px-PAD)/(r.width-PAD)*v.win;drawScope();},{passive:false});
 
   // ---- spectrogram (offline STFT of the vocal, or synthetic in demo) ------

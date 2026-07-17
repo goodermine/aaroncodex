@@ -19,7 +19,7 @@ from ..orchestrator import JobMeta, JobRunner
 STATIC = Path(__file__).parent / "static"
 # Assets whose content decides the cache-bust version stamped into the deck.
 _VERSIONED = ("vox-tokens.css", "vox-kit.css", "vox-telemetry.js", "vox-about.js", "vox-theme.js", "vox-record.js", "vox-record.css", "vox-report.js", "vox-report.css", "deck.html")
-_MEDIA = {"css": "text/css", "js": "text/javascript", "html": "text/html"}
+_MEDIA = {"css": "text/css", "js": "text/javascript", "html": "text/html", "png": "image/png", "webmanifest": "application/manifest+json"}
 
 # Accepted upload extensions (mirrors the engines' ingest surface).
 _ALLOWED = {".wav", ".flac", ".mp3", ".m4a", ".aac", ".ogg", ".opus", ".mp4", ".mov", ".webm"}

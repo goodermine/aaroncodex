@@ -5,6 +5,9 @@
 <title>VOX Suite — Command Deck · Fused</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>try{var t=localStorage.getItem('vox-theme')||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+<link rel="manifest" href="/static/site.webmanifest">
+<link rel="apple-touch-icon" href="/static/vox-icon-180.png">
+<meta name="theme-color" content="#070a0e">
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-record.css?v=__ASSET_VERSION__">
@@ -125,7 +128,7 @@
       <audio id="deckAudio" preload="none" style="display:none"></audio>
     </section>
 
-    <aside class="vox-rail vox-rail--flush">
+    <aside class="vox-rail vox-rail--flush vox-rail--console">
       <div class="vox-teleblock">
         <h3>Output Levels <span class="vox-mono" style="color:var(--vox-green)" id="levelHead">—</span></h3>
         <div class="vox-vu"><span>L</span><div class="vox-meter"><i class="vox-meter__fill" id="vuL"></i></div><span class="vox-vu__db vox-tnum" id="vuLdb">—</span></div>
