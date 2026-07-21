@@ -359,6 +359,21 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
                 "rate_hz": _number(vibrato.get("median_rate_hz"), 2),
                 "extent_cents": _number(vibrato.get("median_extent_cents"), 1),
                 "onset_delay_s": _number(vibrato.get("median_onset_delay_s"), 2),
+                # Per-note segments for the deck's vibrato band. The display
+                # contour is 10 Hz (can't resolve vibrato client-side); these
+                # are measured server-side at full frame rate.
+                "notes": [
+                    {
+                        "start_s": n.get("start_s"),
+                        "duration_s": n.get("duration_s"),
+                        "note": n.get("note"),
+                        "rate_hz": n.get("rate_hz"),
+                        "extent_cents": n.get("extent_cents"),
+                        "has_vibrato": bool(n.get("has_vibrato")),
+                    }
+                    for n in (vibrato.get("notes") or [])
+                    if isinstance(n, dict)
+                ],
             },
             "dynamics": {
                 "effective_range_db": _number(dynamics.get("effective_dynamic_range_db"), 2),

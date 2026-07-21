@@ -37,8 +37,6 @@
   #scope{touch-action:pan-y}
   .stage-msg{display:grid;place-items:center;height:100%;gap:10px;text-align:center;color:var(--vox-muted);font-family:var(--vox-mono);letter-spacing:.06em}
   .stage-msg b{color:var(--vox-ink);font-size:15px;letter-spacing:.02em}
-  .vox-scope__chips .vox-chip{cursor:pointer;font:inherit;font-family:var(--vox-mono);font-size:10px;letter-spacing:.12em}
-  .vox-scope__chips .vox-chip:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   .scope-ctrls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
   .scope-layers,.scope-zoom{display:flex;gap:5px}
   .scope-tgl,.scope-znav{font-family:var(--vox-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
@@ -57,15 +55,36 @@
   .pb-vol{display:flex;align-items:center;gap:9px;margin-bottom:2px}
   .pb-vol span{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.12em;color:var(--vox-muted)}
   .pb-vol input[type=range]{flex:1;accent-color:var(--vox-cyan);height:4px}
-  /* H1–H8 harmonic energy bars (live, from the vocal FFT) */
-  .vox-harm{margin-top:16px;border-top:1px solid var(--vox-line);padding-top:14px}
-  .vox-harm__head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+  /* harmonics-at-playhead numeric table (offline dB tracks; live while playing) */
+  .harmtable{margin-top:16px;border-top:1px solid var(--vox-line);padding-top:14px}
+  .vox-harm__head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
   .vox-harm__k{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--vox-muted)}
-  .vox-harm__bars{display:flex;gap:6px;align-items:flex-end;height:88px}
-  .vox-harm__bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%}
-  .vox-harm__track{flex:1;width:100%;background:var(--vox-surface-1);border:1px solid var(--vox-line);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden}
-  .vox-harm__fill{width:100%;background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:0 0 8px rgba(63,224,255,.4);border-radius:0 0 3px 3px}
-  .vox-harm__lbl{font-family:var(--vox-mono);font-size:9px;color:var(--vox-muted)}
+  .harmtable__t{width:100%;border-collapse:collapse;font-family:var(--vox-mono);font-size:10.5px;font-variant-numeric:tabular-nums}
+  .harmtable__t th{text-align:right;font-weight:600;color:var(--vox-dim);letter-spacing:.08em;padding:2px 0 5px;border-bottom:1px solid var(--vox-line)}
+  .harmtable__t th:first-child,.harmtable__t td:first-child{text-align:left;color:var(--vox-cyan)}
+  .harmtable__t td{text-align:right;color:var(--vox-body);padding:3px 0}
+  .harmtable__vib{margin-top:9px;font-size:10px;letter-spacing:.06em;color:var(--vox-muted)}
+
+  /* analyzer lane stack: vibrato band / main / navigator, shared time window */
+  .lanes{position:absolute;inset:8px;display:flex;flex-direction:column;gap:6px}
+  .lane{position:relative;min-height:0}
+  .lane canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .lane--vib{flex:0 0 44px;border-bottom:1px solid var(--vox-line)}
+  .lane--main{flex:1 1 auto}
+  .lane--nav{flex:0 0 72px;border-top:1px solid var(--vox-line)}
+  #harmSide{left:auto;right:0;width:118px;touch-action:none}
+  /* Once a take is mounted the stage carries the class `seekable`; give it a firm
+     floor then so the analyzer lanes always have room even with the export tray
+     open below (which otherwise starved the main lane to zero on phones). The
+     idle intake keeps the kit's compact default. */
+  .vox-stage.seekable{min-height:520px}
+  @media(max-width:980px){.vox-stage.seekable{min-height:460px}}
+  @media(max-width:760px){
+    .vox-stage.seekable{min-height:360px}
+    .lane--vib{display:none}
+    .lane--nav{flex-basis:52px}
+    #harmSide{width:74px}
+  }
   .hidden{display:none!important}
 </style>
 </head>
@@ -116,9 +135,13 @@
         <div class="vox-readcell"><div class="vox-readcell__k">Median dev.</div><div class="vox-readcell__v" id="rDev">—</div></div>
         <div class="vox-readcell"><div class="vox-readcell__k">Within ±25c</div><div class="vox-readcell__v" id="rWithin">—</div></div>
       </div>
-      <div class="vox-harm" id="harm" hidden>
-        <div class="vox-harm__head"><span class="vox-harm__k">Harmonic energy</span><span class="vox-harm__k" id="harmF0">— Hz</span></div>
-        <div class="vox-harm__bars" id="harmBars"></div>
+      <div class="harmtable" id="harmTable" hidden>
+        <div class="vox-harm__head"><span class="vox-harm__k">Harmonics @ playhead</span><span class="vox-harm__k" id="harmF0">— Hz</span></div>
+        <table class="harmtable__t" aria-label="Harmonic intensities at the playhead">
+          <thead><tr><th>#</th><th>Note</th><th>Hz</th><th>dB</th></tr></thead>
+          <tbody id="harmRows"></tbody>
+        </table>
+        <div class="harmtable__vib vox-mono" id="vibStat">Vibrato · —</div>
       </div>
     </aside>
 
@@ -126,12 +149,9 @@
       <div class="vox-scope__head">
         <span class="vox-scope__title">Performance <b>Scope</b></span>
         <div class="scope-ctrls">
-          <div class="vox-scope__chips" role="tablist" aria-label="Scope view">
-            <button class="vox-chip is-hot" id="chipPitch" data-view="pitch" role="tab" aria-selected="true" type="button">PITCH</button><button class="vox-chip" id="chipWaveform" data-view="waveform" role="tab" aria-selected="false" type="button">WAVEFORM</button><button class="vox-chip" id="chipSpectrum" data-view="spectrum" role="tab" aria-selected="false" type="button">SPECTRUM</button>
-          </div>
           <div class="scope-layers" aria-label="Scope layers">
             <button class="scope-tgl" id="tglAccuracy" aria-pressed="false" type="button" title="Colour the pitch line by accuracy (red = out of tune)">Accuracy</button>
-            <button class="scope-tgl" id="tglSpectro" aria-pressed="false" type="button" title="Spectrogram energy behind the pitch">Spectro</button>
+            <button class="scope-tgl" id="tglSpectro" aria-pressed="true" type="button" title="Spectrogram energy behind the pitch">Spectro</button>
             <button class="scope-tgl" id="tglOriginal" aria-pressed="false" type="button" hidden title="Overlay the original track's pitch">Original</button>
           </div>
           <div class="scope-zoom" aria-label="Zoom">
@@ -143,7 +163,16 @@
         <span class="vox-bracket tl"></span><span class="vox-bracket tr"></span><span class="vox-bracket bl"></span><span class="vox-bracket br"></span>
         <span class="vox-stage__tstamp vox-mono" id="tstamp">STANDBY</span>
         <span class="vox-stage__rec vox-mono"><span class="vox-led is-standby"></span><span id="recLabel">ARMED</span></span>
-        <canvas id="scope" class="hidden"></canvas>
+        <!-- analyzer stack: vibrato band / pitch+spectrogram / waveform navigator,
+             one shared time window + playhead through all lanes -->
+        <div class="lanes hidden" id="lanes">
+          <div class="lane lane--vib" id="laneVib"><canvas id="vibCanvas"></canvas></div>
+          <div class="lane lane--main" id="laneMain">
+            <canvas id="scope"></canvas>
+            <canvas id="harmSide" aria-label="Harmonic intensity at the playhead"></canvas>
+          </div>
+          <div class="lane lane--nav" id="laneNav"><canvas id="navCanvas" aria-label="Full-take waveform navigator"></canvas></div>
+        </div>
         <!-- idle intake -->
         <div class="intake" id="intake">
           <div class="intake-modes" role="tablist" aria-label="Input source">
@@ -257,8 +286,8 @@
   $("#modePolish").addEventListener("click",function(){location.href="/polish";});
   $("#fusedBtn").addEventListener("click",function(){location.href="/";});
 
-  function setStage(mainHtml){intake.classList.add("hidden");$("#scope").classList.add("hidden");stageMsg.classList.remove("hidden");stageMsg.innerHTML=mainHtml;}
-  function showIntake(){stageMsg.classList.add("hidden");$("#scope").classList.add("hidden");intake.classList.remove("hidden");}
+  function setStage(mainHtml){intake.classList.add("hidden");$("#lanes").classList.add("hidden");stageMsg.classList.remove("hidden");stageMsg.innerHTML=mainHtml;}
+  function showIntake(){stageMsg.classList.add("hidden");$("#lanes").classList.add("hidden");intake.classList.remove("hidden");}
   function setText(sel,val){var e=$(sel);if(e)e.textContent=(val==null||val==="")?"—":val;}
 
   // On real completion, hydrate the readout rail + metrics export from the job
@@ -283,7 +312,12 @@
       // compared original — each an independent toggle.
       var urls=res.audio_urls||{};
       instrumentalUrl=urls.instrumental||null;originalUrl=urls.original||null;
+      // Per-note vibrato band + offline harmonic dB tracks (both time-aligned).
+      vibNotes=(mt.vibrato&&Array.isArray(mt.vibrato.notes)&&mt.vibrato.notes.length)?mt.vibrato.notes:null;
       if(contour)mountScope(contour,res.duration_seconds,vocalUrl);
+      var spec=res.spectral&&res.spectral.sources&&res.spectral.sources.vocals;
+      var hurl=spec&&spec.harmonic_tracks_url;
+      if(hurl)fetch(hurl,{headers:{"cache-control":"no-cache"}}).then(function(r){return r.ok?r.json():null;}).then(function(ht){if(ht&&ht.values){harmTracks=ht;drawScope();updateHarmTable();}}).catch(function(){});
       // Full results panel — the same report the classic view renders.
       if(window.VOXReport){VOXReport.render($("#report"),{report:rep,result:res,
         reportUrl:res.v2_report_url||("/api/pitch-jobs/"+id+"/report"),
@@ -341,13 +375,14 @@
     if(pollStop){pollStop();pollStop=null;}
     [deckAudio,aux.backing.el,aux.orig.el].forEach(function(a){try{a.pause();a.removeAttribute("src");a.load();}catch(e){}});
     aux.backing.on=false;aux.orig.on=false;
-    scopeData=null;spectroImg=null;view.zoom=1;view.offset=0;scopeCanvas.classList.add("hidden");
-    accuracyOn=spectroOn=originalOn=false;setPressed("#tglAccuracy",false);setPressed("#tglSpectro",false);setPressed("#tglOriginal",false);$("#tglOriginal").hidden=true;
+    scopeData=null;spectroImg=null;navPeaks=null;vibNotes=null;harmTracks=null;view.zoom=1;view.offset=0;
+    $("#lanes").classList.add("hidden");stage.classList.remove("seekable");
+    accuracyOn=originalOn=false;spectroOn=true;setPressed("#tglAccuracy",false);setPressed("#tglSpectro",true);setPressed("#tglOriginal",false);$("#tglOriginal").hidden=true;
     refContour=null;instrumentalUrl=null;originalUrl=null;
     var rp=$("#report");rp.setAttribute("hidden","");rp.innerHTML="";
     tray.classList.remove("open");tray.innerHTML="";exportBtn.disabled=true;exportBtn.classList.remove("vox-btn--ready","vox-btn--primary");exportBtn.setAttribute("aria-expanded","false");dlLabel.textContent="Export report";
     $("#playbackBlock").hidden=true;$("#computeBlock").hidden=false;$("#tglBacking").hidden=true;$("#tglOrig").hidden=true;
-    $("#harm").setAttribute("hidden","");
+    $("#harmTable").setAttribute("hidden","");
     ["#rRange","#rConf","#rDev","#rWithin"].forEach(function(s){$(s).textContent="—";});
     $("#readNote").textContent="—";$("#readCents").textContent="Awaiting take";
     $("#tcode").innerHTML="00:00.0 <span>/</span> 00:00.0";$("#seekFill").style.width="0%";playBtn.disabled=true;playBtn.innerHTML="&#9654;";
@@ -438,13 +473,24 @@
   // to playback, and a live note/cents readout. (Spectral overlays + zoom/pan
   // remain a later layer.)
   var scopeCanvas=$("#scope"),sctx=scopeCanvas.getContext("2d"),deckAudio=$("#deckAudio"),playBtn=$("#playBtn"),seekWrap=null;
+  var vibCanvas=$("#vibCanvas"),vctx=vibCanvas.getContext("2d");
+  var navCanvas=$("#navCanvas"),nctx=navCanvas.getContext("2d");
+  var harmCanvas=$("#harmSide"),hctx=harmCanvas.getContext("2d");
   var PAD=44,scopeData=null,fakeClock=null,lastT=0;
+  var navPeaks=null,vibNotes=null,harmTracks=null;
   function noteName(m){var n=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"],r=Math.round(m);return n[((r%12)+12)%12]+(Math.floor(r/12)-1);}
   function clockObj(){return fakeClock||deckAudio;}
+  function fitCanvasTo(cv,ctx,el){
+    var r=el.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
+    cv.width=Math.max(1,Math.round(r.width*d));cv.height=Math.max(1,Math.round(r.height*d));
+    ctx.setTransform(d,0,0,d,0,0);return r;
+  }
   function fitScope(){
-    var r=stage.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
-    scopeCanvas.width=Math.max(1,Math.round(r.width*d));scopeCanvas.height=Math.max(1,Math.round(r.height*d));
-    sctx.setTransform(d,0,0,d,0,0);scopeData&&(scopeData.w=r.width,scopeData.h=r.height);
+    var r=fitCanvasTo(scopeCanvas,sctx,$("#laneMain"));
+    scopeData&&(scopeData.w=r.width,scopeData.h=r.height);
+    fitCanvasTo(vibCanvas,vctx,$("#laneVib"));
+    fitCanvasTo(navCanvas,nctx,$("#laneNav"));
+    fitCanvasTo(harmCanvas,hctx,harmCanvas);
   }
   function computeBounds(values){
     var lo=1e9,hi=-1e9;
@@ -454,7 +500,7 @@
   }
   function mono(){return getComputedStyle(document.body).getPropertyValue("--vox-mono");}
   // view window (zoom + pan) + layer toggles; the pitch view maps X through this.
-  var view={zoom:1,offset:0,follow:true},accuracyOn=false,spectroOn=false,originalOn=false,refContour=null,spectroImg=null;
+  var view={zoom:1,offset:0,follow:true},accuracyOn=false,spectroOn=true,originalOn=false,refContour=null,spectroImg=null;
   function clampN(v,a,b){return Math.max(a,Math.min(b,v));}
   function vWin(){var dur=scopeData?(scopeData.dur||1):1,win=dur/view.zoom;view.offset=clampN(view.offset,0,Math.max(0,dur-win));return{start:view.offset,win:win,end:view.offset+win,dur:dur};}
   function xForT(t,w){var v=vWin();return PAD+(t-v.start)/v.win*(w-PAD);}
@@ -465,9 +511,7 @@
   function pitchErrorColour(cents){var m=69+cents/100,err=Math.min(50,Math.abs((m-Math.round(m))*100)),a=err<=15?0:err<=30?(err-15)/15*.22:err<=40?.22+(err-30)/10*.38:.6+(err-40)/10*.4,s=[139,124,255],e=[255,77,94];return "rgb("+s.map(function(v,i){return Math.round(v+(e[i]-v)*a);}).join(",")+")";}
   function drawScope(){
     if(!scopeData)return;
-    if(scopeView==="spectrum")return drawSpectrum();
-    if(scopeView==="waveform")return drawWaveform();
-    drawPitch();
+    drawPitch();drawVib();drawNav();drawHarmPanel();
   }
   function drawContourLine(contour,color,width,byAccuracy){
     if(!contour||!contour.values)return;var vals=contour.values,rate=contour.rate_hz||contour.rate||10,w=scopeData.w,h=scopeData.h,eb=yBounds(),lo=eb.lo,range=eb.range,v=vWin();
@@ -489,12 +533,73 @@
     var ct=clockObj().currentTime||0;if(ct>=v.start&&ct<=v.end){var px=xForT(ct,w);sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
   }
 
+  // ---- vibrato strip (per-note rate band, top lane) -----------------------
+  // The 10 Hz display contour can't resolve 3–9 Hz vibrato, so this band draws
+  // the engine's per-note measurements (rate + presence), time-aligned to the
+  // shared zoom window. Green bars = vibrato present (height ∝ rate); dim bars =
+  // straight tone. Hidden entirely on phones (kit @media).
+  function drawVib(){
+    var r=vibCanvas.getBoundingClientRect(),w=r.width,h=r.height;vctx.clearRect(0,0,w,h);
+    if(!scopeData)return;
+    vctx.fillStyle="rgba(10,20,28,.4)";vctx.fillRect(0,0,w,h);
+    vctx.fillStyle="#7f93a4";vctx.font="9px "+mono();vctx.textBaseline="middle";vctx.textAlign="left";vctx.fillText("VIB",6,h/2);
+    var v=vWin(),plot=w-PAD;
+    function X(t){return PAD+(t-v.start)/v.win*plot;}
+    if(vibNotes&&vibNotes.length){
+      for(var i=0;i<vibNotes.length;i++){var nt=vibNotes[i];var t0=nt.start_s,t1=nt.start_s+(nt.duration_s||0);
+        if(t1<v.start||t0>v.end)continue;
+        var x0=Math.max(PAD,X(t0)),x1=Math.min(w,X(t1));if(x1<=x0)continue;
+        var rate=nt.rate_hz||0,frac=clampN((rate-3)/6,0,1),bh=nt.has_vibrato?(4+frac*(h-10)):3,y=h-2-bh;
+        vctx.fillStyle=nt.has_vibrato?"rgba(90,224,138,.75)":"rgba(127,147,164,.35)";
+        vctx.fillRect(x0,y,Math.max(1,x1-x0),bh);
+        if(nt.has_vibrato&&x1-x0>26){vctx.fillStyle="#0a141c";vctx.font="8px "+mono();vctx.fillText(rate.toFixed(1),x0+3,y+bh/2);vctx.font="9px "+mono();}
+      }
+    }
+    var ct=clockObj().currentTime||0;if(ct>=v.start&&ct<=v.end){var px=X(ct);vctx.strokeStyle="#3fe0ff";vctx.lineWidth=1;vctx.beginPath();vctx.moveTo(px,0);vctx.lineTo(px,h);vctx.stroke();}
+  }
+
+  // ---- navigator (full-take waveform overview, bottom lane) ----------------
+  // Shows the whole recording; the violet box is the current zoom window, tap to
+  // seek, drag the box to pan. navPeaks is min/max-binned from the decoded stem
+  // (piggybacked on the spectrogram decode), with a contour-derived stand-in
+  // shown immediately and whenever no audio is decoded (demo / spectro off).
+  function drawNav(){
+    var r=navCanvas.getBoundingClientRect(),w=r.width,h=r.height;nctx.clearRect(0,0,w,h);
+    if(!scopeData)return;
+    var dur=scopeData.dur||1,mid=h/2,plot=w-PAD;
+    if(navPeaks){nctx.fillStyle="rgba(63,224,255,.30)";var cols=navPeaks.cols;
+      for(var x=PAD;x<w;x++){var c=Math.floor((x-PAD)/plot*cols);if(c<0||c>=cols)continue;
+        var hi=navPeaks.mx[c],loo=navPeaks.mn[c],y1=mid-hi*mid*0.9,y2=mid-loo*mid*0.9;nctx.fillRect(x,y1,1,Math.max(1,y2-y1));}}
+    nctx.fillStyle="#7f93a4";nctx.font="9px "+mono();nctx.textBaseline="top";nctx.textAlign="left";nctx.fillText("00:00",PAD+2,2);
+    nctx.textAlign="right";nctx.textBaseline="bottom";nctx.fillText(fmt(dur),w-2,h-2);nctx.textAlign="left";
+    var v=vWin();
+    if(view.zoom>1){var wx=PAD+v.start/dur*plot,ww=Math.max(6,v.win/dur*plot);
+      nctx.fillStyle="rgba(139,124,255,.16)";nctx.fillRect(wx,0,ww,h);
+      nctx.strokeStyle="rgba(139,124,255,.7)";nctx.lineWidth=1;nctx.strokeRect(wx+.5,.5,Math.max(1,ww-1),h-1);}
+    var ct=clockObj().currentTime||0,px=PAD+clampN(ct/dur,0,1)*plot;
+    nctx.strokeStyle="#3fe0ff";nctx.lineWidth=1.5;nctx.beginPath();nctx.moveTo(px,0);nctx.lineTo(px,h);nctx.stroke();
+  }
+  function buildNavPeaks(ab){
+    try{var data=ab.getChannelData(0),cols=900,mn=new Float32Array(cols),mx=new Float32Array(cols),step=data.length/cols;
+      for(var c=0;c<cols;c++){var s0=Math.floor(c*step),s1=Math.min(data.length,Math.floor((c+1)*step)),lo=0,hi=0;
+        for(var i=s0;i<s1;i++){var vv=data[i];if(vv<lo)lo=vv;if(vv>hi)hi=vv;}
+        mn[c]=lo;mx[c]=hi;}
+      navPeaks={cols:cols,mn:mn,mx:mx};drawScope();
+    }catch(e){}
+  }
+  // Contour-derived stand-in so the navigator is never blank (voiced=louder).
+  function buildSyntheticNav(){
+    if(!scopeData)return;var vals=scopeData.contour.values,cols=900,mn=new Float32Array(cols),mx=new Float32Array(cols),n=vals.length;
+    for(var c=0;c<cols;c++){var idx=Math.floor(c/cols*n),vv=vals[idx],a=(vv==null||!isFinite(vv))?0.03:0.3+0.55*Math.abs(Math.sin(c*0.28));mx[c]=a;mn[c]=-a;}
+    navPeaks={cols:cols,mn:mn,mx:mx};
+  }
+
   // ---- live spectrum + harmonics (Web Audio FFT on the vocal stem) --------
   // Rather than port the classic viewer's precomputed spectral-tile machinery,
   // the deck analyses the playing stem directly: a real FFT drives the SPECTRUM
   // view and the H1–H8 harmonic-energy bars (sampled at k×F0). In ?demo mode
   // (no real audio) a synthetic spectrum with harmonic peaks stands in.
-  var scopeView="pitch",audioCtx=null,analyser=null,freqBins=null,timeBins=null,harmCells=[];
+  var audioCtx=null,analyser=null,freqBins=null,timeBins=null;
   // Aux playback under the vocal: independent Backing (separated instrumental)
   // and Original (the compared original track), each synced to the vocal playhead.
   var instrumentalUrl=null,originalUrl=null;
@@ -530,53 +635,77 @@
     if(playing)for(var k=1;k<=10;k++){var f=k*f0;if(f>nyq)break;var bin=Math.round(f/nyq*n),amp=205*Math.pow(0.73,k-1);for(var d=-2;d<=2;d++){var b=bin+d;if(b>=0&&b<n)arr[b]=Math.min(255,Math.max(arr[b],amp*Math.exp(-d*d/2)));}}
     return{mag:arr,n:n,nyq:nyq};
   }
-  function drawSpectrum(){
-    var w=scopeData.w,h=scopeData.h,PADB=18;sctx.clearRect(0,0,w,h);
-    var sp=readFreq(),n=sp.n,nyq=sp.nyq,fMin=50,fMax=Math.min(10000,nyq),lw=Math.log(fMax/fMin);
-    function X(f){return PAD+(Math.log(f/fMin)/lw)*(w-PAD);}
-    sctx.font="9px "+mono();sctx.textBaseline="alphabetic";
-    [100,1000,10000].forEach(function(f){if(f>fMax)return;var x=X(f);sctx.strokeStyle="#1a2530";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(x,0);sctx.lineTo(x,h-PADB);sctx.stroke();sctx.fillStyle="#7f93a4";sctx.fillText(f>=1000?(f/1000)+"k":f+"",x+3,h-5);});
-    var pts=[];for(var i=1;i<n;i++){var f=i/n*nyq;if(f<fMin)continue;if(f>fMax)break;pts.push([X(f),(h-PADB)-Math.min(255,sp.mag[i])/255*(h-PADB-6)]);}
-    if(pts.length){
-      var grad=sctx.createLinearGradient(0,0,0,h);grad.addColorStop(0,"rgba(63,224,255,.5)");grad.addColorStop(1,"rgba(63,224,255,.02)");
-      sctx.beginPath();sctx.moveTo(pts[0][0],h-PADB);pts.forEach(function(p){sctx.lineTo(p[0],p[1]);});sctx.lineTo(pts[pts.length-1][0],h-PADB);sctx.closePath();sctx.fillStyle=grad;sctx.fill();
-      sctx.beginPath();pts.forEach(function(p,i){i?sctx.lineTo(p[0],p[1]):sctx.moveTo(p[0],p[1]);});sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.3;sctx.shadowColor="#3fe0ff";sctx.shadowBlur=5;sctx.stroke();sctx.shadowBlur=0;
+  // ---- harmonics: side panel on the note axis + numeric table --------------
+  // dB comes from the offline per-frame tracks when present (works paused and
+  // while scrubbing); the live analyser stands in during playback / demo.
+  function harmDbAt(k,t){
+    if(!harmTracks||!harmTracks.values)return null;
+    var arr=harmTracks.values["H"+k];if(!arr)return null;
+    var i=Math.round((t-(harmTracks.t0||0))*(harmTracks.rate_hz||10));
+    return (i>=0&&i<arr.length)?arr[i]:null;
+  }
+  function liveHarmDb(k,f0){
+    var sp=readFreq(),n=sp.n,nyq=sp.nyq,bin=Math.round(k*f0/nyq*n),mag=0;
+    for(var d=-1;d<=1;d++){var b=bin+d;if(b>=0&&b<n)mag=Math.max(mag,Math.min(255,sp.mag[b]));}
+    if(mag<=0)return null;
+    return Math.max(-42,20*Math.log10(mag/255));
+  }
+  function drawHarmPanel(){
+    var r=harmCanvas.getBoundingClientRect(),w=r.width,h=r.height;hctx.clearRect(0,0,w,h);
+    if(!scopeData)return;
+    var ct=clockObj().currentTime||0,f0=currentF0();
+    hctx.font="9px "+mono();hctx.textBaseline="middle";
+    hctx.fillStyle="rgba(10,20,28,.55)";hctx.fillRect(0,0,w,h);
+    hctx.strokeStyle="#263a4a";hctx.beginPath();hctx.moveTo(0.5,0);hctx.lineTo(0.5,h);hctx.stroke();
+    if(!f0)return;
+    var eb=yBounds(),lo=eb.lo,range=eb.range,playing=!clockObj().paused;
+    for(var k=1;k<=8;k++){
+      var m=69+12*Math.log2(k*f0/440);if(m<lo||m>eb.hi)continue;
+      var y=h-(m-lo)/range*h;
+      var db=(playing&&analyser)?liveHarmDb(k,f0):harmDbAt(k,ct);
+      if(db==null&&(fakeClock||!analyser))db=playing?-4*(k-1):null;  // demo stand-in
+      var len=db==null?0:clampN((db+42)/42,0,1)*(w-30);
+      hctx.fillStyle=k===1?"rgba(63,224,255,.9)":"rgba(63,224,255,.5)";
+      if(len>0)hctx.fillRect(w-4-len,y-2,len,4);
+      hctx.fillStyle="#7f93a4";hctx.fillText("H"+k,4,y);
     }
-    var f0=currentF0();if(f0)for(var k=1;k<=8;k++){var f=k*f0;if(f<fMin||f>fMax)break;var x=X(f);sctx.strokeStyle=k===1?"rgba(139,124,255,.9)":"rgba(139,124,255,.32)";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(x,14);sctx.lineTo(x,h-PADB);sctx.stroke();sctx.fillStyle="#8b7cff";sctx.fillText("H"+k,x+2,11);}
   }
-  function drawWaveform(){
-    var w=scopeData.w,h=scopeData.h,mid=h/2;sctx.clearRect(0,0,w,h);
-    sctx.strokeStyle="rgba(63,224,255,.12)";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(0,mid);sctx.lineTo(w,mid);sctx.stroke();
-    var data,n;
-    if(analyser){analyser.getByteTimeDomainData(timeBins);data=timeBins;n=timeBins.length;}
-    else{n=600;data=new Uint8Array(n);var t=clockObj().currentTime||0,playing=!clockObj().paused,amp=playing?58:6;for(var i=0;i<n;i++){var e=Math.exp(-Math.pow((i/n)-0.5,2)*2.5);data[i]=128+Math.sin((i/n)*Math.PI*2*9+t*5)*amp*e;}}
-    sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.4;sctx.shadowColor="#3fe0ff";sctx.shadowBlur=5;sctx.beginPath();
-    for(var i=0;i<n;i++){var x=i/(n-1)*w,y=mid+((data[i]-128)/128)*(h*0.42);i?sctx.lineTo(x,y):sctx.moveTo(x,y);}
-    sctx.stroke();sctx.shadowBlur=0;
-  }
-  function buildHarmCells(){
-    var host=$("#harmBars");if(!host)return;host.innerHTML="";harmCells=[];
-    for(var k=1;k<=8;k++){var cell=document.createElement("div");cell.className="vox-harm__bar";
-      cell.innerHTML='<div class="vox-harm__track"><i class="vox-harm__fill" style="height:0%"></i></div><div class="vox-harm__lbl">H'+k+'</div>';
-      host.appendChild(cell);harmCells.push(cell.querySelector(".vox-harm__fill"));}
-  }
-  function updateHarmonics(){
-    if(!harmCells.length)return;var f0=currentF0();
+  var harmRowEls=null,lastTableT=-1;
+  function updateHarmTable(){
+    var host=$("#harmRows");if(!host||!scopeData)return;
+    var ct=clockObj().currentTime||0;
+    var slot=Math.round(ct*4);if(slot===lastTableT)return;lastTableT=slot;  // ~4 Hz DOM updates
+    var f0=currentF0();
     $("#harmF0").textContent=f0?Math.round(f0)+" Hz":"— Hz";
-    if(!f0){for(var k=0;k<8;k++)harmCells[k].style.height="0%";return;}
-    var sp=readFreq(),n=sp.n,nyq=sp.nyq,mags=[];
-    for(var k=1;k<=8;k++){var bin=Math.round(k*f0/nyq*n),mag=0;for(var d=-1;d<=1;d++){var b=bin+d;if(b>=0&&b<n)mag=Math.max(mag,Math.min(255,sp.mag[b]));}mags.push(mag);}
-    var max=Math.max.apply(null,mags)||1;
-    for(var k2=0;k2<8;k2++)harmCells[k2].style.height=Math.round(mags[k2]/max*100)+"%";
+    if(!harmRowEls){
+      host.innerHTML="";harmRowEls=[];
+      for(var k=1;k<=8;k++){var tr=document.createElement("tr");
+        tr.innerHTML="<td>H"+k+"</td><td>—</td><td>—</td><td>—</td>";
+        host.appendChild(tr);harmRowEls.push(tr.children);}
+    }
+    var playing=!clockObj().paused;
+    for(var k2=1;k2<=8;k2++){
+      var cells=harmRowEls[k2-1];
+      if(!f0){cells[1].textContent="—";cells[2].textContent="—";cells[3].textContent="—";continue;}
+      var f=k2*f0,m=69+12*Math.log2(f/440),cents=Math.round((m-Math.round(m))*100);
+      cells[1].textContent=noteName(m)+(cents?((cents>0?"+":"")+cents+"c"):"");
+      cells[2].textContent=f>=10000?(f/1000).toFixed(1)+"k":f.toFixed(f<1000?1:0);
+      var db=(playing&&analyser)?liveHarmDb(k2,f0):harmDbAt(k2,ct);
+      if(db==null&&fakeClock)db=playing?-4*(k2-1):null;
+      cells[3].textContent=db==null?"—":db.toFixed(1);
+    }
+    // vibrato at playhead: the per-note segment covering ct, else whole-take medians
+    var vs=$("#vibStat");
+    if(vs){
+      var seg=null;
+      if(vibNotes)for(var i=0;i<vibNotes.length;i++){var n=vibNotes[i];
+        if(ct>=n.start_s&&ct<=n.start_s+n.duration_s){seg=n;break;}}
+      if(seg&&seg.has_vibrato)vs.textContent="Vibrato · "+seg.rate_hz+" Hz · ±"+Math.round((seg.extent_cents||0)/2)+"c · "+(seg.note||"");
+      else if(seg)vs.textContent="Vibrato · straight tone ("+(seg.note||"held note")+")";
+      else if(vibNotes&&vibNotes.length)vs.textContent="Vibrato · — (between notes)";
+      else vs.textContent="Vibrato · —";
+    }
   }
-  // scope-view chips
-  document.querySelectorAll(".vox-scope__chips .vox-chip").forEach(function(btn){
-    btn.addEventListener("click",function(){
-      scopeView=btn.dataset.view;
-      document.querySelectorAll(".vox-scope__chips .vox-chip").forEach(function(x){var on=x===btn;x.classList.toggle("is-hot",on);x.setAttribute("aria-selected",on?"true":"false");});
-      if(scopeData)drawScope();
-    });
-  });
 
   // ---- layer toggles + zoom controls -------------------------------------
   function setPressed(sel,on){var e=$(sel);if(e)e.setAttribute("aria-pressed",on?"true":"false");}
@@ -608,7 +737,7 @@
   function pinchMidX(){var a=pts[ptIds()[0]],b=pts[ptIds()[1]];return (a.x+b.x)/2;}
   scopeCanvas.addEventListener("pointerdown",function(e){
     if(!scopeData)return;pts[e.pointerId]={x:e.clientX,y:e.clientY};try{scopeCanvas.setPointerCapture(e.pointerId);}catch(err){}
-    if(ptIds().length===2&&scopeView==="pitch"){drag=null;view.follow=false;setPressed("#zFollow",false);
+    if(ptIds().length===2){drag=null;view.follow=false;setPressed("#zFollow",false);
       var r=scopeCanvas.getBoundingClientRect();pinch={d0:pinchDist(),zoom0:view.zoom,tAt:tForX(pinchMidX()-r.left,r.width)};}
     else if(ptIds().length===1)drag={x0:e.clientX,off0:view.offset,moved:false};});
   scopeCanvas.addEventListener("pointermove",function(e){
@@ -618,9 +747,23 @@
     if(!drag)return;var dx=e.clientX-drag.x0;if(Math.abs(dx)>3){drag.moved=true;view.follow=false;setPressed("#zFollow",false);var r2=scopeCanvas.getBoundingClientRect(),v2=vWin();view.offset=drag.off0-dx/(r2.width-PAD)*v2.win;drawScope();}});
   function endPointer(e){delete pts[e.pointerId];if(ptIds().length<2)pinch=null;}
   scopeCanvas.addEventListener("pointerup",function(e){var wasPinch=!!pinch||ptIds().length>1;endPointer(e);
-    if(drag&&!wasPinch){if(!drag.moved&&scopeView==="pitch"){var r=scopeCanvas.getBoundingClientRect();seekTo(clampN(tForX(e.clientX-r.left,r.width),0,scopeData.dur)/(scopeData.dur||1));}drag=null;}});
+    if(drag&&!wasPinch){if(!drag.moved){var r=scopeCanvas.getBoundingClientRect();seekTo(clampN(tForX(e.clientX-r.left,r.width),0,scopeData.dur)/(scopeData.dur||1));}drag=null;}});
   scopeCanvas.addEventListener("pointercancel",function(e){endPointer(e);drag=null;});
-  scopeCanvas.addEventListener("wheel",function(e){if(!scopeData||scopeView!=="pitch")return;e.preventDefault();var r=scopeCanvas.getBoundingClientRect(),px=e.clientX-r.left,tAt=tForX(px,r.width);view.zoom=clampN(view.zoom*(e.deltaY<0?1.25:1/1.25),1,40);var v=vWin();view.offset=tAt-(px-PAD)/(r.width-PAD)*v.win;drawScope();},{passive:false});
+  scopeCanvas.addEventListener("wheel",function(e){if(!scopeData)return;e.preventDefault();var r=scopeCanvas.getBoundingClientRect(),px=e.clientX-r.left,tAt=tForX(px,r.width);view.zoom=clampN(view.zoom*(e.deltaY<0?1.25:1/1.25),1,40);var v=vWin();view.offset=tAt-(px-PAD)/(r.width-PAD)*v.win;drawScope();},{passive:false});
+
+  // ---- navigator: tap the overview to seek, drag to pan the zoom window ----
+  var navDrag=null;
+  navCanvas.addEventListener("pointerdown",function(e){
+    if(!scopeData)return;try{navCanvas.setPointerCapture(e.pointerId);}catch(err){}
+    navDrag={x0:e.clientX,off0:view.offset,moved:false,w:navCanvas.getBoundingClientRect().width};});
+  navCanvas.addEventListener("pointermove",function(e){
+    if(!navDrag)return;var dx=e.clientX-navDrag.x0;
+    if(Math.abs(dx)>3){navDrag.moved=true;view.follow=false;setPressed("#zFollow",false);
+      view.offset=navDrag.off0+dx/Math.max(1,navDrag.w-PAD)*scopeData.dur;drawScope();}});
+  navCanvas.addEventListener("pointerup",function(e){
+    if(navDrag&&!navDrag.moved){var r=navCanvas.getBoundingClientRect();seekTo(clampN((e.clientX-r.left-PAD)/(r.width-PAD),0,1));}
+    navDrag=null;});
+  navCanvas.addEventListener("pointercancel",function(){navDrag=null;});
 
   // ---- spectrogram (offline STFT of the vocal, or synthetic in demo) ------
   function fft(re,im){var n=re.length;for(var i=1,j=0;i<n;i++){var bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){var tr=re[i];re[i]=re[j];re[j]=tr;var ti=im[i];im[i]=im[j];im[j]=ti;}}
@@ -633,6 +776,7 @@
       ensureAudio();var ctx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
       return ctx.decodeAudioData(buf.slice(0));
     }).then(function(ab){
+      buildNavPeaks(ab);
       var data=ab.getChannelData(0),sr=ab.sampleRate,N=1024,H=384,eb=yBounds(),lo=eb.lo,range=eb.range;
       var cols=clampN(Math.floor(data.length/(N/2)),200,1100),hop=Math.max(N>>1,Math.floor((data.length-N)/cols));
       var img=document.createElement("canvas");img.width=cols;img.height=H;var ictx=img.getContext("2d"),id=ictx.createImageData(cols,H),px=id.data;
@@ -661,7 +805,7 @@
     var rate=Number(contour.rate_hz||contour.rate||100)||100;
     var b=computeBounds(contour.values),r=stage.getBoundingClientRect();
     scopeData={contour:contour,rate:rate,dur:duration||contour.values.length/rate,lo:b.lo,hi:b.hi,range:b.range,w:r.width,h:r.height};
-    intake.classList.add("hidden");stageMsg.classList.add("hidden");scopeCanvas.classList.remove("hidden");
+    intake.classList.add("hidden");stageMsg.classList.add("hidden");$("#lanes").classList.remove("hidden");
     if(audioUrl){fakeClock=null;deckAudio.src=audioUrl;}else{fakeClock={currentTime:0,duration:scopeData.dur,paused:true,play:function(){this.paused=false;},pause:function(){this.paused=true;}};}
     view.zoom=1;view.offset=0;spectroImg=null;stage.classList.add("seekable");
     $("#tglOriginal").hidden=!(refContour&&refContour.values&&refContour.values.length);
@@ -673,9 +817,10 @@
     if(originalUrl){aux.orig.el.src=originalUrl;aux.orig.el.volume=vol;}
     if(instrumentalUrl||originalUrl){$("#playbackBlock").removeAttribute("hidden");$("#computeBlock").hidden=true;}
     else{$("#playbackBlock").hidden=true;$("#computeBlock").hidden=false;}
+    buildSyntheticNav();  // immediate navigator; real waveform replaces it on decode
     if(spectroOn)buildSpectrogram();
-    playBtn.disabled=false;buildHarmCells();$("#harm").removeAttribute("hidden");
-    fitScope();drawScope();scopeReadout();updateHarmonics();
+    playBtn.disabled=false;harmRowEls=null;$("#harmTable").removeAttribute("hidden");
+    fitScope();drawScope();scopeReadout();updateHarmTable();
     if(!scopeLooping){scopeLooping=true;requestAnimationFrame(scopeLoop);}
     return true;
   }
@@ -689,7 +834,7 @@
       if(view.follow&&view.zoom>1&&!clk.paused){var vw=vWin();if(ct<vw.start||ct>vw.end-vw.win*0.15)view.offset=ct-vw.win*0.4;}
       $("#tcode").innerHTML=fmt(ct)+' <span>/</span> '+fmt(dur);
       $("#seekFill").style.width=(dur?ct/dur*100:0).toFixed(1)+"%";
-      drawScope();scopeReadout();updateHarmonics();
+      drawScope();scopeReadout();updateHarmTable();
       if(analyser&&!clk.paused){analyser.getByteTimeDomainData(timeBins);var s=0;for(var li=0;li<timeBins.length;li++){var vv=(timeBins[li]-128)/128;s+=vv*vv;}setLevel(clampN(Math.sqrt(s/timeBins.length)*2.4,0,1));}
       else if(analyser&&clk.paused)setLevel(0);
     }
@@ -748,6 +893,7 @@
       $("#gpuVal").textContent=(state==="WORKING"?72:12)+"%";$("#cpuVal").textContent=(state==="WORKING"?54:10)+"%";
       if(state==="COMPLETE"){$("#rRange").textContent="E3 – A5";$("#rConf").textContent="94%";$("#rDev").textContent="11 c";$("#rWithin").textContent="78%";
         var dc=demoContour();refContour={values:dc.values.map(function(v){return v==null?null:v+40*Math.sin(v/80);}),rate_hz:dc.rate_hz};
+        var vn=[];for(var p=0;p<15;p++){vn.push({start_s:p*1.6,duration_s:1.2,note:"—",rate_hz:5+(p%3)*0.6,extent_cents:60,has_vibrato:p%4!==0});}vibNotes=vn;
         mountScope(dc,24,null);var c=clockObj();if(c&&c.play)c.play();playBtn.innerHTML="&#10073;&#10073;";}
       i++;if(!VOX.REDUCE&&i<seq.length)setTimeout(step,1600);
     }

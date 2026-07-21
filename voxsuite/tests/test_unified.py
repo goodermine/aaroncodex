@@ -118,6 +118,30 @@ def test_stage_canvas_rule_is_child_scoped():
         assert ".vox-stagecanvas{" not in css
 
 
+def test_analyze_deck_ships_the_analyzer_lane_stack():
+    """The Analyze deck is a stacked, time-aligned analyzer (VoceVista-style): a
+    vibrato strip on top, a dominant pitch-over-spectrogram main lane with an
+    on-axis harmonics panel, and a full-take waveform navigator at the bottom —
+    all sharing one playhead + zoom window. The old view-switcher chips
+    (PITCH/WAVEFORM/SPECTRUM) are retired. Guards the redesign against regressing
+    to the single toggled canvas."""
+    with tempfile.TemporaryDirectory() as tmp:
+        body = _client(tmp).get("/analyze").text
+        for marker in ('id="lanes"', 'id="laneVib"', 'id="laneMain"', 'id="laneNav"',
+                       'id="vibCanvas"', 'id="navCanvas"', 'id="harmSide"', 'id="harmTable"'):
+            assert marker in body, marker
+        # the renderers that drive the three lanes must all be present
+        for fn in ("drawVib(", "drawNav(", "drawHarmPanel(", "buildNavPeaks("):
+            assert fn in body, fn
+        # the stage gets a firm floor once seekable so lanes never collapse (the
+        # bug where the open export tray starved the main lane to zero on phones)
+        assert ".vox-stage.seekable{min-height" in body.replace(" ", "")
+        # the retired view-switcher chips must not come back
+        assert "vox-scope__chips" not in body
+        for chip in (">PITCH<", ">WAVEFORM<", ">SPECTRUM<"):
+            assert chip not in body, chip
+
+
 def test_all_three_engine_apis_are_reachable():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)
