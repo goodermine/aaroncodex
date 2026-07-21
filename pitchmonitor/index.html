@@ -48,6 +48,7 @@
   .tbtn{appearance:none;width:52px;height:52px;border-radius:50%;border:2px solid var(--panel-line);
     background:#0c1218;color:var(--ink);display:grid;place-items:center;cursor:pointer}
   .tbtn:active{transform:scale(.94)}
+  .tbtn.on{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 3px rgba(63,224,255,.16)}
   .tbtn svg{width:20px;height:20px}
   .tbtn.rec{border-color:#3a1b1f}
   .tbtn.rec .dot{width:18px;height:18px;border-radius:50%;background:#ff4d5e}
@@ -266,6 +267,7 @@
   // ring of samples {t (ms), m (midi|null)}. plotted right→left across the grid.
   var trace=[],TRACE_MS=20000,smoothM=null,heldFreeze=false;
   var recording=false,recData=null,playing=false,playStart=0,playIdx=0;
+  var mediaRec=null,recChunks=[],recAudioUrl=null,playAudio=null; // actual audio capture/playback
   var viewCenter=60; // smoothed vertical follow center (midi)
 
   function pushSample(now,m){
@@ -395,23 +397,65 @@
   }
 
   // ---------------------------------------------------------------- record / play
+  // Records BOTH the pitch trace (for the visual replay) and the actual audio
+  // (MediaRecorder), so pressing play replays the note graph *and* plays the
+  // sound back — the trace is driven off the audio's own currentTime so they
+  // stay in lock-step. Falls back to a silent, wall-clock trace replay if the
+  // browser has no MediaRecorder.
   function stepPlayback(now){
-    if(!recData||!recData.length){stopPlayback();return;}
-    var elapsed=now-playStart;
-    while(playIdx<recData.length&&recData[playIdx].t<=elapsed){
-      var s=recData[playIdx++];
-      var m=s.m;
-      trace.push({t:now-(elapsed-s.t),m:m});
-      if(S.auto&&m!=null&&isFinite(m)){smoothM=m;viewCenter+=(m-viewCenter)*0.08;}
+    var haveAudio=!!(recAudioUrl&&playAudio);
+    if((!recData||!recData.length)&&!haveAudio){stopPlayback();return;}
+    var elapsed;
+    if(haveAudio){
+      if(playAudio.ended){stopPlayback();return;}
+      elapsed=playAudio.currentTime*1000;
+    }else{ elapsed=now-playStart; }
+    if(recData){
+      while(playIdx<recData.length&&recData[playIdx].t<=elapsed){
+        var s=recData[playIdx++],m=s.m;
+        trace.push({t:now-(elapsed-s.t),m:m});
+        if(S.auto&&m!=null&&isFinite(m)){smoothM=m;viewCenter+=(m-viewCenter)*0.08;}
+      }
+      var cut=now-TRACE_MS;while(trace.length&&trace[0].t<cut)trace.shift();
     }
-    var cut=now-TRACE_MS;while(trace.length&&trace[0].t<cut)trace.shift();
-    if(playIdx>=recData.length)stopPlayback();
+    if(!haveAudio&&recData&&playIdx>=recData.length)stopPlayback();
   }
-  function startRecording(){recData=[];recData._t0=performance.now();recording=true;heldFreeze=false;
-    $("#recBtn").classList.add("armed");}
-  function stopRecording(){recording=false;$("#recBtn").classList.remove("armed");}
-  function startPlayback(){if(!recData||!recData.length)return;playing=true;heldFreeze=false;playStart=performance.now();playIdx=0;trace=[];smoothM=null;}
-  function stopPlayback(){playing=false;}
+  function startRecording(){
+    recData=[];recData._t0=performance.now();recording=true;heldFreeze=false;
+    $("#recBtn").classList.add("armed");
+    if(recAudioUrl){try{URL.revokeObjectURL(recAudioUrl);}catch(e){}recAudioUrl=null;}
+    recChunks=[];
+    try{
+      if(stream&&window.MediaRecorder){
+        mediaRec=new MediaRecorder(stream);
+        mediaRec.ondataavailable=function(e){if(e.data&&e.data.size)recChunks.push(e.data);};
+        mediaRec.onstop=function(){try{recAudioUrl=URL.createObjectURL(new Blob(recChunks,{type:(recChunks[0]&&recChunks[0].type)||"audio/webm"}));}catch(e){recAudioUrl=null;}};
+        mediaRec.start();
+      }
+    }catch(e){mediaRec=null;}
+  }
+  function stopRecording(){
+    recording=false;$("#recBtn").classList.remove("armed");
+    try{if(mediaRec&&mediaRec.state!=="inactive")mediaRec.stop();}catch(e){}
+    mediaRec=null;
+  }
+  function startPlayback(){
+    if((!recData||!recData.length)&&!recAudioUrl)return;
+    playing=true;heldFreeze=false;playStart=performance.now();playIdx=0;trace=[];smoothM=null;
+    $("#playBtn").classList.add("on");
+    if(recAudioUrl){
+      if(!playAudio){playAudio=new Audio();playAudio.setAttribute("playsinline","");
+        playAudio.style.display="none";playAudio.id="pmAudio";document.body.appendChild(playAudio);} // in-DOM: more reliable on mobile
+      playAudio.src=recAudioUrl;
+      try{playAudio.currentTime=0;}catch(e){}
+      playAudio.onended=function(){stopPlayback();};
+      var p=playAudio.play(); if(p&&p.catch)p.catch(function(){});
+    }
+  }
+  function stopPlayback(){
+    playing=false;$("#playBtn").classList.remove("on");
+    try{if(playAudio)playAudio.pause();}catch(e){}
+  }
 
   // ---------------------------------------------------------------- UI wiring
   function setHold(on){heldFreeze=on;$("#holdBtn").classList.toggle("on",on);}

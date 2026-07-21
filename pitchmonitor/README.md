@@ -18,8 +18,11 @@ client-side.
   octaves + semitone lines), horizontal axis is time, scrolling right→left.
 - **Big note readout** with cents (or Hz) and a **tuner strip** showing cents
   deviation with a green in-tune indicator.
-- **HOLD** to freeze the display, and a **record / stop / play** transport that
-  captures the pitch trace and replays it.
+- **HOLD** to freeze the display, and a **record / stop / play** transport.
+  Recording captures both the **audio** (MediaRecorder) and the pitch trace;
+  pressing play plays the sound back with the note graph replayed in
+  lock-step (driven off the audio's own playhead). Falls back to a silent
+  trace replay if the browser has no MediaRecorder.
 - **Scale highlighting** — tonic and in-scale notes are tinted on the grid.
 - **Settings**, persisted to `localStorage`: volume threshold, horizontal &
   vertical zoom, smoothing, A4 calibration, note names (C D E / Do Re Mi),
@@ -39,7 +42,7 @@ mic the secure context it needs on a phone. (Override its location with the
 
 ## Roadmap (not yet built)
 
-- Record the **audio** too (MediaRecorder) and save/load takes.
+- Save/load takes (the audio blob is in memory only — lost on reload).
 - Metronome + tempo/beat lines (BPM, 4/4 · 3/4).
 - Transpose for Bb / Eb / F instruments.
 - Full key picker (tonic + mode) rather than a fixed scale list.
