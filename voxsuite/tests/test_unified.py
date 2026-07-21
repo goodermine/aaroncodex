@@ -142,6 +142,18 @@ def test_analyze_deck_ships_the_analyzer_lane_stack():
             assert chip not in body, chip
 
 
+def test_pitch_monitor_serves_standalone():
+    """The real-time Pitch Monitor rides the suite's HTTPS origin at /monitor so
+    the mic (getUserMedia) gets a secure context on phones. It's self-contained
+    (no /static deps) and served no-cache so redeploys are never stale."""
+    with tempfile.TemporaryDirectory() as tmp:
+        r = _client(tmp).get("/monitor")
+        assert r.status_code == 200
+        assert "PITCH//MONITOR" in r.text          # the page's own marker
+        assert "getFloatTimeDomainData" in r.text  # the live-detection path is present
+        assert r.headers.get("cache-control") == "no-cache"
+
+
 def test_all_three_engine_apis_are_reachable():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)

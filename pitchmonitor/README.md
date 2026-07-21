@@ -30,8 +30,12 @@ client-side.
 
 `getUserMedia` needs a **secure context**, so the mic works on `https://` or
 `http://localhost`. Opening the file over `file://` works in some desktop
-browsers; on a phone, serve it over HTTPS (e.g. behind the same Tailscale
-address the VOX suite uses).
+browsers; on a phone, serve it over HTTPS.
+
+The unified VOX server serves it at **`/monitor`**, so on the suite's Tailscale
+address it's e.g. `https://<host>:<port>/monitor` — the HTTPS origin gives the
+mic the secure context it needs on a phone. (Override its location with the
+`VOX_PITCHMONITOR_ROOT` env var if the repo isn't at the default path.)
 
 ## Roadmap (not yet built)
 
@@ -40,4 +44,3 @@ address the VOX suite uses).
 - Transpose for Bb / Eb / F instruments.
 - Full key picker (tonic + mode) rather than a fixed scale list.
 - PWA manifest + service worker so it installs to the home screen.
-- Wire into the unified VOX server as a route so it deploys with the suite.

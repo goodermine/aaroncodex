@@ -43,6 +43,14 @@ def _analysis_root() -> Path:
     return Path(__file__).resolve().parents[4] / "voxanalysis" / "vox-analysis"
 
 
+def _pitchmonitor_root() -> Path:
+    """Repo location of the standalone Pitch Monitor page (self-contained)."""
+    env = os.environ.get("VOX_PITCHMONITOR_ROOT")
+    if env:
+        return Path(env)
+    return Path(__file__).resolve().parents[4] / "pitchmonitor"
+
+
 def _load_analyze_module(runtime: Path):
     """Import voxanalysis' viewer/app.py under an explicit module name.
 
@@ -112,6 +120,16 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
     @app.get("/polish", response_class=HTMLResponse)
     def polish_deck() -> HTMLResponse:
         return _shell(shells["polish"])
+
+    @app.get("/monitor", response_class=HTMLResponse)
+    def pitch_monitor() -> HTMLResponse:
+        """Standalone real-time pitch monitor. Self-contained (no /static deps),
+        so riding the suite's HTTPS origin gives it the secure context the mic
+        (getUserMedia) needs on phones."""
+        path = _pitchmonitor_root() / "index.html"
+        if not path.is_file():
+            raise HTTPException(404, "pitch monitor not installed")
+        return HTMLResponse(path.read_text(encoding="utf-8"), headers={"Cache-Control": "no-cache"})
 
     @app.get("/favicon.ico")
     def favicon():
