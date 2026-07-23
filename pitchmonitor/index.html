@@ -295,7 +295,7 @@
   }
   window.addEventListener("resize",function(){fit();});
 
-  var PADL=34; // left gutter for note labels
+  var PADL=34,PADR=36; // note-label gutters (left + right); the plot lives between
   function vRange(){
     // visible semitone span shrinks as vertical zoom grows. base ~ 40 semitones.
     var span=Math.round(40/S.vzoom); if(span<10)span=10;
@@ -306,41 +306,45 @@
 
   function drawGrid(){
     gx.clearRect(0,0,GW,GH);
-    var vr=vRange(),scaleSet=SCALES[S.scale]||SCALES["Chromatic"];
-    var loM=Math.floor(vr.lo),hiM=Math.ceil(vr.hi);
+    var vr=vRange(),scaleSet=SCALES[S.scale]||SCALES["Chromatic"],plotR=GW-PADR;
+    var loM=Math.floor(vr.lo),hiM=Math.ceil(vr.hi),curM=(smoothM!=null)?Math.round(smoothM):null;
     gx.font="11px "+"var(--mono)".replace(/var\([^)]*\)/,"ui-monospace,monospace");
     gx.textBaseline="middle";
     for(var m=loM;m<=hiM;m++){
       var y=yForM(m,vr),isC=(pc(m)===0),inScale=scaleSet.indexOf(pc(m))>=0,isTonic=(pc(m)===scaleSet[0]);
       if(S.scale!=="Chromatic"&&inScale){ // tint the in-scale band
         gx.fillStyle=isTonic?"rgba(63,224,255,.10)":"rgba(120,140,160,.05)";
-        gx.fillRect(PADL,y-((GH/(vr.hi-vr.lo))/2),GW-PADL,GH/(vr.hi-vr.lo));
+        gx.fillRect(PADL,y-((GH/(vr.hi-vr.lo))/2),plotR-PADL,GH/(vr.hi-vr.lo));
       }
       if(S.semis||isC){
         gx.strokeStyle=isC?"#4a545e":"#20262c";gx.lineWidth=1;
-        gx.beginPath();gx.moveTo(PADL,y+.5);gx.lineTo(GW,y+.5);gx.stroke();
+        gx.beginPath();gx.moveTo(PADL,y+.5);gx.lineTo(plotR,y+.5);gx.stroke();
       }
-      var nn=noteName(m),showLabel=isC||S.labels||vr.span<=24;
-      if(showLabel){
-        gx.fillStyle=isC?"#c7ced4":"#6b7680";
-        gx.fillText(nn.name+nn.oct,4,y);
+      var nn=noteName(m),showLabel=isC||S.labels||vr.span<=24,isCur=(m===curM);
+      if(showLabel||isCur){
+        var txt=nn.name+nn.oct;
+        // the note being sung is highlighted in the pitch colour on both axes
+        gx.fillStyle=isCur?S.pitchColor:(isC?"#c7ced4":"#6b7680");
+        gx.textAlign="left";  gx.fillText(txt,4,y);
+        gx.textAlign="right"; gx.fillText(txt,GW-4,y);
       }
     }
-    drawTrace(vr);
-    // current-note playhead at right edge
+    gx.textAlign="left";
+    drawTrace(vr,plotR);
+    // current-note playhead at the right edge of the plot
     if(smoothM!=null){var y=yForM(smoothM,vr);
-      gx.fillStyle=S.pitchColor;gx.beginPath();gx.arc(GW-3,y,3.5,0,7);gx.fill();}
+      gx.fillStyle=S.pitchColor;gx.beginPath();gx.arc(plotR-3,y,3.5,0,7);gx.fill();}
   }
 
-  function drawTrace(vr){
+  function drawTrace(vr,plotR){
     if(!trace.length)return;
     var now=trace[trace.length-1].t;
-    var pxPerMs=(GW-PADL)/(TRACE_MS/S.hzoom);
+    var pxPerMs=(plotR-PADL)/(TRACE_MS/S.hzoom);
     gx.lineWidth=2.4;gx.strokeStyle=S.pitchColor;gx.lineJoin="round";gx.lineCap="round";
     gx.beginPath();var pen=false;
     for(var i=0;i<trace.length;i++){var s=trace[i];
       if(s.m==null||!isFinite(s.m)){pen=false;continue;}
-      var x=GW-(now-s.t)*pxPerMs; if(x<PADL){pen=false;continue;}
+      var x=plotR-(now-s.t)*pxPerMs; if(x<PADL){pen=false;continue;}
       var y=yForM(s.m,vr);
       if(!pen){gx.moveTo(x,y);pen=true;}else gx.lineTo(x,y);
     }
