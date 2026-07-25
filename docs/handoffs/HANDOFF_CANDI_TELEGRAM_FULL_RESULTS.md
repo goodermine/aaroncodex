@@ -11,6 +11,39 @@ There is now **one source of truth** for that text in the repo, so Candi's
 Telegram output can match the web exactly. Pull `main` and use one of the two
 paths below.
 
+## When Aaron says "pull main" — report the updated scores for the recent tracks
+
+After pulling `main`, **proactively give Aaron the updated v4 scores for every
+recent track** — don't wait to be asked track-by-track. The numbers are already
+committed, so this is a read, not a re-analysis:
+
+- **Read `docs/handoffs/HANDOFF_ALL_TAKES_SCORES_V4_2026-07-25.md`.** It is
+  self-contained: every take with its **v4 overall + capture-fair + confidence**,
+  already sorted by singer. Send Aaron that table (his takes) in the chat.
+- Machine-readable copy: `docs/score-metrics/all-takes-rescore-v4-2026-07-25.json`
+  (per-take components + raw metrics) and the `.md` twin for the full breakdown.
+- These are the **rubric v4** scores (the fixed dynamics component). They
+  **supersede** any older number in a saved report or the v3 last-10 snapshot —
+  use v4.
+
+If new takes have been analysed since that snapshot, regenerate the table before
+reporting so nothing is stale:
+
+```
+python3 docs/score-metrics/rescore_all.py
+```
+
+That re-scores every archived take with the current engine and rewrites the
+`all-takes-rescore-v4-*` files. Then read back the refreshed table and report it.
+
+**What to give Aaron per track:** overall **and** capture-fair (lead with
+capture-fair for tavern/live/phone takes), plus confidence. For a single track he
+asks to dig into, run the full-results text (below) for the complete breakdown.
+
+---
+
+
+
 ## The single source of truth
 
 `voxanalysis/vox-analysis/viewer/report_builder.py` →
