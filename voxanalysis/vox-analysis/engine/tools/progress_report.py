@@ -49,6 +49,23 @@ def dig(data, path):
     return node if isinstance(node, (int, float)) else None
 
 
+def score_is_trendable(take_data, baseline_identity=None):
+    """A score may only be trended against scores from the same rubric +
+    calibration pack. Trending a stale-rubric score (which reads ~2.5-3 points
+    too harsh) against a current one invents progress that never happened — so a
+    non-comparable score is dropped from the score trends, never silently mixed in.
+    """
+    import sys as _sys
+    _sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from analyse_song import is_legacy_score, score_conflict
+    score = (take_data or {}).get("technical_score") or {}
+    if is_legacy_score(score):
+        return False
+    if baseline_identity is not None and score_conflict(baseline_identity, score):
+        return False
+    return True
+
+
 def collect(inputs, singer, song=None):
     takes = []
     for item in inputs:
@@ -111,12 +128,18 @@ def main():
         "| Take | Date | Song | Score | Fair | Cents off | Drift | Vibrato % |",
         "|---|---|---|---|---|---|---|---|",
     ]
+    # Which takes carry a score that may legitimately be trended together.
+    trendable = [t for t in takes if score_is_trendable(t["data"])]
+    excluded = [t for t in takes if t not in trendable]
+
     for t in takes:
         d = t["data"]
+        ok = t in trendable
         lines.append("| {file} | {date} | {song} | {sc} | {fair} | {dev} | {drift} | {vib} |".format(
             file=f"take {t['take']:03d}", date=t["date"], song=t["song"][:24],
-            sc=dig(d, ("technical_score", "overall_score_0_to_10")) or "—",
-            fair=dig(d, ("technical_score", "capture_fair_score_0_to_10")) or "—",
+            # raw metrics are always exactly comparable; only SCORES need provenance
+            sc=(dig(d, ("technical_score", "overall_score_0_to_10")) or "—") if ok else "re-score",
+            fair=(dig(d, ("technical_score", "capture_fair_score_0_to_10")) or "—") if ok else "re-score",
             dev=dig(d, ("intonation", "median_abs_deviation_cents")) or "—",
             drift=dig(d, ("intonation", "median_intra_note_drift_cents")) or "—",
             vib=dig(d, ("vibrato", "pct_notes_with_vibrato")) or "—",
@@ -124,13 +147,30 @@ def main():
 
     lines += ["", "## Trends (first take → latest)", "", "| Metric | Trend |", "|---|---|"]
     for label, path, direction in METRICS:
-        values = [dig(t["data"], path) for t in takes]
+        # score trends use only provenance-comparable takes; raw-metric trends use all
+        source = trendable if path[0] == "technical_score" else takes
+        if path[0] == "technical_score" and len(source) < 2:
+            lines.append(f"| {label} | not trendable — fewer than 2 takes with a current score |")
+            continue
+        values = [dig(t["data"], path) for t in source]
         lines.append(f"| {label} | {trend(values, direction)} |")
+
+    if excluded:
+        lines += [
+            "",
+            f"> **{len(excluded)} take(s) excluded from the score trends** — their stored "
+            "score came from a superseded rubric, which reads ~2.5–3 points too harsh and "
+            "would fake a jump in progress. Their raw metrics are still included (those are "
+            "always comparable). Re-score them with the current engine to include their "
+            "scores: `python3 docs/score-metrics/rescore_all.py`",
+        ]
 
     lines += [
         "",
-        "*Scores from different calibration-pack sizes are approximately comparable; "
-        "raw metrics (cents, dB, %) are exactly comparable. Trends use first vs latest take.*",
+        "*Score trends only ever combine takes scored by the same rubric and calibration "
+        "pack — scores from different rubrics are NOT comparable. Raw metrics "
+        "(cents, dB, %) are exactly comparable across all takes. Trends use first vs "
+        "latest take.*",
     ]
 
     report = "\n".join(lines)

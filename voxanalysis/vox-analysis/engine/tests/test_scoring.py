@@ -5,7 +5,6 @@ fingerprint + calibration pack + stem model + take), and scores may only be
 compared when those identities match. This is what stops a stale rubric's number
 being quoted or trended as though it were current — the Rilda 5.1-vs-8.0 case.
 
-
 Guards the v4 fix: dynamics_expression must GRADE against the pro distribution
 (10 at the median, easing to ~7 at the range edges, floored — not zeroed — beyond
 it), instead of the v3 flat-topped peak scale that returned a constant 10 across
@@ -126,3 +125,30 @@ def test_capture_fair_excludes_dynamics_and_voice_quality():
     note = ts["capture_fair_note"].lower()
     assert "voice_quality" in note and "dynamics" in note
     assert ts["provenance"].startswith("deterministic_rubric_v4")
+
+
+def test_take_vs_reference_comparison_withholds_on_provenance_conflict():
+    """pitch_track builds a take-vs-original comparison. Pairing a stale-rubric
+    score with a current one invents a gap that isn't there, so the score pair is
+    withheld (raw contour measures still reported) with the reason stated."""
+    import pitch_track  # noqa: F401  (import guard: the helper must exist)
+    current = A.compute_technical_score(_base_results(22.0, 30.0),
+                                        A.load_calibration(A.DEFAULT_CALIBRATION_PATH))
+    legacy = {"overall_score_0_to_10": 5.1, "provenance": "deterministic_rubric_v1 — x"}
+    assert A.score_conflict(current, legacy) is not None
+    assert A.score_conflict(current, current) is None
+
+
+def test_progress_trend_drops_non_comparable_scores():
+    """A stale score must never be trended against a current one — that fakes
+    progress. Raw metrics stay comparable and are unaffected."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+    from progress_report import score_is_trendable
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    current = {"technical_score": A.compute_technical_score(_base_results(22.0, 30.0), cal)}
+    retired = {"technical_score": {"status": "retired_legacy_score", "do_not_use": True}}
+    legacy = {"technical_score": {"overall_score_0_to_10": 5.1,
+                                  "provenance": "deterministic_rubric_v1 — x"}}
+    assert score_is_trendable(current)
+    assert not score_is_trendable(retired)
+    assert not score_is_trendable(legacy)

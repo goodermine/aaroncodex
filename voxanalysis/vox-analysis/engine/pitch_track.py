@@ -314,16 +314,25 @@ def compare_with_reference(take_json: Path, reference_json: Path) -> tuple[dict,
     lag_values = np.asarray(lags, dtype=float)
     take_score = take_data.get("technical_score") or {}
     reference_score = reference_data.get("technical_score") or {}
+    # Never place two scores side by side without checking they were produced by
+    # the same rubric + calibration pack. A stale-rubric score reads ~2.5-3 points
+    # too harsh, so an unguarded take-vs-original comparison invents a gap that
+    # isn't there. On conflict the raw contour measures are still reported — only
+    # the score pair is withheld, with the reason stated.
+    from analyse_song import score_conflict
+    conflict = score_conflict(take_score, reference_score)
     comparison = {
         "method": "banded_dtw_on_voxai_v2_contours",
         "transposition_semitones": semitones,
         "median_abs_pitch_diff_cents": round(float(np.median(np.abs(differences))), 1) if len(differences) else None,
         "pct_frames_within_50_cents": round(float(np.mean(np.abs(differences) <= 50) * 100), 1) if len(differences) else None,
         "timing_spread_s": round(float(np.percentile(lag_values, 90) - np.percentile(lag_values, 10)), 2) if len(lag_values) else None,
-        "singer_score": take_score.get("overall_score_0_to_10"),
-        "singer_capture_fair": take_score.get("capture_fair_score_0_to_10"),
-        "original_score": reference_score.get("overall_score_0_to_10"),
-        "original_capture_fair": reference_score.get("capture_fair_score_0_to_10"),
+        "singer_score": None if conflict else take_score.get("overall_score_0_to_10"),
+        "singer_capture_fair": None if conflict else take_score.get("capture_fair_score_0_to_10"),
+        "original_score": None if conflict else reference_score.get("overall_score_0_to_10"),
+        "original_capture_fair": None if conflict else reference_score.get("capture_fair_score_0_to_10"),
+        "scores_comparable": conflict is None,
+        "score_comparison_withheld_reason": conflict,
         "note": "Transposition is reported and removed before melody similarity is measured. Differences may be deliberate interpretation.",
     }
     return comparison, aligned

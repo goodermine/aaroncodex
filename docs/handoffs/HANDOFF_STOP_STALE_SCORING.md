@@ -73,6 +73,39 @@ Maintainers re-pin intentionally with `--update` (and commit it).
 re-pinning the contract, if `CLAUDE.md` goes missing, or if it stops stating the
 key rules.
 
+## Audit: the repo is already clean — there is only ONE engine here
+
+Checked explicitly (25 July):
+
+```
+grep -rln "def compute_technical_score" .   →  1 file
+find . -name "analyse_song*.py"             →  1 file
+```
+
+`voxanalysis/vox-analysis/engine/analyse_song.py` is the only scoring
+implementation in this repo. **There are no old/duplicate engine copies to
+delete here** — so "get rid of the old engines" is entirely a **workspace-side**
+job, not a repo one.
+
+Two *readers* of scores were, however, comparing and trending without a
+provenance check, and are now fixed:
+
+- **`pitch_track.py`** built the take-vs-original comparison by pairing the two
+  stored scores directly. Pairing a stale-rubric score with a current one invents
+  a gap that isn't there. It now calls `score_conflict()` and, on conflict,
+  withholds the *score pair only* (`scores_comparable: false` plus the reason)
+  while still reporting all the raw contour/timing measures.
+- **`tools/progress_report.py`** trended "technical score" across takes with no
+  provenance check at all, and carried a footnote claiming scores from different
+  calibration packs were "approximately comparable" — the exact false assumption.
+  It now excludes non-comparable takes from the **score** trends (showing
+  `re-score`, with a note saying how many were dropped and why), keeps them in the
+  **raw-metric** trends (those are always comparable), and states the rule
+  correctly.
+
+> This mattered: without it, Aaron's progress chart would have shown a fake ~3-point
+> jump that was purely the rubric changing, not his singing.
+
 ## What Candi needs to do in her workspace
 
 The repo half is done. Two workspace changes remain, and they're the ones that

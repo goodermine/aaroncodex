@@ -51,6 +51,12 @@ from analyse_song import is_legacy_score, scores_comparable, score_conflict
   `technical_score.status == "retired_legacy_score"`. That is not a score. Do not
   reconstruct a number from it; re-score.
 
+**Trends and comparisons are covered by the same rule.** Score trends may only
+combine takes from the same rubric + calibration pack (`tools/progress_report.py`
+excludes the rest and says so); a take-vs-original comparison withholds the score
+pair on conflict and reports the raw measures instead. Raw metrics (cents, dB, %)
+are always comparable — only *scores* need provenance.
+
 Refresh everything after new takes land:
 
 ```bash
