@@ -28,6 +28,8 @@ Overall v4: min 6.6 · max 9.7 · mean 8.24. Dynamics component now spreads 7.5�
 | rilda | lets-stay-together-home-take-001 | 199 | 8.1 | **7.8** | 7.0 | high | 7.62 | 1.23 | 10.0 | 9.75 | 8.16 | 10.0 |
 | rilda | this-masquerade-take-001 | 165 | 8.4 | **8.2** | 7.5 | high | 9.52 | 0.0 | 10.0 | 9.77 | 9.35 | 10.0 |
 | rilda | she-s-not-there-take-001 | 138 | 7.2 | **7.1** | 7.2 | high | 5.71 | 5.05 | 4.84 | 9.89 | 9.6 | 10.0 |
+| rilda | dreams-take-001 | 260 | 5.1 | **8.3** | 8.5 | high | 9.52 | 6.43 | 6.44 | 10.0 | 9.97 | 6.88 |
+| rilda | you-sexy-thing-take-001 | 205 | 5.1 | **8.0** | 8.0 | high | 7.62 | 5.39 | 7.31 | 9.8 | 9.0 | 10.0 |
 
 ## Professional references (calibration sanity check)
 

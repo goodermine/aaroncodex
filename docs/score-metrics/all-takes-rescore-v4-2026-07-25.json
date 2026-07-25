@@ -8,7 +8,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 20,
+      "n": 22,
       "overall_v4": {
         "min": 6.6,
         "max": 9.7,
@@ -18,13 +18,13 @@
       "capture_fair_v4": {
         "min": 5.9,
         "max": 9.7,
-        "mean": 8.11,
+        "mean": 8.13,
         "spread": 3.8
       },
       "dynamics": {
         "min": 7.5,
         "max": 10.0,
-        "mean": 9.22,
+        "mean": 9.24,
         "spread": 2.5
       }
     },
@@ -677,6 +677,70 @@
         "dyn_phrase_spread_db": 24.96,
         "dyn_effective_range_db": 28.49,
         "median_phrase_s": 3.63
+      }
+    },
+    {
+      "take": "2026-07-25-rilda-dreams-take-001",
+      "singer": "rilda",
+      "song": "dreams-take-001",
+      "date": "2026-07-25",
+      "n_notes": 260,
+      "old_baked_overall": 5.1,
+      "overall_v4": 8.3,
+      "capture_fair_v4": 8.5,
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v4",
+      "components": {
+        "intonation_accuracy": 9.52,
+        "pitch_stability": 6.43,
+        "voice_quality": 6.44,
+        "vibrato_control": 10.0,
+        "dynamics_expression": 9.97,
+        "phrase_control": 6.88
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 44.5,
+        "pct_within_25c": 56.9,
+        "jitter_pct": 0.9836,
+        "shimmer_pct": 13.0652,
+        "hnr_db": 14.23,
+        "vibrato_pct_notes": 58.3,
+        "dyn_phrase_spread_db": 42.89,
+        "dyn_effective_range_db": 38.63,
+        "median_phrase_s": 2.32
+      }
+    },
+    {
+      "take": "2026-07-25-rilda-you-sexy-thing-take-001",
+      "singer": "rilda",
+      "song": "you-sexy-thing-take-001",
+      "date": "2026-07-25",
+      "n_notes": 205,
+      "old_baked_overall": 5.1,
+      "overall_v4": 8.0,
+      "capture_fair_v4": 8.0,
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v4",
+      "components": {
+        "intonation_accuracy": 7.62,
+        "pitch_stability": 5.39,
+        "voice_quality": 7.31,
+        "vibrato_control": 9.8,
+        "dynamics_expression": 9.0,
+        "phrase_control": 10.0
+      },
+      "raw": {
+        "median_abs_dev_cents": 25.0,
+        "median_intra_note_drift_cents": 50.2,
+        "pct_within_25c": 49.3,
+        "jitter_pct": 0.9082,
+        "shimmer_pct": 11.5146,
+        "hnr_db": 14.47,
+        "vibrato_pct_notes": 46.1,
+        "dyn_phrase_spread_db": 12.87,
+        "dyn_effective_range_db": 33.82,
+        "median_phrase_s": 3.41
       }
     }
   ],

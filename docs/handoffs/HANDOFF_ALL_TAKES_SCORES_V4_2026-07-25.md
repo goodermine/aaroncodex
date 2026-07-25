@@ -23,7 +23,7 @@ to switch on. To refresh this table after new takes land:
 
 ## Aggregate
 
-- **Singer takes (20):** overall v4 6.6–9.7 (mean 8.24).
+- **Singer takes (22):** overall v4 6.6–9.7 (mean 8.24).
 - **Pro references (9, calibration sanity check):** overall v4 8.1–9.6 (mean 8.73) — pros sit at the top, as they should.
 
 ## Every take — updated scores
@@ -39,8 +39,10 @@ to switch on. To refresh this table after new takes land:
 | aaron | danger-zone-take-003 | **8.7** | 8.5 | high |
 | aaron | the-heat-is-on-new-studio-take-001 | **8.6** | 7.9 | high |
 | aaron | 1973-take-001 | **8.3** | 7.6 | high |
+| rilda | dreams-take-001 | **8.3** | 8.5 | high |
 | aaron | danger-zone-home | **8.2** | 7.6 | high |
 | aaron | kryptonite-mango-hill-tavern-take-001 | **8.0** | 8.7 | high |
+| rilda | you-sexy-thing-take-001 | **8.0** | 8.0 | high |
 | aaron | lets-stay-together-new-studio-take-001 | **7.7** | 6.5 | high |
 | aaron | the-heat-is-on-captain-cook-tavern-take-001 | **7.6** | 8.8 | high |
 | aaron | you-can-leave-your-hat-on-bramble-bay-take-001 | **6.7** | 5.9 | high |
