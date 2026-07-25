@@ -23,7 +23,7 @@ to switch on. To refresh this table after new takes land:
 
 ## Aggregate
 
-- **Singer takes (33):** overall v4 6.6–9.7 (mean 8.31).
+- **Singer takes (34):** overall v4 6.6–9.7 (mean 8.30).
 - **Pro references (9, calibration sanity check):** overall v4 8.1–9.6 (mean 8.73) — pros sit at the top, as they should.
 
 ## ⚠ Rilda's two 25 July takes were scored far too harshly — correct them
@@ -80,7 +80,7 @@ points once scored properly:
 | 7 (Brighton, live) | 4.5 | **7.6** | 7.8 |
 
 Same root cause as Rilda's 5.1s: **rubric v1 scored everyone roughly 2.5–3 points
-too harshly.** All 42 stale scores across the archive have now been retired so
+too harshly.** All 43 stale scores across the archive have now been retired so
 none of them can be quoted again — see `HANDOFF_SCORE_PROVENANCE.md`.
 
 ## Every take — updated scores
@@ -106,6 +106,7 @@ none of them can be quoted again — see `HANDOFF_SCORE_PROVENANCE.md`.
 | aaron | danger-zone-home | **8.2** | 7.6 | high |
 | aaron | my-babe-take-001 | **8.4** | 8.8 | high |
 | aaron | my-babe-take-002 | **8.4** | 8.1 | high |
+| aaron | my-babe-take-003 | **8.0** | 8.1 | high |
 | aaron | kryptonite-mango-hill-tavern-take-001 | **8.0** | 8.7 | high |
 | aaron | pressure-down-take-002 | **8.0** | 7.2 | high |
 | rilda | you-sexy-thing-take-001 | **8.0** | 8.0 | high |
@@ -130,6 +131,9 @@ equivalent verse/chorus sections, rather than across songs.
 *My Babe* Take 2 is the later comparison performance. It remains matched to the
 Take 1 home baseline; its venue was not supplied, so capture-fair is the primary
 number for any live-style comparison.
+
+*My Babe* Take 3 is Aaron's Redcliffe Tavern performance. Compare it with Take 1
+for the home-to-live transfer; use capture-fair first for its score.
 
 ### Pressure Down version map
 
