@@ -154,6 +154,20 @@ def test_pitch_monitor_serves_standalone():
         assert r.headers.get("cache-control") == "no-cache"
 
 
+def test_analyze_deck_ships_the_score_badge():
+    """The score badge surfaces overall + capture-fair + confidence + the
+    calibration provenance line, so a user can see whether the number is
+    pro-anchored (the "is this calibrated or mine?" question) without opening the
+    full report."""
+    with tempfile.TemporaryDirectory() as tmp:
+        body = _client(tmp).get("/analyze").text
+        for marker in ('id="scoreBadge"', 'id="scoreOverall"', 'id="scoreCF"',
+                       'id="scoreConf"', 'id="scoreCal"', "renderScoreBadge("):
+            assert marker in body, marker
+        assert "capture-fair" in body
+        assert "10 = a typical pro" in body  # the calibration provenance line
+
+
 def test_all_three_engine_apis_are_reachable():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)

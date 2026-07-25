@@ -86,6 +86,23 @@ class ReportBuilderTests(unittest.TestCase):
         self.assertEqual(report["metrics"]["resonance"]["singers_formant_read"], "Moderate projection")
         self.assertEqual(report["metrics"]["vowel_space"]["notes_mapped"], 32)
 
+    def test_score_carries_capture_fair_and_provenance_for_the_badge(self):
+        """The deck's score badge needs capture-fair, confidence, calibration
+        provenance and a capture-risk flag — all on report['score']."""
+        raw = self.fixture()
+        raw["technical_score"]["calibration"] = {"active": True, "n_references": 50}
+        raw["time_diagnostics"] = {"environment_risk": {"karaoke_or_room_contamination_risk": "elevated"}}
+        score = build_v2_report(raw)["score"]
+        self.assertEqual(score["capture_fair"], 8.8)
+        self.assertEqual(score["confidence"], "high")
+        self.assertTrue(score["calibrated"])
+        self.assertEqual(score["calibration_references"], 50)
+        self.assertTrue(score["capture_risk"])
+        # uncalibrated / clean-capture fixture reports the opposite
+        clean = build_v2_report(self.fixture())["score"]
+        self.assertFalse(clean["calibrated"])
+        self.assertFalse(clean["capture_risk"])
+
     def test_strain_is_labelled_as_coaching_focus(self):
         raw = self.fixture()
         raw["voice_quality"]["strain"]["pct_top_notes_strained"] = 25

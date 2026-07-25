@@ -326,6 +326,14 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
             "confidence": confidence,
             "components": components,
             "calibration_references": _get(score, "calibration", "n_references"),
+            # Provenance + capture context for the deck's score badge: whether the
+            # "10" is anchored to the pro pack, and whether a room/live capture
+            # means capture-fair is the number to trust.
+            "calibrated": bool(_get(score, "calibration", "active")),
+            "capture_risk": (
+                _get(raw, "time_diagnostics", "environment_risk",
+                     "karaoke_or_room_contamination_risk") == "elevated"
+            ),
         },
         "what_is_working": _working_points(raw),
         "main_focus": focus,

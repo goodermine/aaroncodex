@@ -65,6 +65,31 @@
   .harmtable__t td{text-align:right;color:var(--vox-body);padding:3px 0}
   .harmtable__vib{margin-top:9px;font-size:10px;letter-spacing:.06em;color:var(--vox-muted)}
 
+  /* score badge — overall + capture-fair + confidence + calibration provenance */
+  .vox-score{margin:4px 0 12px;padding:12px;border:1px solid var(--vox-line);border-radius:12px;
+    background:linear-gradient(180deg,rgba(63,224,255,.06),transparent)}
+  .vox-score__top{display:flex;gap:10px}
+  .vox-score__box{flex:1;text-align:center;padding:9px 6px;border-radius:9px;
+    background:rgba(255,255,255,.03);border:1px solid var(--vox-line)}
+  .vox-score__box--main{background:rgba(63,224,255,.12);border-color:rgba(63,224,255,.38)}
+  .vox-score__num{font:700 30px/1 var(--vox-sans);color:var(--vox-ink);font-variant-numeric:tabular-nums}
+  .vox-score__box--main .vox-score__num{color:#bfeffb}
+  .vox-score__cap{margin-top:5px;font:600 8.5px/1.2 var(--vox-mono);letter-spacing:.1em;color:var(--vox-muted);text-transform:uppercase}
+  .vox-score__meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .vox-score__conf{font:700 9px/1 var(--vox-mono);letter-spacing:.12em;padding:4px 7px;border-radius:5px;text-transform:uppercase}
+  .vox-score__conf.conf-high{background:rgba(90,224,138,.15);color:#5ae08a}
+  .vox-score__conf.conf-medium{background:rgba(255,193,88,.15);color:#ffc158}
+  .vox-score__conf.conf-low{background:rgba(255,109,122,.15);color:#ff6d7a}
+  .vox-score__conf.conf-unknown{background:rgba(127,147,164,.15);color:var(--vox-muted)}
+  .vox-score__cal{font:500 10px/1.35 var(--vox-mono);color:var(--vox-muted)}
+  .vox-score__hint{margin-top:9px;font:500 11px/1.5 var(--vox-sans);color:#ffc158;
+    padding:7px 9px;border-radius:7px;background:rgba(255,193,88,.08);border:1px solid rgba(255,193,88,.25)}
+  /* room/live capture: move the cyan emphasis onto capture-fair */
+  .vox-score.capture-risk .vox-score__box--main{background:rgba(255,255,255,.03);border-color:var(--vox-line)}
+  .vox-score.capture-risk .vox-score__box--main .vox-score__num{color:var(--vox-ink)}
+  .vox-score.capture-risk #scoreBoxCF{background:rgba(63,224,255,.12);border-color:rgba(63,224,255,.38)}
+  .vox-score.capture-risk #scoreBoxCF .vox-score__num{color:#bfeffb}
+
   /* analyzer lane stack: vibrato band / main / navigator, shared time window */
   .lanes{position:absolute;inset:8px;display:flex;flex-direction:column;gap:6px}
   .lane{position:relative;min-height:0}
@@ -127,6 +152,21 @@
   <div class="vox-deck">
     <aside class="vox-rail" id="leftRail">
       <div class="vox-rail__title"><span class="vox-led is-standby"></span>Live Readout</div>
+      <div class="vox-score" id="scoreBadge" hidden>
+        <div class="vox-score__top">
+          <div class="vox-score__box vox-score__box--main" id="scoreBoxOverall">
+            <div class="vox-score__num" id="scoreOverall">—</div><div class="vox-score__cap">/10 · overall</div>
+          </div>
+          <div class="vox-score__box" id="scoreBoxCF">
+            <div class="vox-score__num" id="scoreCF">—</div><div class="vox-score__cap">/10 · capture-fair</div>
+          </div>
+        </div>
+        <div class="vox-score__meta">
+          <span class="vox-score__conf" id="scoreConf">—</span>
+          <span class="vox-score__cal" id="scoreCal">—</span>
+        </div>
+        <div class="vox-score__hint" id="scoreHint" hidden></div>
+      </div>
       <div class="vox-readnote vox-mono" id="readNote">—</div>
       <div class="vox-readcents vox-mono" id="readCents">Awaiting take</div>
       <div class="vox-readgrid">
@@ -290,6 +330,28 @@
   function showIntake(){stageMsg.classList.add("hidden");$("#lanes").classList.add("hidden");intake.classList.remove("hidden");}
   function setText(sel,val){var e=$(sel);if(e)e.textContent=(val==null||val==="")?"—":val;}
 
+  // Score badge: overall + capture-fair side by side, a confidence pill, and the
+  // calibration provenance line ("10 = a typical pro"). When the engine flags a
+  // room/live capture, the cyan emphasis shifts to capture-fair and a hint says
+  // to trust it — voice-quality & dynamics are dragged by the recording chain.
+  function renderScoreBadge(sc){
+    var badge=$("#scoreBadge");
+    if(!sc||sc.overall==null){badge.setAttribute("hidden","");return;}
+    $("#scoreOverall").textContent=sc.overall;
+    $("#scoreCF").textContent=(sc.capture_fair!=null?sc.capture_fair:"—");
+    var conf=String(sc.confidence||"unknown").toLowerCase();
+    var ce=$("#scoreConf");ce.textContent=conf+" confidence";ce.className="vox-score__conf conf-"+conf;
+    var refs=sc.calibration_references;
+    $("#scoreCal").textContent=sc.calibrated
+      ? ("Calibrated"+(refs?" · "+refs+" pro refs":"")+" · 10 = a typical pro")
+      : "Theoretical anchors (uncalibrated)";
+    var risk=!!sc.capture_risk;badge.classList.toggle("capture-risk",risk);
+    var hint=$("#scoreHint");
+    if(risk){hint.textContent="Room / live capture detected — trust the capture-fair score; the recording chain drags voice-quality & dynamics.";hint.removeAttribute("hidden");}
+    else hint.setAttribute("hidden","");
+    badge.removeAttribute("hidden");
+  }
+
   // On real completion, hydrate the readout rail + metrics export from the job
   // result. Fully defensive — any missing field just leaves an em-dash; a fetch
   // failure never breaks the deck. (The full interactive pitch scope is a later
@@ -302,7 +364,7 @@
       setText("#rConf",sc.confidence!=null?sc.confidence:(res.quality&&res.quality.classification));
       setText("#rDev",into.median_deviation_cents!=null?into.median_deviation_cents+" c":null);
       setText("#rWithin",into.within_25_percent!=null?into.within_25_percent+"%":null);
-      if(sc.overall!=null){setText("#readNote",sc.overall);$("#readCents").textContent="OVERALL / 10";}
+      renderScoreBadge(sc);
       // Mount the pitch scope from the real contour + vocal stem, if present.
       var contour=res.contour||(rep.pitch&&rep.pitch.contour);
       var vocalUrl=(res.audio_urls&&res.audio_urls.vocals)||null;
@@ -383,6 +445,7 @@
     tray.classList.remove("open");tray.innerHTML="";exportBtn.disabled=true;exportBtn.classList.remove("vox-btn--ready","vox-btn--primary");exportBtn.setAttribute("aria-expanded","false");dlLabel.textContent="Export report";
     $("#playbackBlock").hidden=true;$("#computeBlock").hidden=false;$("#tglBacking").hidden=true;$("#tglOrig").hidden=true;
     $("#harmTable").setAttribute("hidden","");
+    $("#scoreBadge").setAttribute("hidden","");
     ["#rRange","#rConf","#rDev","#rWithin"].forEach(function(s){$(s).textContent="—";});
     $("#readNote").textContent="—";$("#readCents").textContent="Awaiting take";
     $("#tcode").innerHTML="00:00.0 <span>/</span> 00:00.0";$("#seekFill").style.width="0%";playBtn.disabled=true;playBtn.innerHTML="&#9654;";
@@ -891,7 +954,8 @@
       $("#levelHead").textContent="−4.0 dB";
       VOX.drawGauge(gpuC,state==="WORKING"?72:12);VOX.drawGauge(cpuC,state==="WORKING"?54:10);
       $("#gpuVal").textContent=(state==="WORKING"?72:12)+"%";$("#cpuVal").textContent=(state==="WORKING"?54:10)+"%";
-      if(state==="COMPLETE"){$("#rRange").textContent="E3 – A5";$("#rConf").textContent="94%";$("#rDev").textContent="11 c";$("#rWithin").textContent="78%";
+      if(state==="COMPLETE"){$("#rRange").textContent="E3 – A5";$("#rConf").textContent="high";$("#rDev").textContent="11 c";$("#rWithin").textContent="78%";
+        renderScoreBadge({overall:7.8,capture_fair:8.4,confidence:"high",calibrated:true,calibration_references:50,capture_risk:false});
         var dc=demoContour();refContour={values:dc.values.map(function(v){return v==null?null:v+40*Math.sin(v/80);}),rate_hz:dc.rate_hz};
         var vn=[];for(var p=0;p<15;p++){vn.push({start_s:p*1.6,duration_s:1.2,note:"—",rate_hz:5+(p%3)*0.6,extent_cents:60,has_vibrato:p%4!==0});}vibNotes=vn;
         mountScope(dc,24,null);var c=clockObj();if(c&&c.play)c.play();playBtn.innerHTML="&#10073;&#10073;";}
