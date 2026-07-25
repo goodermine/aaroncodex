@@ -2,6 +2,12 @@
 
 Date: 2026-07-25
 
+> **Superseded for actual scores by `HANDOFF_ALL_TAKES_SCORES_V4_2026-07-25.md`.**
+> This v3 last-10 snapshot is what *revealed* the `dynamics_expression` bug
+> (finding #4). That bug is now fixed in rubric **v4**, and all takes have been
+> re-scored — use the v4 handoff for the numbers to give Aaron. This note is kept
+> for the diagnosis trail.
+
 **What this is:** the 10 most recent singer takes in
 `voxanalysis/archive/scratch-analyses/` re-scored with the **current** engine
 (`deterministic_rubric_v3`, calibration active, 50 pro references), so we have a

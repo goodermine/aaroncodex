@@ -2011,6 +2011,36 @@ def _peak_scale(value, ideal_low, ideal_high, zero_low, zero_high):
     return _scale(value, ideal_high, zero_high)
 
 
+def _graded_peak(value, p10, p50, p90, zero_low, zero_high, floor=3.0):
+    """A *graded* sweet-spot curve that peaks at the professional median and
+    grades continuously either side — unlike ``_peak_scale``, which is flat 10
+    across the whole ideal band (so it never discriminates within it) and falls
+    all the way to 0 (so a capture artefact craters the component).
+
+    - 10 at ``p50`` (a typical pro).
+    - Declines to ~7 at the pro range edges ``p10`` / ``p90`` — being anywhere in
+      the professional spread is still strong.
+    - Beyond that, declines toward ``floor`` (not 0) at the ``zero_*`` bounds, so
+      an implausibly small or large value grades low but a real take is never
+      zeroed by one capture-sensitive reading.
+
+    ``p10<p50<p90`` and the zero bounds outside them are required; callers pass
+    the pro-reference percentiles when calibrated, or documented fallbacks.
+    """
+    if value is None:
+        return None
+    edge = 7.0
+    if value == p50:
+        return 10.0
+    if value < p50:
+        if value >= p10:
+            return round(edge + (10.0 - edge) * (value - p10) / max(1e-6, p50 - p10), 2)
+        return round(max(floor, floor + (edge - floor) * (value - zero_low) / max(1e-6, p10 - zero_low)), 2)
+    if value <= p90:
+        return round(edge + (10.0 - edge) * (p90 - value) / max(1e-6, p90 - p50), 2)
+    return round(max(floor, floor + (edge - floor) * (zero_high - value) / max(1e-6, zero_high - p90)), 2)
+
+
 def _linear_component(value, key, calibration, default_best, worst, unit, lower_is_better=True):
     """
     Builds a linear component score. Without calibration, `default_best`
@@ -2036,9 +2066,20 @@ def _linear_component(value, key, calibration, default_best, worst, unit, lower_
 
 def compute_technical_score(results, calibration=None):
     """
-    DETERMINISTIC TECHNICAL SCORE — RUBRIC v2
+    DETERMINISTIC TECHNICAL SCORE — RUBRIC v4
     ───────────────────────────────────────────
     A transparent, formula-based 0-10 score over the measured metrics.
+
+    v4 changes vs v3 (dynamics fix):
+      * dynamics_expression is now GRADED (see _graded_peak): 10 at the pro
+        median, easing to ~7 across the pro range, floored — not zeroed — beyond
+        it. The old flat-topped peak scale returned a constant 10 across the whole
+        professional band (so it never discriminated) and cratered to 0 on a
+        capture/stem-separation artefact.
+      * dynamics_expression is now treated as capture-sensitive and joins
+        voice_quality in the capture-fair exclusion, since effective dynamic range
+        is moved by mastering/limiting and by stem separation.
+
     The same audio always yields the same score; no component is generated
     or adjusted by a language model. Every component reports its input
     value, formula, and weight so the number can be audited.
@@ -2177,27 +2218,34 @@ def compute_technical_score(results, calibration=None):
             "score": round(best_score, 2),
         }
 
+    # Dynamics: a graded sweet-spot (10 at the pro median, easing to ~7 across the
+    # pro range, floored — not zeroed — beyond it). The old flat-topped peak scale
+    # returned a constant 10 across the whole professional band (no discrimination)
+    # and cratered to 0 on a capture/master artefact; _graded_peak fixes both.
+    # Still "best of phrase-shaping vs effective range" so a compressed master
+    # isn't punished for the mixing engineer's limiter.
     dyn = results.get("dynamics", {})
     dyn_candidates = []
     dyn_detail = []
     phrase_spread = dyn.get("phrase_level_spread_db")
     if phrase_spread is not None:
-        spread_stats = _calib_metric(calibration, "dynamics_phrase_level_spread_db")
-        lo, hi = (spread_stats["p10"], spread_stats["p90"]) if spread_stats else (3.0, 12.0)
-        dyn_candidates.append(_peak_scale(phrase_spread, lo, hi, 0.5, 25.0))
-        dyn_detail.append(f"phrase-level spread {phrase_spread} dB (ideal {lo}-{hi})")
+        st = _calib_metric(calibration, "dynamics_phrase_level_spread_db")
+        p10, p50, p90 = (st["p10"], st["p50"], st["p90"]) if st else (10.0, 22.0, 40.0)
+        dyn_candidates.append(_graded_peak(phrase_spread, p10, p50, p90, 0.5, 70.0))
+        dyn_detail.append(f"phrase-level spread {phrase_spread} dB (pro p10/p50/p90 {p10}/{p50}/{p90})")
     eff = dyn.get("effective_dynamic_range_db")
     if eff is not None:
-        eff_stats = _calib_metric(calibration, "dynamics_effective_dynamic_range_db")
-        lo, hi = (eff_stats["p10"], eff_stats["p90"]) if eff_stats else (6.0, 22.0)
-        dyn_candidates.append(_peak_scale(eff, lo, hi, 2.0, 35.0))
-        dyn_detail.append(f"effective range {eff} dB (ideal {lo}-{hi})")
+        st = _calib_metric(calibration, "dynamics_effective_dynamic_range_db")
+        p10, p50, p90 = (st["p10"], st["p50"], st["p90"]) if st else (12.0, 30.0, 52.0)
+        dyn_candidates.append(_graded_peak(eff, p10, p50, p90, 2.0, 80.0))
+        dyn_detail.append(f"effective range {eff} dB (pro p10/p50/p90 {p10}/{p50}/{p90})")
     dyn_candidates = [c for c in dyn_candidates if c is not None]
     if dyn_candidates:
         components["dynamics_expression"] = {
             "weight": 0.15,
             "input": "; ".join(dyn_detail),
-            "formula": "best of phrase-level shaping and effective range (mastered/compressed stems limit raw range through no fault of the singer)",
+            "formula": "best of phrase-level shaping and effective range, graded to the pro distribution (10 at the professional median, ~7 across the pro range, floored not zeroed beyond it)",
+            "capture_sensitive": True,
             "score": round(float(max(dyn_candidates)), 2),
         }
 
@@ -2221,14 +2269,17 @@ def compute_technical_score(results, calibration=None):
     total_weight = sum(v["weight"] for v in scored.values())
     overall = sum(v["score"] * v["weight"] for v in scored.values()) / total_weight
 
-    # Capture-fair score: the same rubric with voice_quality excluded
-    # (weights renormalised). Jitter/shimmer/HNR measure the recording
-    # chain as much as the singer when sources differ in era or mastering —
-    # a vintage master run through stem separation reads 2-3x worse on
-    # these than a clean modern capture of an equal voice. For any
-    # singer-vs-singer comparison across different recordings (e.g. a take
-    # vs the original record), compare capture-fair scores on BOTH sides.
-    fair = {k: v for k, v in scored.items() if k != "voice_quality"}
+    # Capture-fair score: the same rubric with the capture-sensitive components
+    # excluded (weights renormalised). voice_quality (jitter/shimmer/HNR/CPPS)
+    # measures the recording chain as much as the singer; dynamics_expression's
+    # effective-range input is likewise moved by mastering/limiting and by stem-
+    # separation artefacts (a separated stem's range can blow out and previously
+    # cratered the component to 0). A vintage master run through stem separation
+    # reads far worse on these than a clean modern capture of an equal voice. For
+    # any singer-vs-singer comparison across different recordings (e.g. a take vs
+    # the original record), compare capture-fair scores on BOTH sides.
+    _CAPTURE_SENSITIVE = ("voice_quality", "dynamics_expression")
+    fair = {k: v for k, v in scored.items() if k not in _CAPTURE_SENSITIVE}
     capture_fair = (
         sum(v["score"] * v["weight"] for v in fair.values())
         / sum(v["weight"] for v in fair.values())
@@ -2247,7 +2298,7 @@ def compute_technical_score(results, calibration=None):
 
     calibrated = calibration is not None
     provenance = (
-        "deterministic_rubric_v3 — computed from measured audio features; "
+        "deterministic_rubric_v4 — computed from measured audio features; "
         "identical audio yields an identical score; no LLM involvement; "
         + ("anchored to professional reference distribution" if calibrated else
            "theoretical anchors (no pro calibration file found)")
@@ -2257,12 +2308,14 @@ def compute_technical_score(results, calibration=None):
         "overall_score_0_to_10": round(float(overall), 1),
         "capture_fair_score_0_to_10": round(float(capture_fair), 1),
         "capture_fair_note": (
-            "Rubric with voice_quality excluded (weights renormalised). "
-            "Jitter/shimmer/HNR partly measure the recording chain: vintage "
-            "masters run through stem separation read far worse than clean "
-            "modern captures of an equal voice. Use capture_fair on BOTH "
-            "sides for any take-vs-original or cross-era comparison; use "
-            "overall_score for a singer's absolute result and self-progress."
+            "Rubric with the capture-sensitive components (voice_quality and "
+            "dynamics_expression) excluded (weights renormalised). Jitter/shimmer/"
+            "HNR and effective dynamic range partly measure the recording chain "
+            "and stem-separation artefacts: vintage masters run through separation "
+            "read far worse than clean modern captures of an equal voice. Use "
+            "capture_fair on BOTH sides for any take-vs-original or cross-era "
+            "comparison; use overall_score for a singer's absolute result and "
+            "self-progress."
         ),
         "provenance": provenance,
         "calibration": {
