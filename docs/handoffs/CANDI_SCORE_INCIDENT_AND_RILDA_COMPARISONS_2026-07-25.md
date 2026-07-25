@@ -3,8 +3,17 @@
 Date: 25 July 2026
 Status: needs manual review for cross-engine scoring; raw comparison findings are complete.
 
-> **UPDATE (later on 25 July) — the `You Sexy Thing` 5.1-vs-8.3 conflict below is
-> RESOLVED.** Both takes are now archived in the repo, and their stored scores
+> **UPDATE (later on 25 July) — BOTH incidents below are RESOLVED, and both
+> resolved the *opposite* way to the original conclusion.** The common cause:
+> `deterministic_rubric_v1` was uncalibrated and carried the dynamics bug, so it
+> scored takes roughly **2.5–3 points too harshly**.
+>
+> **Aaron — `Pressure Down` Take 4:** the 9.5 was withdrawn in favour of a
+> recheck at 6.5. The current calibrated engine says **9.3** — the 6.5 was the
+> broken number and the withdrawal was unwarranted. Every Pressure Down take rose
+> ~2.5–3 points on re-scoring.
+>
+> **Rilda — `You Sexy Thing` / `Dreams`:** Both takes are now archived in the repo, and their stored scores
 > show they were computed with **`deterministic_rubric_v1`, uncalibrated**, with
 > the dynamics component cratered (0.0 on `Dreams`, 0.91 on `You Sexy Thing`) —
 > the bug fixed in rubric **v4**. Re-scored with the current calibrated engine:

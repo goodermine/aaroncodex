@@ -56,6 +56,33 @@ quoted in progress trends.
 Treat any report still carrying a `deterministic_rubric_v1` score the same way:
 **re-score it before quoting** (`python3 docs/score-metrics/rescore_all.py`).
 
+## ⚠ Pressure Down: the 9.5 was withdrawn on the strength of a broken number
+
+Take 4's saved report said **9.5**. It was rechecked against the then-current
+backend, came back **6.5**, and the 9.5 was withdrawn as "not valid".
+
+**Under the current calibrated engine Take 4 is 9.3.** The 6.5 that overturned it
+was produced by `deterministic_rubric_v1` — uncalibrated, carrying the dynamics
+bug. The original 9.5 was within 0.2 of the right answer; the "correction" was
+the wrong number. Aaron should be told.
+
+It's systematic, not a one-off — every Pressure Down take moved up ~2.5–3.1
+points once scored properly:
+
+| take | retired v1 | **current v4** | capture-fair |
+|---|--:|--:|--:|
+| 1 | 6.1 | **9.1** | 8.8 |
+| 2 | 5.3 | **8.0** | 7.2 |
+| 3 | 6.3 | **9.1** | 9.0 |
+| 4 | 6.5 | **9.3** | 9.2 |
+| 5 | 5.7 | **8.5** | 7.9 |
+| 6 (Mango Hill, live) | 4.6 | **7.5** | 7.7 |
+| 7 (Brighton, live) | 4.5 | **7.6** | 7.8 |
+
+Same root cause as Rilda's 5.1s: **rubric v1 scored everyone roughly 2.5–3 points
+too harshly.** All 38 stale scores across the archive have now been retired so
+none of them can be quoted again — see `HANDOFF_SCORE_PROVENANCE.md`.
+
 ## Every take — updated scores
 
 | singer | song | v4 overall | capture-fair | confidence |
