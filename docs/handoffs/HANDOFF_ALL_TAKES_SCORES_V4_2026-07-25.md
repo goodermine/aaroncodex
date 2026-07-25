@@ -23,7 +23,7 @@ to switch on. To refresh this table after new takes land:
 
 ## Aggregate
 
-- **Singer takes (29):** overall v4 6.6–9.7 (mean 8.29).
+- **Singer takes (32):** overall v4 6.6–9.7 (mean 8.31).
 - **Pro references (9, calibration sanity check):** overall v4 8.1–9.6 (mean 8.73) — pros sit at the top, as they should.
 
 ## ⚠ Rilda's two 25 July takes were scored far too harshly — correct them
@@ -80,7 +80,7 @@ points once scored properly:
 | 7 (Brighton, live) | 4.5 | **7.6** | 7.8 |
 
 Same root cause as Rilda's 5.1s: **rubric v1 scored everyone roughly 2.5–3 points
-too harshly.** All 38 stale scores across the archive have now been retired so
+too harshly.** All 41 stale scores across the archive have now been retired so
 none of them can be quoted again — see `HANDOFF_SCORE_PROVENANCE.md`.
 
 ## Every take — updated scores
@@ -97,11 +97,14 @@ none of them can be quoted again — see `HANDOFF_SCORE_PROVENANCE.md`.
 | aaron | the-heat-is-on-take-002 | **8.8** | 8.4 | high |
 | aaron | goodbye-s-been-good-to-you-take-001 | **8.8** | 8.3 | high |
 | aaron | danger-zone-take-003 | **8.7** | 8.5 | high |
+| aaron | play-that-funky-music-take-001 | **8.7** | 8.1 | high |
 | aaron | the-heat-is-on-new-studio-take-001 | **8.6** | 7.9 | high |
 | aaron | pressure-down-take-005 | **8.5** | 7.9 | high |
+| aaron | tutti-frutti-take-001 | **8.5** | 7.8 | high |
 | aaron | 1973-take-001 | **8.3** | 7.6 | high |
 | rilda | dreams-take-001 | **8.3** | 8.5 | high |
 | aaron | danger-zone-home | **8.2** | 7.6 | high |
+| aaron | my-babe-take-001 | **8.4** | 8.8 | high |
 | aaron | kryptonite-mango-hill-tavern-take-001 | **8.0** | 8.7 | high |
 | aaron | pressure-down-take-002 | **8.0** | 7.2 | high |
 | rilda | you-sexy-thing-take-001 | **8.0** | 8.0 | high |
@@ -116,6 +119,12 @@ none of them can be quoted again — see `HANDOFF_SCORE_PROVENANCE.md`.
 | rilda | this-masquerade-take-001 | **8.2** | 7.5 | high |
 | rilda | lets-stay-together-home-take-001 | **7.8** | 7.0 | high |
 | rilda | she-s-not-there-take-001 | **7.1** | 7.2 | high |
+
+### Home practice baselines — 25 July
+
+Aaron's *My Babe*, *Tutti Frutti*, and *Play That Funky Music* are archived as
+home-practice baselines. Compare later live submissions to the matching song and
+equivalent verse/chorus sections, rather than across songs.
 
 ### Pressure Down version map
 
