@@ -1,4 +1,10 @@
-"""Scoring rubric — dynamics grading (v4) and capture-fair exclusion.
+"""Scoring rubric — provenance pinning, dynamics grading (v4), capture-fair.
+
+Provenance: every score carries a deterministic `identity` (rubric + rubric
+fingerprint + calibration pack + stem model + take), and scores may only be
+compared when those identities match. This is what stops a stale rubric's number
+being quoted or trended as though it were current — the Rilda 5.1-vs-8.0 case.
+
 
 Guards the v4 fix: dynamics_expression must GRADE against the pro distribution
 (10 at the median, easing to ~7 at the range edges, floored — not zeroed — beyond
@@ -7,6 +13,7 @@ the whole professional band and cratered to 0 on a capture artefact. Also guards
 that dynamics joins voice_quality in the capture-fair exclusion.
 """
 
+import json
 import os
 import sys
 
@@ -53,6 +60,62 @@ def test_dynamics_discriminates_not_flat_ten():
     assert d_good <= 10.0 and d_flat >= 0.0
     # the flat take is graded down but not zeroed by a single capture-sensitive reading
     assert d_flat > 0.0
+
+
+def test_every_score_carries_a_deterministic_identity():
+    """A bare number is uninterpretable — each score must say what produced it,
+    and that identity must be deterministic (same audio + same engine => same
+    identity), or nothing downstream can compare scores reliably."""
+    a = A.compute_technical_score(_base_results(22.0, 30.0))
+    b = A.compute_technical_score(_base_results(22.0, 30.0))
+    ident = a["identity"]
+    assert ident["contract"] == A.SCORE_CONTRACT
+    assert ident["rubric"] == A.RUBRIC_NAME
+    assert ident["rubric_fingerprint"]
+    assert a == b, "identity (and therefore the score) must be deterministic"
+
+
+def test_legacy_and_mismatched_scores_are_refused_for_comparison():
+    """The Rilda incident: a stale rubric's 5.1 sat next to a current 8.0 and
+    looked comparable. Legacy scores must fail closed."""
+    current = A.compute_technical_score(_base_results(22.0, 30.0))
+    legacy = {"overall_score_0_to_10": 5.1, "provenance": "deterministic_rubric_v1 — ..."}
+    assert A.is_legacy_score(legacy)
+    assert not A.is_legacy_score(current)
+    assert not A.scores_comparable(current, legacy)
+    assert "provenance" in A.score_conflict(current, legacy)
+    # a score is comparable with itself / an identical run
+    assert A.scores_comparable(current, A.compute_technical_score(_base_results(22.0, 30.0)))
+
+
+def test_different_calibration_packs_are_not_comparable():
+    """Same rubric but a different reference pack is still a different scale."""
+    calibrated = A.compute_technical_score(_base_results(22.0, 30.0),
+                                           A.load_calibration(A.DEFAULT_CALIBRATION_PATH))
+    uncalibrated = A.compute_technical_score(_base_results(22.0, 30.0))
+    assert not A.scores_comparable(calibrated, uncalibrated)
+    assert "calibration" in A.score_conflict(calibrated, uncalibrated)
+
+
+def test_one_take_through_every_entry_point_agrees_or_conflicts_explicitly():
+    """Candi's integration requirement: the same stem scored through every
+    supported path must return the SAME canonical score, or be refused with a
+    stated provenance conflict — never two silently different numbers."""
+    results = _base_results(22.0, 30.0)
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    # entry point 1: the engine directly
+    direct = A.compute_technical_score(results, cal)
+    # entry point 2: the same measurements carrying extra sidecar data (the
+    # spectral-export path adds keys that must not perturb the score)
+    with_extras = json.loads(json.dumps(results))
+    with_extras["spectral"] = {"version": "voxai_spectral_v1", "status": "ready"}
+    via_export = A.compute_technical_score(with_extras, cal)
+    assert A.scores_comparable(direct, via_export)
+    assert direct["overall_score_0_to_10"] == via_export["overall_score_0_to_10"]
+    # entry point 3: an uncalibrated runner must NOT silently disagree — it is
+    # refused as incomparable rather than presented as an alternative reading
+    rogue = A.compute_technical_score(results)
+    assert A.score_conflict(direct, rogue) is not None
 
 
 def test_capture_fair_excludes_dynamics_and_voice_quality():

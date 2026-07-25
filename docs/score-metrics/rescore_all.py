@@ -1,9 +1,10 @@
 """Re-score EVERY archived analysis with the current engine (rubric v4).
 
 Writes a full snapshot of all singer takes (and, as a calibration sanity check,
-the professional references) under docs/score-metrics/. The archived files carry
-whatever score was baked in at capture time; this recomputes each against the
-live compute_technical_score(), so the table always reflects today's rubric.
+the professional references) under docs/score-metrics/. Scores from superseded
+rubrics are retired from the archive by retire_legacy_scores.py, so every number
+produced here is a fresh compute against the live compute_technical_score() —
+the table always reflects today's rubric and carries no stale scores.
 
 Run:  python3 docs/score-metrics/rescore_all.py
 """
@@ -46,7 +47,8 @@ def score_row(f):
     return {
         "take": name, "singer": singer(name), "song": song(name), "date": date_of(name),
         "n_notes": inton.get("n_notes"),
-        "old_baked_overall": old.get("overall_score_0_to_10"),
+        "prior_score_status": ("retired_legacy" if old.get("status") == "retired_legacy_score"
+                               else ("current" if old.get("identity") else "none")),
         "overall_v4": ts.get("overall_score_0_to_10"),
         "capture_fair_v4": ts.get("capture_fair_score_0_to_10"),
         "confidence": ts.get("confidence"),
@@ -104,18 +106,20 @@ def comp(r, k): return r["components"].get(k, "–")
 md = [f"# All takes — re-scored with the current engine (rubric v4, {STAMP})", "",
       f"Every archived take re-scored with **{out['engine']}** "
       f"(calibration active, {out['calibration']['n_references']} pro references). "
-      "`baked` is the score stored in the archived file at capture time; `v4` is the current recompute. "
-      "`cf` = capture-fair (voice_quality **and** dynamics excluded — the capture-robust components).", "",
+      "Scores from superseded rubrics have been retired from the archive "
+      "(retire_legacy_scores.py), so every number here is a current recompute — there are no "
+      "stale scores left to quote. `cf` = capture-fair (voice_quality **and** dynamics "
+      "excluded — the capture-robust components).", "",
       "## Singer takes", "",
       f"Overall v4: min {out['aggregate']['takes']['overall_v4']['min']} · "
       f"max {out['aggregate']['takes']['overall_v4']['max']} · "
       f"mean {out['aggregate']['takes']['overall_v4']['mean']}. "
       f"Dynamics component now spreads {out['aggregate']['takes']['dynamics']['min']}–"
       f"{out['aggregate']['takes']['dynamics']['max']} (was a flat 10.0 for every take in v3).", "",
-      "| singer | song | notes | baked | **v4** | cf | conf | inton | pitch | voice | vib | dyn | phrase |",
-      "|---|---|--:|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|"]
+      "| singer | song | notes | **v4** | cf | conf | inton | pitch | voice | vib | dyn | phrase |",
+      "|---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|"]
 for r in take_rows:
-    md.append(f"| {r['singer']} | {r['song']} | {r['n_notes']} | {r['old_baked_overall']} | "
+    md.append(f"| {r['singer']} | {r['song']} | {r['n_notes']} | "
               f"**{r['overall_v4']}** | {r['capture_fair_v4']} | {r['confidence']} | "
               f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
               f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} |")

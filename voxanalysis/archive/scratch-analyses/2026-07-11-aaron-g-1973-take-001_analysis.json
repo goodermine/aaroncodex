@@ -999,63 +999,11 @@
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
   "technical_score": {
-    "overall_score_0_to_10": 8.4,
-    "capture_fair_score_0_to_10": 8.1,
-    "capture_fair_note": "Rubric with voice_quality excluded (weights renormalised). Jitter/shimmer/HNR partly measure the recording chain: vintage masters run through stem separation read far worse than clean modern captures of an equal voice. Use capture_fair on BOTH sides for any take-vs-original or cross-era comparison; use overall_score for a singer's absolute result and self-progress.",
-    "provenance": "deterministic_rubric_v2 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
-    "calibration": {
-      "active": true,
-      "file": "/home/rustwood/.openclaw/workspace/vox-cloud-alpha-main/backend/voxai-local-analysis/calibration/pro_reference.json",
-      "n_references": 32,
-      "note": null
-    },
-    "confidence": "high",
-    "confidence_basis": {
-      "praat_metrics_available": true,
-      "n_sustained_notes": 168,
-      "capture_risk_elevated": false
-    },
-    "components": {
-      "intonation_accuracy": {
-        "weight": 0.25,
-        "input": "median abs grid deviation = 30.0 cents \u2014 matches or beats 6.2% of 32 pro references",
-        "formula": "10 at pro-reference median (20.0 cents), 0 at 45 cents, linear",
-        "score": 6.0
-      },
-      "pitch_stability": {
-        "weight": 0.15,
-        "input": "median intra-note drift = 15.8 cents \u2014 matches or beats 81.2% of 32 pro references",
-        "formula": "10 at pro-reference median (26.55 cents), 0 at 80 cents, linear",
-        "score": 10.0
-      },
-      "voice_quality": {
-        "weight": 0.2,
-        "input": "jitter = 0.449% \u2014 matches or beats 100.0% of 32 pro references; shimmer = 8.0374% \u2014 matches or beats 68.8% of 32 pro references; HNR = 15.08 dB \u2014 matches or beats 71.9% of 32 pro references",
-        "formula": "mean of jitter/shimmer/HNR sub-scores (Praat, per sustained note)",
-        "score": 10.0
-      },
-      "vibrato_control": {
-        "weight": 0.15,
-        "input": "72.4% of long notes carry vibrato (10 at >=40%); rate 5.87 Hz (ideal 5.041-6.031); extent 58.2 cents (ideal 53.41-80.54); intra-note drift 15.8 cents (straight-tone path)",
-        "formula": "best of vibrato-quality path and straight-tone steadiness path (consistent straight tone is a valid professional style)",
-        "style_detected": "vibrato-led",
-        "score": 10.0
-      },
-      "dynamics_expression": {
-        "weight": 0.15,
-        "input": "phrase-level spread 27.16 dB (ideal 18.235-39.734); effective range 49.25 dB (ideal 24.27-51.676)",
-        "formula": "best of phrase-level shaping and effective range (mastered/compressed stems limit raw range through no fault of the singer)",
-        "score": 10.0
-      },
-      "phrase_control": {
-        "weight": 0.1,
-        "input": "median phrase length = 1.9 s \u2014 matches or beats 12.5% of 32 pro references",
-        "formula": "10 at pro-reference median (3.665 s), 0 at 0.5 s, linear",
-        "score": 4.42
-      }
-    },
-    "weights_note": "Weights renormalised over measurable components.",
-    "scope_note": "Technical execution only. Artistry, emotion, interpretation and style-appropriateness are human judgements and are not part of this number. Any 'listener impact' figure elsewhere in a report is a subjective estimate, not a measurement."
+    "status": "retired_legacy_score",
+    "retired_rubric": "deterministic_rubric_v2",
+    "reason": "Scored by a superseded rubric before the provenance contract existed. Older rubrics carried known defects (e.g. the dynamics component could score a flat 10 or crater to 0), and uncalibrated runs used theoretical anchors rather than the professional reference pack. The number was not comparable to current scores and has been removed.",
+    "action": "Re-score with the current engine (deterministic_rubric_v4) before quoting, displaying or trending: python3 docs/score-metrics/rescore_all.py",
+    "do_not_use": true
   },
   "archetype": "Pitch Slider",
   "diagnostic_flags": [

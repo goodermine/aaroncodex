@@ -2,11 +2,17 @@
 
 Date: 2026-07-25
 
-> **Superseded for actual scores by `HANDOFF_ALL_TAKES_SCORES_V4_2026-07-25.md`.**
-> This v3 last-10 snapshot is what *revealed* the `dynamics_expression` bug
-> (finding #4). That bug is now fixed in rubric **v4**, and all takes have been
-> re-scored — use the v4 handoff for the numbers to give Aaron. This note is kept
-> for the diagnosis trail.
+> # ⛔ DIAGNOSIS TRAIL ONLY — DO NOT QUOTE ANY NUMBER IN THIS FILE
+>
+> Every score below was produced by **rubric v3**, which carried the
+> `dynamics_expression` bug this document discovered. Those numbers are **retired
+> and must never be given to a singer, compared, or used in a progress trend.**
+> They are kept solely to show how the bug was found.
+>
+> **For any actual score, use `HANDOFF_ALL_TAKES_SCORES_V4_2026-07-25.md`.**
+> The underlying v3 data files and tooling have been deleted from the repo, and
+> all stale scores have been retired from the archive
+> (`docs/score-metrics/retire_legacy_scores.py`).
 
 **What this is:** the 10 most recent singer takes in
 `voxanalysis/archive/scratch-analyses/` re-scored with the **current** engine

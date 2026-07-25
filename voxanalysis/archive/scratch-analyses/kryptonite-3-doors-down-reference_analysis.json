@@ -1241,61 +1241,11 @@
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
   "technical_score": {
-    "overall_score_0_to_10": 9.8,
-    "provenance": "deterministic_rubric_v2 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
-    "calibration": {
-      "active": true,
-      "file": "calibration/pro_reference.json",
-      "n_references": 24,
-      "note": null
-    },
-    "confidence": "high",
-    "confidence_basis": {
-      "praat_metrics_available": true,
-      "n_sustained_notes": 175,
-      "capture_risk_elevated": false
-    },
-    "components": {
-      "intonation_accuracy": {
-        "weight": 0.25,
-        "input": "median abs grid deviation = 20.0 cents \u2014 matches or beats 62.5% of 24 pro references",
-        "formula": "10 at pro-reference median (20.0 cents), 0 at 45 cents, linear",
-        "score": 10.0
-      },
-      "pitch_stability": {
-        "weight": 0.15,
-        "input": "median intra-note drift = 24.5 cents \u2014 matches or beats 50.0% of 24 pro references",
-        "formula": "10 at pro-reference median (24.35 cents), 0 at 80 cents, linear",
-        "score": 9.97
-      },
-      "voice_quality": {
-        "weight": 0.2,
-        "input": "jitter = 0.6658% \u2014 matches or beats 87.5% of 24 pro references; shimmer = 9.3191% \u2014 matches or beats 66.7% of 24 pro references; HNR = 12.63 dB \u2014 matches or beats 29.2% of 24 pro references",
-        "formula": "mean of jitter/shimmer/HNR sub-scores (Praat, per sustained note)",
-        "score": 9.59
-      },
-      "vibrato_control": {
-        "weight": 0.15,
-        "input": "33.3% of long notes carry vibrato (10 at >=40%); rate 5.07 Hz (ideal 5.056-6.243); extent 53.5 cents (ideal 52.07-80.73); intra-note drift 24.5 cents (straight-tone path)",
-        "formula": "best of vibrato-quality path and straight-tone steadiness path (consistent straight tone is a valid professional style)",
-        "style_detected": "vibrato-led",
-        "score": 9.44
-      },
-      "dynamics_expression": {
-        "weight": 0.15,
-        "input": "phrase-level spread 44.74 dB (ideal 16.352-39.422); effective range 41.42 dB (ideal 23.782-49.995)",
-        "formula": "best of phrase-level shaping and effective range (mastered/compressed stems limit raw range through no fault of the singer)",
-        "score": 10.0
-      },
-      "phrase_control": {
-        "weight": 0.1,
-        "input": "median phrase length = 4.42 s \u2014 matches or beats 62.5% of 24 pro references",
-        "formula": "10 at pro-reference median (3.665 s), 0 at 0.5 s, linear",
-        "score": 10.0
-      }
-    },
-    "weights_note": "Weights renormalised over measurable components.",
-    "scope_note": "Technical execution only. Artistry, emotion, interpretation and style-appropriateness are human judgements and are not part of this number. Any 'listener impact' figure elsewhere in a report is a subjective estimate, not a measurement."
+    "status": "retired_legacy_score",
+    "retired_rubric": "deterministic_rubric_v2",
+    "reason": "Scored by a superseded rubric before the provenance contract existed. Older rubrics carried known defects (e.g. the dynamics component could score a flat 10 or crater to 0), and uncalibrated runs used theoretical anchors rather than the professional reference pack. The number was not comparable to current scores and has been removed.",
+    "action": "Re-score with the current engine (deterministic_rubric_v4) before quoting, displaying or trending: python3 docs/score-metrics/rescore_all.py",
+    "do_not_use": true
   },
   "archetype": "Hybrid",
   "diagnostic_flags": [

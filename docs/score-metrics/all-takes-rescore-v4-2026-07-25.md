@@ -1,42 +1,42 @@
 # All takes — re-scored with the current engine (rubric v4, 2026-07-25)
 
-Every archived take re-scored with **deterministic_rubric_v4** (calibration active, 50 pro references). `baked` is the score stored in the archived file at capture time; `v4` is the current recompute. `cf` = capture-fair (voice_quality **and** dynamics excluded — the capture-robust components).
+Every archived take re-scored with **deterministic_rubric_v4** (calibration active, 50 pro references). Scores from superseded rubrics have been retired from the archive (retire_legacy_scores.py), so every number here is a current recompute — there are no stale scores left to quote. `cf` = capture-fair (voice_quality **and** dynamics excluded — the capture-robust components).
 
 ## Singer takes
 
 Overall v4: min 6.6 · max 9.7 · mean 8.29. Dynamics component now spreads 7.5–10.0 (was a flat 10.0 for every take in v3).
 
-| singer | song | notes | baked | **v4** | cf | conf | inton | pitch | voice | vib | dyn | phrase |
-|---|---|--:|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|
-| aaron | danger-zone-new-studio-take-002 | 178 | 9.8 | **9.5** | 9.5 | high | 9.52 | 10.0 | 10.0 | 8.6 | 9.14 | 10.0 |
-| aaron | danger-zone-take-003 | 177 | 9.1 | **8.7** | 8.5 | high | 7.62 | 8.11 | 10.0 | 9.19 | 7.73 | 10.0 |
-| aaron | 1973-take-001 | 168 | 8.4 | **8.3** | 7.6 | high | 5.71 | 10.0 | 10.0 | 10.0 | 9.27 | 5.29 |
-| aaron | if-you-could-read-my-mind-take-001 | 208 | 9.7 | **9.3** | 9.2 | high | 9.52 | 7.55 | 10.0 | 10.0 | 8.48 | 10.0 |
-| aaron | vienna-take-001 | 175 | 9.9 | **9.7** | 9.6 | high | 9.52 | 9.23 | 10.0 | 10.0 | 9.43 | 10.0 |
-| aaron | kryptonite-mango-hill-tavern-take-001 | 176 | 7.9 | **8.0** | 8.7 | high | 9.52 | 6.75 | 4.3 | 9.25 | 9.73 | 8.66 |
-| aaron | lets-stay-together-new-studio-take-001 | 194 | 7.8 | **7.7** | 6.5 | high | 5.71 | 2.75 | 10.0 | 9.09 | 9.88 | 10.0 |
-| aaron | the-heat-is-on-captain-cook-tavern-take-001 | 278 | 7.7 | **7.6** | 8.8 | high | 9.52 | 10.0 | 2.41 | 8.53 | 9.44 | 5.75 |
-| aaron | the-heat-is-on-new-studio-take-001 | 230 | 8.7 | **8.6** | 7.9 | high | 9.52 | 6.44 | 10.0 | 8.27 | 9.65 | 5.71 |
-| aaron | the-heat-is-on-take-002 | 232 | 9.0 | **8.8** | 8.4 | high | 9.52 | 7.96 | 10.0 | 8.89 | 9.4 | 5.22 |
-| aaron | the-letter-joe-cocker-take-001 | 192 | 9.2 | **9.3** | 8.9 | high | 9.52 | 8.56 | 10.0 | 8.84 | 9.8 | 8.09 |
-| aaron | you-can-leave-your-hat-on-bramble-bay-take-001 | 163 | 6.7 | **6.7** | 5.9 | high | 5.71 | 4.98 | 7.69 | 7.1 | 9.14 | 5.71 |
-| aaron | danger-zone-home | 175 | 8.3 | **8.2** | 7.6 | high | 5.71 | 8.18 | 8.98 | 8.62 | 9.75 | 10.0 |
-| aaron | come-out-and-play-captain-cook-tavern-take-001 | 177 | 6.7 | **6.6** | 7.1 | high | 7.62 | 6.32 | 2.56 | 8.9 | 9.54 | 4.35 |
-| aaron | goodbye-s-been-good-to-you-take-001 | 197 | 9.0 | **8.8** | 8.3 | high | 7.62 | 7.08 | 10.0 | 9.58 | 9.47 | 10.0 |
-| aaron | pressure-down-take-001 | 194 | 6.1 | **9.1** | 8.8 | high | 8.57 | 7.11 | 10.0 | 9.99 | 9.38 | 10.0 |
-| aaron | pressure-down-take-002 | 183 | 5.3 | **8.0** | 7.2 | high | 5.71 | 5.99 | 10.0 | 9.24 | 8.91 | 10.0 |
-| aaron | pressure-down-take-003 | 181 | 6.3 | **9.1** | 9.0 | high | 9.52 | 6.32 | 10.0 | 9.99 | 8.7 | 10.0 |
-| aaron | pressure-down-take-004 | 188 | 6.5 | **9.3** | 9.2 | high | 9.52 | 7.95 | 10.0 | 9.2 | 8.73 | 10.0 |
-| aaron | pressure-down-take-005 | 178 | 5.7 | **8.5** | 7.9 | high | 7.62 | 5.68 | 10.0 | 9.91 | 9.05 | 8.88 |
-| aaron | pressure-down-take-006 | 205 | 4.6 | **7.5** | 7.7 | high | 5.71 | 7.95 | 5.6 | 9.28 | 9.3 | 10.0 |
-| aaron | pressure-down-take-007 | 224 | 4.5 | **7.6** | 7.8 | high | 7.62 | 8.05 | 5.33 | 8.34 | 9.74 | 7.03 |
-| chris | feeling-good-take-001 | 221 | 7.8 | **7.7** | 8.4 | high | 7.62 | 6.97 | 3.73 | 10.0 | 9.97 | 10.0 |
-| leo | chasin-that-neon-rainbow | 202 | 8.8 | **8.3** | 9.7 | high | 9.52 | 10.0 | 4.53 | 9.4 | 7.45 | 10.0 |
-| rilda | lets-stay-together-home-take-001 | 199 | 8.1 | **7.8** | 7.0 | high | 7.62 | 1.23 | 10.0 | 9.75 | 8.16 | 10.0 |
-| rilda | this-masquerade-take-001 | 165 | 8.4 | **8.2** | 7.5 | high | 9.52 | 0.0 | 10.0 | 9.77 | 9.35 | 10.0 |
-| rilda | she-s-not-there-take-001 | 138 | 7.2 | **7.1** | 7.2 | high | 5.71 | 5.05 | 4.84 | 9.89 | 9.6 | 10.0 |
-| rilda | dreams-take-001 | 260 | 5.1 | **8.3** | 8.5 | high | 9.52 | 6.43 | 6.44 | 10.0 | 9.97 | 6.88 |
-| rilda | you-sexy-thing-take-001 | 205 | 5.1 | **8.0** | 8.0 | high | 7.62 | 5.39 | 7.31 | 9.8 | 9.0 | 10.0 |
+| singer | song | notes | **v4** | cf | conf | inton | pitch | voice | vib | dyn | phrase |
+|---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|
+| aaron | danger-zone-new-studio-take-002 | 178 | **9.5** | 9.5 | high | 9.52 | 10.0 | 10.0 | 8.6 | 9.14 | 10.0 |
+| aaron | danger-zone-take-003 | 177 | **8.7** | 8.5 | high | 7.62 | 8.11 | 10.0 | 9.19 | 7.73 | 10.0 |
+| aaron | 1973-take-001 | 168 | **8.3** | 7.6 | high | 5.71 | 10.0 | 10.0 | 10.0 | 9.27 | 5.29 |
+| aaron | if-you-could-read-my-mind-take-001 | 208 | **9.3** | 9.2 | high | 9.52 | 7.55 | 10.0 | 10.0 | 8.48 | 10.0 |
+| aaron | vienna-take-001 | 175 | **9.7** | 9.6 | high | 9.52 | 9.23 | 10.0 | 10.0 | 9.43 | 10.0 |
+| aaron | kryptonite-mango-hill-tavern-take-001 | 176 | **8.0** | 8.7 | high | 9.52 | 6.75 | 4.3 | 9.25 | 9.73 | 8.66 |
+| aaron | lets-stay-together-new-studio-take-001 | 194 | **7.7** | 6.5 | high | 5.71 | 2.75 | 10.0 | 9.09 | 9.88 | 10.0 |
+| aaron | the-heat-is-on-captain-cook-tavern-take-001 | 278 | **7.6** | 8.8 | high | 9.52 | 10.0 | 2.41 | 8.53 | 9.44 | 5.75 |
+| aaron | the-heat-is-on-new-studio-take-001 | 230 | **8.6** | 7.9 | high | 9.52 | 6.44 | 10.0 | 8.27 | 9.65 | 5.71 |
+| aaron | the-heat-is-on-take-002 | 232 | **8.8** | 8.4 | high | 9.52 | 7.96 | 10.0 | 8.89 | 9.4 | 5.22 |
+| aaron | the-letter-joe-cocker-take-001 | 192 | **9.3** | 8.9 | high | 9.52 | 8.56 | 10.0 | 8.84 | 9.8 | 8.09 |
+| aaron | you-can-leave-your-hat-on-bramble-bay-take-001 | 163 | **6.7** | 5.9 | high | 5.71 | 4.98 | 7.69 | 7.1 | 9.14 | 5.71 |
+| aaron | danger-zone-home | 175 | **8.2** | 7.6 | high | 5.71 | 8.18 | 8.98 | 8.62 | 9.75 | 10.0 |
+| aaron | come-out-and-play-captain-cook-tavern-take-001 | 177 | **6.6** | 7.1 | high | 7.62 | 6.32 | 2.56 | 8.9 | 9.54 | 4.35 |
+| aaron | goodbye-s-been-good-to-you-take-001 | 197 | **8.8** | 8.3 | high | 7.62 | 7.08 | 10.0 | 9.58 | 9.47 | 10.0 |
+| aaron | pressure-down-take-001 | 194 | **9.1** | 8.8 | high | 8.57 | 7.11 | 10.0 | 9.99 | 9.38 | 10.0 |
+| aaron | pressure-down-take-002 | 183 | **8.0** | 7.2 | high | 5.71 | 5.99 | 10.0 | 9.24 | 8.91 | 10.0 |
+| aaron | pressure-down-take-003 | 181 | **9.1** | 9.0 | high | 9.52 | 6.32 | 10.0 | 9.99 | 8.7 | 10.0 |
+| aaron | pressure-down-take-004 | 188 | **9.3** | 9.2 | high | 9.52 | 7.95 | 10.0 | 9.2 | 8.73 | 10.0 |
+| aaron | pressure-down-take-005 | 178 | **8.5** | 7.9 | high | 7.62 | 5.68 | 10.0 | 9.91 | 9.05 | 8.88 |
+| aaron | pressure-down-take-006 | 205 | **7.5** | 7.7 | high | 5.71 | 7.95 | 5.6 | 9.28 | 9.3 | 10.0 |
+| aaron | pressure-down-take-007 | 224 | **7.6** | 7.8 | high | 7.62 | 8.05 | 5.33 | 8.34 | 9.74 | 7.03 |
+| chris | feeling-good-take-001 | 221 | **7.7** | 8.4 | high | 7.62 | 6.97 | 3.73 | 10.0 | 9.97 | 10.0 |
+| leo | chasin-that-neon-rainbow | 202 | **8.3** | 9.7 | high | 9.52 | 10.0 | 4.53 | 9.4 | 7.45 | 10.0 |
+| rilda | lets-stay-together-home-take-001 | 199 | **7.8** | 7.0 | high | 7.62 | 1.23 | 10.0 | 9.75 | 8.16 | 10.0 |
+| rilda | this-masquerade-take-001 | 165 | **8.2** | 7.5 | high | 9.52 | 0.0 | 10.0 | 9.77 | 9.35 | 10.0 |
+| rilda | she-s-not-there-take-001 | 138 | **7.1** | 7.2 | high | 5.71 | 5.05 | 4.84 | 9.89 | 9.6 | 10.0 |
+| rilda | dreams-take-001 | 260 | **8.3** | 8.5 | high | 9.52 | 6.43 | 6.44 | 10.0 | 9.97 | 6.88 |
+| rilda | you-sexy-thing-take-001 | 205 | **8.0** | 8.0 | high | 7.62 | 5.39 | 7.31 | 9.8 | 9.0 | 10.0 |
 
 ## Professional references (calibration sanity check)
 

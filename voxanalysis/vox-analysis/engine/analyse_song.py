@@ -37,6 +37,7 @@ import os
 import sys
 import json
 import math
+import hashlib
 import argparse
 import warnings
 import subprocess
@@ -1967,6 +1968,121 @@ def load_calibration(path):
         return None
 
 
+# ---------------------------------------------------------------- provenance
+# A bare "8.0" means nothing on its own — it is only interpretable next to the
+# identity of what produced it. Every score therefore carries a deterministic
+# `identity` block, and scores may only be compared when their identities match.
+# This is what stops a stale rubric's number (see the retired v1 scores) from
+# being quoted, trended or compared as though it were current.
+#
+# Deliberately NO timestamp in here: identity answers "what would produce this
+# same number", which must stay deterministic — identical audio through an
+# identical engine yields an identical score AND an identical identity. Record
+# when an artifact was written alongside it, not inside it.
+SCORE_CONTRACT = "voxai_score_v1"
+RUBRIC_VERSION = "v4"
+RUBRIC_NAME = f"deterministic_rubric_{RUBRIC_VERSION}"
+
+
+def _sha1(text):
+    return hashlib.sha1(str(text).encode("utf-8", "replace")).hexdigest()[:12]
+
+
+def _rubric_fingerprint():
+    """Hash of the scoring source itself, so a silent change to the maths shows
+    up as a different identity even if nobody bumps RUBRIC_VERSION."""
+    try:
+        import inspect
+        src = "".join(inspect.getsource(fn) for fn in
+                      (compute_technical_score, _linear_component, _graded_peak, _scale, _peak_scale))
+        return _sha1(src)
+    except Exception:
+        return None
+
+
+def _calibration_fingerprint(calibration):
+    """Identifies the reference pack a score was anchored to. Two scores anchored
+    to different packs are not comparable even at the same rubric version."""
+    if not calibration:
+        return None
+    metrics = calibration.get("metrics") or {}
+    parts = [f"{k}:{(metrics[k] or {}).get('n')}:{(metrics[k] or {}).get('p50')}"
+             for k in sorted(metrics)]
+    return _sha1("|".join(parts))
+
+
+def _take_fingerprint(results):
+    """Identifies the take a score belongs to, so two scores can be checked to be
+    OF THE SAME recording. Derived from file identity + measured shape (not a
+    hash of the audio bytes, which the scorer never sees)."""
+    parts = [results.get("file_name"), results.get("analysis_input_file"),
+             results.get("duration_seconds"), results.get("sample_rate"),
+             (results.get("intonation") or {}).get("n_notes")]
+    if not any(p is not None for p in parts):
+        return None
+    return _sha1("|".join("" if p is None else str(p) for p in parts))
+
+
+def _stem_model(results):
+    """Which separation model produced the stem that was scored — separation
+    artefacts move voice-quality and dynamics, so it is part of the identity."""
+    name = results.get("analysis_input_file") or ""
+    for marker in ("UVR_MDXNET_Main", "UVR-MDX-NET", "MDXNET", "RoFormer", "Demucs", "htdemucs"):
+        if marker.lower() in str(name).lower():
+            return marker
+    if (results.get("stem_separation") or {}).get("enabled"):
+        return "unknown_separator"
+    return None
+
+
+def score_identity(results, calibration=None):
+    """The deterministic identity of a score: what produced it, from what."""
+    return {
+        "contract": SCORE_CONTRACT,
+        "rubric": RUBRIC_NAME,
+        "rubric_fingerprint": _rubric_fingerprint(),
+        "calibrated": calibration is not None,
+        "calibration_references": (calibration or {}).get("n_references") or 0,
+        "calibration_fingerprint": _calibration_fingerprint(calibration),
+        "stem_model": _stem_model(results),
+        "take_fingerprint": _take_fingerprint(results),
+    }
+
+
+def is_legacy_score(score):
+    """True when a score predates the provenance contract or came from a
+    different rubric — i.e. it must NOT be displayed, compared or trended.
+    Re-score the take instead."""
+    if not isinstance(score, dict):
+        return True
+    identity = score.get("identity")
+    if not isinstance(identity, dict) or identity.get("contract") != SCORE_CONTRACT:
+        return True
+    return identity.get("rubric") != RUBRIC_NAME
+
+
+def score_conflict(a, b):
+    """Why two scores may not be compared, or None when they may be.
+
+    Use before displaying, validating or trending one score against another —
+    including a take against a reference recording."""
+    for score, label in ((a, "first"), (b, "second")):
+        if is_legacy_score(score):
+            return (f"the {label} score has no current provenance "
+                    f"(legacy or unknown rubric) — re-score it before comparing")
+    ia, ib = a["identity"], b["identity"]
+    if ia.get("rubric_fingerprint") != ib.get("rubric_fingerprint"):
+        return "scored by different builds of the rubric — re-score both with one engine"
+    if ia.get("calibration_fingerprint") != ib.get("calibration_fingerprint"):
+        return "anchored to different calibration packs — re-score both against one pack"
+    return None
+
+
+def scores_comparable(a, b):
+    """True when two scores may be compared / trended / shown side by side."""
+    return score_conflict(a, b) is None
+
+
 def _calib_metric(calibration, key):
     """Returns the reference stats for a metric if enough references exist."""
     if not calibration:
@@ -2305,6 +2421,9 @@ def compute_technical_score(results, calibration=None):
     )
 
     return {
+        # Identity first: a score is only interpretable next to what produced it.
+        # Compare/trend/display only via scores_comparable() / score_conflict().
+        "identity": score_identity(results, calibration),
         "overall_score_0_to_10": round(float(overall), 1),
         "capture_fair_score_0_to_10": round(float(capture_fair), 1),
         "capture_fair_note": (

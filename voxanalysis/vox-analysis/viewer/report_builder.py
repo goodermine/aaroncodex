@@ -329,6 +329,11 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
             # Provenance + capture context for the deck's score badge: whether the
             # "10" is anchored to the pro pack, and whether a room/live capture
             # means capture-fair is the number to trust.
+            # Provenance identity — what produced this number. Two scores may
+            # only be compared when these match; a score with no identity came
+            # from a superseded rubric and must be re-scored, never quoted.
+            "identity": _get(score, "identity") or None,
+            "legacy": not _get(score, "identity", "contract"),
             "calibrated": bool(_get(score, "calibration", "active")),
             "capture_risk": (
                 _get(raw, "time_diagnostics", "environment_risk",
@@ -488,6 +493,15 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
              else "Calibrated · 10 = a typical pro")
     else:
         line("Theoretical anchors (uncalibrated)")
+    identity = s.get("identity") or {}
+    if s.get("legacy"):
+        line("! LEGACY SCORE — produced by a superseded rubric. Do not quote, "
+             "compare or trend it; re-score this take with the current engine.")
+    elif identity.get("rubric"):
+        line(f"Scored by: {identity['rubric']}"
+             + (f" · build {identity['rubric_fingerprint']}" if identity.get("rubric_fingerprint") else "")
+             + (f" · stem {identity['stem_model']}" if identity.get("stem_model") else "")
+             + "  (only compare with scores carrying this same identity)")
     if s.get("capture_risk"):
         line("! Room / live capture detected — trust the capture-fair score; "
              "the recording chain drags voice-quality & dynamics.")

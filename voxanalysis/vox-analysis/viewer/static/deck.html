@@ -84,6 +84,10 @@
   .vox-score__cal{font:500 10px/1.35 var(--vox-mono);color:var(--vox-muted)}
   .vox-score__hint{margin-top:9px;font:500 11px/1.5 var(--vox-sans);color:#ffc158;
     padding:7px 9px;border-radius:7px;background:rgba(255,193,88,.08);border:1px solid rgba(255,193,88,.25)}
+  /* legacy (superseded-rubric) score: drain the emphasis, it must not read as current */
+  .vox-score.legacy .vox-score__box{background:rgba(255,255,255,.03);border-color:var(--vox-line);opacity:.55}
+  .vox-score.legacy .vox-score__num{color:var(--vox-muted)}
+  .vox-score.legacy .vox-score__hint{color:#ff8a95;background:rgba(255,109,122,.09);border-color:rgba(255,109,122,.3)}
   /* room/live capture: move the cyan emphasis onto capture-fair */
   .vox-score.capture-risk .vox-score__box--main{background:rgba(255,255,255,.03);border-color:var(--vox-line)}
   .vox-score.capture-risk .vox-score__box--main .vox-score__num{color:var(--vox-ink)}
@@ -341,13 +345,19 @@
     $("#scoreCF").textContent=(sc.capture_fair!=null?sc.capture_fair:"—");
     var conf=String(sc.confidence||"unknown").toLowerCase();
     var ce=$("#scoreConf");ce.textContent=conf+" confidence";ce.className="vox-score__conf conf-"+conf;
-    var refs=sc.calibration_references;
-    $("#scoreCal").textContent=sc.calibrated
-      ? ("Calibrated"+(refs?" · "+refs+" pro refs":"")+" · 10 = a typical pro")
-      : "Theoretical anchors (uncalibrated)";
-    var risk=!!sc.capture_risk;badge.classList.toggle("capture-risk",risk);
+    var refs=sc.calibration_references,ident=sc.identity||{};
+    $("#scoreCal").textContent=sc.legacy
+      ? ("Legacy score"+(ident.rubric?" ("+ident.rubric+")":"")+" — not comparable")
+      : (sc.calibrated
+          ? ("Calibrated"+(refs?" · "+refs+" pro refs":"")+" · 10 = a typical pro"
+             +(ident.rubric?" · "+ident.rubric:""))
+          : "Theoretical anchors (uncalibrated)"+(ident.rubric?" · "+ident.rubric:""));
+    var risk=!!sc.capture_risk;badge.classList.toggle("capture-risk",risk&&!sc.legacy);
+    badge.classList.toggle("legacy",!!sc.legacy);
     var hint=$("#scoreHint");
-    if(risk){hint.textContent="Room / live capture detected — trust the capture-fair score; the recording chain drags voice-quality & dynamics.";hint.removeAttribute("hidden");}
+    // A stale-rubric score must never be read as current — that warning wins.
+    if(sc.legacy){hint.textContent="This score came from a superseded rubric. Don't quote or compare it — re-run the analysis to get a current score.";hint.removeAttribute("hidden");}
+    else if(risk){hint.textContent="Room / live capture detected — trust the capture-fair score; the recording chain drags voice-quality & dynamics.";hint.removeAttribute("hidden");}
     else hint.setAttribute("hidden","");
     badge.removeAttribute("hidden");
   }

@@ -1353,54 +1353,11 @@
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
   "technical_score": {
-    "overall_score_0_to_10": 5.7,
-    "provenance": "deterministic_rubric_v1 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement",
-    "confidence": "high",
-    "confidence_basis": {
-      "praat_metrics_available": true,
-      "n_sustained_notes": 178,
-      "capture_risk_elevated": false
-    },
-    "components": {
-      "intonation_accuracy": {
-        "weight": 0.25,
-        "input": "median abs grid deviation = 25.0 cents",
-        "formula": "10 at <=5 cents, 0 at >=45 cents, linear between",
-        "score": 5.0
-      },
-      "pitch_stability": {
-        "weight": 0.15,
-        "input": "median intra-note drift = 48.6 cents",
-        "formula": "10 at <=10 cents, 0 at >=80 cents, linear between",
-        "score": 4.49
-      },
-      "voice_quality": {
-        "weight": 0.2,
-        "input": "jitter 0.4854% (10 at <=0.3, 0 at >=2.5); shimmer 4.2263% (10 at <=2.5, 0 at >=12); HNR 22.65 dB (10 at >=20, 0 at <=5)",
-        "formula": "mean of jitter/shimmer/HNR sub-scores (Praat, per sustained note)",
-        "score": 9.11
-      },
-      "vibrato_control": {
-        "weight": 0.15,
-        "input": "44.8% of long notes carry vibrato (10 at >=70%); rate 4.89 Hz (ideal 5-7); extent 76.1 cents (ideal 25-130)",
-        "formula": "mean of presence, rate and extent sub-scores",
-        "score": 8.62
-      },
-      "dynamics_expression": {
-        "weight": 0.15,
-        "input": "effective dynamic range = 42.88 dB",
-        "formula": "10 inside 10-22 dB, 0 at <=3 dB or >=35 dB (too narrow = flat; too wide on a stem often = capture inconsistency)",
-        "score": 0.0
-      },
-      "phrase_control": {
-        "weight": 0.1,
-        "input": "median phrase length = 2.85 s",
-        "formula": "10 at >=4 s, 0 at <=0.8 s, linear between",
-        "score": 6.41
-      }
-    },
-    "weights_note": "Weights renormalised over measurable components.",
-    "scope_note": "Technical execution only. Artistry, emotion, interpretation and style-appropriateness are human judgements and are not part of this number. Any 'listener impact' figure elsewhere in a report is a subjective estimate, not a measurement."
+    "status": "retired_legacy_score",
+    "retired_rubric": "deterministic_rubric_v1",
+    "reason": "Scored by a superseded rubric before the provenance contract existed. Older rubrics carried known defects (e.g. the dynamics component could score a flat 10 or crater to 0), and uncalibrated runs used theoretical anchors rather than the professional reference pack. The number was not comparable to current scores and has been removed.",
+    "action": "Re-score with the current engine (deterministic_rubric_v4) before quoting, displaying or trending: python3 docs/score-metrics/rescore_all.py",
+    "do_not_use": true
   },
   "archetype": "Pitch Slider",
   "diagnostic_flags": [
