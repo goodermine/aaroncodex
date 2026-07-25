@@ -48,5 +48,45 @@
 .vrec-dur{color:var(--vox-muted);font-family:var(--vox-mono);margin-left:4px}
 .vrec-player{width:100%;filter:saturate(.7)}
 
+/* ---- trim: waveform with draggable in/out handles + audible preview -------- */
+/* the parent .vrec-stage is `justify-items:center`, which shrink-wraps children
+   to their content — these have none of their own, so they must claim the row */
+.vrec-trim,.vrec-trimbar,.vrec-trimnote{width:100%;justify-self:stretch}
+.vrec-trim{position:relative;height:104px;border:1px solid var(--vox-line);border-radius:10px;
+  background:#070c11;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.vrec-trimwave{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vrec-shade{position:absolute;top:0;bottom:0;background:rgba(4,8,12,.72);pointer-events:none}
+.vrec-shade--in{left:0;width:0}
+.vrec-shade--out{right:auto;width:0}
+/* Generous hit area: these get dragged with a thumb on a phone. */
+.vrec-grip{position:absolute;top:0;bottom:0;width:34px;margin-left:-17px;cursor:ew-resize;
+  display:grid;place-items:center;touch-action:none}
+.vrec-grip::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:var(--vox-cyan);
+  box-shadow:0 0 8px rgba(63,224,255,.7)}
+.vrec-grip::after{content:"";width:14px;height:30px;border-radius:5px;border:1px solid var(--vox-cyan);
+  background:linear-gradient(180deg,#12303c,#0b1a22);box-shadow:0 2px 8px #0009}
+.vrec-grip:focus-visible{outline:none}
+.vrec-grip:focus-visible::after{outline:2px solid var(--vox-cyan);outline-offset:2px}
+.vrec-cursor{position:absolute;top:0;bottom:0;width:1.5px;background:var(--vox-amber);pointer-events:none}
+.vrec-trimwait{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--vox-mono);
+  font-size:11px;letter-spacing:.08em;color:var(--vox-muted);background:rgba(7,12,17,.9);text-align:center;padding:0 14px}
+
+.vrec-trimbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.vrec-tl{font-family:var(--vox-mono);font-size:11px;letter-spacing:.06em;color:var(--vox-muted)}
+.vrec-tl b{color:var(--vox-cyan);margin-left:3px}
+.vrec-prevs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.vrec-btn--tiny{padding:7px 10px;font-size:11px;letter-spacing:.04em;min-height:36px}
+.vrec-btn--tiny:disabled{opacity:.45;cursor:not-allowed}
+.vrec-trimnote{font-size:12px;line-height:1.5;color:var(--vox-muted);text-align:center}
+.vrec-trimnote b{color:var(--vox-ink);font-family:var(--vox-mono)}
+.vrec-linkbtn{appearance:none;background:none;border:0;padding:0 2px;color:var(--vox-cyan);
+  font:inherit;text-decoration:underline;cursor:pointer}
+.vrec-linkbtn:disabled{opacity:.45;cursor:not-allowed;text-decoration:none}
+@media(max-width:520px){
+  .vrec-trim{height:88px}
+  .vrec-trimbar{justify-content:center}
+  .vrec-prevs{order:3;width:100%}
+}
+
 .vrec-err{border:1px solid rgba(255,181,71,.4);background:rgba(255,181,71,.08);color:var(--vox-amber);
   border-radius:9px;padding:11px 13px;font-size:12.5px;line-height:1.5}

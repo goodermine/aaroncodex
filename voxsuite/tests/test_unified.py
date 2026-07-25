@@ -168,6 +168,27 @@ def test_analyze_deck_ships_the_score_badge():
         assert "10 = a typical pro" in body  # the calibration provenance line
 
 
+def test_recorder_ships_trim_for_recorded_and_imported_takes():
+    """Trimming dead air/chatter off the ends is part of intake, not a manual
+    step in another app. It must work for a take recorded here AND for one
+    imported (a live gig captured on a phone app, which the browser can't record
+    itself because iOS suspends recording on screen lock) — hence loadFile()."""
+    with tempfile.TemporaryDirectory() as tmp:
+        c = _client(tmp)
+        js = c.get("/static/vox-record.js").text
+        for marker in ("vrec-trim", "loadFile", "sliceToWav", "showTrim", "suggestStart"):
+            assert marker in js, marker
+        # the trimmed take is submitted as WAV — re-encoding lossily here would
+        # discard the detail the voice-quality metrics measure
+        assert 'type: "audio/wav"' in js
+        css = c.get("/static/vox-record.css").text.replace(" ", "")
+        # the trim row must claim full width: .vrec-stage is justify-items:center,
+        # which otherwise shrink-wraps it to ~0 and breaks the handles
+        assert ".vrec-trim,.vrec-trimbar,.vrec-trimnote{width:100%" in css
+        # a chosen file routes through trim rather than straight to analysis
+        assert "intake_file(" in c.get("/analyze").text
+
+
 def test_all_three_engine_apis_are_reachable():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)
