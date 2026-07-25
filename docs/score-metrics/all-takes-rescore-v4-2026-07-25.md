@@ -4,7 +4,7 @@ Every archived take re-scored with **deterministic_rubric_v4** (calibration acti
 
 ## Singer takes
 
-Overall v4: min 6.6 · max 9.7 · mean 8.24. Dynamics component now spreads 7.5–10.0 (was a flat 10.0 for every take in v3).
+Overall v4: min 6.6 · max 9.7 · mean 8.29. Dynamics component now spreads 7.5–10.0 (was a flat 10.0 for every take in v3).
 
 | singer | song | notes | baked | **v4** | cf | conf | inton | pitch | voice | vib | dyn | phrase |
 |---|---|--:|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|
@@ -23,6 +23,13 @@ Overall v4: min 6.6 · max 9.7 · mean 8.24. Dynamics component now spreads 7.5�
 | aaron | danger-zone-home | 175 | 8.3 | **8.2** | 7.6 | high | 5.71 | 8.18 | 8.98 | 8.62 | 9.75 | 10.0 |
 | aaron | come-out-and-play-captain-cook-tavern-take-001 | 177 | 6.7 | **6.6** | 7.1 | high | 7.62 | 6.32 | 2.56 | 8.9 | 9.54 | 4.35 |
 | aaron | goodbye-s-been-good-to-you-take-001 | 197 | 9.0 | **8.8** | 8.3 | high | 7.62 | 7.08 | 10.0 | 9.58 | 9.47 | 10.0 |
+| aaron | pressure-down-take-001 | 194 | 6.1 | **9.1** | 8.8 | high | 8.57 | 7.11 | 10.0 | 9.99 | 9.38 | 10.0 |
+| aaron | pressure-down-take-002 | 183 | 5.3 | **8.0** | 7.2 | high | 5.71 | 5.99 | 10.0 | 9.24 | 8.91 | 10.0 |
+| aaron | pressure-down-take-003 | 181 | 6.3 | **9.1** | 9.0 | high | 9.52 | 6.32 | 10.0 | 9.99 | 8.7 | 10.0 |
+| aaron | pressure-down-take-004 | 188 | 6.5 | **9.3** | 9.2 | high | 9.52 | 7.95 | 10.0 | 9.2 | 8.73 | 10.0 |
+| aaron | pressure-down-take-005 | 178 | 5.7 | **8.5** | 7.9 | high | 7.62 | 5.68 | 10.0 | 9.91 | 9.05 | 8.88 |
+| aaron | pressure-down-take-006 | 205 | 4.6 | **7.5** | 7.7 | high | 5.71 | 7.95 | 5.6 | 9.28 | 9.3 | 10.0 |
+| aaron | pressure-down-take-007 | 224 | 4.5 | **7.6** | 7.8 | high | 7.62 | 8.05 | 5.33 | 8.34 | 9.74 | 7.03 |
 | chris | feeling-good-take-001 | 221 | 7.8 | **7.7** | 8.4 | high | 7.62 | 6.97 | 3.73 | 10.0 | 9.97 | 10.0 |
 | leo | chasin-that-neon-rainbow | 202 | 8.8 | **8.3** | 9.7 | high | 9.52 | 10.0 | 4.53 | 9.4 | 7.45 | 10.0 |
 | rilda | lets-stay-together-home-take-001 | 199 | 8.1 | **7.8** | 7.0 | high | 7.62 | 1.23 | 10.0 | 9.75 | 8.16 | 10.0 |

@@ -23,7 +23,7 @@ to switch on. To refresh this table after new takes land:
 
 ## Aggregate
 
-- **Singer takes (22):** overall v4 6.6–9.7 (mean 8.24).
+- **Singer takes (29):** overall v4 6.6–9.7 (mean 8.29).
 - **Pro references (9, calibration sanity check):** overall v4 8.1–9.6 (mean 8.73) — pros sit at the top, as they should.
 
 ## ⚠ Rilda's two 25 July takes were scored far too harshly — correct them
@@ -64,17 +64,24 @@ Treat any report still carrying a `deterministic_rubric_v1` score the same way:
 | aaron | danger-zone-new-studio-take-002 | **9.5** | 9.5 | high |
 | aaron | if-you-could-read-my-mind-take-001 | **9.3** | 9.2 | high |
 | aaron | the-letter-joe-cocker-take-001 | **9.3** | 8.9 | high |
+| aaron | pressure-down-take-004 | **9.3** | 9.2 | high |
+| aaron | pressure-down-take-001 | **9.1** | 8.8 | high |
+| aaron | pressure-down-take-003 | **9.1** | 9.0 | high |
 | aaron | the-heat-is-on-take-002 | **8.8** | 8.4 | high |
 | aaron | goodbye-s-been-good-to-you-take-001 | **8.8** | 8.3 | high |
 | aaron | danger-zone-take-003 | **8.7** | 8.5 | high |
 | aaron | the-heat-is-on-new-studio-take-001 | **8.6** | 7.9 | high |
+| aaron | pressure-down-take-005 | **8.5** | 7.9 | high |
 | aaron | 1973-take-001 | **8.3** | 7.6 | high |
 | rilda | dreams-take-001 | **8.3** | 8.5 | high |
 | aaron | danger-zone-home | **8.2** | 7.6 | high |
 | aaron | kryptonite-mango-hill-tavern-take-001 | **8.0** | 8.7 | high |
+| aaron | pressure-down-take-002 | **8.0** | 7.2 | high |
 | rilda | you-sexy-thing-take-001 | **8.0** | 8.0 | high |
 | aaron | lets-stay-together-new-studio-take-001 | **7.7** | 6.5 | high |
+| aaron | pressure-down-take-007 | **7.6** | 7.8 | high |
 | aaron | the-heat-is-on-captain-cook-tavern-take-001 | **7.6** | 8.8 | high |
+| aaron | pressure-down-take-006 | **7.5** | 7.7 | high |
 | aaron | you-can-leave-your-hat-on-bramble-bay-take-001 | **6.7** | 5.9 | high |
 | aaron | come-out-and-play-captain-cook-tavern-take-001 | **6.6** | 7.1 | high |
 | chris | feeling-good-take-001 | **7.7** | 8.4 | high |
@@ -82,6 +89,16 @@ Treat any report still carrying a `deterministic_rubric_v1` score the same way:
 | rilda | this-masquerade-take-001 | **8.2** | 7.5 | high |
 | rilda | lets-stay-together-home-take-001 | **7.8** | 7.0 | high |
 | rilda | she-s-not-there-take-001 | **7.1** | 7.2 | high |
+
+### Pressure Down version map
+
+- Take 1: first home take, natural.
+- Take 2: home take with light F-sharp auto-tune.
+- Take 3: home take, natural.
+- Take 4: home take, natural; first two-beat held-note focus.
+- Take 5: final home take before live karaoke.
+- Take 6: Mango Hill, first live take.
+- Take 7: Brighton, final song of the night.
 
 ## Professional references (for context — these are the calibration pack)
 
