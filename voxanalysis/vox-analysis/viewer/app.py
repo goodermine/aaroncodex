@@ -19,13 +19,13 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from fastapi import FastAPI, Form, HTTPException, Query, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 
 HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
-from report_builder import build_v2_report
+from report_builder import build_v2_report, render_full_results_text
 
 RUNTIME = Path(os.getenv("VOX_PITCH_RUNTIME", HERE / "runtime")).resolve()
 TRACKER = (HERE.parent / "engine" / "pitch_track.py").resolve()
@@ -576,6 +576,33 @@ async def get_v2_report(job_id: str) -> FileResponse:
     content = content.replace(str(job_dir), "[private job artifact]")
     public_report.write_text(content, encoding="utf-8")
     return FileResponse(public_report, media_type="text/markdown", filename="voxai-v2-report.md")
+
+
+@app.get("/api/pitch-jobs/{job_id}/full-results")
+async def get_full_results(job_id: str) -> Response:
+    """The complete analysis as plain text — identical in content to the web
+    page's 'Copy full results'. Lets a text client (e.g. Candi over Telegram)
+    hand back the same full results the web shows, from one source of truth."""
+    job_dir = _job_dir(job_id)
+    manifest = _read_manifest(job_dir)
+    if manifest.get("status") != "complete" or not isinstance(manifest.get("result"), dict):
+        raise HTTPException(409, "Analysis is not complete")
+    result = manifest["result"]
+    report = result.get("v2_analysis")
+    if not report:
+        analyses = sorted((job_dir / "v2" / "output").glob("*_analysis.json"))
+        if not analyses:
+            raise HTTPException(409, "Analysis report is not available")
+        try:
+            report = build_v2_report(
+                json.loads(analyses[0].read_text(encoding="utf-8")),
+                conditions=manifest.get("recording_conditions", ""),
+                comparison=result.get("comparison"),
+            )
+        except (OSError, json.JSONDecodeError, ValueError):
+            raise HTTPException(500, "Could not build the analysis report")
+    text = render_full_results_text(report, result)
+    return Response(text, media_type="text/plain; charset=utf-8")
 
 
 @app.get("/api/health")

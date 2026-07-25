@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
-from report_builder import build_v2_report
+from report_builder import build_v2_report, render_full_results_text
 
 
 class ReportBuilderTests(unittest.TestCase):
@@ -102,6 +102,37 @@ class ReportBuilderTests(unittest.TestCase):
         clean = build_v2_report(self.fixture())["score"]
         self.assertFalse(clean["calibrated"])
         self.assertFalse(clean["capture_risk"])
+
+    def test_full_results_text_matches_the_web_digest_content(self):
+        """render_full_results_text is the single source of truth for the
+        'full results' a text client (Candi over Telegram) sends — it must carry
+        the same sections the web page shows: scores + capture-fair + provenance,
+        every metric group, focus, the evidence lists and the practice plan."""
+        raw = self.fixture()
+        raw["technical_score"]["calibration"] = {"active": True, "n_references": 50}
+        report = build_v2_report(raw)
+        text = render_full_results_text(report, {"file_name": "take.wav",
+                                                 "robust_min_note": "E3", "robust_max_note": "A5"})
+        # header + provenance
+        self.assertIn("VOX ANALYSIS — FULL RESULTS", text)
+        self.assertIn("take.wav", text)
+        self.assertIn("Overall: 8.4/10", text)
+        self.assertIn("Capture-fair: 8.8/10", text)
+        self.assertIn("10 = a typical pro", text)      # calibration provenance line
+        self.assertIn("RANGE: E3 - A5", text)
+        # sections
+        for header in ("SCORES", "METRICS", "PRIMARY FOCUS", "MEASURED",
+                       "UNVERIFIABLE FROM AUDIO", "PRACTICE PLAN"):
+            self.assertIn(header, text)
+        # a measured number actually made it in (not a curated summary)
+        self.assertIn("median_deviation_cents: 20.0", text)
+        self.assertIn("not a summary", text)
+
+    def test_full_results_text_notes_a_withheld_score(self):
+        raw = self.fixture()
+        raw["technical_score"]["overall_score_0_to_10"] = None
+        text = render_full_results_text(build_v2_report(raw))
+        self.assertIn("score withheld", text.lower())
 
     def test_strain_is_labelled_as_coaching_focus(self):
         raw = self.fixture()

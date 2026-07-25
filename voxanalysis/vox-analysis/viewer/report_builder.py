@@ -444,3 +444,130 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
             for flag in flags[:5]
         ],
     }
+
+
+def render_full_results_text(report: dict, result: dict | None = None) -> str:
+    """The complete measured analysis as plain text — the SAME content the web
+    page's "Copy full results" button produces, so a Telegram (or any text) reply
+    can match the web interface exactly.
+
+    Single source of truth: ``build_v2_report(raw)`` -> this. It mirrors the
+    front-end ``buildDigest`` (vox-report.js) section-for-section, and adds the
+    calibration-provenance and capture-risk lines the deck's score badge shows,
+    plus the practice plan and any reference comparison. Pure function, no deps.
+
+    Pass the job ``result`` (with ``robust_min_note`` / ``robust_max_note`` /
+    ``file_name``) when available for the range line and header.
+    """
+    result = result or {}
+    s = report.get("score") or {}
+    m = report.get("metrics") or {}
+    out: list[str] = []
+    line = out.append
+
+    line("VOX ANALYSIS — FULL RESULTS")
+    if result.get("file_name"):
+        line(str(result["file_name"]))
+    if report.get("headline"):
+        line(report["headline"])
+    if report.get("overview"):
+        line(report["overview"])
+    line("")
+
+    # ---- scores (overall + capture-fair + provenance, matching the badge) ----
+    line("SCORES")
+    overall, cf, conf = s.get("overall"), s.get("capture_fair"), s.get("confidence") or "—"
+    line(f"Overall: {overall}/10  ({conf} confidence)"
+         if overall is not None else "Overall: — (score withheld pending calibration review)")
+    line(f"Capture-fair: {cf}/10  — same rubric minus the mic/room-sensitive "
+         "voice-quality & dynamics; quote this for live or rough captures"
+         if cf is not None else "Capture-fair: —")
+    refs = s.get("calibration_references")
+    if s.get("calibrated"):
+        line(f"Calibrated · {refs} pro refs · 10 = a typical pro" if refs
+             else "Calibrated · 10 = a typical pro")
+    else:
+        line("Theoretical anchors (uncalibrated)")
+    if s.get("capture_risk"):
+        line("! Room / live capture detected — trust the capture-fair score; "
+             "the recording chain drags voice-quality & dynamics.")
+    for c in (s.get("components") or []):
+        label = c.get("label") or c.get("key") or "?"
+        val = c.get("score")
+        basis = c.get("basis")
+        line(f"- {label}: {val if val is not None else '—'}" + (f"  [{basis}]" if basis else ""))
+
+    rmin, rmax = result.get("robust_min_note"), result.get("robust_max_note")
+    if rmin or rmax:
+        line("")
+        line(f"RANGE: {rmin or '?'} - {rmax or '?'}")
+
+    # ---- every metric group (scalars flattened) ----
+    line("")
+    line("METRICS")
+    for group, vals in m.items():
+        if isinstance(vals, dict):
+            parts = [f"{k}: {v}" for k, v in vals.items()
+                     if isinstance(v, (int, float, str, bool))]
+            if parts:
+                line(f"{group} — " + " · ".join(parts))
+
+    trouble = report.get("trouble_spots") or []
+    if trouble:
+        line("")
+        line(f"TROUBLE SPOTS ({len(trouble)})")
+        for t in trouble:
+            line(f"- {t.get('time', '?')}  {t.get('note', '?')}  "
+                 f"drift {t.get('drift_cents', '?')}c")
+
+    focus = report.get("main_focus") or {}
+    if focus.get("pillar") or focus.get("title"):
+        line("")
+        line(f"PRIMARY FOCUS: {focus.get('pillar') or focus.get('title')}"
+             + (f" — {focus['why']}" if focus.get("why") else ""))
+        for key, tag in (("drill", "Drill"), ("cue", "Cue"), ("target", "Target")):
+            if focus.get(key):
+                line(f"  {tag}: {focus[key]}")
+
+    def block(title: str, arr) -> None:
+        if arr:
+            line("")
+            line(title)
+            for item in arr:
+                line(f"- {item}")
+
+    block("WORKING WELL", report.get("what_is_working"))
+    block("MEASURED", report.get("measured"))
+    block("INFERRED (verify by ear)", report.get("inferred"))
+    block("UNVERIFIABLE FROM AUDIO", report.get("unverifiable"))
+
+    plan = report.get("practice_plan") or {}
+    immediate, long_term = plan.get("immediate") or {}, plan.get("long_term") or {}
+    if immediate.get("steps") or long_term.get("sessions"):
+        line("")
+        line("PRACTICE PLAN")
+        if immediate.get("steps"):
+            line(f"Immediate ({immediate.get('duration', '')}):")
+            for step in immediate["steps"]:
+                line(f"- {step}")
+            if immediate.get("success"):
+                line(f"  Success: {immediate['success']}")
+        if long_term.get("sessions"):
+            line(f"Long-term ({long_term.get('frequency', '')}):")
+            for sess in long_term["sessions"]:
+                line(f"- {sess.get('name', '')} ({sess.get('dose', '')}): "
+                     f"{sess.get('instruction', '')}")
+
+    comparison = report.get("comparison")
+    if isinstance(comparison, dict) and comparison:
+        line("")
+        line("COMPARISON VS ORIGINAL")
+        for key, val in comparison.items():
+            if isinstance(val, (int, float, str, bool)):
+                line(f"- {key}: {val}")
+
+    line("")
+    line("Deterministic VOXAI rubric — identical audio gives identical scores; "
+         "calibrated against 50 professional reference vocals. This is the full "
+         "measured analysis, not a summary.")
+    return "\n".join(out)
