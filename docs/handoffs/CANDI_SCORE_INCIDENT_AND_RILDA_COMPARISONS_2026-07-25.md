@@ -3,6 +3,19 @@
 Date: 25 July 2026
 Status: needs manual review for cross-engine scoring; raw comparison findings are complete.
 
+> **UPDATE (later on 25 July) — the `You Sexy Thing` 5.1-vs-8.3 conflict below is
+> RESOLVED.** Both takes are now archived in the repo, and their stored scores
+> show they were computed with **`deterministic_rubric_v1`, uncalibrated**, with
+> the dynamics component cratered (0.0 on `Dreams`, 0.91 on `You Sexy Thing`) —
+> the bug fixed in rubric **v4**. Re-scored with the current calibrated engine:
+> **`Dreams` 8.3** and **`You Sexy Thing` 8.0**. The 5.1 was not a valid
+> alternative reading; it came from a stale rubric carrying a known bug, and the
+> comparison engine's higher number was closer to correct. Do not quote 5.1 or
+> use it in progress trends — see
+> `HANDOFF_ALL_TAKES_SCORES_V4_2026-07-25.md`. The provenance-pinning work in
+> "Required canonical fix" below still stands; this resolves the specific
+> incident, not the general control gap.
+
 ## Executive summary
 
 Two separate score-control problems were found while analysing recent vocal takes:

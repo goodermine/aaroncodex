@@ -26,6 +26,36 @@ to switch on. To refresh this table after new takes land:
 - **Singer takes (22):** overall v4 6.6–9.7 (mean 8.24).
 - **Pro references (9, calibration sanity check):** overall v4 8.1–9.6 (mean 8.73) — pros sit at the top, as they should.
 
+## ⚠ Rilda's two 25 July takes were scored far too harshly — correct them
+
+Rilda's `Dreams` and `You Sexy Thing` were reported at **5.1/10**. Under the
+current calibrated engine they are **8.3** and **8.0**. Tell her — a 3-point
+correction on real coaching feedback.
+
+**Why the old number was wrong** (from the archived files themselves): both were
+scored with **`deterministic_rubric_v1`, completely uncalibrated** (no calibration
+block), and both hit the dynamics bug fixed in v4:
+
+| | dynamics (v1) | dynamics (v4) | overall (v1) | overall (v4) |
+|---|--:|--:|--:|--:|
+| Dreams | **0.0** | 9.97 | 5.1 | **8.3** |
+| You Sexy Thing | **0.91** | 9.0 | 5.1 | **8.0** |
+
+The zeroed dynamics alone cost ~1.5 points (15% weight). The rest is v1's
+uncalibrated anchors — *every* component scores higher under the calibrated
+rubric (e.g. Dreams intonation 6.25 → 9.52).
+
+**This also resolves the open item in
+`CANDI_SCORE_INCIDENT_AND_RILDA_COMPARISONS_2026-07-25.md`.** That handoff logged
+`You Sexy Thing` as an unexplained conflict — Phase 1 ledger 5.1 vs a comparison
+engine 8.3 — and required manual review. It wasn't a mystery: **the 5.1 came from
+a stale, uncalibrated rubric carrying a known bug**, and the higher number was
+much closer to the canonical answer (v4 says 8.0). The 5.1 should not be used or
+quoted in progress trends.
+
+Treat any report still carrying a `deterministic_rubric_v1` score the same way:
+**re-score it before quoting** (`python3 docs/score-metrics/rescore_all.py`).
+
 ## Every take — updated scores
 
 | singer | song | v4 overall | capture-fair | confidence |
