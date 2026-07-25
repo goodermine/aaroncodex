@@ -33,6 +33,7 @@ Overall v4: min 6.6 · max 9.7 · mean 8.3. Dynamics component now spreads 7.5�
 | aaron | my-babe-take-002 | 137 | **8.4** | 8.1 | high | 7.62 | 7.58 | 10.0 | 8.01 | 7.54 | 10.0 |
 | aaron | my-babe-take-003 | 183 | **8.0** | 8.1 | high | 9.52 | 8.27 | 6.28 | 8.41 | 9.64 | 3.74 |
 | aaron | play-that-funky-music-take-001 | 195 | **8.7** | 8.1 | high | 5.71 | 10.0 | 10.0 | 9.1 | 9.53 | 10.0 |
+| aaron | pressure-down-captain-cook-tavern-take-001 | 227 | **8.3** | 9.5 | high | 9.52 | 10.0 | 4.64 | 8.72 | 7.92 | 9.94 |
 | aaron | pressure-down-take-007 | 224 | **7.6** | 7.8 | high | 7.62 | 8.05 | 5.33 | 8.34 | 9.74 | 7.03 |
 | aaron | tutti-frutti-take-001 | 154 | **8.5** | 7.8 | high | 7.62 | 5.29 | 10.0 | 9.05 | 9.95 | 10.0 |
 | chris | feeling-good-take-001 | 221 | **7.7** | 8.4 | high | 7.62 | 6.97 | 3.73 | 10.0 | 9.97 | 10.0 |

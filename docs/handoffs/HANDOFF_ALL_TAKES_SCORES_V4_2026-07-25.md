@@ -23,7 +23,7 @@ to switch on. To refresh this table after new takes land:
 
 ## Aggregate
 
-- **Singer takes (34):** overall v4 6.6–9.7 (mean 8.30).
+- **Singer takes (35):** overall v4 6.6–9.7 (mean 8.3).
 - **Pro references (9, calibration sanity check):** overall v4 8.1–9.6 (mean 8.73) — pros sit at the top, as they should.
 
 ## ⚠ Rilda's two 25 July takes were scored far too harshly — correct them
@@ -101,6 +101,7 @@ none of them can be quoted again — see `HANDOFF_SCORE_PROVENANCE.md`.
 | aaron | the-heat-is-on-new-studio-take-001 | **8.6** | 7.9 | high |
 | aaron | pressure-down-take-005 | **8.5** | 7.9 | high |
 | aaron | tutti-frutti-take-001 | **8.5** | 7.8 | high |
+| aaron | **pressure-down-captain-cook-tavern-take-001** (live) | **8.3** | **9.5** | high |
 | aaron | 1973-take-001 | **8.3** | 7.6 | high |
 | rilda | dreams-take-001 | **8.3** | 8.5 | high |
 | aaron | danger-zone-home | **8.2** | 7.6 | high |
@@ -144,6 +145,10 @@ for the home-to-live transfer; use capture-fair first for its score.
 - Take 5: final home take before live karaoke.
 - Take 6: Mango Hill, first live take.
 - Take 7: Brighton, final song of the night.
+- **Captain Cook Tavern (live)** — analysed 25 July, **8.3 overall / 9.5
+  capture-fair**, held-note stability a perfect 10.0. **His best Pressure Down
+  take.** Candi initially withheld this score citing live dynamics; that guard
+  rule is obsolete under v4 — see `HANDOFF_PRESSURE_DOWN_COOK_SCORE.md`.
 
 ## Professional references (for context — these are the calibration pack)
 

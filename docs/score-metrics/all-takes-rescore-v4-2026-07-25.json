@@ -8,7 +8,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 34,
+      "n": 35,
       "overall_v4": {
         "min": 6.6,
         "max": 9.7,
@@ -18,13 +18,13 @@
       "capture_fair_v4": {
         "min": 5.9,
         "max": 9.7,
-        "mean": 8.16,
+        "mean": 8.19,
         "spread": 3.8
       },
       "dynamics": {
         "min": 7.5,
         "max": 10.0,
-        "mean": 9.21,
+        "mean": 9.18,
         "spread": 2.5
       }
     },
@@ -837,6 +837,38 @@
         "dyn_phrase_spread_db": 20.8,
         "dyn_effective_range_db": 35.2,
         "median_phrase_s": 3.39
+      }
+    },
+    {
+      "take": "2026-07-25-aaron-pressure-down-captain-cook-tavern-take-001",
+      "singer": "aaron",
+      "song": "pressure-down-captain-cook-tavern-take-001",
+      "date": "2026-07-25",
+      "n_notes": 227,
+      "prior_score_status": "current",
+      "overall_v4": 8.3,
+      "capture_fair_v4": 9.5,
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v4",
+      "components": {
+        "intonation_accuracy": 9.52,
+        "pitch_stability": 10.0,
+        "voice_quality": 4.64,
+        "vibrato_control": 8.72,
+        "dynamics_expression": 7.92,
+        "phrase_control": 9.94
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 23.9,
+        "pct_within_25c": 54.2,
+        "jitter_pct": 1.821,
+        "shimmer_pct": 16.3537,
+        "hnr_db": 10.1,
+        "vibrato_pct_notes": 31.7,
+        "dyn_phrase_spread_db": 13.16,
+        "dyn_effective_range_db": 28.5,
+        "median_phrase_s": 3.13
       }
     },
     {
