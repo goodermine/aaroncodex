@@ -61,7 +61,7 @@ st = []
 st.append(Paragraph("Breath Support &mdash; Practice Sheet", S["title"]))
 st.append(Paragraph(
     "Aaron &middot; built from the measured analysis of <b>Pressure Down</b> (Captain Cook Tavern, 25 Jul 2026). "
-    "Exercise text is copied verbatim from the engine's prescription library.", S["sub"]))
+    "All exercise text is copied verbatim from the engine's prescription library; the one shaded box at the end is a coaching note and is labelled as such.", S["sub"]))
 st.append(Spacer(1, 7))
 st.append(HRFlowable(width="100%", color=RULE, thickness=0.9))
 st.append(Spacer(1, 8))
@@ -90,7 +90,7 @@ st.append(Spacer(1, 10))
 
 # ---- session ----
 st.append(Paragraph("A 10-minute session", S["sec"]))
-sess = [["1", "Straw in water", "2 min", "warm up, get the voice easy"],
+sess = [["1", "Straw Phonation in Water", "2 min", "warm up &mdash; and watch the bubbles stay even"],
         ["2", "Rib Cage Stationary Drill", "3 min", "names your exact fault: ribs must not collapse"],
         ["3", "Sibilant Hiss", "2 min", "closest to singing &mdash; air actually flowing"],
         ["4", "The 3:01 phrase", "3 min", "one phrase only, ribs staying wide"]]
@@ -146,6 +146,53 @@ for i, ex in enumerate(cat["exercises"], 1):
     blk.append(HRFlowable(width="100%", color=RULE, thickness=0.5))
     blk.append(Spacer(1, 6))
     st.append(KeepTogether(blk))
+
+# ---- straw phonation: from a different category, plus a flagged addition ----
+straw = next(e for e in lib["categories"]["warmup_reset"]["exercises"]
+             if e["name"] == "Straw Phonation in Water")
+fw = fields(straw["detail"])
+blk = [Paragraph("Warm-up &mdash; Straw Phonation in Water", S["sec"]),
+       Paragraph("Target: %s &middot; <b>Not a breath-support exercise</b> &mdash; it sits in the "
+                 "warm-up/reset set. Included because it is the only drill here where you make sound "
+                 "while training airflow, and the bubbles show your fault directly."
+                 % fw.get("pedagogical target", "Water-Resistance Massage"), S["sub"]),
+       Spacer(1, 3)]
+rows = [[Paragraph(l, S["lbl"]), Paragraph(fw[k], S["body"])]
+        for l, k in (("Do this", "how to do it"), ("Should feel", "how it should feel"),
+                     ("Pass / fail", "pass/fail metric")) if fw.get(k)]
+tb = Table(rows, colWidths=[24 * mm, 151 * mm])
+tb.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+                        ("TOPPADDING", (0, 0), (-1, -1), 2), ("BOTTOMPADDING", (0, 0), (-1, -1), 2)]))
+blk.append(tb)
+if fw.get("common failure / safety note"):
+    n = fw["common failure / safety note"]
+    blk.append(Spacer(1, 2)); blk.append(Paragraph(n[0].upper() + n[1:], S["warn"]))
+st.append(KeepTogether(blk))
+st.append(Spacer(1, 5))
+
+# Everything above is library text. This box is not — label it as such.
+add = [Paragraph("How to progress it &mdash; <b>coaching note, NOT from the library</b>", S["lbl"]),
+       Spacer(1, 3),
+       Paragraph("Blow for as long as you can <b>while the bubbles stay even</b>, keeping the ribs wide, "
+                 "and push that a little further each session.", S["body"]),
+       Spacer(1, 3),
+       Paragraph("<b>Measure steady seconds, not total seconds.</b> The moment the bubbles go uneven or "
+                 "you feel the throat take over, the rep is finished &mdash; stop there. Chasing maximum "
+                 "duration means squeezing out the last of the air with collapsing ribs, which is exactly "
+                 "the fault you are trying to remove: you would be rehearsing the sag. Steady-bubble "
+                 "seconds is a real progressive measure of the thing that is actually broken, and unlike "
+                 "a 1-semitone sag you can see it happening.", S["body"]),
+       Spacer(1, 3),
+       Paragraph("Log the number each session. Next time this song is recorded, check whether the "
+                 "49% phrase-ending sag has moved.", S["body"])]
+box = Table([[add]], colWidths=[175 * mm])
+box.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#fdf6e6")),
+                         ("BOX", (0, 0), (-1, -1), 0.8, colors.HexColor("#e2c98a")),
+                         ("LEFTPADDING", (0, 0), (-1, -1), 9), ("RIGHTPADDING", (0, 0), (-1, -1), 9),
+                         ("TOPPADDING", (0, 0), (-1, -1), 7), ("BOTTOMPADDING", (0, 0), (-1, -1), 7)]))
+st.append(KeepTogether(box))
+st.append(Spacer(1, 8))
 
 st.append(Spacer(1, 2))
 st.append(Paragraph(
