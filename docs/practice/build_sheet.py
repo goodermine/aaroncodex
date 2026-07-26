@@ -10,7 +10,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_LEFT
 from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table,
-                                TableStyle, KeepTogether, HRFlowable)
+                                TableStyle, KeepTogether, HRFlowable, Image, PageBreak)
 
 ENG = "/home/user/aaroncodex/voxanalysis/vox-analysis/engine"
 OUT = "/home/user/aaroncodex/docs/practice/pressure-down-breath-support.pdf"
@@ -87,6 +87,28 @@ t.setStyle(TableStyle([
 ]))
 st.append(t)
 st.append(Spacer(1, 10))
+
+# ---- the evidence, as pictures ----
+IMG = os.path.join(os.path.dirname(OUT), "img")
+def figure(fname, caption, width_mm=175):
+    path = os.path.join(IMG, fname)
+    if not os.path.isfile(path):
+        return []
+    from PIL import Image as PILImage
+    w, h = PILImage.open(path).size
+    img = Image(path, width=width_mm * mm, height=width_mm * h / w * mm)
+    return [img, Spacer(1, 3), Paragraph(caption, S["sub"]), Spacer(1, 9)]
+
+st.append(Paragraph("Where it goes wrong", S["sec"]))
+st.extend(figure("trouble-map.png",
+    "Every red band is a moment the pitch left the note. The orange dashed line is the passaggio "
+    "(C#4) &mdash; where the voice changes gear. Five of the eight sit on D4/C#4, right on it, and "
+    "three land on the chorus line &ldquo;take the pressure down&rdquo;."))
+st.extend(figure("slide-shapes.png",
+    "The shape of each slide, with pitch-tracker errors removed. Amber = sliding <i>up</i> into the "
+    "note (early in the song). Red = sagging off it (from 2:44 on). Green band = within half a "
+    "semitone, which is fine. The split by time in the song is the stamina story."))
+st.append(PageBreak())
 
 # ---- session ----
 st.append(Paragraph("A 10-minute session", S["sec"]))
