@@ -83,7 +83,7 @@
       <div class="vox-scope__head">
         <span class="vox-scope__title">Performance <b>Scope</b></span>
         <div class="vox-scope__chips">
-          <span class="vox-chip is-hot" id="scopeSource">CLEANED</span><span class="vox-chip" id="scopeOriginal">ORIGINAL</span>
+          <button type="button" class="vox-chip is-hot" id="scopeSource" aria-pressed="true" title="Play the polished render">CLEANED</button><button type="button" class="vox-chip" id="scopeOriginal" aria-pressed="false" title="Play the untouched take — A/B against the render">ORIGINAL</button>
         </div>
       </div>
       <div class="vox-stage" id="stage">
@@ -115,6 +115,7 @@
         </button>
       </div>
       <div class="vox-tray" id="exportTray" role="region" aria-label="Export deliverables"></div>
+      <div class="vox-rnotes" id="renderNotes" hidden></div>
       <audio id="deckAudio" preload="none" style="display:none"></audio>
     </section>
 
@@ -169,6 +170,7 @@
   var $=function(s){return document.querySelector(s);};
   var stateLed=$("#stateLed"),stateLabel=$("#stateLabel"),procLab=$("#procLab"),procFill=$("#procFill"),procPct=$("#procPct");
   var chain=$("#chain"),log=VOX.makeLog($("#log")),elapsed=$("#elapsed");
+  function esc(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
   var stage=$("#stage"),intake=$("#intake"),stageMsg=$("#stageMsg"),scopeCanvas=$("#scope"),sctx=scopeCanvas.getContext("2d");
   var tstamp=$("#tstamp"),recLabel=$("#recLabel"),deckAudio=$("#deckAudio"),playBtn=$("#playBtn"),exportBtn=$("#exportBtn"),dlLabel=$("#dlLabel"),tray=$("#exportTray");
   var mm=VOX.miniMeter($("#miniMeter"),16),gpuC=$("#gaugeGpu"),cpuC=$("#gaugeCpu");
@@ -257,6 +259,7 @@
       fetch("/api/render",{method:"POST"}).then(function(){startRenderPoll();});
       return; // stale result — a newer edit is still unrendered
     }
+    if(ev.state==="COMPLETE")refreshRenderNotes();
     apply(ev);
   }
   function startRenderPoll(){
@@ -294,12 +297,58 @@
     VOX.setProgress(procFill,procPct,procLab,40,"WORKING");
   }
 
+
+  // ---- A/B: CLEANED vs ORIGINAL ------------------------------------------
+  // The two chips used to be inert labels, so there was no way to hear the
+  // render against the raw take — which is exactly how you'd notice that a
+  // module (Auto Tune) wasn't doing anything. They are buttons now, and the
+  // playhead is preserved across the switch so the comparison lands on the
+  // same moment.
+  var audioSource="cleaned";
+  function setSource(name,force){
+    if(!force&&name===audioSource)return;
+    var at=deckAudio.currentTime||0,wasPlaying=!deckAudio.paused;
+    audioSource=name;
+    deckAudio.src="/api/audio/"+name;
+    $("#scopeSource").classList.toggle("is-hot",name==="cleaned");
+    $("#scopeSource").setAttribute("aria-pressed",name==="cleaned");
+    $("#scopeOriginal").classList.toggle("is-hot",name==="original");
+    $("#scopeOriginal").setAttribute("aria-pressed",name==="original");
+    var resume=function(){
+      try{deckAudio.currentTime=at;}catch(e){}
+      if(wasPlaying){var q=deckAudio.play();if(q&&q.catch)q.catch(function(){});}
+      deckAudio.removeEventListener("loadedmetadata",resume);
+    };
+    deckAudio.addEventListener("loadedmetadata",resume);
+  }
+  $("#scopeSource").addEventListener("click",function(){setSource("cleaned");});
+  $("#scopeOriginal").addEventListener("click",function(){setSource("original");});
+
+  // ---- render notes: never let a module fail silently --------------------
+  // The server already reported things like "Auto Tune was ON but could not be
+  // applied"; the deck was throwing that away, so a broken vocoder looked
+  // identical to a working one with little to correct.
+  function showRenderNotes(notes){
+    var box=$("#renderNotes");
+    if(!notes||!notes.length){box.setAttribute("hidden","");box.innerHTML="";return;}
+    var warn=notes.some(function(n){return /warning|could not|skipped|unavailable/i.test(n);});
+    box.className="vox-rnotes"+(warn?" is-warn":"");
+    box.innerHTML=notes.map(function(n){return "<span>"+esc(n)+"</span>";}).join("");
+    box.removeAttribute("hidden");
+    notes.forEach(function(n){log(/warning|could not|skipped/i.test(n)?"warn":"info",n);});
+  }
+  function refreshRenderNotes(){
+    fetch("/api/render").then(function(r){return r.ok?r.json():null;}).then(function(j){
+      if(j)showRenderNotes(j.notes||[]);
+    }).catch(function(){});
+  }
+
   // ---- waveform scope ------------------------------------------------------
   function fitScope(){var r=stage.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);scopeCanvas.width=Math.max(1,Math.round(r.width*d));scopeCanvas.height=Math.max(1,Math.round(r.height*d));sctx.setTransform(d,0,0,d,0,0);}
   function loadWaveform(){
     fetch("/api/peaks/cleaned").then(function(r){if(!r.ok)throw r.status;return r.json();}).then(function(p){
       peaks=p;intake.classList.add("hidden");stageMsg.classList.add("hidden");scopeCanvas.classList.remove("hidden");
-      deckAudio.src="/api/audio/cleaned";playBtn.disabled=false;fitScope();drawWave();
+      setSource(audioSource,true);playBtn.disabled=false;fitScope();drawWave();
       if(!waveLooping){waveLooping=true;requestAnimationFrame(waveLoop);}
     }).catch(function(){});
   }
@@ -428,7 +477,20 @@
   VOX.renderChain(chain,"polish",0);VOX.setState(stateLed,stateLabel,"STANDBY");log("info","deck armed · awaiting take");
   // If a session already exists, jump straight into the editor.
   fetch("/api/session").then(function(r){
-    if(r.ok){$("#jobTag").textContent="SESSION · loaded";return loadDoc().then(function(){loadWaveform();apply({state:"COMPLETE",stage:{index:7,total:8},progress:100});});}
+    if(!r.ok)return;
+    return r.json().then(function(j){
+      $("#jobTag").textContent="SESSION · loaded";
+      // Tell the user up front if a module physically cannot run here, rather
+      // than letting them hunt for a difference that was never applied.
+      var cap=(j&&j.capabilities)||{};
+      if(cap.tune===false){
+        showRenderNotes(["WARNING: Auto Tune cannot run on this server — the WORLD vocoder failed to load"
+          +(cap.tune_unavailable_reason?" ("+cap.tune_unavailable_reason+")":"")
+          +". Renders will be UNTUNED regardless of the Auto Tune switch."]);
+      }
+      if(j&&j.render&&j.render.notes&&j.render.notes.length)showRenderNotes(j.render.notes);
+      return loadDoc().then(function(){loadWaveform();apply({state:"COMPLETE",stage:{index:7,total:8},progress:100});});
+    });
   }).catch(function(){});
 })();
 </script>

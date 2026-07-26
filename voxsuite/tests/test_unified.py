@@ -189,6 +189,26 @@ def test_recorder_ships_trim_for_recorded_and_imported_takes():
         assert "intake_file(" in c.get("/analyze").text
 
 
+def test_polish_deck_can_ab_and_never_fails_a_module_silently():
+    """Two reported bugs. (1) The CLEANED/ORIGINAL chips were inert labels, so
+    there was no way to hear the render against the raw take — which is how you
+    notice a module doing nothing. (2) The server reported "Auto Tune was ON but
+    could not be applied" and the deck threw it away, making a broken vocoder
+    indistinguishable from a working one with little to correct."""
+    with tempfile.TemporaryDirectory() as tmp:
+        c = _client(tmp)
+        body = c.get("/polish").text
+        # A/B: both chips must be real buttons wired to a source switch
+        assert '<button type="button" class="vox-chip is-hot" id="scopeSource"' in body
+        assert 'id="scopeOriginal"' in body and "setSource(" in body
+        assert '/api/audio/"+name' in body  # switches the audio element's source
+        # failures must surface: notes panel + the up-front capability warning
+        assert 'id="renderNotes"' in body and "showRenderNotes(" in body
+        assert "refreshRenderNotes(" in body
+        assert "capabilities" in body and "Auto Tune cannot run on this server" in body
+        assert ".vox-rnotes{" in c.get("/static/vox-kit.css").text.replace(" ", "")
+
+
 def test_all_three_engine_apis_are_reachable():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)

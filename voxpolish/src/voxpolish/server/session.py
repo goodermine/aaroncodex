@@ -214,14 +214,24 @@ class Session:
         # the bypass, degrade gracefully if the vocoder isn't installed.
         tune_amt = float((doc.amounts or {}).get("tune", 1.0))
         curve = (doc.pitch or {}).get("curve") or []
-        if curve and tune_amt > 0 and not (doc.bypass or {}).get("tune"):
+        tune_on = tune_amt > 0 and not (doc.bypass or {}).get("tune")
+        if curve and tune_on:
             scaled = [[t, c * tune_amt] for t, c in curve]
             try:
                 out, applied = pitch.apply_correction(out, sr, scaled)
                 if applied.get("applied"):
                     notes.append(f"tuned (max {applied['max_applied_cents']} cents)")
+                else:
+                    notes.append(f"tune had nothing to do: {applied.get('reason', 'no change')}")
             except RuntimeError as e:
-                notes.append(f"tuner skipped: {e}")
+                # Auto Tune was ON and did nothing. This MUST reach the user:
+                # silently handing back untuned audio is indistinguishable from
+                # a working tuner that simply had little to correct.
+                notes.append(f"WARNING: Auto Tune was ON but could not be applied — {e}")
+        elif curve and not tune_on:
+            notes.append("Auto Tune is off (bypassed) — no pitch correction applied")
+        elif tune_on and not curve:
+            notes.append("Auto Tune is on but this take has no correction curve")
 
         tmp = self.root / ".render-tmp.wav"
         audio_io.save(tmp, out, sr)

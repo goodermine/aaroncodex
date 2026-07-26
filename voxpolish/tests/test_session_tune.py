@@ -119,4 +119,7 @@ def test_sessions_without_pitch_still_render(speech_signal, tmp_path):
     s.update_document(doc.to_json(), expected_revision=s.revision())
     result = s.render()
     assert result["rendered"]
-    assert result["notes"] == []
+    # Informational state notes are fine (and wanted — they tell the singer why
+    # a toggle did nothing). What must never appear here is a warning.
+    assert not any("WARNING" in n for n in result["notes"])
+    assert not any(n.startswith("tuned (") for n in result["notes"])

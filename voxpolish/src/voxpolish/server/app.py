@@ -159,6 +159,12 @@ def create_app(root: Path) -> FastAPI:
     def get_session():
         s = require_current()
         doc = s.document()
+        # Report whether the pitch vocoder can actually run. Without this the UI
+        # can only find out that Auto Tune is inert by rendering and reading the
+        # notes — which is how a broken environment silently shipped untuned
+        # audio that looked tuned.
+        from ..stages import pitch as _pitch
+        tune_ok, tune_why = _pitch.vocoder_status()
         return {
             "id": ws.current_id,
             "revision": s.revision(),
@@ -166,6 +172,10 @@ def create_app(root: Path) -> FastAPI:
             "sample_rate": doc.sample_rate,
             "mode": doc.mode,
             "render": dict(render_state),
+            "capabilities": {
+                "tune": tune_ok,
+                "tune_unavailable_reason": tune_why,
+            },
         }
 
     @app.get("/api/document")

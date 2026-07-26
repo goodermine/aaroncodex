@@ -230,13 +230,26 @@ def analyze(
 # --------------------------------------------------------------- rendering
 
 
-def vocoder_available() -> bool:
+def vocoder_status() -> tuple[bool, str | None]:
+    """(available, reason_it_isn't).
+
+    Catches *any* exception, not just ImportError: a half-broken install fails in
+    other ways — a missing compiled library raises OSError, and a stripped
+    setuptools makes pyworld's ``pkg_resources`` import raise before it ever gets
+    to report a clean ImportError. Treating only ImportError as "unavailable"
+    meant a broken environment crashed the render instead of degrading, or worse
+    reported nothing useful about why tuning did nothing.
+    """
     try:
         import pyworld  # noqa: F401
 
-        return True
-    except ImportError:
-        return False
+        return True, None
+    except Exception as exc:  # noqa: BLE001 — any import failure means unusable
+        return False, f"{type(exc).__name__}: {exc}"
+
+
+def vocoder_available() -> bool:
+    return vocoder_status()[0]
 
 
 def _dense_cents(world_times: np.ndarray, curve: list) -> np.ndarray:
@@ -290,9 +303,11 @@ def apply_correction(audio: np.ndarray, sr: int, curve: list) -> tuple[np.ndarra
     if not spans:
         return audio.copy(), {"applied": False, "reason": "no correction above 0.5 cents"}
 
-    if not vocoder_available():
+    ok, why = vocoder_status()
+    if not ok:
         raise RuntimeError(
             "Pitch rendering needs the WORLD vocoder: pip install 'voxpolish[pitch]'"
+            + (f" (import failed — {why})" if why else "")
         )
     import pyworld as pw
 

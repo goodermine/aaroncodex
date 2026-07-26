@@ -224,6 +224,17 @@
   border-radius:50%;background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan)}
 
 /* ---- export tray ----------------------------------------------------------- */
+/* Render notes — a module that silently did nothing is a bug the user must see.
+   Warnings (vocoder missing, tune skipped) get the amber treatment. */
+.vox-rnotes{display:flex;flex-direction:column;gap:5px;margin:0 16px 12px;padding:10px 12px;
+  border:1px solid var(--vox-line);border-radius:9px;background:var(--vox-surface-1);
+  font-family:var(--vox-mono);font-size:11px;line-height:1.55;color:var(--vox-muted)}
+.vox-rnotes.is-warn{border-color:rgba(255,181,71,.45);background:rgba(255,181,71,.08);color:var(--vox-amber)}
+.vox-rnotes[hidden]{display:none}
+/* the scope chips are real A/B buttons on the Polish deck */
+.vox-scope__chips button.vox-chip{cursor:pointer;font:inherit;font-family:var(--vox-mono);
+  font-size:10px;letter-spacing:.12em}
+.vox-scope__chips button.vox-chip:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
 .vox-tray{display:none;border-top:1px solid var(--vox-line);padding:14px 16px 16px;background:var(--vox-surface-1)}
 .vox-tray.open{display:block;animation:vox-trayin .24s ease}
 @keyframes vox-trayin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
