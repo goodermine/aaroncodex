@@ -24,8 +24,8 @@ import os
 import sys
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.routing import APIRoute
 
 # The shared kit + the Fused deck shell live in voxsuite's static dir, which is
@@ -132,16 +132,24 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
         return HTMLResponse(path.read_text(encoding="utf-8"), headers={"Cache-Control": "no-cache"})
 
     @app.get("/api/build")
-    def build() -> dict:
-        """Which build is live. Hashes the deck files this process actually reads,
-        plus the git commit of the checkout they come from — so "did the pull
-        reach the running service?" is answerable from a browser instead of by
-        reading source on the box."""
+    def build(request: Request, format: str | None = None):
+        """Which build is live. Hashes the deck files this process actually reads
+        and compares them with this checkout's HEAD, so "did the pull reach the
+        running service?" is answerable without shell access.
+
+        Content-negotiated: a browser gets a readable page, curl/fetch get JSON.
+        Apple browsers *download* a JSON body rather than displaying it (the same
+        reason the mode-hint route serves HTML), which made a JSON-only endpoint
+        useless on the very phone it was meant to help."""
         from .buildinfo import build_info
-        return build_info(shells, extra={
+        from .buildpage import render as render_build
+        info = build_info(shells, extra={
             "vox-kit.css": STATIC / "vox-kit.css",
             "vox-record.js": STATIC / "vox-record.js",
         })
+        if format == "json" or "text/html" not in request.headers.get("accept", ""):
+            return JSONResponse(info)
+        return HTMLResponse(render_build(info), headers={"Cache-Control": "no-store"})
 
     @app.get("/favicon.ico")
     def favicon():

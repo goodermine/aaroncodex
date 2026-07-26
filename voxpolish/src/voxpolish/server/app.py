@@ -99,9 +99,11 @@ def create_app(root: Path) -> FastAPI:
         return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
 
     @app.get("/api/build")
-    def build():
+    def build(request: Request, format: str | None = None):
         """Which build is live — see the unified server's note. Duplicated here
-        (small, no shared dep) so a standalone Polish server can answer it too."""
+        (small, no shared dep) so a standalone Polish server can answer it too.
+        Browsers get HTML: Apple browsers download a JSON body instead of showing
+        it, which is exactly what made this useless on a phone."""
         import hashlib
         import subprocess
 
@@ -125,13 +127,40 @@ def create_app(root: Path) -> FastAPI:
                         git[k] = r.stdout.strip()
         except (OSError, subprocess.SubprocessError):
             pass
-        return {
-            "decks": {"polish": {"path": str(STATIC / "deck.html"),
-                                 "sha1_12": h(STATIC / "deck.html")}},
+        # Compare the served deck with this checkout's HEAD — self-validating,
+        # so no expected hash has to be written down anywhere.
+        at_head = None
+        if git["checkout"]:
+            try:
+                rel = subprocess.run(["git", "ls-files", "--full-name", str(STATIC / "deck.html")],
+                                     cwd=git["checkout"], capture_output=True, text=True, timeout=5)
+                name = rel.stdout.strip().splitlines()[0] if rel.stdout.strip() else None
+                if name:
+                    blob = subprocess.run(["git", "show", f"HEAD:{name}"], cwd=git["checkout"],
+                                          capture_output=True, timeout=10)
+                    if blob.returncode == 0:
+                        at_head = hashlib.sha1(blob.stdout).hexdigest()[:12]
+            except (OSError, subprocess.SubprocessError, IndexError):
+                pass
+        on_disk = h(STATIC / "deck.html")
+        match = None if at_head is None or on_disk is None else (on_disk == at_head)
+        info = {
+            "decks": {"polish": {"path": str(STATIC / "deck.html"), "sha1_12": on_disk,
+                                 "exists": (STATIC / "deck.html").is_file(),
+                                 "sha1_at_head": at_head, "matches_head": match}},
             "assets": {n: h(STATIC / n) for n in ("vox-kit.css", "vox-record.js")},
             "git": git,
+            "matches_head": match,
             "static_dir": str(STATIC),
         }
+        if format == "json" or "text/html" not in request.headers.get("accept", ""):
+            return JSONResponse(info)
+        try:
+            from voxsuite.server.buildpage import render as render_build
+        except Exception:
+            return JSONResponse(info)
+        return HTMLResponse(render_build(info, title="Polish build"),
+                            headers={"Cache-Control": "no-store"})
 
     @app.get("/static/{name}")
     def static_file(name: str):
