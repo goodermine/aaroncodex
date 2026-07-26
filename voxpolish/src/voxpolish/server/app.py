@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import threading
+import time
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
@@ -269,29 +270,70 @@ def create_app(root: Path) -> FastAPI:
         return {"revision": new_rev}
 
     @app.post("/api/render")
-    def start_render():
+    def start_render(force: bool = False):
         s = require_current()
         if not lock.acquire(blocking=False):
-            raise HTTPException(409, "a render is already running")
-        render_state.update(status="running", error=None, session=ws.current_id)
+            # A render is in flight — unless the worker that holds the lock is
+            # dead. That leaked lock made every later render 409 forever, so the
+            # UI sat on "working" with no way out. Detect it and take over.
+            worker = render_state.get("_thread")
+            stale = worker is None or not worker.is_alive()
+            if not (stale or force):
+                raise HTTPException(409, "a render is already running")
+            try:
+                lock.release()
+            except RuntimeError:
+                pass
+            if not lock.acquire(blocking=False):
+                raise HTTPException(409, "a render is already running")
+            if stale:
+                render_state.update(
+                    notes=list(render_state.get("notes") or [])
+                    + ["previous render did not finish cleanly — restarted"])
+        render_state.update(status="running", error=None, session=ws.current_id,
+                            started_at=time.time(), finished_at=None)
 
         def work():
             try:
                 result = s.render()
                 render_state.update(status="done", revision=result["revision"],
                                     notes=result.get("notes", []))
-            except Exception as e:  # surfaced to the UI, never silent
-                render_state.update(status="error", error=str(e))
+            # BaseException, not Exception: anything that escapes here (a native
+            # crash surfacing as SystemExit, a MemoryError) must still move the
+            # status off "running", or the UI waits forever for a COMPLETE that
+            # can never arrive.
+            except BaseException as e:  # noqa: BLE001
+                render_state.update(status="error", error=f"{type(e).__name__}: {e}")
             finally:
-                lock.release()
+                render_state.update(finished_at=time.time())
+                try:
+                    lock.release()
+                except RuntimeError:
+                    pass
 
-        threading.Thread(target=work, daemon=True).start()
+        t = threading.Thread(target=work, daemon=True)
+        render_state["_thread"] = t
+        t.start()
         return {"status": "running"}
+
+    # A render this long has almost certainly wedged; the UI says so rather than
+    # showing a progress bar that never moves.
+    RENDER_STALL_SECONDS = 180
 
     @app.get("/api/render")
     def render_status():
         require_current()
-        return dict(render_state)
+        out = {k: v for k, v in render_state.items() if not k.startswith("_")}
+        started, finished = out.get("started_at"), out.get("finished_at")
+        if out.get("status") == "running" and started:
+            out["elapsed_s"] = round(time.time() - started, 1)
+            worker = render_state.get("_thread")
+            out["worker_alive"] = bool(worker and worker.is_alive())
+            out["stalled"] = (out["elapsed_s"] > RENDER_STALL_SECONDS
+                              or not out["worker_alive"])
+        elif started and finished:
+            out["elapsed_s"] = round(finished - started, 1)
+        return out
 
     @app.get("/api/peaks/{name}")
     def peaks(name: str):

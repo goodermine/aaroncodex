@@ -131,3 +131,51 @@ Diagnostic order:
 Also fixed: `deck.html` was missing from `_VERSIONED_ASSETS`, so the injected
 `?v=` cache-buster never changed when the deck changed. Harmless for the HTML
 (served no-cache) but it made the stamp useless as a change signal.
+
+---
+
+## Follow-up 2 (26 Jul): render sticks at WORKING / 75% with no way out
+
+Aaron: changing a dynamics or Auto Tune setting sends the deck to WORKING,
+"75%", and it stays there — no re-render button, never reaches 100%.
+
+**The 75% was fake.** `adaptPolish` computes `progress = idx/total` and uses
+`raw.step_index || 6` when the server reports no step index — which it never does.
+6/8 = 75%. So *every* render displayed 75% while running, and a wedged render was
+visually identical to a healthy one.
+
+Not reproducible here (a render completes in ~0.25s), so rather than guess at the
+deployed host the stuck state was made impossible to be a dead end:
+
+- **`GET /api/render` now reports `elapsed_s`, `worker_alive` and `stalled`**
+  (over 180s, or the worker died). The deck shows `RENDERING 12s` instead of a
+  frozen 75%, and `RENDER STALLED 190s` with a warning when it wedges.
+- **Leaked lock is self-healing.** If the worker holding the single-flight lock is
+  dead, the next render detects it, takes the lock over, and notes "previous
+  render did not finish cleanly — restarted". Previously that lock leak made every
+  later render 409 forever, which is a strong candidate for exactly what Aaron
+  hit: the deck sets `renderQueued` and waits for a COMPLETE that can never come.
+- **Worker catches `BaseException`**, not just `Exception`, so nothing can leave
+  the status on "running" permanently.
+- **A `RE-RENDER` button** in the transport, calling `POST /api/render?force=true`
+  — recovers a wedged render from the UI with no server restart.
+
+### Latent bug found while testing this
+
+`Session.render()` wrote to a **fixed** temp path `.render-tmp.wav` before the
+atomic replace. Two overlapping renders raced on that one path and whichever lost
+had its file replaced from under it and failed. Only the 409 single-flight guard
+was preventing it, so allowing takeover exposed it immediately (the force test
+failed with `status: error` until it was fixed). Temp names are now unique per
+process+thread, so the last writer wins — which is correct, that's the newest
+settings.
+
+Tests: `voxpolish/tests/test_render_recovery.py` covers elapsed reporting,
+single-flight still refusing a live second render, force takeover, and a leaked
+lock not wedging renders forever. voxpolish 154 passed, voxsuite 27 passed.
+
+### Still worth checking on the host
+
+If it wedges again, `GET /api/render` now says whether the worker is alive. If
+`worker_alive: false` with `status: running`, the render thread is dying silently —
+capture the service log at that moment, since `error` should now be populated.

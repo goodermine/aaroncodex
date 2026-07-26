@@ -109,6 +109,7 @@
         <button class="vox-play" id="playBtn" aria-label="Play / pause" disabled>&#9654;</button>
         <span class="vox-timecode vox-tnum" id="tcode">00:00.0 <span>/</span> 00:00.0</span>
         <div class="vox-seek"><i id="seekFill" style="width:0%"></i></div>
+        <button class="vox-chip" id="rerenderBtn" type="button" title="Render again from the current settings">&#8635; RE-RENDER</button>
         <button class="vox-btn vox-dl" id="exportBtn" disabled aria-expanded="false" aria-controls="exportTray">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
           <span id="dlLabel">Export</span>
@@ -262,6 +263,36 @@
     if(ev.state==="COMPLETE")refreshRenderNotes();
     apply(ev);
   }
+  // The bar showed a fixed 75% while rendering (the adapter's fallback when the
+  // server reports no step index), so a wedged render looked identical to a
+  // working one. Show elapsed seconds instead, and say so when it has stalled.
+  function watchRender(){
+    fetch("/api/render",{headers:{"cache-control":"no-cache"}})
+      .then(function(r){return r.ok?r.json():null;}).then(function(j){
+        if(!j)return;
+        var el=$("#procLab");
+        if(j.status==="running"){
+          if(j.stalled){
+            el.textContent="RENDER STALLED "+(j.elapsed_s||0)+"s";
+            showRenderNotes(["WARNING: the render has not finished after "+(j.elapsed_s||0)
+              +"s"+(j.worker_alive===false?" and its worker is no longer running":"")
+              +". Press RE-RENDER to start it again."]);
+          } else el.textContent="RENDERING "+(j.elapsed_s||0)+"s";
+        }
+      }).catch(function(){});
+  }
+  setInterval(function(){if(!$("#rerenderBtn").disabled)watchRender();},1500);
+  $("#rerenderBtn").addEventListener("click",function(){
+    var b=this;b.disabled=true;
+    log("info","manual re-render requested");
+    setBusy("RENDER");
+    // force=true takes over a leaked lock, so a wedged render is recoverable
+    // from the UI instead of needing a server restart.
+    fetch("/api/render?force=true",{method:"POST"}).then(function(){
+      startRenderPoll();
+    }).catch(function(){log("error","re-render could not be started");})
+      .then(function(){setTimeout(function(){b.disabled=false;},1200);});
+  });
   function startRenderPoll(){
     if(pollStop)pollStop();
     pollStop=VOX.poll({url:"/api/render",mode:"polish",adapt:VOX.adaptPolish,onEvent:onRenderEvent});

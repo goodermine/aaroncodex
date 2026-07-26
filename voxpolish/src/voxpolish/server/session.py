@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import threading
 import tempfile
 from pathlib import Path
 
@@ -233,9 +234,18 @@ class Session:
         elif tune_on and not curve:
             notes.append("Auto Tune is on but this take has no correction curve")
 
-        tmp = self.root / ".render-tmp.wav"
-        audio_io.save(tmp, out, sr)
-        os.replace(tmp, self.root / "vocal_cleaned.wav")
+        # Unique temp name per render, not a shared ".render-tmp.wav": two
+        # overlapping renders (possible once a wedged one can be taken over)
+        # raced on the same path, and whichever lost had its file replaced out
+        # from under it and failed. Distinct temps make the last writer win,
+        # which is the right outcome — that's the newest settings.
+        tmp = self.root / f".render-tmp-{os.getpid()}-{threading.get_ident()}.wav"
+        try:
+            audio_io.save(tmp, out, sr)
+            os.replace(tmp, self.root / "vocal_cleaned.wav")
+        finally:
+            if tmp.exists():
+                tmp.unlink(missing_ok=True)
         return {"rendered": True, "revision": self.revision(), "notes": notes}
 
     # ------------------------------------------------------------------ peaks
