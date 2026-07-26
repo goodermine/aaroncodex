@@ -1,0 +1,157 @@
+"""Build Aaron's breath-support practice sheet from the engine's exercise library.
+
+Exercise text is copied verbatim from knowledge/prescription_map.json — the same
+library the analysis prescribes from, so the sheet can't drift from the engine.
+"""
+import json, re, os
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.lib import colors
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.enums import TA_LEFT
+from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table,
+                                TableStyle, KeepTogether, HRFlowable)
+
+ENG = "/home/user/aaroncodex/voxanalysis/vox-analysis/engine"
+OUT = "/home/user/aaroncodex/docs/practice/pressure-down-breath-support.pdf"
+os.makedirs(os.path.dirname(OUT), exist_ok=True)
+
+lib = json.load(open(f"{ENG}/knowledge/prescription_map.json"))
+cat = lib["categories"]["breath_support"]
+analysis = json.load(open("/home/user/aaroncodex/voxanalysis/archive/scratch-analyses/"
+                          "2026-07-25-aaron-pressure-down-captain-cook-tavern-take-001_analysis.json"))
+pres = analysis["prescriptions"]["primary"]
+
+def fields(detail):
+    """Split a library entry into its labelled bullets."""
+    out = {}
+    for line in detail.split("\n"):
+        m = re.match(r"-\s*([^:]+):\s*(.+)", line.strip())
+        if m:
+            k = m.group(1).split("(")[0].strip().lower()
+            out[k] = m.group(2).strip()
+    return out
+
+INK = colors.HexColor("#12212b")
+MUT = colors.HexColor("#5b6b78")
+ACC = colors.HexColor("#0b6a86")
+WARN = colors.HexColor("#8a5a00")
+RULE = colors.HexColor("#c9d6de")
+BAND = colors.HexColor("#eef5f8")
+
+S = {
+    "title": ParagraphStyle("t", fontName="Helvetica-Bold", fontSize=19, leading=23, textColor=INK),
+    "sub": ParagraphStyle("s", fontName="Helvetica", fontSize=10, leading=14, textColor=MUT),
+    "h": ParagraphStyle("h", fontName="Helvetica-Bold", fontSize=13, leading=16, textColor=ACC,
+                        spaceBefore=2, spaceAfter=3),
+    "lbl": ParagraphStyle("l", fontName="Helvetica-Bold", fontSize=8, leading=11, textColor=MUT),
+    "body": ParagraphStyle("b", fontName="Helvetica", fontSize=9.7, leading=13.4, textColor=INK,
+                           alignment=TA_LEFT),
+    "warn": ParagraphStyle("w", fontName="Helvetica-Oblique", fontSize=8.8, leading=12, textColor=WARN),
+    "sec": ParagraphStyle("sec", fontName="Helvetica-Bold", fontSize=12, leading=15, textColor=INK,
+                          spaceBefore=8, spaceAfter=5),
+}
+
+doc = SimpleDocTemplate(OUT, pagesize=A4, topMargin=15 * mm, bottomMargin=14 * mm,
+                        leftMargin=15 * mm, rightMargin=15 * mm,
+                        title="Breath Support Practice Sheet - Aaron",
+                        author="VOX Suite")
+st = []
+
+st.append(Paragraph("Breath Support &mdash; Practice Sheet", S["title"]))
+st.append(Paragraph(
+    "Aaron &middot; built from the measured analysis of <b>Pressure Down</b> (Captain Cook Tavern, 25 Jul 2026). "
+    "Exercise text is copied verbatim from the engine's prescription library.", S["sub"]))
+st.append(Spacer(1, 7))
+st.append(HRFlowable(width="100%", color=RULE, thickness=0.9))
+st.append(Spacer(1, 8))
+
+# ---- why ----
+why = [
+    ["Primary limiter", "<b>Breath support</b> &mdash; severity %.0f/100" % pres["severity_0_to_100"]],
+    ["Evidence", "49% of phrase endings sag (25 of 51 phrases)"],
+    ["What it sounds like", "Notes arrive on pitch, hold about a second, then slide down. Sliding, not breaking."],
+    ["Where it bites", "Worst from 2:44 onward &mdash; 2:44 (-1.9 semitones), 3:01 (-2.2), 3:25 (-0.8). "
+                       "Early in the song you slide <i>up</i> into notes instead."],
+    ["Your cue", "<b>&ldquo;%s&rdquo;</b>" % pres["next_take_cue"]],
+]
+t = Table([[Paragraph(a, S["lbl"]), Paragraph(b, S["body"])] for a, b in why],
+          colWidths=[32 * mm, 143 * mm])
+t.setStyle(TableStyle([
+    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ("BACKGROUND", (0, 0), (-1, -1), BAND),
+    ("BOX", (0, 0), (-1, -1), 0.7, RULE),
+    ("INNERGRID", (0, 0), (-1, -1), 0.4, colors.white),
+    ("LEFTPADDING", (0, 0), (-1, -1), 7), ("RIGHTPADDING", (0, 0), (-1, -1), 7),
+    ("TOPPADDING", (0, 0), (-1, -1), 5), ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+]))
+st.append(t)
+st.append(Spacer(1, 10))
+
+# ---- session ----
+st.append(Paragraph("A 10-minute session", S["sec"]))
+sess = [["1", "Straw in water", "2 min", "warm up, get the voice easy"],
+        ["2", "Rib Cage Stationary Drill", "3 min", "names your exact fault: ribs must not collapse"],
+        ["3", "Sibilant Hiss", "2 min", "closest to singing &mdash; air actually flowing"],
+        ["4", "The 3:01 phrase", "3 min", "one phrase only, ribs staying wide"]]
+t2 = Table([[Paragraph(c, S["body"]) for c in r] for r in sess],
+           colWidths=[8 * mm, 52 * mm, 18 * mm, 97 * mm])
+t2.setStyle(TableStyle([
+    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ("LINEBELOW", (0, 0), (-1, -2), 0.4, RULE),
+    ("BOX", (0, 0), (-1, -1), 0.7, RULE),
+    ("LEFTPADDING", (0, 0), (-1, -1), 7), ("TOPPADDING", (0, 0), (-1, -1), 5),
+    ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+]))
+st.append(t2)
+st.append(Spacer(1, 4))
+st.append(Paragraph(
+    "Every exercise in this library carries the same transfer rule: <b>apply the sensation to one short "
+    "phrase only &mdash; do not run the whole song until the cue holds.</b>", S["body"]))
+st.append(Spacer(1, 10))
+
+# ---- the eight ----
+st.append(Paragraph("The eight breath-support exercises", S["sec"]))
+ORDER_NOTE = {
+    "The Farinelli Maneuver": "The one your analysis prescribed first.",
+    "Rib Cage Stationary Drill": "Most direct hit on your fault.",
+    "The Sibilant Hiss": "Closest to real singing.",
+}
+for i, ex in enumerate(cat["exercises"], 1):
+    f = fields(ex["detail"])
+    rows = []
+    for label, key in (("Do this", "how to do it"), ("Should feel", "how it should feel"),
+                       ("Pass / fail", "pass/fail metric")):
+        if f.get(key):
+            rows.append([Paragraph(label, S["lbl"]), Paragraph(f[key], S["body"])])
+    blk = [Paragraph(f"{i}. {ex['name']}", S["h"])]
+    tag = []
+    if f.get("pedagogical target"): tag.append("Target: " + f["pedagogical target"])
+    if ORDER_NOTE.get(ex["name"]): tag.append("<b>" + ORDER_NOTE[ex["name"]] + "</b>")
+    if tag: blk.append(Paragraph(" &middot; ".join(tag), S["sub"]))
+    blk.append(Spacer(1, 3))
+    tb = Table(rows, colWidths=[24 * mm, 151 * mm])
+    tb.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+        ("TOPPADDING", (0, 0), (-1, -1), 2), ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+    ]))
+    blk.append(tb)
+    if f.get("common failure / safety note"):
+        blk.append(Spacer(1, 2))
+        note = f["common failure / safety note"]
+        note = note[0].upper() + note[1:]
+        blk.append(Paragraph(note, S["warn"]))
+    blk.append(Spacer(1, 3))
+    blk.append(HRFlowable(width="100%", color=RULE, thickness=0.5))
+    blk.append(Spacer(1, 6))
+    st.append(KeepTogether(blk))
+
+st.append(Spacer(1, 2))
+st.append(Paragraph(
+    "<b>Safety.</b> Every exercise here shares one stop rule: dizziness, shoulder lifting, throat gripping "
+    "or breath-holding means stop or ease off. This sheet relays the library your analysis prescribes from "
+    "and is not a substitute for a teacher watching you do it.", S["warn"]))
+
+doc.build(st)
+print("wrote", OUT, os.path.getsize(OUT), "bytes")
