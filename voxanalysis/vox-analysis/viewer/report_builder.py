@@ -28,6 +28,7 @@ def _component_rows(raw: dict) -> list[dict]:
         "vibrato_control": "Vibrato control",
         "dynamics_expression": "Dynamics",
         "phrase_control": "Phrase control",
+        "breath_support": "Breath support",
     }
     components = _get(raw, "technical_score", "components", default={})
     return [
@@ -36,6 +37,9 @@ def _component_rows(raw: dict) -> list[dict]:
             "label": labels.get(key, key.replace("_", " ").title()),
             "score": _number(value.get("score"), 2),
             "basis": value.get("input", ""),
+            # Carried through so the focus picker can avoid coaching off the
+            # microphone. The engine declares this per component.
+            "capture_sensitive": bool(value.get("capture_sensitive")),
         }
         for key, value in components.items()
         if isinstance(value, dict) and value.get("score") is not None
@@ -81,7 +85,23 @@ def _primary_focus(raw: dict, components: list[dict]) -> dict:
             "why": f"Pitch-sag flags appeared at {sag:.1f}% of measured phrase endings.",
             "target": "Record one verse, keeping the lower ribs open through the final word of every phrase.",
         }
-    weakest = min(components, key=lambda item: item["score"], default={"label": "Consistency"})
+    # Which component becomes the coaching target. On a live/room/phone capture
+    # the lowest component is very often voice_quality — i.e. the room, not the
+    # singer — so on an elevated-risk capture the weakest CAPTURE-ROBUST
+    # component is the honest target instead. Before v5 there was little to fall
+    # back to; breath_support is measured on the voice and is the usual answer.
+    risk_elevated = _get(raw, "time_diagnostics", "environment_risk",
+                         "karaoke_or_room_contamination_risk") == "elevated"
+    pool = [c for c in components if not c.get("capture_sensitive")] if risk_elevated else components
+    if not pool:
+        pool = components
+    capture_switched = risk_elevated and pool is not components
+    weakest = min(pool, key=lambda item: item["score"], default={"label": "Consistency"})
+    because_capture = (
+        " Chosen from the capture-robust components only: this recording flagged "
+        "elevated room/mic contamination, and the lowest component overall "
+        "measures the recording chain rather than the voice."
+        if capture_switched else "")
     if weakest["label"] == "Held-note stability":
         return {
             "pillar": "Held-note stability",
@@ -90,19 +110,21 @@ def _primary_focus(raw: dict, components: list[dict]) -> dict:
             "why": "Held-note stability is the lowest component in this take, even where the median drift is close to the caution threshold.",
             "target": "Record one chorus, settling each sustained note before adding vibrato or intensity.",
         }
-    if weakest["label"] in {"Voice quality", "Vibrato control", "Dynamics", "Phrase control"}:
+    if weakest["label"] in {"Voice quality", "Vibrato control", "Dynamics",
+                            "Phrase control", "Breath support"}:
         prescriptions = {
             "Voice quality": ("Straw Phonation in Water", "Easy first, sound second"),
             "Vibrato control": ("Messa di Voce on Single Pitches", "Still first, release second"),
             "Dynamics": ("Messa di Voce on Single Pitches", "Shape from the ribs"),
             "Phrase control": ("Rib Cage Stationary Drill", "Stay wide to the final word"),
+            "Breath support": ("Rib Cage Stationary Drill", "Stay wide to the final word"),
         }
         drill, cue = prescriptions[weakest["label"]]
         return {
             "pillar": weakest["label"],
             "drill": drill,
             "cue": cue,
-            "why": f"{weakest['label']} is the lowest measured component in this take.",
+            "why": f"{weakest['label']} is the lowest measured component in this take.{because_capture}",
             "target": "Record the most affected 30-second section twice, keeping the drill sensation in the lyric repetition.",
         }
     return {

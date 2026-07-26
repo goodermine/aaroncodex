@@ -44,8 +44,19 @@ def _base_results(spread, eff):
                     "median_rate_hz": 6.0, "median_extent_cents": 70.0},
         "dynamics": {"phrase_level_spread_db": spread, "effective_dynamic_range_db": eff},
         "phrasing": {"median_phrase_s": 3.0},
+        # v5: phrase-ending sag. Pro pack median is 34.85% of endings.
+        "breath": {"n_phrases_measured": 30, "n_sagging_endings": 10,
+                   "pct_sagging_endings": 33.3},
         "time_diagnostics": {"environment_risk": {"karaoke_or_room_contamination_risk": "low"}},
     }
+
+
+def _with_sag(pct, n_phrases=30):
+    r = _base_results(22.0, 30.0)
+    r["breath"] = {"n_phrases_measured": n_phrases,
+                   "n_sagging_endings": round(n_phrases * pct / 100),
+                   "pct_sagging_endings": pct}
+    return r
 
 
 def test_dynamics_discriminates_not_flat_ten():
@@ -124,7 +135,67 @@ def test_capture_fair_excludes_dynamics_and_voice_quality():
     assert "capture_fair_score_0_to_10" in ts
     note = ts["capture_fair_note"].lower()
     assert "voice_quality" in note and "dynamics" in note
-    assert ts["provenance"].startswith("deterministic_rubric_v4")
+    # Derived, not spelled out: a hardcoded "v4" here passed straight through a
+    # rubric bump in the engine's own provenance string without anyone noticing.
+    assert ts["provenance"].startswith(A.RUBRIC_NAME)
+
+
+def test_breath_support_is_scored_and_discriminates():
+    """v5: phrase-ending sag was measured from the start and fed nothing. A take
+    that holds its phrase endings must beat one that sags on most of them."""
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    def bs(pct):
+        return A.compute_technical_score(_with_sag(pct), cal)["components"]["breath_support"]
+    solid, typical, worse, saggy = bs(12.0), bs(34.85), bs(50.0), bs(75.0)
+    # Matching the pro median IS the top of the scale (_linear_component anchors
+    # 10 at p50 and _scale clips), so beating it does not score above 10 — the
+    # discrimination is all on the worse-than-median side.
+    assert solid["score"] == typical["score"] == 10.0
+    assert 10.0 > worse["score"] > saggy["score"], (worse["score"], saggy["score"])
+    assert saggy["score"] < 3.0
+    assert "phrase endings" in typical["input"]
+
+
+def test_breath_support_counts_inside_capture_fair():
+    """The whole point of the component: air running out is the singer, not the
+    room. If it were treated as capture-sensitive, a phone take would stop being
+    scored on the fault that actually limits it."""
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    solid = A.compute_technical_score(_with_sag(12.0), cal)
+    saggy = A.compute_technical_score(_with_sag(75.0), cal)
+    assert solid["capture_fair_score_0_to_10"] > saggy["capture_fair_score_0_to_10"]
+    assert solid["components"]["breath_support"]["capture_sensitive"] is False
+
+
+def test_breath_support_is_dropped_when_too_few_phrases():
+    """A "% of endings that sag" over 3 phrases is noise. Better to drop the
+    component (weights renormalise) than publish a number off two endings."""
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    ts = A.compute_technical_score(_with_sag(80.0, n_phrases=3), cal)
+    assert "breath_support" not in ts["components"]
+    assert ts["coverage"] == "partial"
+    assert "breath_support" in ts["components_unscored"]
+
+
+def test_partial_coverage_is_reported_but_is_not_a_provenance_conflict():
+    """Analyses made before analyse_breath() existed have no sag data, so they
+    score on six components while a current take scores on seven. That must be
+    VISIBLE — a renormalised overall otherwise looks complete. It is deliberately
+    not a hard conflict: the full-vs-partial gap is ~0.25 points at most, so
+    refusing to compare would cost more than the distortion it avoids."""
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    full = A.compute_technical_score(_base_results(22.0, 30.0), cal)
+    old = _base_results(22.0, 30.0)
+    del old["breath"]                                    # a pre-breath analysis
+    partial = A.compute_technical_score(old, cal)
+
+    assert full["coverage"] == "full"
+    assert full["coverage_note"] is None
+    assert partial["coverage"] == "partial"
+    assert partial["components_unscored"] == ["breath_support"]
+    assert "breath_support" in partial["coverage_note"]
+    assert A.score_conflict(full, partial) is None        # comparable, with the caveat stated
+    assert set(full["components_scored"]) == set(A.ALL_COMPONENTS)
 
 
 def test_take_vs_reference_comparison_withholds_on_provenance_conflict():

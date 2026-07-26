@@ -79,7 +79,8 @@ meaningless — say so rather than publishing it).
 > Dynamics **cannot** reach 0 under the current rubric — it is graded and floored,
 > and excluded from capture-fair by declaration. Any guard keyed to "dynamics
 > zeroed" is obsolete and will only produce false withholdings. This wrongly
-> blocked Aaron's best Pressure Down take (8.3 / **9.5 capture-fair**).
+> blocked Aaron's best Pressure Down take (8.2 / **9.2 capture-fair** under v5;
+> it read 8.3 / 9.5 under v4, before breath support entered the score).
 
 ## 5. Which number to give the singer
 
@@ -87,6 +88,8 @@ meaningless — say so rather than publishing it).
 - **Live, tavern, phone, room** → lead with **capture-fair**. It excludes the
   components that measure the microphone rather than the voice
   (`voice_quality`, `dynamics_expression`), and typically reads ~1 point higher.
+  It does **not** exclude `breath_support` (v5) — phrase-ending sag is air
+  running out, not the room, so a live take is still scored on it.
 - Always state **confidence**, and that the scale is **calibrated to 50
   professional reference vocals — 10 = a typical pro**. A 7 is a good amateur
   result, not a failure.

@@ -50,7 +50,7 @@ out of air. **25 of 51 phrase endings** affected in the benchmark take." Seconda
 early-phrase scooping. Main drill: **Rib Cage Stationary Drill**.
 
 That is the same conclusion the audio analysis reached from the signal alone
-(`HANDOFF_ALL_TAKES_SCORES_V4`, `docs/practice/`): 25 of 51 sagging phrase endings,
+(`HANDOFF_ALL_TAKES_SCORES_V5_2026-07-26.md`, `docs/practice/`): 25 of 51 sagging phrase endings,
 sliding rather than breaking, upward scoops early in the song, and Rib Cage
 Stationary Drill as the most direct hit on the fault. Two independent routes —
 measurement and Aaron's own written assessment — landing on the same number and

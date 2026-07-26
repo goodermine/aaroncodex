@@ -720,7 +720,7 @@ def analyse_voice_quality(wav_path, f0, sr, y=None, hop_length=512):
         "hnr_db_p25": safe_float(np.percentile(per_note["hnr_db"], 25), 2) if per_note["hnr_db"] else None,
         "hnr_db_p75": safe_float(np.percentile(per_note["hnr_db"], 75), 2) if per_note["hnr_db"] else None,
         "cpps_db": cpps_db,
-        "cpps_note": "Cepstral Peak Prominence (smoothed, Praat). Research-standard clarity measure; diagnostic only until the reference pack is re-analysed with it.",
+        "cpps_note": "Cepstral Peak Prominence (smoothed, Praat). Research-standard clarity measure. SCORED: one of the four voice_quality sub-scores, anchored to the pro reference pack (10 at the pack median) when a calibration file is loaded.",
         "strain": strain_summary,
         "strained_notes": strained_notes[:10],
         "interpretation": _interpret_voice_quality(jitter_med, shimmer_med, hnr_med),
@@ -890,7 +890,7 @@ def analyse_resonance(y, sr, hop_length=512):
             "Moderate projection" if sf_ratio_db > -20 else
             "Soft/dark — little 2-4 kHz ring"
         ),
-        "singers_formant_note": "Median 2-4 kHz vs 80 Hz-2 kHz energy on active frames. Heuristic bands; diagnostic until pro-pack anchors exist.",
+        "singers_formant_note": "Median 2-4 kHz vs 80 Hz-2 kHz energy on active frames. Heuristic bands; NOT part of the technical score — no pro-pack anchors exist for it yet (unlike CPPS, which is anchored and scored).",
         "spectral_centroid_mean_hz": round(mean_centroid, 2),
         "spectral_centroid_median_hz": round(float(np.median(centroid)), 2),
         "spectral_rolloff_85_mean_hz": round(float(np.mean(rolloff_85)), 2),
@@ -1940,6 +1940,12 @@ DEFAULT_CALIBRATION_PATH = "calibration/pro_reference.json"
 # Minimum number of reference values before a calibrated anchor is trusted
 CALIBRATION_MIN_REFS = 5
 
+# Minimum phrases before breath_support is scored. A "% of endings that sag"
+# taken over 3 phrases is noise, not breath support — better to drop the
+# component (weights renormalise) than to publish a number off two endings.
+# Matches the guard tools/build_calibration.py applies to the reference pack.
+MIN_PHRASES_FOR_BREATH_SCORE = 8
+
 
 def load_calibration(path):
     """
@@ -1980,7 +1986,7 @@ def load_calibration(path):
 # identical engine yields an identical score AND an identical identity. Record
 # when an artifact was written alongside it, not inside it.
 SCORE_CONTRACT = "voxai_score_v1"
-RUBRIC_VERSION = "v4"
+RUBRIC_VERSION = "v5"
 RUBRIC_NAME = f"deterministic_rubric_{RUBRIC_VERSION}"
 
 
@@ -2033,6 +2039,21 @@ def _stem_model(results):
     if (results.get("stem_separation") or {}).get("enabled"):
         return "unknown_separator"
     return None
+
+
+# Every component the current rubric can score. Used to report coverage: an
+# analysis produced before a module existed cannot score the component that
+# reads it, and the reader deserves to know which number is missing rather
+# than seeing a renormalised overall that looks complete.
+ALL_COMPONENTS = (
+    "intonation_accuracy",
+    "pitch_stability",
+    "voice_quality",
+    "vibrato_control",
+    "dynamics_expression",
+    "phrase_control",
+    "breath_support",
+)
 
 
 def score_identity(results, calibration=None):
@@ -2160,10 +2181,15 @@ def _graded_peak(value, p10, p50, p90, zero_low, zero_high, floor=3.0):
 def _linear_component(value, key, calibration, default_best, worst, unit, lower_is_better=True):
     """
     Builds a linear component score. Without calibration, `default_best`
-    earns 10. With calibration, "10" is re-anchored to the professional
-    reference distribution (p25 for lower-is-better metrics, p75 for
-    higher-is-better), and the value's percentile vs the references is
-    reported. The theoretical `worst` (score 0) anchor is never softened.
+    earns 10. With calibration, "10" is re-anchored to the **median (p50)** of
+    the professional reference distribution, and the value's percentile vs the
+    references is reported. The theoretical `worst` (score 0) anchor is never
+    softened.
+
+    (An earlier version of this docstring claimed p25/p75 anchors. It never
+    matched the code, which has always used p50 — see below. The p25/p75
+    wording also got baked into the calibration file's own `note` field by
+    tools/build_calibration.py; both are corrected.)
     """
     stats = _calib_metric(calibration, key)
     if stats:
@@ -2182,9 +2208,26 @@ def _linear_component(value, key, calibration, default_best, worst, unit, lower_
 
 def compute_technical_score(results, calibration=None):
     """
-    DETERMINISTIC TECHNICAL SCORE — RUBRIC v4
+    DETERMINISTIC TECHNICAL SCORE — RUBRIC v5
     ───────────────────────────────────────────
     A transparent, formula-based 0-10 score over the measured metrics.
+
+    v5 changes vs v4 (breath support enters the score):
+      * NEW component breath_support — % of phrase endings that sag, anchored
+        to the pro pack (median 34.85% of endings, spread 10.3-55.1%). Phrase-
+        ending sag has been measured since v1 but fed nothing: phrase_control
+        scores phrase *duration*, and sag reached the score only diluted into
+        median intra-note drift across every note in the song. It is the most
+        common real-world fault and now has its own component.
+      * breath_support is declared NOT capture-sensitive, so it counts inside
+        capture-fair. Air running out is the singer, not the room — this makes
+        capture-fair measure more of the voice, not less.
+      * Weights are relative and renormalised (see below), so breath_support
+        entering at 0.10 scales the other six proportionally rather than
+        requiring any of them to be re-argued. Its share of the score is
+        0.10/1.10 = 9.1%.
+      * Deliberately conservative on weight for a first introduction. Revisit
+        once there is cross-singer data on how much it moves real takes.
 
     v4 changes vs v3 (dynamics fix):
       * dynamics_expression is now GRADED (see _graded_peak): 10 at the pro
@@ -2216,13 +2259,17 @@ def compute_technical_score(results, calibration=None):
       * phrase_control anchor relaxed (2.5 s median = 10) — short pop
         phrasing is a style, not a breath defect.
 
-    Components (weights renormalised over whichever are measurable):
-      intonation_accuracy  25%  median |cents| from tuning-corrected grid
-      pitch_stability      15%  median intra-note drift (cents)
-      voice_quality        20%  Praat jitter/shimmer/HNR on sustained notes
-      vibrato_control      15%  vibrato quality OR straight-tone steadiness
-      dynamics_expression  15%  phrase-level shaping / effective range
-      phrase_control       10%  median phrase duration (breath management)
+    Components. Weights below are RELATIVE and are renormalised over whichever
+    components are measurable, so they need not sum to 1 (they sum to 1.10 from
+    v5). The percentage in brackets is each one's actual share of the score
+    when all seven are measurable:
+      intonation_accuracy  0.25  (22.7%)  median |cents| from tuning-corrected grid
+      voice_quality        0.20  (18.2%)  Praat jitter/shimmer/HNR/CPPS, sustained notes
+      pitch_stability      0.15  (13.6%)  median intra-note drift (cents)
+      vibrato_control      0.15  (13.6%)  vibrato quality OR straight-tone steadiness
+      dynamics_expression  0.15  (13.6%)  phrase-level shaping / effective range
+      phrase_control       0.10  ( 9.1%)  median phrase duration (how long)
+      breath_support       0.10  ( 9.1%)  % of phrase endings that sag (does it hold)
 
     IMPORTANT SCOPE NOTE: this measures technical execution observable in
     the audio. It cannot measure artistry, emotional delivery, lyric
@@ -2378,6 +2425,34 @@ def compute_technical_score(results, calibration=None):
             "score": score,
         }
 
+    # v5: BREATH SUPPORT. phrase_control above scores how LONG a phrase is;
+    # this scores whether the pitch holds to the end of it. A note that lands
+    # in tune, sits ~1 s, then slides as the air runs out is the single most
+    # common real-world fault, and until v5 it reached the score only
+    # indirectly — diluted into median intra-note drift taken across every
+    # note in the song. Measured since v1, scored from v5.
+    breath = results.get("breath", {})
+    sag = breath.get("pct_sagging_endings")
+    n_phrases = breath.get("n_phrases_measured") or 0
+    if sag is not None and n_phrases >= MIN_PHRASES_FOR_BREATH_SCORE:
+        score, formula, basis = _linear_component(
+            sag, "breath_pct_sagging_endings", calibration,
+            default_best=15.0, worst=90.0, unit="%")
+        components["breath_support"] = {
+            # Relative weight; the block below renormalises over whatever is
+            # measurable, so this does not need the others to be reduced.
+            "weight": 0.10,
+            "input": f"{breath.get('n_sagging_endings')} of {n_phrases} phrase endings sag {basis}",
+            "formula": formula,
+            # NOT capture-sensitive, and that is the point: sag is air running
+            # out, not the room or the microphone. So unlike voice_quality and
+            # dynamics_expression this component stays IN capture-fair, which
+            # means a phone or tavern take is finally scored on the fault that
+            # actually limits it.
+            "capture_sensitive": False,
+            "score": score,
+        }
+
     scored = {k: v for k, v in components.items() if v.get("score") is not None}
     if not scored:
         return {"error": "No components could be scored.", "components": components}
@@ -2414,7 +2489,9 @@ def compute_technical_score(results, calibration=None):
 
     calibrated = calibration is not None
     provenance = (
-        "deterministic_rubric_v4 — computed from measured audio features; "
+        # Derived from RUBRIC_NAME, never spelled out: a hardcoded "v4" here
+        # survived a version bump silently and would misreport provenance.
+        f"{RUBRIC_NAME} — computed from measured audio features; "
         "identical audio yields an identical score; no LLM involvement; "
         + ("anchored to professional reference distribution" if calibrated else
            "theoretical anchors (no pro calibration file found)")
@@ -2434,7 +2511,9 @@ def compute_technical_score(results, calibration=None):
             "read far worse than clean modern captures of an equal voice. Use "
             "capture_fair on BOTH sides for any take-vs-original or cross-era "
             "comparison; use overall_score for a singer's absolute result and "
-            "self-progress."
+            "self-progress. Note breath_support is deliberately NOT excluded: "
+            "phrase-ending sag is air running out, not the room, so it is "
+            "scored on a phone or room take like any other."
         ),
         "provenance": provenance,
         "calibration": {
@@ -2454,6 +2533,27 @@ def compute_technical_score(results, calibration=None):
         },
         "components": components,
         "weights_note": "Weights renormalised over measurable components.",
+        # Coverage. Renormalising over measurable components keeps a partial
+        # score usable, but it also makes an incomplete score look complete —
+        # so say which components were actually scored. v5 made this visible
+        # rather than theoretical: analyses produced before analyse_breath()
+        # existed have no phrase-sag data, so they score on six components
+        # while a current take scores on seven.
+        "components_scored": sorted(scored),
+        "components_unscored": [c for c in ALL_COMPONENTS if c not in scored],
+        "coverage": "full" if len(scored) == len(ALL_COMPONENTS) else "partial",
+        "coverage_note": (
+            None if len(scored) == len(ALL_COMPONENTS) else
+            "Scored on "
+            f"{len(scored)} of {len(ALL_COMPONENTS)} components ("
+            + ", ".join(c for c in ALL_COMPONENTS if c not in scored)
+            + " not measurable in this analysis; weights renormalised over the rest). "
+            "Raw metrics are unaffected. Deliberately NOT treated as a provenance "
+            "conflict: on the 50-reference pack the full-vs-partial difference is "
+            "at most ~0.25 points, so refusing to compare would cost more than the "
+            "distortion it avoids. Re-analyse the take with the current engine to "
+            "close the gap."
+        ),
         "scope_note": (
             "Technical execution only. Artistry, emotion, interpretation and "
             "style-appropriateness are human judgements and are not part of "

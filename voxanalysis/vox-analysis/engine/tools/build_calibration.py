@@ -11,8 +11,8 @@ Workflow:
      output/ folder that contains them):
          python tools/build_calibration.py output/ --out calibration/pro_reference.json
   3. From then on analyse_song.py automatically anchors component "10"s to
-     the professional distribution (p25/p75 of the references) and reports
-     each singer's percentile against the pack.
+     the MEDIAN (p50) of the professional distribution and reports each
+     singer's percentile against the pack.
 
 The calibration file stores the raw sorted reference values per metric, so
 every anchored score remains fully auditable: "you scored 8.7 on intonation
@@ -54,6 +54,27 @@ METRIC_PATHS = {
     "dynamics_phrase_level_spread_db": (("dynamics", "phrase_level_spread_db"), False),
     "dynamics_effective_dynamic_range_db": (("dynamics", "effective_dynamic_range_db"), False),
     "phrasing_median_phrase_s": (("phrasing", "median_phrase_s"), False),
+    # Breath support (rubric v5). Phrase-ending sag was measured from the start
+    # but fed nothing: the score read phrase *duration* via phrasing_median_
+    # phrase_s and never whether the note held its pitch to the end of the
+    # phrase. Unlike voice_quality and dynamics this is not capture-sensitive —
+    # sag is air running out, not the room — so it is scored inside capture-fair.
+    "breath_pct_sagging_endings": (("breath", "pct_sagging_endings"), False),
+    # Onsets: how notes are started. Scooping is measured and, like sag, unused
+    # by the score. Anchored here so a component can be added without a second
+    # calibration pass.
+    "onsets_pct_scooped": (("onsets", "pct_scooped"), False),
+    "onsets_median_scoop_depth_cents": (("onsets", "median_scoop_depth_cents"), False),
+}
+
+# metric key -> (path to its sample-size field, minimum for that reference to
+# set anchors). A percentage taken over 3 phrases is not a professional anchor.
+# All 50 references in the current pack clear these comfortably (breath min 22
+# phrases, onsets min 66) — the gate is here for future packs.
+METRIC_GUARDS = {
+    "breath_pct_sagging_endings": (("breath", "n_phrases_measured"), 8),
+    "onsets_pct_scooped": (("onsets", "n_onsets"), 12),
+    "onsets_median_scoop_depth_cents": (("onsets", "n_onsets"), 12),
 }
 
 
@@ -102,6 +123,7 @@ def main():
     values = {key: [] for key in METRIC_PATHS}
     sources = []
     excluded = []
+    undersized = []
 
     for path in json_paths:
         try:
@@ -122,6 +144,13 @@ def main():
         for key, (metric_path, requires_praat) in METRIC_PATHS.items():
             if requires_praat and not praat_ok:
                 continue
+            guard = METRIC_GUARDS.get(key)
+            if guard is not None:
+                guard_path, minimum = guard
+                n = dig(data, guard_path)
+                if n is None or n < minimum:
+                    undersized.append(f"{os.path.basename(path)}:{key}(n={n})")
+                    continue
             value = dig(data, metric_path)
             if value is not None:
                 values[key].append(value)
@@ -154,11 +183,14 @@ def main():
         "n_references": len(sources),
         "source_files": sources,
         "praat_excluded_files": excluded,
+        "undersized_metric_samples": undersized,
         "note": (
             "Professional reference distributions for VOXAI technical-score "
-            "anchoring. Component '10' anchors use p25 (lower-is-better) or "
-            "p75 (higher-is-better) of these values; theoretical zero anchors "
-            "are unchanged. Metrics with n < 5 are ignored by the scorer."
+            "anchoring. Component '10' anchors use the MEDIAN (p50) of these "
+            "values — matching a typical professional reference IS the top of "
+            "the scale; theoretical zero anchors are unchanged. Metrics with "
+            "n < 5 are ignored by the scorer. (Earlier packs claimed p25/p75 "
+            "here; the scorer has always used p50.)"
         ),
         "metrics": metrics,
     }
@@ -172,6 +204,10 @@ def main():
     print(f"  References used: {len(sources)}")
     if excluded:
         print(f"  Excluded from voice-quality anchors (no Praat metrics): {len(excluded)}")
+    if undersized:
+        print(f"  Skipped for too small a sample: {len(undersized)}")
+        for item in undersized[:10]:
+            print(f"    {item}")
     for key, stats in metrics.items():
         marker = "" if stats["n"] >= 5 else "  (n<5 — scorer will ignore)"
         print(f"  {key}: n={stats['n']} median={stats['p50']}{marker}")

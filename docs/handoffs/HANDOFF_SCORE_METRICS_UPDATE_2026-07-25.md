@@ -9,7 +9,8 @@ Date: 2026-07-25
 > and must never be given to a singer, compared, or used in a progress trend.**
 > They are kept solely to show how the bug was found.
 >
-> **For any actual score, use `HANDOFF_ALL_TAKES_SCORES_V4_2026-07-25.md`.**
+> **For any actual score, use `HANDOFF_ALL_TAKES_SCORES_V5_2026-07-26.md`.** (This originally pointed at the v4
+> handoff, which has been deleted — v4 scores are retired.)
 > The underlying v3 data files and tooling have been deleted from the repo, and
 > all stale scores have been retired from the archive
 > (`docs/score-metrics/retire_legacy_scores.py`).

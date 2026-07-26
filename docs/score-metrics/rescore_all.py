@@ -1,4 +1,4 @@
-"""Re-score EVERY archived analysis with the current engine (rubric v4).
+"""Re-score EVERY archived analysis with the current engine.
 
 Writes a full snapshot of all singer takes (and, as a calibration sanity check,
 the professional references) under docs/score-metrics/. Scores from superseded
@@ -9,16 +9,23 @@ the table always reflects today's rubric and carries no stale scores.
 Run:  python3 docs/score-metrics/rescore_all.py
 """
 import json, re, glob, os, sys
+from datetime import date
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "voxanalysis/vox-analysis/engine"))
-from analyse_song import compute_technical_score, load_calibration, DEFAULT_CALIBRATION_PATH  # noqa: E402
+from analyse_song import (  # noqa: E402
+    ALL_COMPONENTS, RUBRIC_VERSION, compute_technical_score, load_calibration,
+    DEFAULT_CALIBRATION_PATH)
 
 ARCH = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
 OUTDIR = os.path.join(ROOT, "docs/score-metrics")
 cal = load_calibration(DEFAULT_CALIBRATION_PATH)
 SINGERS = ("aaron", "rilda", "chris", "leo")
-STAMP = "2026-07-25"
+# Rubric label and filenames come from the ENGINE, never a literal: a
+# hardcoded "v4" here wrote v5 scores into a file named -v4- on the first
+# rubric bump, which is precisely the stale-label failure this repo guards.
+RUBRIC = RUBRIC_VERSION
+STAMP = os.environ.get("RESCORE_STAMP") or date.today().isoformat()
 
 
 def is_take(name): return any(s in name.lower() for s in SINGERS)
@@ -49,8 +56,10 @@ def score_row(f):
         "n_notes": inton.get("n_notes"),
         "prior_score_status": ("retired_legacy" if old.get("status") == "retired_legacy_score"
                                else ("current" if old.get("identity") else "none")),
-        "overall_v4": ts.get("overall_score_0_to_10"),
-        "capture_fair_v4": ts.get("capture_fair_score_0_to_10"),
+        "overall": ts.get("overall_score_0_to_10"),
+        "capture_fair": ts.get("capture_fair_score_0_to_10"),
+        "coverage": ts.get("coverage"),
+        "components_unscored": ts.get("components_unscored") or [],
         "confidence": ts.get("confidence"),
         "provenance": (ts.get("provenance") or "").split(" —")[0],
         "components": comp,
@@ -87,54 +96,65 @@ def stats(x):
 
 out = {
     "generated": STAMP,
-    "engine": (take_rows[0]["provenance"] if take_rows else "deterministic_rubric_v4"),
+    "rubric": RUBRIC,
+    "engine": (take_rows[0]["provenance"] if take_rows else f"deterministic_rubric_{RUBRIC}"),
     "calibration": {"active": cal is not None, "n_references": cal.get("n_references") if cal else 0},
     "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
     "aggregate": {
-        "takes": {"n": len(take_rows), "overall_v4": stats([r["overall_v4"] for r in take_rows]),
-                  "capture_fair_v4": stats([r["capture_fair_v4"] for r in take_rows]),
+        "takes": {"n": len(take_rows), "overall": stats([r["overall"] for r in take_rows]),
+                  "capture_fair": stats([r["capture_fair"] for r in take_rows]),
                   "dynamics": stats([r["components"].get("dynamics_expression") for r in take_rows])},
-        "references": {"n": len(ref_rows), "overall_v4": stats([r["overall_v4"] for r in ref_rows])},
+        "references": {"n": len(ref_rows), "overall": stats([r["overall"] for r in ref_rows])},
     },
     "takes": take_rows, "references": ref_rows,
 }
 os.makedirs(OUTDIR, exist_ok=True)
-json.dump(out, open(os.path.join(OUTDIR, f"all-takes-rescore-v4-{STAMP}.json"), "w"), indent=2)
+json.dump(out, open(os.path.join(OUTDIR, f"all-takes-rescore-{RUBRIC}-{STAMP}.json"), "w"), indent=2)
 
 # ---- markdown ----
 def comp(r, k): return r["components"].get(k, "–")
-md = [f"# All takes — re-scored with the current engine (rubric v4, {STAMP})", "",
+md = [f"# All takes — re-scored with the current engine (rubric {RUBRIC}, {STAMP})", "",
       f"Every archived take re-scored with **{out['engine']}** "
       f"(calibration active, {out['calibration']['n_references']} pro references). "
       "Scores from superseded rubrics have been retired from the archive "
       "(retire_legacy_scores.py), so every number here is a current recompute — there are no "
       "stale scores left to quote. `cf` = capture-fair (voice_quality **and** dynamics "
-      "excluded — the capture-robust components).", "",
+      "excluded — the capture-robust components; **breath** is deliberately kept in, "
+      "because air running out is the singer, not the room).", "",
+      f"`breath` is new in {RUBRIC}. A blank means the analysis predates "
+      "`analyse_breath()` and has no phrase-sag data, so it scored on "
+      f"{len(ALL_COMPONENTS) - 1} of {len(ALL_COMPONENTS)} components (`coverage: partial`; "
+      "weights renormalised). Re-analyse those takes with the current engine to close "
+      "the gap — the difference is at most ~0.25 points, which is why they are still "
+      "shown rather than withheld.", "",
       "## Singer takes", "",
-      f"Overall v4: min {out['aggregate']['takes']['overall_v4']['min']} · "
-      f"max {out['aggregate']['takes']['overall_v4']['max']} · "
-      f"mean {out['aggregate']['takes']['overall_v4']['mean']}. "
-      f"Dynamics component now spreads {out['aggregate']['takes']['dynamics']['min']}–"
+      f"Overall: min {out['aggregate']['takes']['overall']['min']} · "
+      f"max {out['aggregate']['takes']['overall']['max']} · "
+      f"mean {out['aggregate']['takes']['overall']['mean']}. "
+      f"Dynamics component spreads {out['aggregate']['takes']['dynamics']['min']}–"
       f"{out['aggregate']['takes']['dynamics']['max']} (was a flat 10.0 for every take in v3).", "",
-      "| singer | song | notes | **v4** | cf | conf | inton | pitch | voice | vib | dyn | phrase |",
-      "|---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|"]
+      f"Full coverage: {sum(1 for r in take_rows if r['coverage'] == 'full')}/{len(take_rows)} takes.", "",
+      f"| singer | song | notes | **{RUBRIC}** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |",
+      "|---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|"]
 for r in take_rows:
     md.append(f"| {r['singer']} | {r['song']} | {r['n_notes']} | "
-              f"**{r['overall_v4']}** | {r['capture_fair_v4']} | {r['confidence']} | "
+              f"**{r['overall']}** | {r['capture_fair']} | {r['confidence']} | "
               f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
-              f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} |")
+              f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} | "
+              f"{comp(r,'breath_support')} |")
 md += ["", "## Professional references (calibration sanity check)", "",
-       f"Overall v4: min {out['aggregate']['references']['overall_v4'].get('min')} · "
-       f"max {out['aggregate']['references']['overall_v4'].get('max')} · "
-       f"mean {out['aggregate']['references']['overall_v4'].get('mean')} — pros should sit near the top.", "",
-       "| reference | v4 | cf | inton | pitch | voice | vib | dyn | phrase |",
-       "|---|--:|--:|--:|--:|--:|--:|--:|--:|"]
+       f"Overall: min {out['aggregate']['references']['overall'].get('min')} · "
+       f"max {out['aggregate']['references']['overall'].get('max')} · "
+       f"mean {out['aggregate']['references']['overall'].get('mean')} — pros should sit near the top.", "",
+       f"| reference | {RUBRIC} | cf | inton | pitch | voice | vib | dyn | phrase | breath |",
+       "|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|"]
 for r in ref_rows:
-    md.append(f"| {r['song']} | **{r['overall_v4']}** | {r['capture_fair_v4']} | "
+    md.append(f"| {r['song']} | **{r['overall']}** | {r['capture_fair']} | "
               f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
-              f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} |")
-open(os.path.join(OUTDIR, f"all-takes-rescore-v4-{STAMP}.md"), "w").write("\n".join(md) + "\n")
+              f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} | "
+              f"{comp(r,'breath_support')} |")
+open(os.path.join(OUTDIR, f"all-takes-rescore-{RUBRIC}-{STAMP}.md"), "w").write("\n".join(md) + "\n")
 print(f"takes={len(take_rows)} refs={len(ref_rows)}")
-print("takes overall_v4", out['aggregate']['takes']['overall_v4'])
+print("takes overall", out['aggregate']['takes']['overall'])
 print("takes dynamics  ", out['aggregate']['takes']['dynamics'])
-print("refs  overall_v4", out['aggregate']['references']['overall_v4'])
+print("refs  overall", out['aggregate']['references']['overall'])

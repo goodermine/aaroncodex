@@ -86,7 +86,7 @@ been listening to has no correction in it at all.
 ## Note on this take specifically
 
 Aaron's Pressure-Down-Cook analysis shows the sung pitch mostly *sliding* rather
-than sitting off-centre (see `HANDOFF_ALL_TAKES_SCORES_V4` and
+than sitting off-centre (see `HANDOFF_ALL_TAKES_SCORES_V5_2026-07-26.md` and
 `docs/practice/`). Auto Tune corrects toward a grid; it will not fix a note that
 sags 2 semitones over its length, and pushing the Tune amount up to chase that
 will sound artificial. Worth telling him so he doesn't expect the tuner to solve

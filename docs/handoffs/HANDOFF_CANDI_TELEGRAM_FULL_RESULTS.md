@@ -13,18 +13,22 @@ paths below.
 
 ## When Aaron says "pull main" — report the updated scores for the recent tracks
 
-After pulling `main`, **proactively give Aaron the updated v4 scores for every
+After pulling `main`, **proactively give Aaron the updated scores for every
 recent track** — don't wait to be asked track-by-track. The numbers are already
 committed, so this is a read, not a re-analysis:
 
-- **Read `docs/handoffs/HANDOFF_ALL_TAKES_SCORES_V4_2026-07-25.md`.** It is
-  self-contained: every take with its **v4 overall + capture-fair + confidence**,
-  already sorted by singer. Send Aaron that table (his takes) in the chat.
-- Machine-readable copy: `docs/score-metrics/all-takes-rescore-v4-2026-07-25.json`
+- **Read the newest `docs/handoffs/HANDOFF_ALL_TAKES_SCORES_V*.md`** (currently
+  `..._V5_2026-07-26.md`). It is self-contained: every take with its **overall +
+  capture-fair + confidence**, already sorted by singer. Send Aaron that table
+  (his takes) in the chat.
+- Machine-readable copy: the newest `docs/score-metrics/all-takes-rescore-*.json`
+  (the filename carries the rubric version — never hardcode one, the v4 tables
+  have been deleted and any future bump renames the file again)
   (per-take components + raw metrics) and the `.md` twin for the full breakdown.
-- These are the **rubric v4** scores (the fixed dynamics component). They
-  **supersede** any older number in a saved report or the v3 last-10 snapshot —
-  use v4.
+- These are **rubric v5** scores (breath support now counts, and counts inside
+  capture-fair). They **supersede** every v4 and earlier number — the v4 tables
+  and the v4 handoff have been deleted. Check `tools/score_preflight.py` exits 0
+  first; it tells you which rubric is live.
 
 If new takes have been analysed since that snapshot, regenerate the table before
 reporting so nothing is stale:
@@ -34,7 +38,7 @@ python3 docs/score-metrics/rescore_all.py
 ```
 
 That re-scores every archived take with the current engine and rewrites the
-`all-takes-rescore-v4-*` files. Then read back the refreshed table and report it.
+`all-takes-rescore-*` files. Then read back the refreshed table and report it.
 
 **What to give Aaron per track:** overall **and** capture-fair (lead with
 capture-fair for tavern/live/phone takes), plus confidence. For a single track he
@@ -82,7 +86,8 @@ full technical markdown — attach it alongside if you want the raw tables too.)
   provenance line — "Calibrated · 50 pro refs · 10 = a typical pro". This is what
   answers "is that a calibrated score or mine?".
 - **Every component** (intonation / pitch stability / voice / vibrato / dynamics
-  / phrase) with its basis.
+  / phrase / **breath support**) with its basis, plus the `coverage` line when a
+  take predates a module and scored on fewer than all seven.
 - **Every metric group**, the **trouble spots**, the **primary focus**, the
   **Measured / Inferred / Unverifiable** lists, and the **practice plan**.
 - A comparison block when a reference was compared.

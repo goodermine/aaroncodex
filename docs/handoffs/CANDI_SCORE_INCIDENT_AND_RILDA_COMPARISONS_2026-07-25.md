@@ -21,7 +21,8 @@ Status: needs manual review for cross-engine scoring; raw comparison findings ar
 > alternative reading; it came from a stale rubric carrying a known bug, and the
 > comparison engine's higher number was closer to correct. Do not quote 5.1 or
 > use it in progress trends — see
-> `HANDOFF_ALL_TAKES_SCORES_V4_2026-07-25.md`. The provenance-pinning work in
+> `HANDOFF_ALL_TAKES_SCORES_V5_2026-07-26.md` (the v4 handoff it originally named is deleted — every v4 score is
+> retired). The provenance-pinning work in
 > "Required canonical fix" below still stands; this resolves the specific
 > incident, not the general control gap.
 

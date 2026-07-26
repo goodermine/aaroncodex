@@ -235,7 +235,7 @@ Use one cue at a time:
 
 - `docs/handoffs/HANDOFF_PRESSURE_DOWN_COOK_SCORE.md` — Captain Cook take,
   25 July 2026.
-- `docs/handoffs/HANDOFF_ALL_TAKES_SCORES_V4_2026-07-25.md` — current scoring
+- `docs/handoffs/HANDOFF_ALL_TAKES_SCORES_V5_2026-07-26.md` — current scoring
   contract and take map.
 - `docs/practice/pressure-down-breath-support.pdf` — breath-support drills.
 - `openclaw-data/vox-coach/reports/handoffs/2026-07-23-aaron-ellis-vocal-handoff-DRAFT.md`
