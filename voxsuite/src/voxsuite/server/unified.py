@@ -131,6 +131,18 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
             raise HTTPException(404, "pitch monitor not installed")
         return HTMLResponse(path.read_text(encoding="utf-8"), headers={"Cache-Control": "no-cache"})
 
+    @app.get("/api/build")
+    def build() -> dict:
+        """Which build is live. Hashes the deck files this process actually reads,
+        plus the git commit of the checkout they come from — so "did the pull
+        reach the running service?" is answerable from a browser instead of by
+        reading source on the box."""
+        from .buildinfo import build_info
+        return build_info(shells, extra={
+            "vox-kit.css": STATIC / "vox-kit.css",
+            "vox-record.js": STATIC / "vox-record.js",
+        })
+
     @app.get("/favicon.ico")
     def favicon():
         return Response(status_code=204)  # no icon; keeps the console clean

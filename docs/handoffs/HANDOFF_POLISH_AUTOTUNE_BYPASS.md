@@ -91,3 +91,43 @@ than sitting off-centre (see `HANDOFF_ALL_TAKES_SCORES_V4` and
 sags 2 semitones over its length, and pushing the Tune amount up to chase that
 will sound artificial. Worth telling him so he doesn't expect the tuner to solve
 the breath-support issue.
+
+---
+
+## Follow-up (26 Jul): the fix was on main but not visible on the deployed deck
+
+Aaron re-checked after Candi re-pulled and the **Original** button still wasn't
+there. Verified: the fix **is** on `origin/main` (`54ff477`) in
+`voxpolish/src/voxpolish/server/static/deck.html`. So this is a deployment
+question, not a code one.
+
+Note the deck HTML is `read_text()` per request, so a `git pull` alone should make
+the Original button appear **without a restart**. The Python changes
+(`session.py`, `app.py`, `pitch.py`) *do* need a restart.
+
+**New: `GET /api/build`** (on both the unified server and standalone Polish)
+answers "which build is live" from a browser. It hashes the deck files the running
+process actually reads and reports the checkout's commit/branch/dirty state:
+
+```
+GET https://<host>/api/build
+```
+
+The fixed Polish deck hashes to **`a6be9074d2b8`**. If `decks.polish.sha1_12` is
+anything else, the running service is not reading the pulled file.
+
+Diagnostic order:
+
+1. **Hit `/api/build`.** Compare `decks.polish.sha1_12` to `a6be9074d2b8`, and
+   check `git.commit` is `54ff477…` or later.
+2. **Check `decks.polish.path` and `git.checkout`.** If that path is not inside
+   the directory Candi pulled, the service is running from a *different checkout*
+   (or a site-packages copy) — that is the most likely cause. Restart the service
+   from the pulled checkout, or reinstall.
+3. **Check `git.branch`.** If it is not `main`, the pull landed somewhere else.
+4. If the hash is right but the page still looks old, it is the **browser** —
+   hard-refresh; on iOS, close the tab and reopen.
+
+Also fixed: `deck.html` was missing from `_VERSIONED_ASSETS`, so the injected
+`?v=` cache-buster never changed when the deck changed. Harmless for the HTML
+(served no-cache) but it made the stamp useless as a change signal.

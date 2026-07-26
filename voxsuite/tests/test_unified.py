@@ -209,6 +209,22 @@ def test_polish_deck_can_ab_and_never_fails_a_module_silently():
         assert ".vox-rnotes{" in c.get("/static/vox-kit.css").text.replace(" ", "")
 
 
+def test_build_endpoint_identifies_the_live_build():
+    """A deployed fix looked absent because nothing on the page said which build
+    was live — "did the pull reach the running service?" could only be answered by
+    reading source on the box. /api/build hashes the deck files this process
+    actually reads and reports the checkout's commit."""
+    with tempfile.TemporaryDirectory() as tmp:
+        j = _client(tmp).get("/api/build").json()
+        assert set(j["decks"]) == {"fused", "analyze", "polish"}
+        for name, info in j["decks"].items():
+            assert info["exists"], name
+            assert info["sha1_12"] and len(info["sha1_12"]) == 12, name
+            assert info["path"].endswith("deck.html"), name
+        assert "git" in j and "commit" in j["git"]
+        assert "vox-kit.css" in j["assets"]
+
+
 def test_all_three_engine_apis_are_reachable():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)

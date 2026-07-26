@@ -44,7 +44,9 @@ _MODE_HINT_HTML = """<!doctype html><html><head><meta charset="utf-8">
 # Front-end assets whose content decides the cache-busting version stamped into
 # index.html. A changed file → new version → the browser refetches instead of
 # serving a stale cached UI (the "I updated it but still see the old look" bug).
-_VERSIONED_ASSETS = ("vox-tokens.css", "vox-kit.css", "style.css", "app.js", "vox-telemetry.js", "vox-about.js", "vox-theme.js", "vox-record.js", "vox-record.css")
+# deck.html included: without it the injected ?v= never changed when the deck
+# itself changed, so the stamp was useless as a "did my edit land?" signal.
+_VERSIONED_ASSETS = ("deck.html", "index.html", "vox-tokens.css", "vox-kit.css", "style.css", "app.js", "vox-telemetry.js", "vox-about.js", "vox-theme.js", "vox-record.js", "vox-record.css")
 
 
 def _asset_version() -> str:
@@ -95,6 +97,41 @@ def create_app(root: Path) -> FastAPI:
         Additive alongside the classic editor at /."""
         html = (STATIC / "deck.html").read_text().replace("__ASSET_VERSION__", _asset_version())
         return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
+
+    @app.get("/api/build")
+    def build():
+        """Which build is live — see the unified server's note. Duplicated here
+        (small, no shared dep) so a standalone Polish server can answer it too."""
+        import hashlib
+        import subprocess
+
+        def h(p: Path):
+            try:
+                return hashlib.sha1(p.read_bytes()).hexdigest()[:12]
+            except OSError:
+                return None
+
+        git = {"commit": None, "branch": None, "checkout": None}
+        try:
+            top = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=str(STATIC),
+                                 capture_output=True, text=True, timeout=5)
+            if top.returncode == 0:
+                git["checkout"] = top.stdout.strip()
+                for k, a in (("commit", ["rev-parse", "--short=12", "HEAD"]),
+                             ("branch", ["rev-parse", "--abbrev-ref", "HEAD"])):
+                    r = subprocess.run(["git"] + a, cwd=git["checkout"],
+                                       capture_output=True, text=True, timeout=5)
+                    if r.returncode == 0:
+                        git[k] = r.stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            pass
+        return {
+            "decks": {"polish": {"path": str(STATIC / "deck.html"),
+                                 "sha1_12": h(STATIC / "deck.html")}},
+            "assets": {n: h(STATIC / n) for n in ("vox-kit.css", "vox-record.js")},
+            "git": git,
+            "static_dir": str(STATIC),
+        }
 
     @app.get("/static/{name}")
     def static_file(name: str):
