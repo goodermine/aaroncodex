@@ -1,0 +1,11 @@
+# Normalise line endings for all text
+* text=auto eol=lf
+
+# Markdown is the source format
+*.md text diff=markdown
+
+# Binary assets — never diff or normalise
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.pdf binary

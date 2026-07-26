@@ -1,0 +1,21 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Temp / working
+*.tmp
+~$*
+.~lock.*
+
+# Training artefacts (regenerate, don't commit)
+/build/
+/dist/
+*.jsonl
+*.parquet
