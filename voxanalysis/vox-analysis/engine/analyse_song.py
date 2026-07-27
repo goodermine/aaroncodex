@@ -3695,7 +3695,12 @@ def main():
         "sample_rate": sr,
         "engine": {
             "parselmouth_available": PARSELMOUTH_AVAILABLE,
-            "measurement_policy": "voice-quality metrics restricted to sustained voiced notes; deterministic scoring rubric v1",
+            # Derived, not spelled out — this said "rubric v1" through four
+            # rubric versions, so every analysis JSON carried the wrong version
+            # in its own engine block.
+            "measurement_policy": (
+                "voice-quality metrics restricted to sustained voiced notes; "
+                f"deterministic scoring rubric {RUBRIC_VERSION}"),
         },
     }
 
