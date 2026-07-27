@@ -52,14 +52,27 @@ AUDIO_EXTS = (".flac", ".wav", ".mp3", ".m4a", ".mp4", ".aac", ".ogg", ".opus", 
 # convention or in typical download filenames.
 NOISE = {"official", "video", "audio", "lyrics", "lyric", "hd", "hq", "4k", "remastered",
          "remaster", "reference", "original", "music", "the", "a", "an", "and", "feat",
-         "ft", "live", "version", "mv", "youtube"}
+         "ft", "live", "version", "mv", "youtube", "single", "soundtrack", "performs",
+         # separator/pipeline words: these appear in the STEM filename and can
+         # never appear in a source file, so leaving them in guaranteed that the
+         # name test failed for every reference (observed: 0 confident of 50).
+         "vocals", "instrumental", "uvr", "mdxnet", "mdx", "net", "main", "roformer",
+         "mel", "band", "converted", "normalized", "flac", "wav", "mp3", "m4a"}
+
+
+def _is_id(word: str) -> bool:
+    """YouTube-style IDs (89dGC8de0CA, rYEDA3JcQqw) carry no shared meaning and
+    appear on only one side of a pairing, so they must not count against a
+    match."""
+    return len(word) >= 8 and any(c.isdigit() for c in word) and any(c.isalpha() for c in word)
 
 
 def norm_tokens(name: str) -> set[str]:
     base = os.path.splitext(os.path.basename(name))[0]
     base = re.sub(r"---[0-9a-f-]{8,}", " ", base)      # strip the uuid suffix
     words = re.split(r"[^a-z0-9]+", base.lower())
-    return {w for w in words if w and w not in NOISE and not w.isdigit()}
+    return {w for w in words
+            if w and w not in NOISE and not w.isdigit() and not _is_id(w)}
 
 
 def duration(path: str) -> float | None:
@@ -108,7 +121,12 @@ def main() -> int:
         data = json.load(open(r))
         key = os.path.basename(r).replace("_analysis.json", "")
         want = data.get("duration_seconds")
-        rtok = norm_tokens(data.get("analysis_input_file") or key)
+        rtok = norm_tokens(key)          # NOT analysis_input_file: that is the stem
+        exact = [(p, d, t) for p, d, t in src
+                 if os.path.splitext(os.path.basename(p))[0] == key and p not in used]
+        if exact:
+            confident.append((key, exact[0][0], want, exact[0][1])); used.add(exact[0][0])
+            continue
         near = [(p, d, t) for p, d, t in src
                 if want is not None and abs(d - want) <= args.tolerance and p not in used]
         named = [c for c in near if c[2] and rtok and rtok.issubset(c[2] | rtok) and rtok & c[2]

@@ -38,3 +38,13 @@ Thumbs.db
 # Vox analysis component keeps its own ignore rules (runtime uploads, engine
 # output, coaching data) in voxanalysis/.gitignore — preserved from the
 # original vox-cloud-alpha repository.
+
+# Host-side working directories that appear untracked in Candi's checkout.
+# Listed so a `git add -A` during a migration cannot commit a virtualenv or
+# gigabytes of separated audio into the repo.
+.venv-suite/
+.vox-suite-runtime/
+voxanalysis/vox-analysis/output/
+voxanalysis/vox-analysis/reports/
+voxanalysis/youtube-downloader/.venv-reference/
+*.pre-reanalysis
