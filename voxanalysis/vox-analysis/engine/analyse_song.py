@@ -2030,6 +2030,14 @@ DEFAULT_CALIBRATION_PATH = "calibration/pro_reference.json"
 # Minimum number of reference values before a calibrated anchor is trusted
 CALIBRATION_MIN_REFS = 5
 
+# The separation model this repo is pinned to — docs/models/separation-model.md
+# is the source of truth, and this mirrors it so the check is executable rather
+# than a document nobody reads. Mixing separators silently moved phrase-sag by up
+# to 29 points on the same song and invalidated a published diagnosis; preflight
+# now refuses a mixed archive.
+PINNED_SEPARATION_MODEL = "vocals_mel_band_roformer.ckpt"
+PINNED_SEPARATOR = "RoFormer"          # the marker _stem_model() returns for it
+
 # Minimum phrases before breath_support is scored. A "% of endings that sag"
 # taken over 3 phrases is noise, not breath support — better to drop the
 # component (weights renormalise) than to publish a number off two endings.

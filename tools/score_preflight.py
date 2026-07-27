@@ -105,6 +105,58 @@ def main() -> int:
         return 1
     print(f"{OK}  no legacy scores left in the archive")
 
+    # 4. one separation model across everything that gets compared.
+    #
+    # Separation is upstream of every measurement, and mixing models is invisible
+    # in the numbers themselves. Measured on this archive, the SAME SONG under
+    # MDX-NET vs Mel-Band RoFormer moved phrase-ending sag by up to 29 points in
+    # both directions — larger than the effects being diagnosed. That silently
+    # invalidated a published finding before anyone noticed, because raw measures
+    # carry no provenance gate the way scores do. So the check lives here.
+    CAL_REFS = os.path.join(ROOT, "voxanalysis/vox-analysis/engine/calibration/references")
+    seen = {}
+    for path in sorted(glob.glob(os.path.join(ARCHIVE, "*_analysis.json"))
+                       + glob.glob(os.path.join(CAL_REFS, "*_analysis.json"))):
+        try:
+            with open(path) as fh:
+                data = json.load(fh) or {}
+        except (OSError, json.JSONDecodeError):
+            continue
+        model = A._stem_model(data)
+        if model:
+            seen.setdefault(model, []).append(os.path.basename(path))
+
+    if len(seen) > 1:
+        print(f"{FAIL}  the archive is separated by {len(seen)} different models — "
+              f"measurements across them are NOT comparable:")
+        for model, files in sorted(seen.items(), key=lambda kv: -len(kv[1])):
+            mark = "  <- pinned" if model == A.PINNED_SEPARATOR else ""
+            print(f"        - {model}: {len(files)} analyses{mark}")
+        off = [m for m in seen if m != A.PINNED_SEPARATOR]
+        print(f"\n      Pinned model: {A.PINNED_SEPARATION_MODEL} "
+              f"(docs/models/separation-model.md)")
+        print(f"      DO NOT publish a score or compare takes until this is one model.")
+        print(f"      Fix: re-separate everything on {', '.join(off)} with the pinned")
+        print("      model, re-analyse, rebuild the calibration pack, then re-score:")
+        print("        bash voxanalysis/vox-analysis/engine/tools/stems/batch_stems.sh …")
+        print("        python3 tools/analyse_takes.py <stems> --write --force")
+        print("        python3 voxanalysis/vox-analysis/engine/tools/build_calibration.py \\")
+        print("            voxanalysis/vox-analysis/engine/calibration/references \\")
+        print("            --out voxanalysis/vox-analysis/engine/calibration/pro_reference.json")
+        print("        python3 docs/score-metrics/retire_legacy_scores.py")
+        print("        python3 docs/score-metrics/rescore_all.py")
+        print("        python3 tools/score_preflight.py --update   # re-pin the contract")
+        return 1
+
+    if seen and A.PINNED_SEPARATOR not in seen:
+        only = next(iter(seen))
+        print(f"{WARN}  everything is separated by {only}, but the repo pins "
+              f"{A.PINNED_SEPARATION_MODEL}.")
+        print("      Internally consistent, so comparisons are valid — but the pinned")
+        print("      model is the MIT-licensed one. Migrate before shipping publicly.")
+    else:
+        print(f"{OK}  one separation model throughout: {A.PINNED_SEPARATOR}")
+
     print("\nPREFLIGHT PASSED — safe to score and publish.")
     return 0
 
