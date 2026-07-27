@@ -1673,7 +1673,14 @@ def analyse_breath(y, sr, f0, hop_length=512):
         "n_sagging_endings": len(sagging),
         "pct_sagging_endings": round(len(sagging) / measured * 100, 1) if measured else None,
         "sagging_phrase_ends": sagging[:10],
-        "note": "Sagging endings on LONG phrases suggest breath running out; on short phrases, intentional fall-offs are common in rock/soul — judge by ear.",
+        "note": (
+            "Sagging endings on LONG phrases suggest breath running out; on short "
+            "phrases, intentional fall-offs are common in rock/soul — judge by ear. "
+            "MEASUREMENT CAVEAT: the tail window is a fixed 0.5 s, not a proportion "
+            "of the phrase. On material whose phrases are shorter than about 1 s the "
+            "window spans most of the phrase (and possibly what precedes it), so the "
+            "slope it fits is not the same quantity measured on a 5 s phrase. Compare "
+            "pct_sagging_endings between takes of similar median_phrase_s."),
     }
 
 
