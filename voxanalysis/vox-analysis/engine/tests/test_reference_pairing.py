@@ -60,7 +60,20 @@ TRUE_PAIRS = [
     ("Bon_Jovi_-_Livin_On_A_Prayer_lDK9QqIzhwk_1---33c3d53e", "Bon Jovi - Livin On A Prayer.webm"),
 ]
 
+ACCENTED = [
+    # The stored reference name transliterates the accent to a separator, so
+    # "Céline" is held as "Ce_line" -> {ce, line} while any download has {celine}.
+    ("Ce_line_Dion_My_Heart_Will_Go_On_Official_Audio_mNsm2P0l_7Y---97672687",
+     "Celine_Dion_-_My_Heart_Will_Go_On_Official_Audio__mNsm2P0l7Y.mp3"),
+    ("Ce_line_Dion_My_Heart_Will_Go_On", "Celine Dion - My Heart Will Go On.mp3"),
+]
+
+
 TRAPS = [
+    # Dimash covers the SAME SONG as the Celine reference. Rejoining the split
+    # name must not make every My Heart Will Go On interchangeable.
+    ("Ce_line_Dion_My_Heart_Will_Go_On_Official_Audio_mNsm2P0l_7Y---97672687",
+     "Incredible_performance_of_Titanic_My_heart_will_go_on_by_DIMASH.mp3"),
     # 244.98s vs 244.6s — different songs, would have entered the pack
     ("Hot_Chocolate-_You_Sexy_Thing_original_YUY9Y9RFiHY", "On_The_Radio__qqi-8nv5ngk.mp3"),
     # 302.35s vs 300.7s
@@ -78,6 +91,13 @@ TRAPS = [
     ("idina-menzel-let-it-go", "Beyonce_-_Halo__bnVUHWCynig.mp3"),
     ("teddy-swims-lose-control", "Alicia_Keys_-_If_I_Ain_t_Got_You_Official_HD_Video__Ju8Hr50Ckwk.mp3"),
 ]
+
+
+def test_transliterated_accents_still_pair():
+    """Renaming the source file would hide this and it would recur on the next
+    accented artist."""
+    missed = [(r, c) for r, c in ACCENTED if not agree(r, c)]
+    assert not missed, f"failed to pair across a transliterated accent: {missed}"
 
 
 def test_real_pairs_are_matched():

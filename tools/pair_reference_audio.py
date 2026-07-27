@@ -111,6 +111,22 @@ def names_agree(rtok: set[str], ctok: set[str]) -> bool:
     ("one", "halo") is not evidence."""
     if not rtok or not ctok:
         return False
+    # Accented letters are transliterated to a separator in the stored reference
+    # names, so "Céline" is held as "Ce_line" -> {ce, line} while the download
+    # has {celine}. Re-join reference fragments that concatenate to a candidate
+    # word (and vice versa) before comparing. Exact concatenation only, so this
+    # cannot invent a match between unrelated words.
+    def _merge(into: set[str], other: set[str]) -> set[str]:
+        merged = set(into)
+        for w in other:
+            for a in into:
+                for b in into:
+                    if a is not b and a + b == w:
+                        merged -= {a, b}
+                        merged.add(w)
+        return merged
+
+    rtok, ctok = _merge(rtok, ctok), _merge(ctok, rtok)
     # Pair up near-identical words before intersecting, so a contraction split
     # does not read as a missing word.
     ctok = {next((r for r in rtok if _same_word(r, c)), c) for c in ctok}
