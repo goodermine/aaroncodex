@@ -319,8 +319,13 @@ def compare_with_reference(take_json: Path, reference_json: Path) -> tuple[dict,
     # too harsh, so an unguarded take-vs-original comparison invents a gap that
     # isn't there. On conflict the raw contour measures are still reported — only
     # the score pair is withheld, with the reason stated.
-    from analyse_song import score_conflict
+    from analyse_song import breath_vs_reference, score_conflict
     conflict = score_conflict(take_score, reference_score)
+    # Phrase-ending fall rate against the SAME SONG's original. Raw percentages,
+    # so unlike the score pair this is never withheld — the rate is strongly
+    # song-dependent (10-55% across the reference pack), which makes the absolute
+    # figure partly a measure of repertoire choice rather than of the singer.
+    breath_delta = breath_vs_reference(take_data, reference_data)
     comparison = {
         "method": "banded_dtw_on_voxai_v2_contours",
         "transposition_semitones": semitones,
@@ -333,6 +338,7 @@ def compare_with_reference(take_json: Path, reference_json: Path) -> tuple[dict,
         "original_capture_fair": None if conflict else reference_score.get("capture_fair_score_0_to_10"),
         "scores_comparable": conflict is None,
         "score_comparison_withheld_reason": conflict,
+        "breath_vs_original": breath_delta,
         "note": "Transposition is reported and removed before melody similarity is measured. Differences may be deliberate interpretation.",
     }
     return comparison, aligned

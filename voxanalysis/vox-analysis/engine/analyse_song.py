@@ -1684,6 +1684,89 @@ def analyse_breath(y, sr, f0, hop_length=512):
     }
 
 
+def breath_vs_reference(take_results, reference_results):
+    """Phrase-ending fall rate of a take against the ORIGINAL RECORDING of the
+    same song. Returns raw measures only — never a score.
+
+    Why this exists. `pct_sagging_endings` is scored against one pooled
+    professional median (34.85%), but the rate is heavily song-dependent: across
+    the reference pack it runs from 10.3% (Kryptonite) to 55.1% (Livin' On A
+    Prayer). So an absolute rate partly measures which songs a singer chose. The
+    delta against the same song's original removes that, and it reorders the
+    conclusions — a take at 53.9% against an original at 10.3% is a far bigger
+    departure than one at 59.2% against an original at 55.1%, though the absolute
+    scores say the opposite.
+
+    This is a RAW measure (percentages and cents), so it carries no provenance
+    gate: per the repo's rules only *scores* need matching rubric + calibration,
+    while raw metrics are always comparable. Nothing here may become a /10.
+
+    Read it with two caveats, both stated in the payload:
+      * The measure counts downward pitch releases, not breath failure
+        specifically. Flagged endings drop 200-600 cents at the median for
+        professionals too — those are stylistic fall-offs. A positive delta means
+        "falls off more often than the record does", which may be a phrasing
+        choice rather than running out of air. Listen at the timestamps.
+      * The tail window is a fixed 0.5 s, so takes with very different median
+        phrase lengths are not measuring quite the same thing.
+    """
+    take = (take_results or {}).get("breath") or {}
+    ref = (reference_results or {}).get("breath") or {}
+    take_pct, ref_pct = take.get("pct_sagging_endings"), ref.get("pct_sagging_endings")
+    if take_pct is None or ref_pct is None:
+        missing = "take" if take_pct is None else "original"
+        return {"available": False,
+                "reason": f"no phrase-sag measurement for the {missing} "
+                          f"(too few phrases, or analysed before analyse_breath existed)"}
+
+    def _median_sag(block):
+        vals = [e.get("sag_cents") for e in (block.get("sagging_phrase_ends") or [])
+                if e.get("sag_cents") is not None]
+        return round(float(np.median(vals)), 1) if vals else None
+
+    delta = round(float(take_pct) - float(ref_pct), 1)
+    take_phrase = ((take_results or {}).get("phrasing") or {}).get("median_phrase_s")
+    ref_phrase = ((reference_results or {}).get("phrasing") or {}).get("median_phrase_s")
+    phrase_gap = (abs(take_phrase - ref_phrase)
+                  if take_phrase is not None and ref_phrase is not None else None)
+
+    if delta <= -8:
+        read = "holds phrase endings MORE than the original recording does"
+    elif delta < 8:
+        read = "matches the original recording's own phrasing"
+    elif delta < 20:
+        read = "falls off at more phrase endings than the original recording"
+    else:
+        read = "falls off at substantially more phrase endings than the original recording"
+
+    return {
+        "available": True,
+        "take_pct_sagging_endings": take_pct,
+        "original_pct_sagging_endings": ref_pct,
+        "delta_percentage_points": delta,
+        "take_n_phrases_measured": take.get("n_phrases_measured"),
+        "original_n_phrases_measured": ref.get("n_phrases_measured"),
+        "take_median_sag_cents": _median_sag(take),
+        "original_median_sag_cents": _median_sag(ref),
+        "take_median_phrase_s": take_phrase,
+        "original_median_phrase_s": ref_phrase,
+        "read": read,
+        "comparable_phrase_lengths": None if phrase_gap is None else phrase_gap <= 1.0,
+        "note": (
+            "Raw measure, not a score — always comparable, no rubric matching needed. "
+            "Counts downward pitch releases at phrase ends, which include deliberate "
+            "fall-offs: flagged endings drop hundreds of cents for professionals too. "
+            "A positive delta means falling off more often than the record does, which "
+            "may be phrasing rather than breath — confirm at the timestamps before "
+            "prescribing support work."
+            + ("" if phrase_gap is None or phrase_gap <= 1.0 else
+               f" CAUTION: median phrase lengths differ by {phrase_gap:.1f} s, and the "
+               "0.5 s tail window is a fixed duration — these two are not measuring "
+               "quite the same thing.")
+        ),
+    }
+
+
 def _beat_grid(path, sr, label, hop_length=512):
     """Beat-track a backing reference. Returns (grid_dict, error). Beat tracking
     is designed for full mixes with percussion, so both the original mix and the

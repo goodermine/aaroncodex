@@ -601,6 +601,27 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
         for key, val in comparison.items():
             if isinstance(val, (int, float, str, bool)):
                 line(f"- {key}: {val}")
+        # Nested blocks are skipped by the scalar loop above, which would drop
+        # them from the full results entirely. Rendered explicitly instead.
+        breath = comparison.get("breath_vs_original")
+        if isinstance(breath, dict) and breath.get("available"):
+            delta = breath["delta_percentage_points"]
+            line(f"- Phrase endings that fall away: you {breath['take_pct_sagging_endings']}% "
+                 f"vs the original {breath['original_pct_sagging_endings']}% "
+                 f"({delta:+.1f} points) — {breath['read']}")
+            line(f"  Measured over {breath.get('take_n_phrases_measured')} of your phrase "
+                 f"endings and {breath.get('original_n_phrases_measured')} of the original's. "
+                 f"Typical drop {breath.get('take_median_sag_cents')} cents vs "
+                 f"{breath.get('original_median_sag_cents')} cents.")
+            if breath.get("comparable_phrase_lengths") is False:
+                line(f"  CAUTION: phrase lengths differ "
+                     f"({breath.get('take_median_phrase_s')}s vs "
+                     f"{breath.get('original_median_phrase_s')}s) — read this one loosely.")
+            line("  This counts falling phrase ends, which include deliberate fall-offs — "
+                 "professionals' flagged endings drop hundreds of cents too. Confirm by ear "
+                 "before treating it as breath support.")
+        elif isinstance(breath, dict):
+            line(f"- Phrase-ending comparison unavailable: {breath.get('reason')}")
 
     line("")
     line("Deterministic VOXAI rubric — identical audio gives identical scores; "
