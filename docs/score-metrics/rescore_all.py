@@ -20,7 +20,17 @@ from analyse_song import (  # noqa: E402
 ARCH = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
 OUTDIR = os.path.join(ROOT, "docs/score-metrics")
 cal = load_calibration(DEFAULT_CALIBRATION_PATH)
-SINGERS = ("aaron", "rilda", "chris", "leo")
+# Aaron and Aaron G are DIFFERENT SINGERS and must never be merged: Vienna,
+# 1973 and If You Could Read My Mind are Aaron G's. Matching is on a token
+# boundary, longest name first, because neither naive approach works:
+#   plain substring "aaron"   -> swallows every aaron-g take into Aaron
+#   plain substring "aaron-g" -> swallows "aaron-goodbye-s-been-good-to-you"
+# The trailing hyphen is what separates "aaron-g-vienna" from "aaron-goodbye".
+SINGERS = ("aaron-g", "aaron", "rilda", "chris", "leo")
+
+
+def _sings(name, token):
+    return re.search(rf"(?:^|-){re.escape(token)}-", name.lower()) is not None
 # Rubric label and filenames come from the ENGINE, never a literal: a
 # hardcoded "v4" here wrote v5 scores into a file named -v4- on the first
 # rubric bump, which is precisely the stale-label failure this repo guards.
@@ -28,12 +38,12 @@ RUBRIC = RUBRIC_VERSION
 STAMP = os.environ.get("RESCORE_STAMP") or date.today().isoformat()
 
 
-def is_take(name): return any(s in name.lower() for s in SINGERS)
+def is_take(name): return any(_sings(name, s) for s in SINGERS)
 def date_of(name):
     m = re.search(r"20\d\d-\d\d-\d\d", name); return m.group(0) if m else "0000-00-00"
 def singer(name):
-    for s in SINGERS:
-        if s in name.lower(): return s
+    for s in SINGERS:                      # longest first: aaron-g before aaron
+        if _sings(name, s): return s
     return "reference"
 def song(name):
     b = re.sub(r"_analysis$", "", name)

@@ -14,9 +14,6 @@ Full coverage: 1/35 takes.
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
 | aaron | danger-zone-new-studio-take-002 | 178 | **9.5** | 9.5 | high | 9.52 | 10.0 | 10.0 | 8.6 | 9.14 | 10.0 | – |
 | aaron | danger-zone-take-003 | 177 | **8.7** | 8.5 | high | 7.62 | 8.11 | 10.0 | 9.19 | 7.73 | 10.0 | – |
-| aaron | 1973-take-001 | 168 | **8.3** | 7.6 | high | 5.71 | 10.0 | 10.0 | 10.0 | 9.27 | 5.29 | – |
-| aaron | if-you-could-read-my-mind-take-001 | 208 | **9.3** | 9.2 | high | 9.52 | 7.55 | 10.0 | 10.0 | 8.48 | 10.0 | – |
-| aaron | vienna-take-001 | 175 | **9.7** | 9.6 | high | 9.52 | 9.23 | 10.0 | 10.0 | 9.43 | 10.0 | – |
 | aaron | kryptonite-mango-hill-tavern-take-001 | 176 | **8.0** | 8.7 | high | 9.52 | 6.75 | 4.3 | 9.25 | 9.73 | 8.66 | – |
 | aaron | lets-stay-together-new-studio-take-001 | 194 | **7.7** | 6.5 | high | 5.71 | 2.75 | 10.0 | 9.09 | 9.88 | 10.0 | – |
 | aaron | the-heat-is-on-captain-cook-tavern-take-001 | 278 | **7.6** | 8.8 | high | 9.52 | 10.0 | 2.41 | 8.53 | 9.44 | 5.75 | – |
@@ -40,6 +37,9 @@ Full coverage: 1/35 takes.
 | aaron | pressure-down-captain-cook-tavern-take-001 | 227 | **8.2** | 9.2 | high | 9.52 | 10.0 | 4.64 | 8.72 | 7.92 | 9.94 | 7.43 |
 | aaron | pressure-down-take-007 | 224 | **7.6** | 7.8 | high | 7.62 | 8.05 | 5.33 | 8.34 | 9.74 | 7.03 | – |
 | aaron | tutti-frutti-take-001 | 154 | **8.5** | 7.8 | high | 7.62 | 5.29 | 10.0 | 9.05 | 9.95 | 10.0 | – |
+| aaron-g | 1973-take-001 | 168 | **8.3** | 7.6 | high | 5.71 | 10.0 | 10.0 | 10.0 | 9.27 | 5.29 | – |
+| aaron-g | if-you-could-read-my-mind-take-001 | 208 | **9.3** | 9.2 | high | 9.52 | 7.55 | 10.0 | 10.0 | 8.48 | 10.0 | – |
+| aaron-g | vienna-take-001 | 175 | **9.7** | 9.6 | high | 9.52 | 9.23 | 10.0 | 10.0 | 9.43 | 10.0 | – |
 | chris | feeling-good-take-001 | 221 | **7.7** | 8.4 | high | 7.62 | 6.97 | 3.73 | 10.0 | 9.97 | 10.0 | – |
 | leo | chasin-that-neon-rainbow | 202 | **8.3** | 9.7 | high | 9.52 | 10.0 | 4.53 | 9.4 | 7.45 | 10.0 | – |
 | rilda | lets-stay-together-home-take-001 | 199 | **7.8** | 7.0 | high | 7.62 | 1.23 | 10.0 | 9.75 | 8.16 | 10.0 | – |
