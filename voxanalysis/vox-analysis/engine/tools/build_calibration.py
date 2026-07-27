@@ -120,6 +120,31 @@ def main():
         print("No analysis JSONs found.")
         return 1
 
+    # A pack must come from ONE separation model. Anchors blended across two
+    # separators define "10" from a mixture, and every score in the system is
+    # measured against them — invisible afterwards. Observed for real: a run that
+    # re-separated 41 of 50 references produced a pack from 41 RoFormer + 9
+    # MDX-NET analyses and reported success.
+    seps = {}
+    for path in json_paths:
+        try:
+            with open(path) as fh:
+                name = str((json.load(fh) or {}).get("analysis_input_file") or "").lower()
+        except (OSError, json.JSONDecodeError):
+            continue
+        for marker in ("mel_band_roformer", "roformer", "uvr_mdxnet_main", "uvr-mdx-net", "mdxnet"):
+            if marker in name:
+                seps.setdefault("RoFormer" if "roformer" in marker else marker, []).append(path)
+                break
+    if len(seps) > 1:
+        print("REFUSING to build: the references use more than one separation model.")
+        for model, files in sorted(seps.items(), key=lambda kv: -len(kv[1])):
+            print(f"  {model}: {len(files)}")
+        print("\nRe-separate the minority set with the pinned model first —")
+        print("docs/models/separation-model.md. A blended pack silently redefines"
+              " what 10 means.")
+        return 1
+
     values = {key: [] for key in METRIC_PATHS}
     sources = []
     excluded = []
