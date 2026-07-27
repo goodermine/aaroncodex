@@ -1,0 +1,128 @@
+{
+  "file_name": "2026-06-18-aaron-you-sexy-thing-take-001_(Vocals)_UVR-MDX-NET-Inst_HQ_3_converted.wav",
+  "analysis_input_file": "2026-06-18-aaron-you-sexy-thing-take-001_(Vocals)_UVR-MDX-NET-Inst_HQ_3_converted.wav",
+  "analysed_at": "2026-07-27T12:31:19",
+  "artist_name": "Aaron",
+  "duration_seconds": 0.08,
+  "sample_rate": 44100,
+  "engine": {
+    "parselmouth_available": true,
+    "measurement_policy": "voice-quality metrics restricted to sustained voiced notes; deterministic scoring rubric v5"
+  },
+  "pitch": {
+    "error": "Insufficient voiced frames detected. Check audio quality."
+  },
+  "harmonic_balance": {
+    "harmonic_residual_db": -21.25,
+    "harmonic_percussive_db": -21.25,
+    "method": "hpss_whole_file",
+    "note": "Global tonal-balance descriptor over the whole file (includes silence/consonants). NOT clinical HNR \u2014 see voice_quality.hnr_db_median."
+  },
+  "resonance": {
+    "singers_formant_ratio_db": -5.36,
+    "singers_formant_read": "Strong ring/projection",
+    "singers_formant_note": "Median 2-4 kHz vs 80 Hz-2 kHz energy on active frames. Heuristic bands; NOT part of the technical score \u2014 no pro-pack anchors exist for it yet (unlike CPPS, which is anchored and scored).",
+    "spectral_centroid_mean_hz": 11548.72,
+    "spectral_centroid_median_hz": 11903.55,
+    "spectral_rolloff_85_mean_hz": 15085.55,
+    "spectral_rolloff_95_mean_hz": 18638.53,
+    "spectral_flatness_mean": 0.096149,
+    "spectral_bandwidth_mean_hz": 4466.11,
+    "spectral_contrast_overall_mean_db": 10.82,
+    "active_frame_percentage": 100.0,
+    "resonance_classification": "Bright / Forward / Twangy",
+    "method": "librosa_active_frames_only"
+  },
+  "dynamics": {
+    "mean_rms_db": -9.8,
+    "median_rms_db": -0.01,
+    "full_dynamic_range_db": 24.84,
+    "effective_dynamic_range_db": 23.08,
+    "p10_db": -23.08,
+    "p90_db": -0.0,
+    "zcr_mean": 0.496582,
+    "reference_note": "dB relative to the loudest frame in this file (internal contrast, not absolute loudness)."
+  },
+  "rhythm": {
+    "measures": "onset density & regularity of the vocal delivery \u2014 NOT timing vs the backing (see groove)",
+    "estimated_tempo_bpm": 120.2,
+    "tempo_confidence": "medium",
+    "timing_vs_backing": "scored separately by analyse_groove (canonical)",
+    "total_onsets": 1,
+    "onsets_per_second": 12.76
+  },
+  "technical_score": {
+    "identity": {
+      "contract": "voxai_score_v1",
+      "rubric": "deterministic_rubric_v5",
+      "rubric_fingerprint": "7cbd02df8f62",
+      "calibrated": true,
+      "calibration_references": 50,
+      "calibration_fingerprint": "0da01ef1e30f",
+      "stem_model": "UVR-MDX-NET",
+      "take_fingerprint": "d35a6f9a3be2"
+    },
+    "overall_score_0_to_10": 6.8,
+    "capture_fair_score_0_to_10": 6.8,
+    "capture_fair_note": "Rubric with the capture-sensitive components (voice_quality and dynamics_expression) excluded (weights renormalised). Jitter/shimmer/HNR and effective dynamic range partly measure the recording chain and stem-separation artefacts: vintage masters run through separation read far worse than clean modern captures of an equal voice. Use capture_fair on BOTH sides for any take-vs-original or cross-era comparison; use overall_score for a singer's absolute result and self-progress. Note breath_support is deliberately NOT excluded: phrase-ending sag is air running out, not the room, so it is scored on a phone or room take like any other.",
+    "provenance": "deterministic_rubric_v5 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
+    "calibration": {
+      "active": true,
+      "file": "/tmp/aaroncodex-handoff-1296659/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
+      "n_references": 50,
+      "note": null
+    },
+    "confidence": "low",
+    "confidence_basis": {
+      "praat_metrics_available": false,
+      "n_sustained_notes": 0,
+      "capture_risk_elevated": false
+    },
+    "components": {
+      "dynamics_expression": {
+        "weight": 0.15,
+        "input": "effective range 23.08 dB (pro p10/p50/p90 23.993/38.77/51.792)",
+        "formula": "best of phrase-level shaping and effective range, graded to the pro distribution (10 at the professional median, ~7 across the pro range, floored not zeroed beyond it)",
+        "capture_sensitive": true,
+        "score": 6.83
+      }
+    },
+    "weights_note": "Weights renormalised over measurable components.",
+    "components_scored": [
+      "dynamics_expression"
+    ],
+    "components_unscored": [
+      "intonation_accuracy",
+      "pitch_stability",
+      "voice_quality",
+      "vibrato_control",
+      "phrase_control",
+      "breath_support"
+    ],
+    "coverage": "partial",
+    "coverage_note": "Scored on 1 of 7 components (intonation_accuracy, pitch_stability, voice_quality, vibrato_control, phrase_control, breath_support not measurable in this analysis; weights renormalised over the rest). Raw metrics are unaffected. Deliberately NOT treated as a provenance conflict: on the 50-reference pack the full-vs-partial difference is at most ~0.25 points, so refusing to compare would cost more than the distortion it avoids. Re-analyse the take with the current engine to close the gap.",
+    "scope_note": "Technical execution only. Artistry, emotion, interpretation and style-appropriateness are human judgements and are not part of this number. Any 'listener impact' figure elsewhere in a report is a subjective estimate, not a measurement."
+  },
+  "prescriptions": {
+    "method": "deterministic_prescription_engine_v1 \u2014 rules over measured values; exercise content verbatim from the library; no LLM selection",
+    "map_version": "prescription_map_v1",
+    "library_hash_verified": true,
+    "library_hash_note": null,
+    "primary": null,
+    "supporting": [],
+    "guards_applied": [],
+    "no_direct_coverage": [],
+    "note": "No limiter triggered \u2014 no drill prescribed (exercises are prescriptions, not rewards)."
+  },
+  "archetype": "Hybrid",
+  "diagnostic_flags": [
+    {
+      "category": "Resonance",
+      "flag": "High spectral centroid \u2014 bright/forward resonance",
+      "value": "11548.72 Hz (active frames only)",
+      "interpretation": "Strong forward placement. Good projection and cut.",
+      "likely_cause": "Aryepiglottic twang / raised larynx / wide oral cavity.",
+      "intervention": "Maintain \u2014 no correction needed. Monitor for laryngeal elevation."
+    }
+  ]
+}
