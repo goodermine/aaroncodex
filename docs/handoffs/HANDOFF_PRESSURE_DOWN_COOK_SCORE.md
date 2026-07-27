@@ -65,7 +65,7 @@ range could crater the component to **0.0** and drag or invalidate the score.
 **Change the guard to:** withhold only on a genuine **provenance conflict**
 (`is_legacy_score()` / `score_conflict()` from `analyse_song`), never on
 capture-sensitive dynamics. See `HANDOFF_SCORE_PROVENANCE.md`. A zeroed dynamics
-component can no longer occur under v4, so a rule keyed to it will only ever
+component can no longer occur under v4 or v5, so a rule keyed to it will only ever
 produce false withholdings like this one.
 
 ## Reproducing it

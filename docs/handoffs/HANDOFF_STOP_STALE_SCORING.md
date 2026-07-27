@@ -120,8 +120,9 @@ actually stop the recurrence:
    `python3 tools/score_preflight.py` and refuse to send a `/10` on non-zero exit.
 
 Then update the withholding rule per CLAUDE.md §4 — the dynamics-zero condition
-cannot occur under v4 and only causes false withholdings (it blocked Aaron's best
-Pressure Down take, 8.3 / **9.5 capture-fair**).
+cannot occur under v4 or v5 and only causes false withholdings (it blocked
+Aaron's best Pressure Down take, which reads **8.2 / 9.2 capture-fair** under v5;
+the 8.3 / 9.5 it read under v4 is retired — do not quote it).
 
 ## Why this should hold
 
