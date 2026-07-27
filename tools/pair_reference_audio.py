@@ -69,10 +69,40 @@ def _is_id(word: str) -> bool:
 
 def norm_tokens(name: str) -> set[str]:
     base = os.path.splitext(os.path.basename(name))[0]
-    base = re.sub(r"---[0-9a-f-]{8,}", " ", base)      # strip the uuid suffix
+    base = re.sub(r"---[0-9a-f-]{8,}", " ", base)      # uuid suffix
+    base = re.sub(r"\[[^\]]*\]", " ", base)            # "[1f-R9R-3YoE]" download ids
+    base = re.sub(r"__[A-Za-z0-9_-]{6,}$", " ", base)  # "__qqi-8nv5ngk" trailing ids
+    # Both split on punctuation into short fragments ("qqi", "1f") that survive
+    # the id filter and then count against a match.
     words = re.split(r"[^a-z0-9]+", base.lower())
-    return {w for w in words
-            if w and w not in NOISE and not w.isdigit() and not _is_id(w)}
+    out = set()
+    for w in words:
+        if not w or w in NOISE or w.isdigit() or _is_id(w) or len(w) == 1:
+            continue                      # len 1: apostrophe debris ("let_s" -> let, s)
+        out.add(w[:-1] if len(w) > 3 and w.endswith("s") else w)   # lets == let
+    return out
+
+
+def names_agree(rtok: set[str], ctok: set[str]) -> bool:
+    """Bidirectional: source files are frequently titled with the SONG ONLY
+    ("Chasin_That_Neon_Rainbow") while the reference basename carries artist and
+    song ("alan-jackson-chasin-that-neon-rainbow"). Demanding the reference's
+    tokens appear in the candidate rejects those, so containment either way
+    counts — with a floor of 2 shared tokens, since a single common word
+    ("one", "halo") is not evidence."""
+    if not rtok or not ctok:
+        return False
+    shared = rtok & ctok
+    if len(shared) == 1 and shared == ctok and len(next(iter(shared))) >= 6:
+        return True          # one-word titles: "Kryptonite.mp3" is distinctive
+    if len(shared) < 2:
+        return False
+    if shared == ctok or shared == rtok:
+        return True
+    # Apostrophes split unevenly ("youre" one side, "you"+"re" the other), so
+    # allow a two-token shortfall once at least three tokens already agree.
+    limit = max(len(rtok), len(ctok)) - (2 if len(shared) >= 3 else 1)
+    return len(shared) >= limit
 
 
 def duration(path: str) -> float | None:
@@ -129,8 +159,7 @@ def main() -> int:
             continue
         near = [(p, d, t) for p, d, t in src
                 if want is not None and abs(d - want) <= args.tolerance and p not in used]
-        named = [c for c in near if c[2] and rtok and rtok.issubset(c[2] | rtok) and rtok & c[2]
-                 and len(rtok & c[2]) >= max(1, len(rtok) - 1)]
+        named = [c for c in near if names_agree(rtok, c[2])]
         if len(named) == 1:
             confident.append((key, named[0][0], want, named[0][1])); used.add(named[0][0])
         elif len(near) == 1:
