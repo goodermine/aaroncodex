@@ -126,3 +126,59 @@ housekeeping:
 
 A third, smaller one already noted in `HANDOFF_AARON_FIVE_MONTH_FINDINGS.md`: the
 0.5 s tail window is a fixed duration rather than a proportion of the phrase.
+
+---
+
+## CORRECTION (27 Jul, later) — this diagnosis was partly a separator artefact
+
+The analysis above was run across a **mixed separator archive** and I did not
+check that before publishing it. Of Candi's back-catalogue pass, 59 takes reused
+existing MDX-NET stems and **19 were freshly separated with Mel-Band RoFormer**
+(the takes that had no retained stem), all in the same batch. RoFormer reads
+**9.2 points lower sag on average** (42.4% vs 51.6%).
+
+The songs at the two ends of my table split almost perfectly along that line:
+
+| | separator |
+|---|---|
+| Beggin' 10.00, Sex Bomb 9.97, Come Out And Play 9.86 | **100% RoFormer** |
+| Bye Bye Love 2.62, Tutti Frutti 4.69, My Babe, Pressure Down | **100% MDX-NET** |
+
+**Withdrawn:** the headline "10.00 on Come Out And Play and 0.31 on You Sexy
+Thing three days apart" comparison. Those were different separators. It should
+never have been published as evidence of a within-singer effect.
+
+### What survives, re-run on MDX-NET only (n = 60, one separator)
+
+Aaron's own mean is 51.6% of endings. Against that baseline:
+
+| song | takes | sag | vs his own mean |
+|---|--:|--:|--:|
+| Bye Bye Love | 3 | 75.5% | **+23.9** |
+| You Sexy Thing | 3 | 66.6% | **+15.0** |
+| Tutti Frutti | 2 | 64.2% | +12.5 |
+| Livin' On A Prayer | 2 | 60.3% | +8.7 |
+| Kryptonite | 2 | 53.9% | +2.2 |
+| The Heat Is On | 5 | 50.6% | −1.0 |
+| Pressure Down | 8 | 50.6% | −1.0 |
+| My Babe | 11 | 48.5% | −3.1 |
+| Play That Funky Music | 4 | 43.8% | −7.8 |
+| One | 3 | 42.3% | −9.3 |
+
+**The song-specific effect is real but smaller than claimed.** Bye Bye Love and
+You Sexy Thing are genuinely his weakest, by +24 and +15 points against his own
+baseline, on a single consistent separator. That conclusion stands.
+
+**Kryptonite is NOT his worst song.** On MDX-NET it is +2.2 — dead average for
+him. The +43.5 delta against the original is still valid (the reference pack is
+100% MDX-NET, so that comparison is like-for-like), but it means something
+different from what I said: *3 Doors Down's recording is the outlier*, with only
+10.3% falling endings, and Aaron sings it exactly as he sings everything else.
+The gap is the song's original being unusual, not Aaron being unusually bad on it.
+
+### Rule added as a result
+
+`score_conflict()` now refuses comparison across separation models. It could not
+have caught this one — these are raw measures, not scores — so the discipline
+has to be human: **check the separator before comparing any measurement**, the
+same way rubric and calibration pack are already checked.
