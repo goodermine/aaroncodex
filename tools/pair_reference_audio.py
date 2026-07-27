@@ -83,6 +83,25 @@ def norm_tokens(name: str) -> set[str]:
     return out
 
 
+def flat_name(name: str) -> str:
+    """Basename with separators and the '-reference' suffix normalised away, so
+    `al_green_lets_stay_together` and `al-green-lets-stay-together-reference.mp3`
+    are recognised as the same file named two ways."""
+    base = os.path.splitext(os.path.basename(name))[0].lower()
+    base = re.sub(r"[^a-z0-9]+", " ", base).strip()
+    return re.sub(r"\s+(reference|original)$", "", base)
+
+
+def _same_word(a: str, b: str) -> bool:
+    """Contractions split unevenly: "isnt" one side, "isn" + "t" the other. A
+    one-character prefix shortfall counts as the same word; more than one does
+    not, so "let" never matches "letter"."""
+    if a == b:
+        return True
+    lo, hi = (a, b) if len(a) < len(b) else (b, a)
+    return len(hi) - len(lo) == 1 and len(lo) >= 3 and hi.startswith(lo)
+
+
 def names_agree(rtok: set[str], ctok: set[str]) -> bool:
     """Bidirectional: source files are frequently titled with the SONG ONLY
     ("Chasin_That_Neon_Rainbow") while the reference basename carries artist and
@@ -92,6 +111,9 @@ def names_agree(rtok: set[str], ctok: set[str]) -> bool:
     ("one", "halo") is not evidence."""
     if not rtok or not ctok:
         return False
+    # Pair up near-identical words before intersecting, so a contraction split
+    # does not read as a missing word.
+    ctok = {next((r for r in rtok if _same_word(r, c)), c) for c in ctok}
     shared = rtok & ctok
     if len(shared) == 1 and shared == ctok and len(next(iter(shared))) >= 6:
         return True          # one-word titles: "Kryptonite.mp3" is distinctive
@@ -152,8 +174,9 @@ def main() -> int:
         key = os.path.basename(r).replace("_analysis.json", "")
         want = data.get("duration_seconds")
         rtok = norm_tokens(key)          # NOT analysis_input_file: that is the stem
+        flat_key = flat_name(key)
         exact = [(p, d, t) for p, d, t in src
-                 if os.path.splitext(os.path.basename(p))[0] == key and p not in used]
+                 if flat_name(p) == flat_key and p not in used]
         if exact:
             confident.append((key, exact[0][0], want, exact[0][1])); used.add(exact[0][0])
             continue
@@ -164,8 +187,12 @@ def main() -> int:
             confident.append((key, named[0][0], want, named[0][1])); used.add(named[0][0])
         elif len(near) == 1:
             name_only.append((key, near[0][0], want, near[0][1]))
-        elif len(near) > 1:
-            ambiguous.append((key, want, [p for p, _, _ in near]))
+        elif len(named) > 1:
+            ambiguous.append((key, want, [p for p, _, _ in named]))
+        elif near:
+            # Candidates share the duration but NONE matches by name — the source
+            # is absent and these are coincidences, not a choice to be made.
+            unmatched.append((key, want))
         else:
             unmatched.append((key, want))
 
