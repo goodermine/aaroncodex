@@ -223,3 +223,27 @@ def test_progress_trend_drops_non_comparable_scores():
     assert score_is_trendable(current)
     assert not score_is_trendable(retired)
     assert not score_is_trendable(legacy)
+
+
+def test_scores_from_different_separators_are_not_comparable():
+    """The separation model is part of what produced a measurement. Measured on
+    Aaron's archive, the same song under MDX-NET vs Mel-Band RoFormer moves
+    phrase-sag by up to 29 points in both directions — the size of the effects
+    being diagnosed. score_identity always recorded stem_model; nothing checked
+    it, so a licence-driven separator swap silently made every old take look
+    comparable with every new one."""
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    old = _base_results(22.0, 30.0)
+    old["analysis_input_file"] = "take_(Vocals)_UVR_MDXNET_Main.flac"
+    new = _base_results(22.0, 30.0)
+    new["analysis_input_file"] = "take_(vocals)_vocals_mel_band_roformer.flac"
+
+    a = A.compute_technical_score(old, cal)
+    b = A.compute_technical_score(new, cal)
+    assert a["identity"]["stem_model"] == "UVR_MDXNET_Main"
+    assert b["identity"]["stem_model"] == "RoFormer"
+    conflict = A.score_conflict(a, b)
+    assert conflict is not None and "separated by different models" in conflict
+    assert not A.scores_comparable(a, b)
+    # ...and the same separator on both sides still compares fine
+    assert A.score_conflict(a, A.compute_technical_score(old, cal)) is None

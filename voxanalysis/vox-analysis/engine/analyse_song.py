@@ -2186,6 +2186,18 @@ def score_conflict(a, b):
         return "scored by different builds of the rubric — re-score both with one engine"
     if ia.get("calibration_fingerprint") != ib.get("calibration_fingerprint"):
         return "anchored to different calibration packs — re-score both against one pack"
+    # Separation model. score_identity has always recorded stem_model and nothing
+    # ever checked it, so a take separated by one model was silently comparable
+    # with a take separated by another. Measured on Aaron's archive, the same song
+    # under MDX-NET vs Mel-Band RoFormer moves phrase-sag by up to 29 points IN
+    # BOTH DIRECTIONS (Funky Cold Medina 65.0 -> 36.2, Kryptonite 53.9 -> 79.2).
+    # That is the size of the effects being diagnosed, so an unguarded comparison
+    # across separators reports the separator as though it were the singer.
+    if ia.get("stem_model") != ib.get("stem_model"):
+        return (f"separated by different models ({ia.get('stem_model')} vs "
+                f"{ib.get('stem_model')}) — re-separate both with one model before "
+                "comparing; separation moves the measured features by as much as "
+                "the differences being looked for")
     return None
 
 

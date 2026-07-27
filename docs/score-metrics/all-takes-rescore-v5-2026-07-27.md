@@ -6,9 +6,9 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 ## Singer takes
 
-Overall: min 6.1 · max 9.7 · mean 7.98. Dynamics component spreads 4.9–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 6.1 · max 9.7 · mean 7.96. Dynamics component spreads 4.9–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 88/110 takes.
+Full coverage: 91/113 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -112,6 +112,9 @@ Full coverage: 88/110 takes.
 | aaron | pressure-down-take-008 | 215 | **8.4** | 8.8 | high | 9.52 | 7.57 | 5.9 | 8.41 | 9.94 | 10.0 | 7.94 |
 | aaron | tutti-frutti-take-001 | 154 | **8.1** | 7.2 | high | 7.62 | 5.29 | 10.0 | 9.05 | 9.95 | 10.0 | 3.14 |
 | aaron | tutti-frutti-take-002 | 177 | **7.3** | 7.1 | high | 7.62 | 4.49 | 6.17 | 8.54 | 9.89 | 8.36 | 6.24 |
+| aaron | kryptonite-take-001 | 154 | **8.4** | 8.1 | high | 9.52 | 6.91 | 10.0 | 9.95 | 7.75 | 10.0 | 1.96 |
+| aaron | the-heat-is-on-take-001 | 198 | **6.8** | 5.5 | high | 5.71 | 3.35 | 10.0 | 8.96 | 8.62 | 5.26 | 3.37 |
+| aaron | you-sexy-thing-take-001 | 224 | **6.5** | 4.9 | high | 5.71 | 0.9 | 10.0 | 8.8 | 9.41 | 7.67 | 0.54 |
 | aaron-g | 1973-take-001 | 168 | **8.3** | 7.6 | high | 5.71 | 10.0 | 10.0 | 10.0 | 9.27 | 5.29 | – |
 | aaron-g | if-you-could-read-my-mind-take-001 | 208 | **9.3** | 9.2 | high | 9.52 | 7.55 | 10.0 | 10.0 | 8.48 | 10.0 | – |
 | aaron-g | vienna-take-001 | 175 | **9.7** | 9.6 | high | 9.52 | 9.23 | 10.0 | 10.0 | 9.43 | 10.0 | – |

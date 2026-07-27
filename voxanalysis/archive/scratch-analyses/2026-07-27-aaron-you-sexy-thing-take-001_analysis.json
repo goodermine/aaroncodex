@@ -8995,74 +8995,11 @@
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
   "technical_score": {
-    "identity": {
-      "contract": "voxai_score_v1",
-      "rubric": "deterministic_rubric_v4",
-      "rubric_fingerprint": "3478e29a0ee5",
-      "calibrated": true,
-      "calibration_references": 50,
-      "calibration_fingerprint": "18b7fbeec6ba",
-      "stem_model": "RoFormer",
-      "take_fingerprint": "349336f7b065"
-    },
-    "overall_score_0_to_10": 7.1,
-    "capture_fair_score_0_to_10": 5.6,
-    "capture_fair_note": "Rubric with the capture-sensitive components (voice_quality and dynamics_expression) excluded (weights renormalised). Jitter/shimmer/HNR and effective dynamic range partly measure the recording chain and stem-separation artefacts: vintage masters run through separation read far worse than clean modern captures of an equal voice. Use capture_fair on BOTH sides for any take-vs-original or cross-era comparison; use overall_score for a singer's absolute result and self-progress.",
-    "provenance": "deterministic_rubric_v4 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
-    "calibration": {
-      "active": true,
-      "file": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
-      "n_references": 50,
-      "note": null
-    },
-    "confidence": "high",
-    "confidence_basis": {
-      "praat_metrics_available": true,
-      "n_sustained_notes": 224,
-      "capture_risk_elevated": false
-    },
-    "components": {
-      "intonation_accuracy": {
-        "weight": 0.25,
-        "input": "median abs grid deviation = 30.0 cents \u2014 matches or beats 2.0% of 50 pro references",
-        "formula": "10 at pro-reference median (18.75 cents), 0 at 45 cents, linear",
-        "score": 5.71
-      },
-      "pitch_stability": {
-        "weight": 0.15,
-        "input": "median intra-note drift = 75.0 cents \u2014 matches or beats 2.0% of 50 pro references",
-        "formula": "10 at pro-reference median (24.75 cents), 0 at 80 cents, linear",
-        "score": 0.9
-      },
-      "voice_quality": {
-        "weight": 0.2,
-        "input": "jitter = 0.6824% \u2014 matches or beats 80.0% of 50 pro references; shimmer = 6.1217% \u2014 matches or beats 88.0% of 50 pro references; HNR = 18.19 dB \u2014 matches or beats 88.0% of 50 pro references; CPPS = 16.36 dB \u2014 matches or beats 100.0% of 50 pro references",
-        "formula": "mean of jitter/shimmer/HNR/CPPS sub-scores (Praat, per sustained note)",
-        "score": 10.0
-      },
-      "vibrato_control": {
-        "weight": 0.15,
-        "input": "30.1% of long notes carry vibrato (10 at >=40%); rate 4.79 Hz (ideal 4.943-6.046); extent 85.9 cents (ideal 53.09-78.32); intra-note drift 75.0 cents (straight-tone path)",
-        "formula": "best of vibrato-quality path and straight-tone steadiness path (consistent straight tone is a valid professional style)",
-        "style_detected": "vibrato-led",
-        "score": 8.8
-      },
-      "dynamics_expression": {
-        "weight": 0.15,
-        "input": "phrase-level spread 10.8 dB (pro p10/p50/p90 12.493/22.335/42.119); effective range 35.86 dB (pro p10/p50/p90 23.993/38.77/51.792)",
-        "formula": "best of phrase-level shaping and effective range, graded to the pro distribution (10 at the professional median, ~7 across the pro range, floored not zeroed beyond it)",
-        "capture_sensitive": true,
-        "score": 9.41
-      },
-      "phrase_control": {
-        "weight": 0.1,
-        "input": "median phrase length = 2.53 s \u2014 matches or beats 32.0% of 50 pro references",
-        "formula": "10 at pro-reference median (3.145 s), 0 at 0.5 s, linear",
-        "score": 7.67
-      }
-    },
-    "weights_note": "Weights renormalised over measurable components.",
-    "scope_note": "Technical execution only. Artistry, emotion, interpretation and style-appropriateness are human judgements and are not part of this number. Any 'listener impact' figure elsewhere in a report is a subjective estimate, not a measurement."
+    "status": "retired_legacy_score",
+    "retired_rubric": "deterministic_rubric_v4",
+    "reason": "Scored by a superseded rubric before the provenance contract existed. Older rubrics carried known defects (e.g. the dynamics component could score a flat 10 or crater to 0), and uncalibrated runs used theoretical anchors rather than the professional reference pack. The number was not comparable to current scores and has been removed.",
+    "action": "Re-score with the current engine (deterministic_rubric_v5) before quoting, displaying or trending: python3 docs/score-metrics/rescore_all.py",
+    "do_not_use": true
   },
   "prescriptions": {
     "method": "deterministic_prescription_engine_v1 \u2014 rules over measured values; exercise content verbatim from the library; no LLM selection",
