@@ -113,8 +113,12 @@ process actually reads and reports the checkout's commit/branch/dirty state:
 GET https://<host>/api/build
 ```
 
-The fixed Polish deck hashes to **`a6be9074d2b8`**. If `decks.polish.sha1_12` is
-anything else, the running service is not reading the pulled file.
+**Do not compare against a hash written down here** — this originally pinned
+`a6be9074d2b8`, which went stale the moment the deck changed again (it is
+`657f89b6c60b` as of the render-recovery work). `/api/build` is self-validating:
+`head_hash()` compares what the running process reads against the checkout's own
+HEAD and reports the mismatch itself. Trust that comparison, not a number in a
+document.
 
 Diagnostic order:
 
