@@ -267,6 +267,7 @@
       if(dp[tau]<YIN_THRESH){while(tau+1<=maxLag&&dp[tau+1]<dp[tau])tau++;found=tau;break;}
     }
     if(found<0){var mn=1e9;for(tau=minLag;tau<=maxLag;tau++)if(dp[tau]<mn){mn=dp[tau];found=tau;}if(mn>0.3)return -1;}
+    detAperiodic=dp[found];   // how periodic the detection was: low = confident, high = a guess
     var t=found,y1=dp[t-1]||dp[t],y2=dp[t],y3=dp[t+1]||dp[t],a=(y1+y3-2*y2)/2,b=(y3-y1)/2,tt=t;
     if(a)tt=t-b/(2*a);
     var f=SR/tt;
@@ -300,6 +301,10 @@
   // spectrogram offscreen buffer (CSS-px; drawImage upscales onto the grid canvas)
   var spec=document.createElement("canvas"),sx=spec.getContext("2d");
   var specW=0,specH=0,binForY=null;
+  // per-column pitch history for the trace overlaid on the spectrogram, plus the
+  // YIN aperiodicity of the latest detection (0 = pure tone, 1 = noise) and a
+  // hysteretic confident/unsure state so the dotted↔solid switch doesn't flicker.
+  var specTrace=[],detAperiodic=1,specConfState=false;
   function fit(){
     DPR=Math.min(window.devicePixelRatio||1,2);
     var r=stage.getBoundingClientRect();GW=r.width;GH=r.height;
@@ -321,7 +326,7 @@
   function sizeSpec(){
     specW=Math.max(1,Math.round((GW-PADR)-PADL));
     specH=Math.max(1,Math.round(GH));
-    spec.width=specW;spec.height=specH;sx.clearRect(0,0,specW,specH);
+    spec.width=specW;spec.height=specH;sx.clearRect(0,0,specW,specH);specTrace.length=0;
     var nb=analyser?analyser.frequencyBinCount:1024,binHz=(SR/2)/nb;
     binForY=new Int16Array(specH);
     for(var y=0;y<specH;y++){var b=Math.round(specFreqForY(y)/binHz);
@@ -346,6 +351,14 @@
       var t=(freqBuf[binForY[y]]-SPEC_MINDB)/rng; if(t<0)t=0;else if(t>1)t=1;
       sx.fillStyle=SPECLUT[(t*255)|0];sx.fillRect(x,y,SPEC_SCROLL,1);
     }
+    // record this column's pitch so the trace scrolls in lock-step with the image.
+    // hysteresis on aperiodicity: solid below .18, dotted above .30, hold between.
+    var pm=(smoothM!=null&&isFinite(smoothM))?smoothM:null;
+    if(pm==null)specConfState=false;
+    else if(detAperiodic<0.18)specConfState=true;
+    else if(detAperiodic>0.30)specConfState=false;
+    specTrace.push({m:pm,c:specConfState});
+    var maxc=Math.ceil(specW/SPEC_SCROLL)+2; while(specTrace.length>maxc)specTrace.shift();
   }
   function drawSpectrum(){
     gx.clearRect(0,0,GW,GH);
@@ -375,22 +388,52 @@
       gx.textAlign="right";gx.fillText(nn.name+nn.oct,GW-4,y);
     }
 
-    // harmonic overlay for the detected pitch: f0 solid, overtones dashed
+    // harmonic guides for the CURRENT note: short overtone lines near the live
+    // edge (2f, 3f …) with labels. The fundamental is shown by the pitch trace.
     if(S.harmonics&&smoothM!=null){
-      var f0=hzFromMidi(smoothM);
+      var f0=hzFromMidi(smoothM),gStart=plotR-(plotR-PADL)*0.33;
       for(var k=1;k<=10;k++){
         var fk=f0*k; if(fk<SPEC_FLO)continue; if(fk>fHi)break;
         var yk=specYForFreq(fk);
-        gx.strokeStyle=(k===1)?S.pitchColor:"rgba(255,225,0,.28)";gx.lineWidth=(k===1)?2:1;
-        gx.setLineDash(k===1?[]:[3,4]);
-        gx.beginPath();gx.moveTo(PADL,yk+.5);gx.lineTo(plotR,yk+.5);gx.stroke();gx.setLineDash([]);
-        gx.fillStyle=(k===1)?S.pitchColor:"rgba(255,225,0,.6)";
-        gx.beginPath();gx.arc(plotR-3,yk,(k===1)?3.5:2.2,0,7);gx.fill();
+        if(k>1){gx.strokeStyle="rgba(255,225,0,.30)";gx.lineWidth=1;gx.setLineDash([3,4]);
+          gx.beginPath();gx.moveTo(gStart,yk+.5);gx.lineTo(plotR,yk+.5);gx.stroke();gx.setLineDash([]);
+          gx.fillStyle="rgba(255,225,0,.65)";gx.beginPath();gx.arc(plotR-3,yk,2.2,0,7);gx.fill();}
         if(k<=6){gx.font="600 9px ui-monospace,monospace";gx.textAlign="right";
+          gx.fillStyle=(k===1)?S.pitchColor:"rgba(255,225,0,.75)";
           gx.fillText(k===1?"f₀":(k+"f"),plotR-8,yk-6);}
       }
     }
+    // the sung pitch contour drawn over the spectrogram (dotted where unsure)
+    drawPitchTrace(plotR);
     gx.textAlign="left";
+  }
+
+  // the melody line the singer is actually producing, scrolling in lock-step with
+  // the spectrogram (same per-frame column pitch). Solid where the detector was
+  // confident, dotted where it was unsure — so a guessed pitch never looks certain.
+  function drawPitchTrace(plotR){
+    var n=specTrace.length; if(n<2)return;
+    gx.lineWidth=2.4;gx.lineJoin="round";gx.lineCap="round";gx.strokeStyle=S.pitchColor;
+    var i=0;
+    while(i<n){
+      if(specTrace[i].m==null){i++;continue;}
+      var conf=specTrace[i].c,j=i,pts=[];
+      while(j<n&&specTrace[j].m!=null&&specTrace[j].c===conf){
+        var x=plotR-(n-1-j)*SPEC_SCROLL;
+        if(x>=PADL){pts.push(x);pts.push(specYForFreq(hzFromMidi(specTrace[j].m)));}
+        j++;
+      }
+      if(pts.length>=4){
+        gx.setLineDash(conf?[]:[2,5]);gx.globalAlpha=conf?1:0.9;
+        gx.beginPath();gx.moveTo(pts[0],pts[1]);
+        for(var p=2;p<pts.length;p+=2)gx.lineTo(pts[p],pts[p+1]);
+        gx.stroke();
+      }
+      i=j;
+    }
+    gx.setLineDash([]);gx.globalAlpha=1;
+    if(smoothM!=null){gx.fillStyle=S.pitchColor;gx.beginPath();
+      gx.arc(plotR-3,specYForFreq(hzFromMidi(smoothM)),3.5,0,7);gx.fill();}
   }
 
   var PADL=34,PADR=36; // note-label gutters (left + right); the plot lives between
