@@ -251,21 +251,31 @@ the ordered candidate list without electing a winner.
 
 ---
 
-## 6. Decisions still needed
+## 6. Decisions — settled 28 Jul
 
-Assumptions made where an answer is missing — all reversible, all flagged:
-
-1. **Location** — assumed a separate `standalone/` package and CLI, not a flag on
-   the scoring engine.
-2. **Frame output** — assumed sidecar `.npz`, summary JSON stays readable.
-3. **Separation gate** — assumed *hard*: without separation, spectral metrics are
-   suppressed and the tool runs the non-spectral subset rather than refusing
-   outright.
-4. **Audience** — assumed any single vocal file, not only Aaron's catalogue.
-5. **Priority** — assumed parallel to the RoFormer migration, and **behind**
-   verifying that migration's re-score when it lands.
-
----
+1. **Location** — separate `engine/standalone/` package with its own
+   `analyse_standalone.py` CLI. It imports measurement primitives from
+   `analyse_song.py` and must never import `compute_technical_score`; a test
+   asserts that, so the rule-1 boundary is structural rather than a convention.
+2. **Frame output** — full series to a compressed `.npz` sidecar, summary JSON
+   stays readable.
+3. **Unseparated input — SEPARATE AUTOMATICALLY**, then analyse. (This overrode
+   the drafted assumption of suppress-and-continue.) Consequences to build for:
+   - detect whether the input is already a vocal stem before spending minutes on
+     separation — filename markers are a hint, broadband instrumental energy is
+     the actual test;
+   - use the pinned model only (`docs/models/separation-model.md`), never a
+     fallback, and record which model ran in the output — the mixed-separator
+     incident is the reason;
+   - `--no-separate` to skip it when the input is known to be a stem;
+   - if the separator is **not installed** on the machine, do not fail: suppress
+     the spectral half, run the rest, and say which model was unavailable.
+4. **Scope** — one-off tool. Point it at any single file; results land beside the
+   input. It does not touch the archive and does not require the naming
+   convention.
+5. **Priority** — build now, in the gaps around the RoFormer migration. When
+   Candi's branch lands, stop and verify preflight and the re-scored takes
+   before returning to this.
 
 ## 7. Out of scope, restated because it will be tempting
 
