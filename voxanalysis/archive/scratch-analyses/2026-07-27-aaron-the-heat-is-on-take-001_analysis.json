@@ -1,13 +1,13 @@
 {
   "file_name": "2026-07-27-aaron-the-heat-is-on-take-001_(vocals)_vocals_mel_band_roformer.flac",
   "analysis_input_file": "2026-07-27-aaron-the-heat-is-on-take-001_(vocals)_vocals_mel_band_roformer.flac",
-  "analysed_at": "2026-07-27T18:07:25",
+  "analysed_at": "2026-07-27T21:45:47",
   "artist_name": "Aaron",
   "duration_seconds": 237.91,
   "sample_rate": 44100,
   "engine": {
     "parselmouth_available": true,
-    "measurement_policy": "voice-quality metrics restricted to sustained voiced notes; deterministic scoring rubric v1"
+    "measurement_policy": "voice-quality metrics restricted to sustained voiced notes; deterministic scoring rubric v5"
   },
   "pitch": {
     "f0_contour": {
@@ -2499,7 +2499,7 @@
     "hnr_db_p25": 16.84,
     "hnr_db_p75": 19.9,
     "cpps_db": 16.46,
-    "cpps_note": "Cepstral Peak Prominence (smoothed, Praat). Research-standard clarity measure; diagnostic only until the reference pack is re-analysed with it.",
+    "cpps_note": "Cepstral Peak Prominence (smoothed, Praat). Research-standard clarity measure. SCORED: one of the four voice_quality sub-scores, anchored to the pro reference pack (10 at the pack median) when a calibration file is loaded.",
     "strain": {
       "n_top_quartile_notes": 48,
       "n_strained": 2,
@@ -2539,7 +2539,7 @@
   "resonance": {
     "singers_formant_ratio_db": -19.71,
     "singers_formant_read": "Moderate projection",
-    "singers_formant_note": "Median 2-4 kHz vs 80 Hz-2 kHz energy on active frames. Heuristic bands; diagnostic until pro-pack anchors exist.",
+    "singers_formant_note": "Median 2-4 kHz vs 80 Hz-2 kHz energy on active frames. Heuristic bands; NOT part of the technical score \u2014 no pro-pack anchors exist for it yet (unlike CPPS, which is anchored and scored).",
     "spectral_centroid_mean_hz": 2516.12,
     "spectral_centroid_median_hz": 2186.73,
     "spectral_rolloff_85_mean_hz": 4511.09,
@@ -7768,7 +7768,7 @@
         "sag_cents": 180.0
       }
     ],
-    "note": "Sagging endings on LONG phrases suggest breath running out; on short phrases, intentional fall-offs are common in rock/soul \u2014 judge by ear."
+    "note": "Sagging endings on LONG phrases suggest breath running out; on short phrases, intentional fall-offs are common in rock/soul \u2014 judge by ear. MEASUREMENT CAVEAT: the tail window is a fixed 0.5 s, not a proportion of the phrase. On material whose phrases are shorter than about 1 s the window spans most of the phrase (and possibly what precedes it), so the slope it fits is not the same quantity measured on a 5 s phrase. Compare pct_sagging_endings between takes of similar median_phrase_s."
   },
   "range_map": {
     "comfortable_core": "A\u266f3-A4",
@@ -8135,9 +8135,9 @@
     }
   },
   "visual_diagnostics": {
-    "plot_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/reports/diagnostics/2026-07-27-aaron-the-heat-is-on-take-001_(vocals)_vocals_mel_band_roformer_diagnostic_plot.png",
-    "note_cards_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/reports/diagnostics/2026-07-27-aaron-the-heat-is-on-take-001_(vocals)_vocals_mel_band_roformer_note_cards.png",
-    "notes_csv_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/output/2026-07-27-aaron-the-heat-is-on-take-001_(vocals)_vocals_mel_band_roformer_notes.csv",
+    "plot_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-07-27-aaron-the-heat-is-on-take-001_(vocals)_vocals_mel_band_roformer_diagnostic_plot.png",
+    "note_cards_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-07-27-aaron-the-heat-is-on-take-001_(vocals)_vocals_mel_band_roformer_note_cards.png",
+    "notes_csv_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/output/2026-07-27-aaron-the-heat-is-on-take-001_(vocals)_vocals_mel_band_roformer_notes.csv",
     "panels": [
       "section_health_ribbon",
       "waveform_amplitude",
@@ -8150,11 +8150,93 @@
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
   "technical_score": {
-    "status": "retired_legacy_score",
-    "retired_rubric": "deterministic_rubric_v4",
-    "reason": "Scored by a superseded rubric before the provenance contract existed. Older rubrics carried known defects (e.g. the dynamics component could score a flat 10 or crater to 0), and uncalibrated runs used theoretical anchors rather than the professional reference pack. The number was not comparable to current scores and has been removed.",
-    "action": "Re-score with the current engine (deterministic_rubric_v5) before quoting, displaying or trending: python3 docs/score-metrics/rescore_all.py",
-    "do_not_use": true
+    "identity": {
+      "contract": "voxai_score_v1",
+      "rubric": "deterministic_rubric_v5",
+      "rubric_fingerprint": "7cbd02df8f62",
+      "calibrated": true,
+      "calibration_references": 50,
+      "calibration_fingerprint": "0da01ef1e30f",
+      "stem_model": "RoFormer",
+      "take_fingerprint": "a576c460303f"
+    },
+    "overall_score_0_to_10": 6.8,
+    "capture_fair_score_0_to_10": 5.5,
+    "capture_fair_note": "Rubric with the capture-sensitive components (voice_quality and dynamics_expression) excluded (weights renormalised). Jitter/shimmer/HNR and effective dynamic range partly measure the recording chain and stem-separation artefacts: vintage masters run through separation read far worse than clean modern captures of an equal voice. Use capture_fair on BOTH sides for any take-vs-original or cross-era comparison; use overall_score for a singer's absolute result and self-progress. Note breath_support is deliberately NOT excluded: phrase-ending sag is air running out, not the room, so it is scored on a phone or room take like any other.",
+    "provenance": "deterministic_rubric_v5 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
+    "calibration": {
+      "active": true,
+      "file": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
+      "n_references": 50,
+      "note": null
+    },
+    "confidence": "high",
+    "confidence_basis": {
+      "praat_metrics_available": true,
+      "n_sustained_notes": 198,
+      "capture_risk_elevated": false
+    },
+    "components": {
+      "intonation_accuracy": {
+        "weight": 0.25,
+        "input": "median abs grid deviation = 30.0 cents \u2014 matches or beats 2.0% of 50 pro references",
+        "formula": "10 at pro-reference median (18.75 cents), 0 at 45 cents, linear",
+        "score": 5.71
+      },
+      "pitch_stability": {
+        "weight": 0.15,
+        "input": "median intra-note drift = 61.5 cents \u2014 matches or beats 2.0% of 50 pro references",
+        "formula": "10 at pro-reference median (24.75 cents), 0 at 80 cents, linear",
+        "score": 3.35
+      },
+      "voice_quality": {
+        "weight": 0.2,
+        "input": "jitter = 0.6363% \u2014 matches or beats 90.0% of 50 pro references; shimmer = 5.9469% \u2014 matches or beats 88.0% of 50 pro references; HNR = 18.43 dB \u2014 matches or beats 92.0% of 50 pro references; CPPS = 16.46 dB \u2014 matches or beats 100.0% of 50 pro references",
+        "formula": "mean of jitter/shimmer/HNR/CPPS sub-scores (Praat, per sustained note)",
+        "score": 10.0
+      },
+      "vibrato_control": {
+        "weight": 0.15,
+        "input": "33.8% of long notes carry vibrato (10 at >=40%); rate 4.66 Hz (ideal 4.943-6.046); extent 80.7 cents (ideal 53.09-78.32); intra-note drift 61.5 cents (straight-tone path)",
+        "formula": "best of vibrato-quality path and straight-tone steadiness path (consistent straight tone is a valid professional style)",
+        "style_detected": "vibrato-led",
+        "score": 8.96
+      },
+      "dynamics_expression": {
+        "weight": 0.15,
+        "input": "phrase-level spread 12.93 dB (pro p10/p50/p90 12.493/22.335/42.119); effective range 31.99 dB (pro p10/p50/p90 23.993/38.77/51.792)",
+        "formula": "best of phrase-level shaping and effective range, graded to the pro distribution (10 at the professional median, ~7 across the pro range, floored not zeroed beyond it)",
+        "capture_sensitive": true,
+        "score": 8.62
+      },
+      "phrase_control": {
+        "weight": 0.1,
+        "input": "median phrase length = 1.89 s \u2014 matches or beats 10.0% of 50 pro references",
+        "formula": "10 at pro-reference median (3.145 s), 0 at 0.5 s, linear",
+        "score": 5.26
+      },
+      "breath_support": {
+        "weight": 0.1,
+        "input": "30 of 42 phrase endings sag = 71.4% \u2014 matches or beats 0.0% of 50 pro references",
+        "formula": "10 at pro-reference median (34.85%), 0 at 90.0%, linear",
+        "capture_sensitive": false,
+        "score": 3.37
+      }
+    },
+    "weights_note": "Weights renormalised over measurable components.",
+    "components_scored": [
+      "breath_support",
+      "dynamics_expression",
+      "intonation_accuracy",
+      "phrase_control",
+      "pitch_stability",
+      "vibrato_control",
+      "voice_quality"
+    ],
+    "components_unscored": [],
+    "coverage": "full",
+    "coverage_note": null,
+    "scope_note": "Technical execution only. Artistry, emotion, interpretation and style-appropriateness are human judgements and are not part of this number. Any 'listener impact' figure elsewhere in a report is a subjective estimate, not a measurement."
   },
   "prescriptions": {
     "method": "deterministic_prescription_engine_v1 \u2014 rules over measured values; exercise content verbatim from the library; no LLM selection",
