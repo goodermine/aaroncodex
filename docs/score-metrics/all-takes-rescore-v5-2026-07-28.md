@@ -6,9 +6,9 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 ## Singer takes
 
-Overall: min 6.1 · max 9.2 · mean 7.71. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 6.1 · max 9.2 · mean 7.7. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 105/105 takes.
+Full coverage: 104/104 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -53,7 +53,6 @@ Full coverage: 105/105 takes.
 | aaron | the-letter-take-001 | 173 | **8.2** | 7.5 | high | 8.0 | 7.0 | 10.0 | 9.55 | 9.47 | 5.76 | 5.63 |
 | aaron | the-letter-take-002 | 191 | **6.8** | 6.7 | high | 6.0 | 6.71 | 5.97 | 9.92 | 8.17 | 2.94 | 7.44 |
 | aaron | danger-zone-take-001 | 166 | **8.1** | 7.8 | high | 8.0 | 6.44 | 8.09 | 8.98 | 9.45 | 9.58 | 5.71 |
-| aaron | i-just-want-to-be-your-everything-take-001 | 206 | **9.2** | 9.5 | high | 10.0 | 10.0 | 9.95 | 10.0 | 7.19 | 6.15 | 9.81 |
 | aaron | kryptonite-take-001 | 154 | **8.3** | 7.5 | high | 6.0 | 6.49 | 10.0 | 9.85 | 9.67 | 10.0 | 7.05 |
 | aaron | kryptonite-take-002 | 172 | **7.0** | 7.5 | high | 8.0 | 8.2 | 3.01 | 9.86 | 9.65 | 1.52 | 7.51 |
 | aaron | the-heat-is-on-take-001 | 194 | **7.2** | 6.2 | high | 8.0 | 3.3 | 10.0 | 8.42 | 8.41 | 3.67 | 5.36 |
