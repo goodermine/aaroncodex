@@ -191,6 +191,9 @@
 
   // spectrogram fixed log-frequency axis + colour range (dB) and scroll speed
   var SPEC_MINDB=-92,SPEC_MAXDB=-30,SPEC_FLO=55,SPEC_FHI=8000,SPEC_SCROLL=2;
+  // pitch trace over the spectrogram: bright green reads clearly against the
+  // orange/yellow spectrogram, where the yellow pitch colour would disappear.
+  var SPEC_PITCH="#39ff14";
 
   // ---------------------------------------------------------------- note math
   var NAMES_LATIN=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"];
@@ -399,7 +402,7 @@
           gx.beginPath();gx.moveTo(gStart,yk+.5);gx.lineTo(plotR,yk+.5);gx.stroke();gx.setLineDash([]);
           gx.fillStyle="rgba(255,225,0,.65)";gx.beginPath();gx.arc(plotR-3,yk,2.2,0,7);gx.fill();}
         if(k<=6){gx.font="600 9px ui-monospace,monospace";gx.textAlign="right";
-          gx.fillStyle=(k===1)?S.pitchColor:"rgba(255,225,0,.75)";
+          gx.fillStyle=(k===1)?SPEC_PITCH:"rgba(255,225,0,.75)";
           gx.fillText(k===1?"f₀":(k+"f"),plotR-8,yk-6);}
       }
     }
@@ -413,7 +416,7 @@
   // confident, dotted where it was unsure — so a guessed pitch never looks certain.
   function drawPitchTrace(plotR){
     var n=specTrace.length; if(n<2)return;
-    gx.lineWidth=2.4;gx.lineJoin="round";gx.lineCap="round";gx.strokeStyle=S.pitchColor;
+    gx.lineJoin="round";gx.lineCap="round";gx.strokeStyle=SPEC_PITCH;
     var i=0;
     while(i<n){
       if(specTrace[i].m==null){i++;continue;}
@@ -424,7 +427,8 @@
         j++;
       }
       if(pts.length>=4){
-        gx.setLineDash(conf?[]:[2,5]);gx.globalAlpha=conf?1:0.9;
+        // solid + thick when confident; thinner dotted when unsure
+        gx.lineWidth=conf?4:3;gx.setLineDash(conf?[]:[2,6]);gx.globalAlpha=conf?1:0.92;
         gx.beginPath();gx.moveTo(pts[0],pts[1]);
         for(var p=2;p<pts.length;p+=2)gx.lineTo(pts[p],pts[p+1]);
         gx.stroke();
@@ -432,8 +436,8 @@
       i=j;
     }
     gx.setLineDash([]);gx.globalAlpha=1;
-    if(smoothM!=null){gx.fillStyle=S.pitchColor;gx.beginPath();
-      gx.arc(plotR-3,specYForFreq(hzFromMidi(smoothM)),3.5,0,7);gx.fill();}
+    if(smoothM!=null){gx.fillStyle=SPEC_PITCH;gx.beginPath();
+      gx.arc(plotR-3,specYForFreq(hzFromMidi(smoothM)),4.5,0,7);gx.fill();}
   }
 
   var PADL=34,PADR=36; // note-label gutters (left + right); the plot lives between
