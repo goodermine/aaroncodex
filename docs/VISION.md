@@ -68,6 +68,23 @@ only for the time-domain buffer YIN reads. **There is no live spectrum display
 and no live harmonic display.** Both are named in the goal and neither exists.
 Also missing: metronome, tempo/beat lines, transpose, PWA install.
 
+*Planned — spectrogram / harmonic display (28 Jul).* A scrolling spectrogram
+(frequency up, time across, loudness as colour) like the CVT-style analyser
+Aaron uses, in **both** places it is wanted:
+
+- **Live, in the monitor** — the FFT already runs (the `AnalyserNode` above); it
+  only feeds the pitch detector. Calling `getFloatFrequencyData` and drawing it
+  is a front-end job, no new signal work.
+- **After a take, in the standalone analyser** — the frame layer already computes
+  the same data (`alpha_ratio`, `sfr_2_4k`, the H1–H8 harmonic tracks, §2 of
+  `docs/plans/STANDALONE_SONG_ANALYSIS_PLAN.md`). It comes out as numbers today;
+  drawing it is a rendering step on top.
+
+Where ours should go beyond a raw spectrogram: overlay where the harmonics
+*should* sit, mark the 2–4 kHz "ring" band, and show the metallic-index value
+beside the picture — so the singer is not left eyeballing brightness. The
+measurement exists or is being built; only the drawing is outstanding.
+
 ### 5. Polish — clean and correct a take
 **Built.** `voxpolish/`: clean/de-noise with a re-blendable amount, auto-tune
 with a correction curve, master, A/B against the original with the playhead
@@ -141,7 +158,9 @@ Not "most features". Three things, in order:
 ## Nearest-term work, ordered by distance from the goal
 
 1. **Live spectrum + harmonics in the monitor** — named in the goal, absent in
-   the code. Closest gap to close.
+   the code. Closest gap to close. The FFT already runs; this is drawing, not
+   new signal work (see pillar 4). Draw the same view in the standalone
+   analyser once its frame layer lands.
 2. **KB retrieval + ask interface** — the content is done, the product is not.
 3. **Auth and per-user isolation** — the gate on public testing.
 4. **Fix the vocoder on the deployed host**, then re-render Pressure-Down-Cook.
