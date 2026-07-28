@@ -47,11 +47,25 @@ from datetime import datetime
 import numpy as np
 import scipy.signal
 import librosa
-import librosa.display
 import soundfile as sf
-import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for WSL (no display required)
-import matplotlib.pyplot as plt
+
+
+def _get_plt():
+    """Import the plotting stack only when a plot is actually drawn.
+
+    matplotlib (and librosa.display, which imports it) are PLOTTING dependencies,
+    needed by exactly two functions here — generate_visual_diagnostics and
+    generate_note_cards. Importing them at module top level meant every consumer
+    of the scoring functions — retire_legacy_scores.py, rescore_all.py, preflight
+    — dragged the whole plotting stack in, and a machine without matplotlib could
+    not retire a score or re-score a take (it blocked Candi's RoFormer migration
+    at exactly that step). Those steps draw nothing. Returns (plt, librosa.display)
+    so both are loaded lazily and the scoring path no longer needs either."""
+    import matplotlib
+    matplotlib.use("Agg")  # non-interactive backend; no display required
+    import matplotlib.pyplot as plt
+    import librosa.display as ldisplay
+    return plt, ldisplay
 
 try:
     import parselmouth
@@ -2697,6 +2711,7 @@ def _severity_color(dev, drift):
 
 
 def generate_visual_diagnostics(y, sr, f0, output_path, title, results=None, hop_length=512):
+    plt, ldisplay = _get_plt()
     """
     Visual report v2 — VoceVista-parity, post-take.
     Panels: severity ribbon, waveform, pitch contour on a note axis with the
@@ -2731,7 +2746,7 @@ def generate_visual_diagnostics(y, sr, f0, output_path, title, results=None, hop
 
     # ── Panel 1: waveform ────────────────────────────────────────────────
     ax = fig.add_subplot(gs[1])
-    librosa.display.waveshow(y, sr=sr, ax=ax, color='steelblue', alpha=0.8)
+    ldisplay.waveshow(y, sr=sr, ax=ax, color='steelblue', alpha=0.8)
     ax.set_title('Waveform (Amplitude over Time)', fontsize=11)
     ax.set_xlabel('')
 
@@ -2811,7 +2826,7 @@ def generate_visual_diagnostics(y, sr, f0, output_path, title, results=None, hop
     # ── Panel 6: spectrogram + harmonic traces + singer's formant band ──
     ax = fig.add_subplot(gs[6])
     stft_db = librosa.amplitude_to_db(np.abs(librosa.stft(y, n_fft=2048, hop_length=hop_length)), ref=np.max)
-    librosa.display.specshow(stft_db, sr=sr, hop_length=hop_length,
+    ldisplay.specshow(stft_db, sr=sr, hop_length=hop_length,
                              x_axis='time', y_axis='linear', ax=ax, cmap='magma')
     for k in range(1, 7):
         hk = k * f0
@@ -2829,6 +2844,7 @@ def generate_visual_diagnostics(y, sr, f0, output_path, title, results=None, hop
 
 
 def generate_note_cards(y, sr, f0, results, output_path, hop_length=512, max_cards=3):
+    plt, ldisplay = _get_plt()
     """
     Per-note inspection cards for the take's flagged moments — spectrum
     slice with harmonic peaks and the singer's-formant band, plus an
