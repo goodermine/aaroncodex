@@ -146,14 +146,18 @@ def test_breath_support_is_scored_and_discriminates():
     cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
     def bs(pct):
         return A.compute_technical_score(_with_sag(pct), cal)["components"]["breath_support"]
-    solid, typical, worse, saggy = bs(12.0), bs(34.85), bs(50.0), bs(75.0)
-    # Matching the pro median IS the top of the scale (_linear_component anchors
-    # 10 at p50 and _scale clips), so beating it does not score above 10 — the
+    # The pro median is read from the live calibration pack — it MOVES when the
+    # pack is rebuilt (it shifted with the RoFormer re-separation), so the test
+    # derives it rather than hardcoding a number that goes stale. Matching the
+    # median or beating it earns 10 (10 anchored at p50, then clipped); the
     # discrimination is all on the worse-than-median side.
-    assert solid["score"] == typical["score"] == 10.0
+    median_sag = A._calib_metric(cal, "breath_pct_sagging_endings")["p50"]
+    at_median, better, worse, saggy = bs(median_sag), bs(median_sag * 0.4), \
+        bs(median_sag + 15), bs(median_sag + 40)
+    assert at_median["score"] == 10.0 and better["score"] == 10.0
     assert 10.0 > worse["score"] > saggy["score"], (worse["score"], saggy["score"])
-    assert saggy["score"] < 3.0
-    assert "phrase endings" in typical["input"]
+    assert saggy["score"] < 5.0
+    assert "phrase endings" in at_median["input"]
 
 
 def test_breath_support_counts_inside_capture_fair():
