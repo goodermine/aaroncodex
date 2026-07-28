@@ -73,12 +73,20 @@ not eyeballed. The FFT was already running for YIN (`getFloatFrequencyData` on
 the same `AnalyserNode`, bumped to 4096 for finer lines while YIN keeps a 2048
 slice), so this was drawing, not new signal work.
 
-*Gap:* the same view still needs drawing **after a take, in the standalone
-analyser** (see below). Also still missing: metronome, tempo/beat lines,
-transpose, PWA install, and a live metallic-index readout beside the picture.
+*Full-take render — first version built (28 Jul).*
+`tools/render_take_spectrogram.py` draws a whole take as one image in the same
+style (inferno spectrogram, log axis with note lines, ring band) with the sung
+pitch overlaid in green — solid where the pitch is a steady held note, dotted
+where it is jumpy/uncertain. It is a CLI renderer, not yet wired into the
+analyser deck; that UI integration is the remaining piece.
 
-*Planned — the same spectrogram in the standalone analyser.* The scrolling
-spectrogram, now live in the monitor, is still wanted in the second place:
+*Gap:* still missing: metronome, tempo/beat lines, transpose, PWA install, a
+live metallic-index readout beside the picture, and folding the full-take render
+above into the standalone analyser UI.
+
+*Planned — the same spectrogram inside the standalone analyser UI.* The scrolling
+spectrogram is live in the monitor and the full-take still image exists as a CLI
+tool; the remaining work is drawing it in the deck:
 
 - **After a take, in the standalone analyser** — the frame layer already computes
   the same data (`alpha_ratio`, `sfr_2_4k`, the H1–H8 harmonic tracks, §2 of
