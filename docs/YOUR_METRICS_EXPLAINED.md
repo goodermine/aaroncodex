@@ -18,25 +18,25 @@ So a 7 is a genuinely good singer. The scale was never zero-to-hero; it is zero-
 
 How much of your sound is pure tone versus air and noise. Higher is cleaner. A low number means breathy or fuzzy — though a room or phone mic drags this down too, so it is judged gently on live takes.
 
-> **Pros:** weak 9.503 · typical **13.35** · strong 18.282 dB  ·  _higher is better_
+> **Pros:** weak 9.458 · typical **13.64** · strong 18.224 dB  ·  _higher is better_
 
 ### CPPS — clarity and ring
 
 How well-defined and 'present' the tone is — the difference between a dull sound and a ringing one. This is the number that jumps when a voice comes into focus.
 
-> **Pros:** weak 10.117 · typical **11.53** · strong 13.108 dB  ·  _higher is better_
+> **Pros:** weak 13.683 · typical **15.395** · strong 16.927 dB  ·  _higher is better_
 
 ### Jitter — pitch steadiness
 
 Tiny cycle-to-cycle wobbles in pitch. Lower is steadier. High jitter reads as an unsteady, effortful tone. Sensitive to recording quality.
 
-> **Pros:** weak 0.6377 · typical **0.8728** · strong 1.3218 %  ·  _lower is better_
+> **Pros:** weak 0.6106 · typical **0.8538** · strong 1.3327 %  ·  _lower is better_
 
 ### Shimmer — loudness steadiness
 
 The same idea as jitter but for loudness — tiny wobbles in volume cycle-to-cycle. Lower is steadier.
 
-> **Pros:** weak 5.6005 · typical **9.7556** · strong 14.5884 %  ·  _lower is better_
+> **Pros:** weak 5.6024 · typical **9.4492** · strong 14.3784 %  ·  _lower is better_
 
 ## Pitch
 
@@ -44,13 +44,13 @@ The same idea as jitter but for loudness — tiny wobbles in volume cycle-to-cyc
 
 How far you sit from the nearest correct note, in cents (100 cents = one semitone). Lower is more accurate. Note the pros are NOT at zero — dead-perfect pitch sounds robotic; humans sit slightly off and it reads as musical.
 
-> **Pros:** weak 10 · typical **18.75** · strong 20 cents  ·  _lower is better_
+> **Pros:** weak 10 · typical **20** · strong 20 cents  ·  _lower is better_
 
 ### Held-note drift — does it stay put
 
 How much a note slides around WHILE you hold it. Lower is steadier. This is different from pitch centre: you can start in tune and still drift.
 
-> **Pros:** weak 14.47 · typical **24.75** · strong 48 cents  ·  _lower is better_
+> **Pros:** weak 14.38 · typical **24.25** · strong 52.35 cents  ·  _lower is better_
 
 ## Breath — Aaron's ceiling
 
@@ -58,13 +58,13 @@ How much a note slides around WHILE you hold it. Lower is steadier. This is diff
 
 The share of phrase-ends where the pitch slides off as the air runs out. Lower is better — but even pros sag on about a third of endings, because a falling ending is partly a style choice. This is the measured limiter on Aaron's voice: it runs near the top of the pro range.
 
-> **Pros:** weak 23.19 · typical **34.85** · strong 47.76 %  ·  _lower is better_
+> **Pros:** weak 23.19 · typical **33.3** · strong 45.62 %  ·  _lower is better_
 
 ### Phrase length — how long you sustain
 
 How long your phrases run before a breath. Longer needs more breath management; shorter is a valid pop/rock style, not a fault.
 
-> **Pros:** weak 1.905 · typical **3.145** · strong 5.474 s  ·  _a dial, not a score — depends on the sound you want_
+> **Pros:** weak 1.639 · typical **3.8** · strong 6.813 s  ·  _a dial, not a score — depends on the sound you want_
 
 ## Vibrato
 
@@ -72,19 +72,19 @@ How long your phrases run before a breath. Longer needs more breath management; 
 
 Wobbles per second. Too slow reads as a wobble; too fast reads as nervous. There is a natural band pros sit in.
 
-> **Pros:** weak 4.943 · typical **5.49** · strong 6.046 Hz  ·  _a dial, not a score — depends on the sound you want_
+> **Pros:** weak 4.877 · typical **5.41** · strong 5.99 Hz  ·  _a dial, not a score — depends on the sound you want_
 
 ### Vibrato width — how wide the wobble
 
 How far the pitch swings on each wobble. A stylistic choice, not a score.
 
-> **Pros:** weak 53.09 · typical **66.75** · strong 78.32 cents  ·  _a dial, not a score — depends on the sound you want_
+> **Pros:** weak 52.55 · typical **64.1** · strong 78.02 cents  ·  _a dial, not a score — depends on the sound you want_
 
 ### Vibrato usage — how often
 
 The share of long notes carrying vibrato. Straight tone is a valid style; this is not a target to max out.
 
-> **Pros:** weak 36.7 · typical **52.6** · strong 62.48 %  ·  _a dial, not a score — depends on the sound you want_
+> **Pros:** weak 40.36 · typical **53.2** · strong 63.99 %  ·  _a dial, not a score — depends on the sound you want_
 
 ## Loudness and shape
 
@@ -92,7 +92,7 @@ The share of long notes carrying vibrato. Straight tone is a valid style; this i
 
 The gap between your quietest and loudest singing. Higher is more expressive; a flat, one-volume performance scores low. Moved by compression and mastering, so judged gently on processed audio.
 
-> **Pros:** weak 23.993 · typical **38.77** · strong 51.792 dB  ·  _higher is better_
+> **Pros:** weak 18.398 · typical **26.965** · strong 36.303 dB  ·  _higher is better_
 
 ---
 
