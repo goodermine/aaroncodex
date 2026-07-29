@@ -39,6 +39,15 @@
   --vox-watch-tint:#fdf3e7;
   --vox-weak-tint:#fdefef;
 
+  /* ---- spectrogram colormap (magma) ------------------------------------ */
+  /* Domain-standard data-visualisation ramp — coaches and professionals
+     read spectrograms in these colours, so the spectrogram is the ONE
+     deliberate dark instrument in the light UI. These stops are chart-data
+     constants, not UI colours: never use them for chrome, text or state.  */
+  --vox-spec-0:#000004;  --vox-spec-1:#1c1044;  --vox-spec-2:#4f127b;
+  --vox-spec-3:#812581;  --vox-spec-4:#b5367a;  --vox-spec-5:#e55064;
+  --vox-spec-6:#fb8761;  --vox-spec-7:#fec287;  --vox-spec-8:#fcfdbf;
+
   /* ---- categorical (charts that need distinction, not judgement) ------- */
   --vox-cat-1:#1d4ed8;
   --vox-cat-2:#0f766e;
