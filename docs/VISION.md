@@ -103,10 +103,14 @@ measurement exists or is being built; only the drawing is outstanding.
 with a correction curve, master, A/B against the original with the playhead
 preserved, atomic writes, single-flight render with stale-lock takeover.
 
-*Gap:* on the deployed host the WORLD vocoder cannot import (`pkg_resources`
-missing), so Auto Tune is genuinely bypassed. The deck now says so loudly
-instead of silently handing back untuned audio, but the host still needs
-`pip install --upgrade setuptools`. See `HANDOFF_POLISH_AUTOTUNE_BYPASS.md`.
+*Gap (root cause fixed 29 Jul):* Auto Tune was silently bypassed on the deployed
+host because the WORLD vocoder (`pyworld`) imports `pkg_resources`, which ships
+inside `setuptools` — absent by default on Python 3.12+. The `pitch` extra now
+declares `setuptools>=68`, so `pip install 'voxpolish[pitch]'` restores it. The
+deck already reports the failure loudly rather than handing back untuned audio.
+Remaining: the host must pull + reinstall the pitch extra and restart, then
+re-render Pressure-Down-Cook (its cached render was made with tune bypassed). See
+`HANDOFF_POLISH_AUTOTUNE_BYPASS.md`.
 
 ### 6. Knowledge base — ask it questions
 **Content built. The asking is not.** `vocal-knowledge-base/` holds 77 active

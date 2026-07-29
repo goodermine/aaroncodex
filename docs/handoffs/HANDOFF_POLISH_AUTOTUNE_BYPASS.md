@@ -56,17 +56,32 @@ Tests: voxpolish 150 passed, voxsuite 25 passed.
 > instead; the second was tripping on "un**tuned**", so the note was reworded to
 > "no pitch correction applied". Neither assertion was weakened in intent.
 
+## Root cause now fixed in the repo (29 Jul)
+
+The real cause was a **missing dependency declaration**, not just a host quirk.
+`pyworld` does `import pkg_resources` at import time, and `pkg_resources` ships
+inside `setuptools`, which Python 3.12+ no longer installs by default. The
+`pitch` extra pulled `pyworld` but not `setuptools`, so the import blew up on any
+host without setuptools (it worked in dev only because setuptools happened to be
+present there).
+
+**Fix:** `voxpolish`'s `pitch` extra now declares `setuptools>=68` alongside
+`pyworld`, so `pip install 'voxpolish[pitch]'` restores `pkg_resources` every
+time — no separate manual step. Verified: with `pkg_resources` importable,
+`vocoder_status()` returns `(True, None)`; with it blocked, it degrades cleanly
+to `(False, "ImportError: No module named pkg_resources")` rather than crashing
+the render.
+
 ## What still needs doing on the deployed host — Candi
 
-The repo now *reports* the failure loudly, but the vocoder is still broken on the
-server. Fix the environment:
+Pull the fix and **reinstall the pitch extra** so the new setuptools dependency
+lands in the service's venv:
 
 ```bash
 # in the venv that runs the polish service
-pip install --upgrade setuptools        # restores pkg_resources
+git pull                                       # get the pitch-extra fix
+pip install --upgrade 'voxpolish[pitch]'       # now pulls setuptools (pkg_resources) too
 python -c "import pyworld; print('vocoder OK')"
-# if pyworld itself is missing:
-pip install 'voxpolish[pitch]'
 ```
 
 Then restart the service and confirm:
