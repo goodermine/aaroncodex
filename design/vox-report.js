@@ -160,7 +160,16 @@
     line("");
     line("SCORES");
     line("Overall: " + (s.overall != null ? s.overall + "/10" : "—") + "  (" + (s.confidence || "—") + " confidence)");
-    line("Capture-fair: " + (s.capture_fair != null ? s.capture_fair + "/10" : "—") + "  — same rubric minus mic/room-sensitive voice-quality metrics; quote this for live or rough captures");
+    var tc = report.take_context || {};
+    if (s.capture_fair == null) line("Capture-fair: —");
+    else if (tc.capture === "studio" || tc.capture === "home")
+      line("Capture-fair: " + s.capture_fair + "/10  — shown for completeness; declared clean capture (" + tc.capture + "), quote the OVERALL");
+    else if (tc.capture === "live")
+      line("Capture-fair: " + s.capture_fair + "/10  — minus mic/room-sensitive components; declared live capture, quote THIS number");
+    else
+      line("Capture-fair: " + s.capture_fair + "/10  — same rubric minus mic/room-sensitive voice-quality metrics; quote this for live or rough captures");
+    if (tc.intent || tc.capture || tc.note)
+      line("Take context: " + [tc.intent, tc.capture ? tc.capture + " capture" : null, tc.note].filter(Boolean).join(" · "));
     (s.components || []).forEach(function (c) {
       line("- " + (c.label || c.key || "?") + ": " + (c.score != null ? c.score : "—") + (c.basis ? "  [" + c.basis + "]" : ""));
     });
