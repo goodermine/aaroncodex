@@ -319,7 +319,14 @@ def compare_with_reference(take_json: Path, reference_json: Path) -> tuple[dict,
     # too harsh, so an unguarded take-vs-original comparison invents a gap that
     # isn't there. On conflict the raw contour measures are still reported — only
     # the score pair is withheld, with the reason stated.
-    from analyse_song import breath_vs_reference, score_conflict
+    # Sibling import: make it work no matter who imported pitch_track first
+    # (viewer tests run without the engine dir on sys.path).
+    try:
+        from analyse_song import breath_vs_reference, score_conflict
+    except ModuleNotFoundError:
+        import sys as _sys
+        _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from analyse_song import breath_vs_reference, score_conflict
     conflict = score_conflict(take_score, reference_score)
     # Phrase-ending fall rate against the SAME SONG's original. Raw percentages,
     # so unlike the score pair this is never withheld — the rate is strongly
