@@ -35,11 +35,34 @@ judged flat against their better, heavily-practised performance takes.
    - `warmup` — a throwaway warm-up, not meant to be judged.
    - optional `context_note` free text, e.g. "first time reaching the high note".
 
-3. **It is METADATA. It NEVER touches the score.** This is the hard rule. The
-   engine still produces the honest measured `/10` (CLAUDE.md rule 1 is
-   untouched — no inflation, no deflation, no adjustment keyed to the tag). A
-   learning take that measures 4.6 is still a 4.6. The tag only changes how the
-   take is **grouped and presented**, never its number.
+3. **It is METADATA. It NEVER touches the score.** This is the hard rule, and
+   the singer confirmed it is the whole point: the score must be *exactly what
+   was measured*, because a softened number would hide the very learning it is
+   meant to show. The engine still produces the honest measured `/10` (CLAUDE.md
+   rule 1 is untouched — no inflation, no deflation, no adjustment keyed to the
+   tag). A learning take that measures 4.6 is still a 4.6. The tag only changes
+   how the take is **grouped and presented**, never its number.
+
+3a. **The lifecycle, and the graduation marker.** A song moves through stages in
+   the singer's words: *learning → "I've practiced this enough" → this is the
+   first real/live take → performance.* So on top of the intent, a take may carry
+   an optional **milestone** marker — the main one being **`first_live_take`**:
+   "no more practice, this is the first proper performance of it." A milestone
+   take is a normal `performance` take (ranked normally), but flagged so the
+   per-song learning-curve view can draw the line where practice ended and
+   performance began. Milestones never touch the score either.
+
+3b. **A `capture` context, for the same reason and the same way.** The engine
+   flags `capture_risk_elevated` **False on every take in the archive** — even
+   the pub/tavern ones — because once the vocal is separated it cannot tell a
+   noisy room from a home studio. So *where it was sung* is, like intent,
+   something the singer knows and the engine does not. `take_context.capture` ∈
+   `studio` / `home` / `live` records it and decides **which score leads**:
+   `live` (crowd/PA/room) leads **capture-fair**; `studio`/`home` are clean
+   captures and lead **overall**. Undeclared → fall back to the engine flag
+   (currently overall everywhere). Like everything here, it never changes a
+   score — only which one is shown first. This also corrects a mislabel we hit:
+   "home" is a clean capture, NOT a degraded "room", so a home take leads overall.
 
 4. **How ranking honours it:**
    - **Performance** takes form the leaderboard, the per-song best-of, and the
