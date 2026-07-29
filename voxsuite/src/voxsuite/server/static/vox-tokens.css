@@ -81,9 +81,10 @@
   --vox-scrim:rgba(19,26,34,.42);   /* overlay scrim                       */
 
   /* ======================================================================
-     DEPRECATED ALIASES — dark-era names remapped to the light palette so
-     surfaces not yet rebuilt (Phase 2: decks/buildpage · Phase 4: monitor)
-     keep rendering. Do not use in new code; removed when those phases land.
+     DEPRECATED ALIASES — dark-era names remapped to the light palette.
+     Still consumed by the decks' inline layout CSS (~78 references), so
+     they must stay until those pages migrate to the new names. Do not use
+     in new code.
      ====================================================================== */
   --vox-void:#ffffff;         /* was the page black; also used as text-on-accent */
   --vox-raised:var(--vox-panel);
