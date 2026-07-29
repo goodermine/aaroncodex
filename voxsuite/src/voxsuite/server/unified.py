@@ -25,7 +25,7 @@ import sys
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.routing import APIRoute
 
 # The shared kit + the Fused deck shell live in voxsuite's static dir, which is
@@ -121,11 +121,18 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
     def polish_deck() -> HTMLResponse:
         return _shell(shells["polish"])
 
-    @app.get("/monitor", response_class=HTMLResponse)
+    @app.get("/monitor")
+    def pitch_monitor_redirect():
+        """The monitor lives under /monitor/ (trailing slash) so its RELATIVE
+        asset link (vox-tokens.css) resolves to /monitor/vox-tokens.css. Served
+        at bare /monitor the browser asked for /vox-tokens.css, 404'd, and the
+        page rendered unstyled with a black canvas grid."""
+        return RedirectResponse(url="/monitor/", status_code=307)
+
+    @app.get("/monitor/", response_class=HTMLResponse)
     def pitch_monitor() -> HTMLResponse:
         """Real-time pitch monitor. Rides the suite's HTTPS origin for the
-        secure context the mic (getUserMedia) needs on phones. Assets resolve
-        against /monitor/ (see below) so the page shares the design tokens."""
+        secure context the mic (getUserMedia) needs on phones."""
         path = _pitchmonitor_root() / "index.html"
         if not path.is_file():
             raise HTTPException(404, "pitch monitor not installed")
