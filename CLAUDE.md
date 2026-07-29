@@ -132,6 +132,15 @@ After every analysis you run, you MUST hand back, in the conversation:
    `GET /api/pitch-jobs/{id}/full-results`). Send all of it; chunk for length.
    Never hide it in a committed file only.
 
+The one-command way to produce the deliverable, from any stored analysis:
+
+```bash
+python3 tools/show_results.py <take-name>   # prints the full report to paste back
+```
+
+Run it as the final step of every analysis and paste its output to the singer —
+see `docs/handoffs/ANALYSIS_RUNBOOK.md`, whose last step is exactly this.
+
 A commit hash, a branch name, "preflight passed" and "worktree clean" are
 **confirmations of the plumbing** — necessary, but they are NOT the deliverable
 and never stand in for it. If you cannot render the full results for any reason,
