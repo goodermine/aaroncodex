@@ -25,4 +25,8 @@ for target in "${targets[@]}"; do
   fi
 done
 
+# the pitch monitor consumes only the tokens (self-contained page)
+cp "$here/vox-tokens.css" "$root/pitchmonitor/vox-tokens.css"
+echo "synced vox-tokens.css -> pitchmonitor/vox-tokens.css"
+
 echo "done."

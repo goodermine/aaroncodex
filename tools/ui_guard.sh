@@ -14,8 +14,7 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
 fail=0
 
-# Shipped UI surfaces under the gate. NOT yet included (tracked debt):
-#   pitchmonitor/                                       — rebuilt on the kit in Phase 4
+# Shipped UI surfaces under the gate. NOT included (non-shipping):
 #   design/vox-suite-concept.html, design/vox-suite-spec.html — dark-era design archives
 #   design/next/                                        — Phase-0 static mockups
 SCOPE=(
@@ -26,6 +25,7 @@ SCOPE=(
   voxanalysis/vox-analysis/viewer/static/deck.html
   voxpolish/src/voxpolish/server/static/deck.html
   voxpolish/src/voxpolish/server/static/index.html
+  pitchmonitor/index.html
 )
 
 echo "== gate 1: no colour definitions outside vox-tokens.css =="
@@ -61,6 +61,9 @@ for t in "${targets[@]}"; do
     fi
   done
 done
+if [ -f pitchmonitor/vox-tokens.css ] && ! cmp -s design/vox-tokens.css pitchmonitor/vox-tokens.css; then
+  echo "DRIFT: pitchmonitor/vox-tokens.css != design/vox-tokens.css"; drift=1
+fi
 if [ "$drift" -eq 1 ]; then echo "FAIL: run design/sync.sh"; fail=1; else echo "ok"; fi
 
 echo "== gate 4: WCAG AA contrast on token pairs =="
