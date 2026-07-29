@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 130,
+      "n": 131,
       "overall": {
         "min": 6.1,
         "max": 9.2,
@@ -19,7 +19,7 @@
       "capture_fair": {
         "min": 4.5,
         "max": 9.7,
-        "mean": 7.63,
+        "mean": 7.64,
         "spread": 5.2
       },
       "dynamics": {
@@ -3478,7 +3478,7 @@
       "n_notes": 168,
       "prior_score_status": "current",
       "overall": 7.4,
-      "capture_fair": 7.6,
+      "capture_fair": 7.5,
       "coverage": "full",
       "components_unscored": [],
       "confidence": "high",
@@ -4588,6 +4588,41 @@
         "dyn_phrase_spread_db": 16.83,
         "dyn_effective_range_db": 29.85,
         "median_phrase_s": 4.57
+      }
+    },
+    {
+      "take": "2026-07-29-rilda-who-s-that-girl-take-001",
+      "singer": "rilda",
+      "song": "who-s-that-girl-take-001",
+      "date": "2026-07-29",
+      "n_notes": 215,
+      "prior_score_status": "current",
+      "overall": 8.3,
+      "capture_fair": 7.8,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 10.0,
+        "vibrato_control": 10.0,
+        "dynamics_expression": 8.65,
+        "phrase_control": 10.0,
+        "breath_support": 8.82
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 93.4,
+        "pct_within_25c": 62.8,
+        "jitter_pct": 0.3724,
+        "shimmer_pct": 2.2975,
+        "hnr_db": 27.73,
+        "vibrato_pct_notes": 58.8,
+        "dyn_phrase_spread_db": 5.16,
+        "dyn_effective_range_db": 23.12,
+        "median_phrase_s": 4.24
       }
     }
   ],

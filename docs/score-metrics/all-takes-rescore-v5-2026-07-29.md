@@ -8,7 +8,7 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 Overall: min 6.1 · max 9.2 · mean 7.73. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 130/130 takes.
+Full coverage: 131/131 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -110,7 +110,7 @@ Full coverage: 130/130 takes.
 | aaron | pressure-down-take-007 | 207 | **7.6** | 8.0 | high | 10.0 | 7.84 | 4.92 | 8.64 | 9.42 | 3.45 | 6.54 |
 | aaron | pressure-down-take-008 | 226 | **7.9** | 8.4 | high | 10.0 | 9.67 | 4.64 | 8.43 | 9.42 | 5.12 | 6.05 |
 | aaron | tutti-frutti-take-001 | 167 | **7.6** | 7.1 | high | 6.0 | 7.14 | 10.0 | 9.22 | 7.19 | 10.0 | 3.67 |
-| aaron | tutti-frutti-take-002 | 168 | **7.4** | 7.6 | high | 10.0 | 4.68 | 4.88 | 8.93 | 9.66 | 3.36 | 7.85 |
+| aaron | tutti-frutti-take-002 | 168 | **7.4** | 7.5 | high | 10.0 | 4.68 | 4.88 | 8.93 | 9.66 | 3.36 | 7.85 |
 | aaron | danger-zone-take-001 | 140 | **7.1** | 6.0 | high | 6.0 | 2.35 | 10.0 | 8.37 | 9.13 | 10.0 | 3.67 |
 | aaron | kryptonite-take-001 | 154 | **8.8** | 8.3 | high | 10.0 | 6.85 | 10.0 | 9.96 | 9.77 | 10.0 | 1.9 |
 | aaron | the-heat-is-on-take-001 | 198 | **6.7** | 5.5 | high | 6.0 | 3.32 | 10.0 | 9.06 | 8.39 | 4.21 | 3.28 |
@@ -142,6 +142,7 @@ Full coverage: 130/130 takes.
 | rilda | black-velvet-take-001 | 264 | **7.4** | 7.5 | high | 8.6 | 3.64 | 5.62 | 10.0 | 9.63 | 6.33 | 7.72 |
 | rilda | dreams-take-001 | 260 | **8.0** | 8.3 | high | 10.0 | 6.19 | 6.94 | 10.0 | 8.13 | 4.39 | 8.48 |
 | rilda | you-sexy-thing-take-001 | 204 | **8.1** | 8.0 | high | 8.0 | 6.8 | 7.48 | 9.69 | 9.07 | 10.0 | 5.54 |
+| rilda | who-s-that-girl-take-001 | 215 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.65 | 10.0 | 8.82 |
 
 ## Professional references (calibration sanity check)
 
