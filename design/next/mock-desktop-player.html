@@ -67,11 +67,18 @@ h1{font-size:var(--vox-fs-6);font-weight:700;color:var(--vox-ink);letter-spacing
 .legend .li{display:inline-flex;align-items:center;gap:7px}
 .sw{width:18px;height:0;border-top:2.5px solid var(--vox-accent);border-radius:2px}
 .sw.tgt{border-top:2.5px dashed var(--vox-line-2)}
+.sw.harm{border-top:8px solid var(--vox-accent);opacity:.18;border-radius:4px}
 .dot{width:9px;height:9px;border-radius:50%}
 .dot.slide{background:var(--vox-watch)}
 .dot.off{background:var(--vox-weak)}
 .scope .head-extra{display:flex;justify-content:space-between;align-items:baseline;
   padding-right:var(--vox-sp-5)}
+.tgl{font:inherit;font-size:var(--vox-fs-1);font-weight:600;padding:5px 12px;
+  border:1px solid var(--vox-line-2);border-radius:999px;cursor:pointer;
+  background:var(--vox-panel);color:var(--vox-muted)}
+.tgl[aria-pressed="true"]{background:var(--vox-accent-tint);border-color:var(--vox-accent);
+  color:var(--vox-accent)}
+.scopectl{display:flex;align-items:center;gap:var(--vox-sp-3)}
 .nowplay{font-size:var(--vox-fs-1);color:var(--vox-muted)}
 .nowplay b{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;color:var(--vox-ink)}
 
@@ -125,10 +132,51 @@ h1{font-size:var(--vox-fs-6);font-weight:700;color:var(--vox-ink);letter-spacing
   <section class="card scope">
     <div class="head-extra">
       <h2>Pitch</h2>
-      <div class="nowplay">at playhead <b>E4 −4¢</b></div>
+      <div class="scopectl">
+        <button class="tgl" aria-pressed="true" type="button">Harmonics</button>
+        <div class="nowplay">at playhead <b>E4 −4¢</b></div>
+      </div>
     </div>
     <div class="frame">
       <svg viewBox="0 0 1040 250" role="img" aria-label="Sung pitch against the melody">
+        <!-- harmonics layer (toggle: Harmonics) — energy as opacity of the accent -->
+        <g fill="var(--vox-accent)">
+          <rect x="36"  y="14" width="34" height="222" opacity=".05"/>
+          <rect x="70"  y="14" width="30" height="222" opacity=".09"/>
+          <rect x="100" y="14" width="36" height="222" opacity=".06"/>
+          <rect x="136" y="14" width="30" height="222" opacity=".11"/>
+          <rect x="166" y="14" width="38" height="222" opacity=".07"/>
+          <rect x="204" y="14" width="32" height="222" opacity=".12"/>
+          <rect x="236" y="14" width="40" height="222" opacity=".08"/>
+          <rect x="276" y="14" width="30" height="222" opacity=".13"/>
+          <rect x="306" y="14" width="36" height="222" opacity=".07"/>
+          <rect x="342" y="14" width="32" height="222" opacity=".12"/>
+          <rect x="374" y="14" width="40" height="222" opacity=".08"/>
+          <rect x="414" y="14" width="30" height="222" opacity=".13"/>
+          <rect x="444" y="14" width="38" height="222" opacity=".07"/>
+          <rect x="482" y="14" width="32" height="222" opacity=".11"/>
+          <rect x="514" y="14" width="36" height="222" opacity=".06"/>
+          <rect x="550" y="14" width="34" height="222" opacity=".1"/>
+          <rect x="584" y="14" width="36" height="222" opacity=".07"/>
+        </g>
+        <!-- fundamental energy ribbon (follows the sung contour) -->
+        <path d="M36 165 C70 163 90 162 110 161 S140 158 152 148 S170 121 200 119
+                 S260 116 290 118 S310 112 322 96 S350 74 380 76 S415 79 428 90
+                 S450 116 480 119 S545 121 566 132 S590 158 620 161"
+              fill="none" stroke="var(--vox-accent)" stroke-width="16"
+              stroke-linecap="round" opacity=".16"/>
+        <!-- H2 ribbon an octave up, fading, clipped by the chart top -->
+        <path d="M36 105 C70 103 90 102 110 101 S140 98 152 88 S170 61 200 59
+                 S260 56 290 58 S310 52 322 36 S350 22 380 24 S415 27 428 38
+                 S450 56 480 59 S545 61 566 72 S590 98 620 101"
+              fill="none" stroke="var(--vox-accent)" stroke-width="10"
+              stroke-linecap="round" opacity=".09"/>
+        <!-- H3 hint -->
+        <path d="M36 60 C70 58 90 57 110 56 S140 53 152 45 S170 26 200 24
+                 S260 21 290 23 S310 19 322 15 S350 14 380 14 S415 15 428 18
+                 S450 24 480 27 S545 29 566 36 S590 54 620 57"
+              fill="none" stroke="var(--vox-accent)" stroke-width="7"
+              stroke-linecap="round" opacity=".055"/>
         <!-- note grid -->
         <g stroke="var(--vox-line)" stroke-width="1">
           <line x1="36" y1="30"  x2="1040" y2="30"/>
@@ -168,6 +216,7 @@ h1{font-size:var(--vox-fs-6);font-weight:700;color:var(--vox-ink);letter-spacing
     <div class="legend">
       <span class="li"><span class="sw"></span>Sung pitch</span>
       <span class="li"><span class="sw tgt"></span>Melody</span>
+      <span class="li"><span class="sw harm"></span>Harmonic energy</span>
       <span class="li"><span class="dot slide"></span>Slid into the note</span>
       <span class="li"><span class="dot off"></span>Out of place</span>
     </div>
