@@ -1,0 +1,87 @@
+/* ============================================================================
+   VOX Suite — design tokens, v2 "clean & precise"  (DRAFT — Phase 0)
+   Single light palette. This file is the ONLY place a colour may be defined;
+   every component, page, canvas bridge and server-emitted style consumes these
+   custom properties. No dark theme, no toggle, no glow/gradient identity.
+
+   Accent policy: ONE accent (deep calm blue), used only for primary actions,
+   active/selected state and focus. Data reads in ink; semantic score bands are
+   reserved for judgement (good / watch / weak) and nothing else.
+
+   Every colour pair used for text meets WCAG AA on the surface it sits on.
+   ============================================================================ */
+
+:root{
+  /* ---- surfaces ------------------------------------------------------- */
+  --vox-page:#f6f7f9;         /* app background                            */
+  --vox-panel:#ffffff;        /* cards / panels                            */
+  --vox-sunken:#eef1f4;       /* wells, inputs, meter tracks               */
+  --vox-line:#e4e8ed;         /* hairline rules                            */
+  --vox-line-2:#cfd7df;       /* emphasised rules / control borders        */
+
+  /* ---- ink ------------------------------------------------------------ */
+  --vox-ink:#131a22;          /* headings, hero figures        15.9:1 on panel */
+  --vox-body:#3c4653;         /* long-form body copy            9.5:1          */
+  --vox-muted:#5d6a77;        /* secondary labels               5.6:1          */
+  --vox-dim:#8894a0;          /* tertiary; never for essential text            */
+
+  /* ---- the accent ------------------------------------------------------ */
+  --vox-accent:#1d4ed8;       /* deep calm blue                 5.2:1 on panel */
+  --vox-accent-deep:#1e40af;  /* hover / pressed                               */
+  --vox-accent-tint:#eef3fe;  /* selected-chip / row wash                      */
+  --vox-on-accent:#ffffff;    /* text on accent                 5.2:1          */
+
+  /* ---- semantic score bands (judgement only) --------------------------- */
+  --vox-good:#15803d;         /*  4.5:1 on panel */
+  --vox-watch:#b45309;        /*  4.5:1 on panel */
+  --vox-weak:#b91c1c;         /*  5.9:1 on panel */
+  --vox-good-tint:#ecf7f0;
+  --vox-watch-tint:#fdf3e7;
+  --vox-weak-tint:#fdefef;
+
+  /* ---- spectrogram colormap (magma) ------------------------------------ */
+  /* Domain-standard data-visualisation ramp — coaches and professionals
+     read spectrograms in these colours, so the spectrogram is the ONE
+     deliberate dark instrument in the light UI. These stops are chart-data
+     constants, not UI colours: never use them for chrome, text or state.  */
+  --vox-spec-0:#000004;  --vox-spec-1:#1c1044;  --vox-spec-2:#4f127b;
+  --vox-spec-3:#812581;  --vox-spec-4:#b5367a;  --vox-spec-5:#e55064;
+  --vox-spec-6:#fb8761;  --vox-spec-7:#fec287;  --vox-spec-8:#fcfdbf;
+
+  /* ---- categorical (charts that need distinction, not judgement) ------- */
+  --vox-cat-1:#1d4ed8;
+  --vox-cat-2:#0f766e;
+  --vox-cat-3:#7c3aed;
+  --vox-cat-4:#be185d;
+  --vox-cat-5:#4d7c0f;
+
+  /* ---- type ------------------------------------------------------------ */
+  --vox-sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --vox-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+
+  /* type scale (rem) — figures always tabular (see .vox-num) */
+  --vox-fs-0:.6875rem;        /* 11 — fine print, provenance               */
+  --vox-fs-1:.75rem;          /* 12 — labels, chips                        */
+  --vox-fs-2:.8125rem;        /* 13 — table body, secondary                */
+  --vox-fs-3:.9375rem;        /* 15 — body                                 */
+  --vox-fs-4:1.0625rem;       /* 17 — emphasised body / row figures        */
+  --vox-fs-5:1.375rem;        /* 22 — section heads                        */
+  --vox-fs-6:1.75rem;         /* 28 — page title                           */
+  --vox-fs-hero:4.25rem;      /* 68 — the headline score                   */
+
+  /* ---- space (4px base) ------------------------------------------------ */
+  --vox-sp-1:4px;  --vox-sp-2:8px;  --vox-sp-3:12px; --vox-sp-4:16px;
+  --vox-sp-5:24px; --vox-sp-6:32px; --vox-sp-7:48px; --vox-sp-8:64px;
+
+  /* ---- shape & elevation ---------------------------------------------- */
+  --vox-r-ctl:6px;            /* controls, chips                           */
+  --vox-r-card:10px;          /* cards                                     */
+  --vox-shadow-1:0 1px 2px rgba(19,26,34,.06),0 1px 3px rgba(19,26,34,.04);
+  --vox-shadow-2:0 4px 12px rgba(19,26,34,.08),0 1px 3px rgba(19,26,34,.05);
+
+  /* ---- focus ----------------------------------------------------------- */
+  --vox-focus:0 0 0 2px var(--vox-panel),0 0 0 4px var(--vox-accent);
+}
+
+/* Numerals: every figure aligns like an instrument readout. */
+.vox-num{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}

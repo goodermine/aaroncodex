@@ -1,8 +1,12 @@
 /* ============================================================================
-   VOX Suite — component kit  (Visual System v0.1)
+   VOX Suite — component kit  (Visual System v2 "clean & precise")
    Reusable, framework-free primitives shared by VoxPolish + VoxAnalysis.
    Depends on vox-tokens.css. All classes are `vox-` prefixed so they can be
    dropped into either app without colliding with existing styles.
+
+   v2: single light theme. Structure from spacing and hairlines, one accent,
+   semantic colour only for judgement. No glows, no gradients, no dark wells —
+   the spectrogram canvas is the one deliberate dark instrument (see tokens).
 
    Canonical copy lives in /design; run design/sync.sh to vendor into each app.
    ============================================================================ */
@@ -11,85 +15,80 @@
 @keyframes vox-pulse{0%,100%{opacity:1}50%{opacity:.24}}
 @keyframes vox-blink{0%,49%{opacity:1}50%,100%{opacity:.16}}
 @keyframes vox-load{from{transform:translateX(-120%)}to{transform:translateX(420%)}}
-@keyframes vox-glow-pulse{0%,100%{box-shadow:0 0 12px rgba(63,224,255,.45)}50%{box-shadow:0 0 22px rgba(63,224,255,.85)}}
+@keyframes vox-glow-pulse{0%,100%{box-shadow:var(--vox-shadow-1)}50%{box-shadow:var(--vox-shadow-2)}}
 
 /* ---- state LED — the system's pulse --------------------------------------- */
 /* Colour + animation encode state together.
-     .is-standby cyan pulse · .is-working amber blink ·
-     .is-done green · .is-alert red fast-blink · .is-analyze violet          */
+     .is-standby accent pulse · .is-working amber blink ·
+     .is-done green · .is-alert red fast-blink · .is-analyze accent pulse     */
 .vox-led{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--vox-dim);flex:0 0 auto;vertical-align:middle}
-.vox-led.is-standby{background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan);animation:vox-pulse 1.4s ease-in-out infinite}
-.vox-led.is-working{background:var(--vox-amber);box-shadow:var(--vox-glow-amber);animation:vox-blink 1s steps(1,end) infinite}
-.vox-led.is-done{background:var(--vox-green);box-shadow:var(--vox-glow-green)}
-.vox-led.is-alert{background:var(--vox-red);box-shadow:var(--vox-glow-red);animation:vox-blink .6s steps(1,end) infinite}
-.vox-led.is-analyze{background:var(--vox-violet);box-shadow:var(--vox-glow-violet);animation:vox-pulse 1.4s ease-in-out infinite}
+.vox-led.is-standby{background:var(--vox-accent);animation:vox-pulse 1.4s ease-in-out infinite}
+.vox-led.is-working{background:var(--vox-watch);animation:vox-blink 1s steps(1,end) infinite}
+.vox-led.is-done{background:var(--vox-good)}
+.vox-led.is-alert{background:var(--vox-weak);animation:vox-blink .6s steps(1,end) infinite}
+.vox-led.is-analyze{background:var(--vox-accent);animation:vox-pulse 1.4s ease-in-out infinite}
 
 /* ---- signal chain — where in the pipeline --------------------------------- */
 .vox-chain{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;
-  padding:14px 16px;border:1px solid var(--vox-line);border-radius:12px;background:var(--vox-surface-1)}
+  padding:14px 16px;border:1px solid var(--vox-line);border-radius:12px;background:var(--vox-panel)}
 .vox-step{position:relative;padding:12px 8px 10px;border-top:2px solid var(--vox-line-2);
   font-family:var(--vox-mono);font-size:9.5px;line-height:1.4;letter-spacing:.06em;text-transform:uppercase;color:var(--vox-dim)}
 .vox-step__n{display:block;font-size:8.5px;color:var(--vox-dim);margin-bottom:3px}
-.vox-step.is-done{border-color:var(--vox-green);color:#8fb6a6}
-.vox-step.is-done .vox-step__n{color:var(--vox-green)}
-.vox-step.is-active{border-color:var(--vox-cyan);color:var(--vox-ink);background:linear-gradient(180deg,rgba(63,224,255,.09),transparent)}
-.vox-step.is-active .vox-step__n{color:var(--vox-cyan)}
+.vox-step.is-done{border-color:var(--vox-good);color:var(--vox-good)}
+.vox-step.is-done .vox-step__n{color:var(--vox-good)}
+.vox-step.is-active{border-color:var(--vox-accent);color:var(--vox-ink);background:linear-gradient(180deg,var(--vox-accent-tint),transparent)}
+.vox-step.is-active .vox-step__n{color:var(--vox-accent)}
 .vox-step.is-active::before{content:"";position:absolute;top:-5px;left:0;width:7px;height:7px;border-radius:50%;
-  background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan);animation:vox-pulse 1s ease-in-out infinite}
+  background:var(--vox-accent);animation:vox-pulse 1s ease-in-out infinite}
 
 /* ---- meters — the analog pulse -------------------------------------------- */
 /* Green→amber→red encodes headroom; amber/red surface only near clip.        */
-.vox-meter{height:8px;border-radius:3px;background:#111e28;overflow:hidden;position:relative}
+.vox-meter{height:8px;border-radius:3px;background:var(--vox-sunken);overflow:hidden;position:relative}
 .vox-meter__fill{position:absolute;inset:0 auto 0 0;border-radius:3px;width:0;
-  background:linear-gradient(90deg,var(--vox-green) 0,var(--vox-green) 60%,var(--vox-amber) 82%,var(--vox-red) 100%);
+  background:linear-gradient(90deg,var(--vox-good) 0,var(--vox-good) 60%,var(--vox-watch) 82%,var(--vox-weak) 100%);
   transition:width .08s linear}
-.vox-meter--cyan .vox-meter__fill{background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan))}
+.vox-meter--cyan .vox-meter__fill{background:var(--vox-accent)}
 
 /* indeterminate progress (upload / working) */
-.vox-bar{height:3px;border-radius:3px;background:var(--vox-surface-2);overflow:hidden}
+.vox-bar{height:3px;border-radius:3px;background:var(--vox-sunken);overflow:hidden}
 .vox-bar__i{display:block;width:35%;height:100%;border-radius:3px;
-  background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan));animation:vox-load 1.3s ease-in-out infinite}
+  background:var(--vox-accent);animation:vox-load 1.3s ease-in-out infinite}
 
 /* ---- controls -------------------------------------------------------------- */
 .vox-btn{min-height:44px;display:inline-flex;align-items:center;gap:8px;
-  border:1px solid var(--vox-line-2);background:var(--vox-grad-btn);color:var(--vox-btn-ink);
+  border:1px solid var(--vox-line-2);background:var(--vox-panel);color:var(--vox-body);
   padding:9px 14px;border-radius:var(--vox-radius-sm);cursor:pointer;
   font:700 .72rem/1.2 var(--vox-mono);letter-spacing:.06em;text-transform:uppercase;
   transition:border-color .15s,color .15s,background .15s,transform .12s}
 .vox-btn:hover{border-color:var(--vox-muted);color:var(--vox-ink)}
 .vox-btn:active{transform:translateY(1px)}
-.vox-btn[aria-pressed="true"]{border-color:rgba(63,224,255,.5);background:#102630;color:var(--vox-cyan)}
+.vox-btn[aria-pressed="true"]{border-color:var(--vox-accent);background:var(--vox-accent-tint);color:var(--vox-accent)}
 .vox-btn:disabled{opacity:.45;cursor:not-allowed}
 .vox-btn--primary{color:var(--vox-on-accent);border-color:transparent;
-  background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:var(--vox-glow-cyan)}
-.vox-btn--primary:hover{filter:brightness(1.08);color:var(--vox-on-accent)}
+  background:var(--vox-accent);box-shadow:var(--vox-shadow-1)}
+.vox-btn--primary:hover{background:var(--vox-accent-deep);color:var(--vox-on-accent)}
 .vox-btn--ready{animation:vox-glow-pulse 1.8s ease-in-out infinite}
 
 /* ---- chips / surfaces ------------------------------------------------------ */
 .vox-chip{font-family:var(--vox-mono);font-size:10px;letter-spacing:.06em;color:var(--vox-muted);
-  border:1px solid var(--vox-line-2);border-radius:6px;padding:5px 9px;background:var(--vox-surface-1)}
-.vox-chip.is-hot{color:var(--vox-cyan);border-color:rgba(63,224,255,.4)}
+  border:1px solid var(--vox-line-2);border-radius:6px;padding:5px 9px;background:var(--vox-panel)}
+.vox-chip.is-hot{color:var(--vox-accent);border-color:var(--vox-accent)}
 .vox-card{border:1px solid var(--vox-line);border-radius:var(--vox-radius);
-  background:var(--vox-grad-panel);box-shadow:0 20px 55px #0008,inset 0 1px 0 rgba(255,255,255,.03)}
+  background:var(--vox-panel);box-shadow:var(--vox-shadow-1)}
 
 /* uppercase mono label */
 .vox-label{font-family:var(--vox-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-muted)}
 
 /* ============================================================================
-   COMMAND-DECK SHELL LAYER  (Visual System v0.1 · §01 §05)
+   COMMAND-DECK SHELL LAYER
    The unified shell both modes draw from: command bar, mode switch, deck grid,
    rails, module rows, readout, scope frame, transport, export tray, telemetry
    rail, processing bar. All token-driven — a change to a token flows to both
-   apps. Mirrors the approved concept (design/vox-suite-concept.html).
+   apps.
    ============================================================================ */
 
-/* ---- deck background (blue-black void + faint grid + cyan aura) ------------ */
-/* Put on the shell wrapper (or body) for the "lit control room" ground.        */
-.vox-deck-bg{position:relative;background:var(--vox-grad-page)}
-.vox-deck-bg::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
-  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
-  background-size:44px 44px;mask-image:radial-gradient(120% 90% at 50% 0,#000 40%,transparent 92%)}
+/* ---- deck background: quiet light ground ----------------------------------- */
+.vox-deck-bg{position:relative;background:var(--vox-page)}
 .vox-wrap{position:relative;z-index:1;box-sizing:border-box;width:min(1320px,100%);margin:0 auto;padding:16px 20px 60px}
 /* border-box: without it the wrap was always viewport+padding wide, which made
    phones expand their layout viewport past the 760px breakpoint and disabled
@@ -100,58 +99,50 @@
 /* ---- command bar ----------------------------------------------------------- */
 .vox-command{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:12px 16px;
   border:1px solid var(--vox-line);border-radius:12px;
-  background:var(--vox-grad-bar);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 18px 50px #0009}
+  background:var(--vox-panel);box-shadow:var(--vox-shadow-1)}
 .vox-brand{display:flex;align-items:center;gap:12px}
 .vox-brand__glyph{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;
-  border:1px solid rgba(63,224,255,.4);color:var(--vox-cyan);
-  background:radial-gradient(circle at 50% 30%,rgba(63,224,255,.16),transparent 70%);
-  box-shadow:var(--vox-glow-cyan),inset 0 0 12px rgba(63,224,255,.12)}
+  border:1px solid var(--vox-line-2);color:var(--vox-accent);background:var(--vox-accent-tint)}
 .vox-brand__glyph svg{width:22px;height:22px}
-.vox-brand__name{font-size:16px;font-weight:800;letter-spacing:.14em}
-.vox-brand__name b{color:var(--vox-cyan)}
+.vox-brand__name{font-size:16px;font-weight:800;letter-spacing:.14em;color:var(--vox-ink)}
+.vox-brand__name b{color:var(--vox-accent)}
 .vox-brand__sub{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.2em;color:var(--vox-muted)}
 .vox-statebar{display:flex;align-items:center;gap:12px;margin-left:auto;flex-wrap:wrap}
 .vox-state{display:flex;align-items:center;gap:9px;padding:7px 12px;border-radius:8px;
-  border:1px solid var(--vox-line-2);background:var(--vox-surface-1);font-family:var(--vox-mono);font-size:11px;letter-spacing:.08em}
+  border:1px solid var(--vox-line);background:var(--vox-sunken);font-family:var(--vox-mono);font-size:11px;letter-spacing:.08em}
 .vox-state__k{color:var(--vox-muted)}
 .vox-state__v{color:var(--vox-ink)}
-.vox-clock{color:var(--vox-cyan)}
+.vox-clock{color:var(--vox-accent)}
 .vox-mini-meter{display:flex;gap:2px;align-items:flex-end;height:22px}
-.vox-mini-meter i{width:3px;background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));border-radius:1px;opacity:.85}
+.vox-mini-meter i{width:3px;background:var(--vox-accent);border-radius:1px;opacity:.7}
 
 /* ---- deck head: mode switch + fused + caption + job tag -------------------- */
 .vox-deckhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:18px 0 12px}
-.vox-modeswitch{display:flex;gap:4px;padding:4px;border:1px solid var(--vox-line);border-radius:11px;background:var(--vox-surface-1)}
+.vox-modeswitch{display:flex;gap:4px;padding:4px;border:1px solid var(--vox-line);border-radius:11px;background:var(--vox-panel)}
 .vox-modeswitch button{font-family:var(--vox-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--vox-muted);background:transparent;border:0;border-radius:8px;padding:9px 18px;cursor:pointer;
   display:flex;align-items:center;gap:9px;transition:.18s}
 .vox-modeswitch button .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.5}
 .vox-modeswitch button:hover{color:var(--vox-ink)}
-.vox-modeswitch button.active{color:var(--vox-on-accent);
-  background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));box-shadow:var(--vox-glow-cyan)}
-.vox-modeswitch button.active .dot{opacity:1;background:var(--vox-void)}
-.vox-modeswitch button[data-mode="analyze"].active{
-  background:linear-gradient(180deg,var(--vox-violet),var(--vox-violet-deep));box-shadow:var(--vox-glow-violet)}
+.vox-modeswitch button.active{color:var(--vox-on-accent);background:var(--vox-accent)}
+.vox-modeswitch button.active .dot{opacity:1;background:var(--vox-on-accent)}
 .vox-fusedbtn{font-family:var(--vox-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--vox-muted);
-  border:1px solid var(--vox-line-2);border-radius:9px;padding:9px 14px;cursor:pointer;background:var(--vox-surface-1);
+  border:1px solid var(--vox-line-2);border-radius:9px;padding:9px 14px;cursor:pointer;background:var(--vox-panel);
   display:flex;align-items:center;gap:9px;transition:.18s}
 .vox-fusedbtn:hover{color:var(--vox-ink)}
-.vox-fusedbtn .swirl{width:9px;height:9px;border-radius:50%;background:conic-gradient(from 0deg,var(--vox-cyan),var(--vox-violet),var(--vox-cyan))}
-.vox-fusedbtn.active{color:var(--vox-ink);border-color:transparent;
-  background:linear-gradient(180deg,rgba(63,224,255,.16),rgba(139,124,255,.16));
-  box-shadow:0 0 0 1px rgba(63,224,255,.5) inset,0 0 16px rgba(99,174,255,.35)}
+.vox-fusedbtn .swirl{width:9px;height:9px;border-radius:50%;background:conic-gradient(from 0deg,var(--vox-accent),var(--vox-accent-deep),var(--vox-accent))}
+.vox-fusedbtn.active{color:var(--vox-accent);border-color:var(--vox-accent);background:var(--vox-accent-tint)}
 .vox-mode-caption{font-family:var(--vox-mono);font-size:11px;color:var(--vox-muted);letter-spacing:.04em}
 .vox-mode-caption b{color:var(--vox-ink)}
 .vox-deckhead .vox-spacer{flex:1}
-.vox-jobtag{font-family:var(--vox-mono);font-size:10.5px;letter-spacing:.14em;color:var(--vox-cyan-ink);
-  border:1px solid var(--vox-line-2);border-radius:6px;padding:6px 10px;background:var(--vox-surface-1)}
+.vox-jobtag{font-family:var(--vox-mono);font-size:10.5px;letter-spacing:.14em;color:var(--vox-accent);
+  border:1px solid var(--vox-line-2);border-radius:6px;padding:6px 10px;background:var(--vox-panel)}
 
 /* ---- deck grid + rails ----------------------------------------------------- */
 .vox-deck{display:grid;grid-template-columns:248px minmax(0,1fr) 260px;gap:14px;align-items:start}
 .vox-deck>*{min-width:0}
 .vox-rail{border:1px solid var(--vox-line);border-radius:var(--vox-radius);
-  background:var(--vox-grad-panel);box-shadow:0 20px 55px #0008,inset 0 1px 0 rgba(255,255,255,.03);
+  background:var(--vox-panel);box-shadow:var(--vox-shadow-1);
   padding:14px;min-height:520px}
 .vox-rail--flush{padding:0}
 .vox-rail__title{font-size:11px;font-family:var(--vox-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--vox-muted);
@@ -159,111 +150,113 @@
 
 /* ---- module row (Polish) --------------------------------------------------- */
 .vox-module{padding:11px 8px;border-radius:9px;border:1px solid transparent;margin-bottom:6px;transition:.15s}
-.vox-module:hover{border-color:var(--vox-line-2);background:var(--vox-surface-2)}
+.vox-module:hover{border-color:var(--vox-line-2);background:var(--vox-sunken)}
 .vox-module__top{display:flex;align-items:center;gap:9px}
-.vox-module__swatch{width:9px;height:9px;border-radius:2px;flex:0 0 auto;box-shadow:0 0 8px currentColor}
-.vox-module__name{font-size:12.5px;font-weight:600;flex:1}
-.vox-module__toggle{width:34px;height:18px;border-radius:10px;background:var(--vox-surface-2);border:1px solid var(--vox-line-2);
+.vox-module__swatch{width:9px;height:9px;border-radius:2px;flex:0 0 auto}
+.vox-module__name{font-size:12.5px;font-weight:600;flex:1;color:var(--vox-ink)}
+.vox-module__toggle{width:34px;height:18px;border-radius:10px;background:var(--vox-sunken);border:1px solid var(--vox-line-2);
   position:relative;cursor:pointer;flex:0 0 auto}
 .vox-module__toggle::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;
   background:var(--vox-dim);transition:.18s}
-.vox-module.on .vox-module__toggle{background:rgba(63,224,255,.18);border-color:var(--vox-cyan)}
-.vox-module.on .vox-module__toggle::after{left:16px;background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan)}
-.vox-module__track{height:4px;border-radius:3px;background:var(--vox-surface-2);margin-top:11px;position:relative;overflow:hidden}
+.vox-module.on .vox-module__toggle{background:var(--vox-accent-tint);border-color:var(--vox-accent)}
+.vox-module.on .vox-module__toggle::after{left:16px;background:var(--vox-accent)}
+.vox-module__track{height:4px;border-radius:3px;background:var(--vox-sunken);margin-top:11px;position:relative;overflow:hidden}
 .vox-module__track i{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
 .vox-module__meta{display:flex;justify-content:space-between;font-family:var(--vox-mono);font-size:9.5px;
   color:var(--vox-muted);margin-top:6px;letter-spacing:.05em}
 
 /* ---- live readout (Analyze) ------------------------------------------------ */
 .vox-readnote{font-family:var(--vox-mono);font-weight:700;font-size:56px;line-height:.9;letter-spacing:-.04em;
-  text-shadow:0 0 26px rgba(63,224,255,.28)}
+  color:var(--vox-ink);font-variant-numeric:tabular-nums}
 .vox-readnote small{font-size:20px;color:var(--vox-muted)}
-.vox-readcents{font-family:var(--vox-mono);font-size:12px;color:var(--vox-cyan);letter-spacing:.06em;margin-top:8px}
+.vox-readcents{font-family:var(--vox-mono);font-size:12px;color:var(--vox-accent);letter-spacing:.06em;margin-top:8px}
 .vox-readgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--vox-line);border:1px solid var(--vox-line);
   border-radius:8px;overflow:hidden;margin:14px 0}
-.vox-readcell{background:var(--vox-surface-1);padding:11px 12px}
+.vox-readcell{background:var(--vox-panel);padding:11px 12px}
 .vox-readcell__k{font-family:var(--vox-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--vox-muted)}
-.vox-readcell__v{font-family:var(--vox-mono);font-size:15px;font-weight:700;margin-top:5px}
+.vox-readcell__v{font-family:var(--vox-mono);font-size:15px;font-weight:700;margin-top:5px;color:var(--vox-ink);
+  font-variant-numeric:tabular-nums}
 .vox-harm{display:grid;gap:6px;margin-top:6px}
 .vox-harm__row{display:grid;grid-template-columns:26px 1fr 44px;gap:8px;align-items:center;font-family:var(--vox-mono);font-size:10px;color:var(--vox-muted)}
-.vox-harm__bar{height:5px;border-radius:3px;background:var(--vox-surface-2);overflow:hidden}
-.vox-harm__bar i{display:block;height:100%;background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan))}
-.vox-harm__val{text-align:right;color:var(--vox-cyan-ink)}
+.vox-harm__bar{height:5px;border-radius:3px;background:var(--vox-sunken);overflow:hidden}
+.vox-harm__bar i{display:block;height:100%;background:var(--vox-accent)}
+.vox-harm__val{text-align:right;color:var(--vox-muted);font-variant-numeric:tabular-nums}
 
 /* ---- scope frame + transport ---------------------------------------------- */
 .vox-scope{border:1px solid var(--vox-line);border-radius:var(--vox-radius);
-  background:var(--vox-grad-panel);box-shadow:0 20px 55px #0008,inset 0 1px 0 rgba(255,255,255,.03);
+  background:var(--vox-panel);box-shadow:var(--vox-shadow-1);
   overflow:hidden;display:flex;flex-direction:column;min-height:520px}
 .vox-scope__head{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--vox-line);flex-wrap:wrap}
 .vox-scope__title{font-family:var(--vox-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-muted)}
 .vox-scope__title b{color:var(--vox-ink)}
 .vox-scope__chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
 .vox-stage{position:relative;flex:1;margin:14px;border:1px solid var(--vox-line-2);border-radius:10px;overflow:hidden;
-  background:radial-gradient(120% 120% at 50% 0,#0a1620,#05090d)}
+  background:var(--vox-sunken)}
 /* Direct child only: the full-bleed scope canvas (#scope). Without ">" this
    also matched the recorder's nested .vrec-wave and stretched it to fill the
    stage, pushing the Stop button off-screen. */
 .vox-stage > canvas{display:block;width:100%;max-width:100%;height:100%}
-/* cyan brackets (were amber in the reference — palette law: cyan = the frame)  */
-.vox-bracket{position:absolute;width:24px;height:24px;border-color:var(--vox-cyan);opacity:.7;pointer-events:none;
-  filter:drop-shadow(0 0 5px rgba(63,224,255,.5))}
+/* corner brackets: the instrument frame */
+.vox-bracket{position:absolute;width:24px;height:24px;border-color:var(--vox-accent);opacity:.55;pointer-events:none}
 .vox-bracket.tl{top:10px;left:10px;border-left:2px solid;border-top:2px solid}
 .vox-bracket.tr{top:10px;right:10px;border-right:2px solid;border-top:2px solid}
 .vox-bracket.bl{bottom:10px;left:10px;border-left:2px solid;border-bottom:2px solid}
 .vox-bracket.br{bottom:10px;right:10px;border-right:2px solid;border-bottom:2px solid}
-.vox-stage__tstamp{position:absolute;top:12px;left:44px;font-family:var(--vox-mono);font-size:10px;letter-spacing:.1em;color:var(--vox-cyan-ink)}
+.vox-stage__tstamp{position:absolute;top:12px;left:44px;font-family:var(--vox-mono);font-size:10px;letter-spacing:.1em;color:var(--vox-muted)}
 .vox-stage__rec{position:absolute;top:12px;right:44px;display:flex;align-items:center;gap:6px;font-family:var(--vox-mono);font-size:10px;color:var(--vox-muted)}
 .vox-transport{display:flex;align-items:center;gap:14px;padding:12px 16px;border-top:1px solid var(--vox-line)}
-.vox-play{width:44px;height:44px;border-radius:50%;border:1px solid rgba(63,224,255,.4);background:var(--vox-surface-1);
-  color:var(--vox-cyan);font-size:15px;cursor:pointer;box-shadow:var(--vox-glow-cyan)}
-.vox-timecode{font-family:var(--vox-mono);font-size:13px;letter-spacing:.08em}
+.vox-play{width:44px;height:44px;border-radius:50%;border:0;background:var(--vox-accent);
+  color:var(--vox-on-accent);font-size:15px;cursor:pointer;box-shadow:var(--vox-shadow-1)}
+.vox-timecode{font-family:var(--vox-mono);font-size:13px;letter-spacing:.08em;color:var(--vox-ink);
+  font-variant-numeric:tabular-nums}
 .vox-timecode span{color:var(--vox-dim)}
-.vox-seek{flex:1;height:5px;border-radius:3px;background:var(--vox-surface-2);position:relative;overflow:hidden}
-.vox-seek i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan))}
+.vox-seek{flex:1;height:5px;border-radius:3px;background:var(--vox-sunken);position:relative;overflow:hidden}
+.vox-seek i{position:absolute;left:0;top:0;bottom:0;background:var(--vox-accent)}
 .vox-seek i::after{content:"";position:absolute;right:-3px;top:50%;transform:translateY(-50%);width:9px;height:9px;
-  border-radius:50%;background:var(--vox-cyan);box-shadow:var(--vox-glow-cyan)}
+  border-radius:50%;background:var(--vox-accent)}
 
 /* ---- export tray ----------------------------------------------------------- */
 /* Render notes — a module that silently did nothing is a bug the user must see.
    Warnings (vocoder missing, tune skipped) get the amber treatment. */
 .vox-rnotes{display:flex;flex-direction:column;gap:5px;margin:0 16px 12px;padding:10px 12px;
-  border:1px solid var(--vox-line);border-radius:9px;background:var(--vox-surface-1);
+  border:1px solid var(--vox-line);border-radius:9px;background:var(--vox-sunken);
   font-family:var(--vox-mono);font-size:11px;line-height:1.55;color:var(--vox-muted)}
-.vox-rnotes.is-warn{border-color:rgba(255,181,71,.45);background:rgba(255,181,71,.08);color:var(--vox-amber)}
+.vox-rnotes.is-warn{border-color:var(--vox-watch);background:var(--vox-watch-tint);color:var(--vox-watch)}
 .vox-rnotes[hidden]{display:none}
 /* the scope chips are real A/B buttons on the Polish deck */
 .vox-scope__chips button.vox-chip{cursor:pointer;font:inherit;font-family:var(--vox-mono);
   font-size:10px;letter-spacing:.12em}
-.vox-scope__chips button.vox-chip:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
-.vox-tray{display:none;border-top:1px solid var(--vox-line);padding:14px 16px 16px;background:var(--vox-surface-1)}
+.vox-scope__chips button.vox-chip:focus-visible{outline:2px solid var(--vox-accent);outline-offset:2px}
+.vox-tray{display:none;border-top:1px solid var(--vox-line);padding:14px 16px 16px;background:var(--vox-sunken)}
 .vox-tray.open{display:block;animation:vox-trayin .24s ease}
 @keyframes vox-trayin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .vox-tray__head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.vox-tray__ttl{font-family:var(--vox-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-cyan);
+.vox-tray__ttl{font-family:var(--vox-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-accent);
   display:flex;align-items:center;gap:9px}
 .vox-tray__selall{margin-left:auto;font-family:var(--vox-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--vox-muted);background:transparent;border:0;cursor:pointer}
-.vox-tray__selall:hover{color:var(--vox-cyan)}
+.vox-tray__selall:hover{color:var(--vox-accent)}
 .vox-artifact{display:grid;grid-template-columns:22px 30px 1fr auto auto 34px;gap:11px;align-items:center;
-  padding:10px 12px;border:1px solid var(--vox-line);border-radius:9px;margin-bottom:7px;background:var(--vox-surface-1);transition:.15s}
-.vox-artifact:hover{border-color:var(--vox-line-2);background:var(--vox-surface-2)}
+  padding:10px 12px;border:1px solid var(--vox-line);border-radius:9px;margin-bottom:7px;background:var(--vox-panel);transition:.15s}
+.vox-artifact:hover{border-color:var(--vox-line-2)}
 .vox-artifact.off{opacity:.42}
-.vox-chk{width:18px;height:18px;border-radius:5px;border:1px solid var(--vox-line-2);background:var(--vox-surface-1);cursor:pointer;position:relative;flex:0 0 auto}
-.vox-artifact:not(.off) .vox-chk{border-color:var(--vox-cyan);background:rgba(63,224,255,.15)}
+.vox-chk{width:18px;height:18px;border-radius:5px;border:1px solid var(--vox-line-2);background:var(--vox-panel);cursor:pointer;position:relative;flex:0 0 auto}
+.vox-artifact:not(.off) .vox-chk{border-color:var(--vox-accent);background:var(--vox-accent-tint)}
 .vox-artifact:not(.off) .vox-chk::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;
-  border:solid var(--vox-cyan);border-width:0 2px 2px 0;transform:rotate(45deg)}
-.vox-artifact__ic{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;border:1px solid var(--vox-line-2);color:var(--vox-cyan)}
-.vox-artifact__ic.j{color:var(--vox-violet);border-color:rgba(139,124,255,.4)}
-.vox-artifact__ic.r{color:var(--vox-green);border-color:rgba(55,217,138,.4)}
+  border:solid var(--vox-accent);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.vox-artifact__ic{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;border:1px solid var(--vox-line-2);color:var(--vox-accent)}
+.vox-artifact__ic.j{color:var(--vox-cat-3);border-color:var(--vox-line-2)}
+.vox-artifact__ic.r{color:var(--vox-good);border-color:var(--vox-line-2)}
 .vox-artifact__ic svg{width:15px;height:15px}
-.vox-artifact__nm{font-size:12.5px;font-weight:600;line-height:1.2}
+.vox-artifact__nm{font-size:12.5px;font-weight:600;line-height:1.2;color:var(--vox-ink)}
 .vox-artifact__sub{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.03em;color:var(--vox-muted);margin-top:3px}
-.vox-fmt{font-family:var(--vox-mono);font-size:9px;letter-spacing:.08em;color:var(--vox-cyan-ink);
-  border:1px solid var(--vox-line-2);border-radius:5px;padding:3px 7px;background:var(--vox-surface-1)}
-.vox-size{font-family:var(--vox-mono);font-size:10px;color:var(--vox-muted);min-width:52px;text-align:right}
-.vox-dlone{width:34px;height:34px;border-radius:8px;border:1px solid var(--vox-line-2);background:var(--vox-surface-1);color:var(--vox-cyan);
+.vox-fmt{font-family:var(--vox-mono);font-size:9px;letter-spacing:.08em;color:var(--vox-accent);
+  border:1px solid var(--vox-line-2);border-radius:5px;padding:3px 7px;background:var(--vox-panel)}
+.vox-size{font-family:var(--vox-mono);font-size:10px;color:var(--vox-muted);min-width:52px;text-align:right;
+  font-variant-numeric:tabular-nums}
+.vox-dlone{width:34px;height:34px;border-radius:8px;border:1px solid var(--vox-line-2);background:var(--vox-panel);color:var(--vox-accent);
   cursor:pointer;display:grid;place-items:center}
-.vox-dlone:hover{border-color:var(--vox-cyan);box-shadow:var(--vox-glow-cyan)}
+.vox-dlone:hover{border-color:var(--vox-accent)}
 .vox-dlone svg{width:15px;height:15px}
 .vox-tray__foot{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
 .vox-tray__count{font-family:var(--vox-mono);font-size:10px;letter-spacing:.06em;color:var(--vox-muted);margin-right:auto}
@@ -275,24 +268,25 @@
   display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
 .vox-vu{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;margin:9px 0;
   font-family:var(--vox-mono);font-size:10px;color:var(--vox-muted)}
-.vox-vu__db{text-align:right;color:var(--vox-cyan-ink)}
+.vox-vu__db{text-align:right;color:var(--vox-ink);font-variant-numeric:tabular-nums}
 .vox-gauge{display:flex;align-items:center;gap:12px;margin:6px 0}
 .vox-gauge canvas{width:58px;height:58px}
 .vox-gauge__lbl{font-family:var(--vox-mono);font-size:10px;color:var(--vox-muted);letter-spacing:.06em}
-.vox-gauge__lbl b{display:block;color:var(--vox-ink);font-size:15px;margin-top:3px}
+.vox-gauge__lbl b{display:block;color:var(--vox-ink);font-size:15px;margin-top:3px;font-variant-numeric:tabular-nums}
 .vox-logline{font-family:var(--vox-mono);font-size:10px;line-height:1.7;color:var(--vox-muted);letter-spacing:.02em}
-.vox-logline .t{color:var(--vox-cyan)}
-.vox-logline .a{color:var(--vox-amber)}
-.vox-logline .g{color:var(--vox-green)}
+.vox-logline .t{color:var(--vox-accent)}
+.vox-logline .a{color:var(--vox-watch)}
+.vox-logline .g{color:var(--vox-good)}
 
 /* ---- processing bar -------------------------------------------------------- */
 .vox-procbar{display:flex;align-items:center;gap:14px;margin-top:14px;padding:13px 16px;border:1px solid var(--vox-line);
-  border-radius:12px;background:linear-gradient(90deg,rgba(63,224,255,.06),transparent 60%),var(--vox-surface-1)}
-.vox-procbar__lab{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--vox-cyan)}
-.vox-procbar__track{flex:1;height:6px;border-radius:4px;background:var(--vox-surface-2);overflow:hidden;position:relative}
+  border-radius:12px;background:var(--vox-panel);box-shadow:var(--vox-shadow-1)}
+.vox-procbar__lab{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--vox-accent)}
+.vox-procbar__track{flex:1;height:6px;border-radius:4px;background:var(--vox-sunken);overflow:hidden;position:relative}
 .vox-procbar__track i{position:absolute;left:0;top:0;bottom:0;
-  background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan));box-shadow:0 0 12px rgba(63,224,255,.45);transition:width .2s linear}
-.vox-procbar__pct{font-family:var(--vox-mono);font-size:12px;color:var(--vox-ink);min-width:44px;text-align:right}
+  background:var(--vox-accent);transition:width .2s linear}
+.vox-procbar__pct{font-family:var(--vox-mono);font-size:12px;color:var(--vox-ink);min-width:44px;text-align:right;
+  font-variant-numeric:tabular-nums}
 
 /* ---- legend ---------------------------------------------------------------- */
 .vox-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;padding-top:16px;border-top:1px solid var(--vox-line);
@@ -313,10 +307,10 @@
    (mounted by vox-telemetry.js). Hidden on wide screens. */
 .vox-console-btn{display:none;position:fixed;right:14px;bottom:14px;z-index:90;min-height:44px;min-width:44px;
   font-family:var(--vox-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
-  color:var(--vox-cyan);border:1px solid rgba(63,224,255,.4);border-radius:999px;padding:11px 16px;
-  background:var(--vox-panel);box-shadow:0 8px 30px #0008}
-.vox-console-btn[aria-pressed="true"]{color:var(--vox-on-accent);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));border-color:transparent}
-.vox-console-btn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+  color:var(--vox-accent);border:1px solid var(--vox-line-2);border-radius:999px;padding:11px 16px;
+  background:var(--vox-panel);box-shadow:var(--vox-shadow-2)}
+.vox-console-btn[aria-pressed="true"]{color:var(--vox-on-accent);background:var(--vox-accent);border-color:transparent}
+.vox-console-btn:focus-visible{outline:2px solid var(--vox-accent);outline-offset:2px}
 
 /* ---- phone layer (≤760px): the deck sheds its desk chrome ------------------
    Reading order becomes scope → readouts → report. Ambient decoration hides,
@@ -339,7 +333,6 @@
   .vox-module.on .vox-module__toggle::after{left:23px}
   .vox-dlone{width:44px;height:44px}
   .vox-about__x{width:44px;height:44px}
-  .vox-theme-btn{min-width:44px;min-height:44px}
   .vox-about-btn{min-height:44px}
   .vox-transport{flex-wrap:wrap;gap:10px}
 }
@@ -355,7 +348,7 @@
 .vox-fusedbtn:focus-visible,
 .vox-play:focus-visible,
 .vox-chk:focus-visible,
-.vox-dlone:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+.vox-dlone:focus-visible{outline:2px solid var(--vox-accent);outline-offset:2px}
 
 @media (prefers-reduced-motion:reduce){
   .vox-led,.vox-step.is-active::before,.vox-bar__i,.vox-btn--ready,.vox-tray.open{animation:none!important}
@@ -364,72 +357,51 @@
 /* ---- "What this does" guide overlay (vox-about.js) ---------------------- */
 .vox-about-btn{display:inline-flex;align-items:center;gap:7px;cursor:pointer;
   font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--vox-cyan);border:1px solid rgba(63,224,255,.32);border-radius:8px;padding:7px 12px;
-  background:var(--vox-surface-1);transition:background .15s,box-shadow .15s}
+  color:var(--vox-accent);border:1px solid var(--vox-line-2);border-radius:8px;padding:7px 12px;
+  background:var(--vox-panel);transition:background .15s,border-color .15s}
 .vox-about-btn svg{width:15px;height:15px}
-.vox-about-btn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
-.vox-about-btn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
-
-/* Theme toggle — self-mounted by vox-theme.js next to the Guide button. */
-.vox-theme-btn{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
-  color:var(--vox-cyan);border:1px solid rgba(63,224,255,.32);border-radius:8px;padding:7px 9px;
-  background:var(--vox-surface-1);transition:background .15s,box-shadow .15s}
-.vox-theme-btn svg{width:16px;height:16px;display:block}
-.vox-theme-btn .vox-theme-sun{display:none}
-.vox-theme-btn .vox-theme-moon{display:block}
-:root[data-theme="light"] .vox-theme-btn .vox-theme-sun{display:block}
-:root[data-theme="light"] .vox-theme-btn .vox-theme-moon{display:none}
-.vox-theme-btn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
-.vox-theme-btn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+.vox-about-btn:hover{background:var(--vox-accent-tint);border-color:var(--vox-accent)}
+.vox-about-btn:focus-visible{outline:2px solid var(--vox-accent);outline-offset:2px}
 
 .vox-about[hidden]{display:none}
 .vox-about{position:fixed;inset:0;z-index:120;display:flex;align-items:flex-start;justify-content:center;
   padding:max(20px,4vh) 18px 40px;overflow:auto}
-.vox-about__scrim{position:fixed;inset:0;background:rgba(3,6,9,.72);backdrop-filter:blur(4px)}
-.vox-about__panel{position:relative;width:min(920px,100%);border:1px solid var(--vox-line-2);border-radius:18px;
-  background:var(--vox-grad-panel);
-  box-shadow:0 30px 80px #000c,inset 0 1px 0 rgba(255,255,255,.05);padding:30px clamp(20px,4vw,40px) 34px;
+.vox-about__scrim{position:fixed;inset:0;background:var(--vox-scrim)}
+.vox-about__panel{position:relative;width:min(920px,100%);border:1px solid var(--vox-line);border-radius:18px;
+  background:var(--vox-panel);box-shadow:var(--vox-shadow-2);padding:30px clamp(20px,4vw,40px) 34px;
   animation:voxAboutIn .28s cubic-bezier(.2,.8,.2,1)}
 @keyframes voxAboutIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .vox-about__x{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:9px;cursor:pointer;
-  border:1px solid var(--vox-line-2);background:var(--vox-surface-1);color:var(--vox-muted);font-size:20px;line-height:1;
+  border:1px solid var(--vox-line-2);background:var(--vox-panel);color:var(--vox-muted);font-size:20px;line-height:1;
   display:grid;place-items:center;transition:color .15s,border-color .15s}
-.vox-about__x:hover{color:var(--vox-ink);border-color:var(--vox-cyan)}
-.vox-about__x:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+.vox-about__x:hover{color:var(--vox-ink);border-color:var(--vox-accent)}
+.vox-about__x:focus-visible{outline:2px solid var(--vox-accent);outline-offset:2px}
 .vox-about__eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--vox-mono);font-size:11px;
-  letter-spacing:.26em;text-transform:uppercase;color:var(--vox-cyan)}
+  letter-spacing:.26em;text-transform:uppercase;color:var(--vox-accent)}
 .vox-about__eyebrow .vox-led{width:8px;height:8px}
 .vox-about h2{font-family:var(--vox-sans);font-size:clamp(21px,3.4vw,29px);font-weight:800;letter-spacing:-.02em;
   line-height:1.12;margin:14px 0 10px;max-width:24ch;text-wrap:balance;color:var(--vox-ink)}
 .vox-about__lede{color:var(--vox-muted);max-width:64ch;margin:0 0 22px;line-height:1.65}
 .vox-about__modes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.vox-about__mode{border:1px solid var(--vox-line);border-radius:13px;background:var(--vox-surface-1);padding:16px 16px 18px}
-.vox-about__mode.is-here{border-color:rgba(63,224,255,.45);box-shadow:inset 0 0 0 1px rgba(63,224,255,.12)}
-.vox-about__mode.violet.is-here{border-color:rgba(139,124,255,.5);box-shadow:inset 0 0 0 1px rgba(139,124,255,.14)}
+.vox-about__mode{border:1px solid var(--vox-line);border-radius:13px;background:var(--vox-page);padding:16px 16px 18px}
+.vox-about__mode.is-here{border-color:var(--vox-accent);background:var(--vox-accent-tint)}
+.vox-about__mode.violet.is-here{border-color:var(--vox-accent);background:var(--vox-accent-tint)}
 .vox-about__mtag{display:flex;align-items:center;gap:8px;font-family:var(--vox-mono);font-size:10px;letter-spacing:.16em;color:var(--vox-muted)}
-.vox-about__mtag .vox-led{width:7px;height:7px;background:var(--vox-cyan);box-shadow:0 0 8px 1px var(--vox-cyan)}
-.vox-about__mode.violet .vox-about__mtag .vox-led{background:var(--vox-violet);box-shadow:0 0 8px 1px var(--vox-violet)}
-.vox-about__mode.cyanviolet .vox-about__mtag .vox-led{background:linear-gradient(90deg,var(--vox-cyan),var(--vox-violet));box-shadow:0 0 8px 1px rgba(139,124,255,.7)}
-.vox-about__mtag em{margin-left:auto;font-style:normal;color:var(--vox-cyan);letter-spacing:.1em}
-.vox-about__mode.violet .vox-about__mtag em{color:var(--vox-violet)}
+.vox-about__mtag .vox-led{width:7px;height:7px;background:var(--vox-accent)}
+.vox-about__mode.violet .vox-about__mtag .vox-led{background:var(--vox-accent)}
+.vox-about__mode.cyanviolet .vox-about__mtag .vox-led{background:var(--vox-accent)}
+.vox-about__mtag em{margin-left:auto;font-style:normal;color:var(--vox-accent);letter-spacing:.1em}
+.vox-about__mode.violet .vox-about__mtag em{color:var(--vox-accent)}
 .vox-about__mode h3{font-family:var(--vox-sans);font-size:16px;font-weight:750;margin:11px 0 8px;color:var(--vox-ink)}
-.vox-about__mode.cyan h3{color:var(--vox-cyan)} .vox-about__mode.violet h3{color:var(--vox-violet)}
-.vox-about__mode.cyanviolet h3{background:linear-gradient(90deg,var(--vox-cyan),var(--vox-violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.vox-about__mode.cyan h3,.vox-about__mode.violet h3,.vox-about__mode.cyanviolet h3{color:var(--vox-accent)}
 .vox-about__mode h3 span{display:block;font-size:11.5px;font-weight:500;color:var(--vox-muted);letter-spacing:0;margin-top:3px}
 .vox-about__mode p{font-size:13px;color:var(--vox-body);line-height:1.6;margin:0 0 12px}
 .vox-about__mode ol{margin:0;padding-left:17px;display:grid;gap:6px}
 .vox-about__mode li{font-size:12.5px;color:var(--vox-muted);line-height:1.5}
 .vox-about__start{margin-top:22px;border-top:1px solid var(--vox-line);padding-top:20px}
-.vox-about__start h4{font-family:var(--vox-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-cyan);margin:0 0 12px}
+.vox-about__start h4{font-family:var(--vox-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--vox-accent);margin:0 0 12px}
 .vox-about__start ul{margin:0;padding-left:19px;display:grid;gap:8px}
 .vox-about__start li{color:var(--vox-body);line-height:1.55}
-.vox-about__start code{font-family:var(--vox-mono);font-size:12px;background:var(--vox-surface-1);border:1px solid var(--vox-line-2);border-radius:5px;padding:1px 6px;color:var(--vox-cyan)}
+.vox-about__start code{font-family:var(--vox-mono);font-size:12px;background:var(--vox-sunken);border:1px solid var(--vox-line-2);border-radius:5px;padding:1px 6px;color:var(--vox-accent)}
 @media (max-width:680px){.vox-about__modes{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.vox-about__panel{animation:none}}
-
-/* ---- light-theme touch-ups -------------------------------------------------
-   A few controls keep bespoke dark values above; remap them when the console
-   flips so nothing renders as a dark island in the light chrome. */
-:root[data-theme="light"] .vox-step.is-done{color:#2e7d5b}
-:root[data-theme="light"] .vox-meter{background:#d9e3ea;border:1px solid var(--vox-line)}
-:root[data-theme="light"] .vox-btn[aria-pressed="true"]{background:rgba(11,147,189,.10)}

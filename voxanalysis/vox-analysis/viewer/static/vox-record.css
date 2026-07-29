@@ -7,24 +7,24 @@
 .vrec-note{margin:0;color:var(--vox-muted);font-size:12.5px;line-height:1.5;max-width:44ch}
 
 .vrec-btn{font-family:var(--vox-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
-  border:1px solid var(--vox-line-2);background:#0a141c;color:var(--vox-ink);border-radius:9px;padding:11px 18px;display:inline-flex;align-items:center;gap:9px;transition:background .15s,box-shadow .15s}
-.vrec-btn:hover{border-color:var(--vox-cyan)}
-.vrec-btn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+  border:1px solid var(--vox-line-2);background:var(--vox-panel);color:var(--vox-body);border-radius:9px;padding:11px 18px;display:inline-flex;align-items:center;gap:9px;transition:background .15s,box-shadow .15s}
+.vrec-btn:hover{border-color:var(--vox-accent);color:var(--vox-ink)}
+.vrec-btn:focus-visible{outline:2px solid var(--vox-accent);outline-offset:2px}
 .vrec-btn:disabled{opacity:.5;cursor:not-allowed}
-.vrec-btn--rec{color:var(--vox-void);background:linear-gradient(180deg,#ff6b78,#e0384a);border-color:transparent;box-shadow:0 0 18px -4px rgba(255,93,108,.7)}
-.vrec-btn--stop{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));border-color:transparent;box-shadow:var(--vox-glow-cyan)}
-.vrec-btn--go{color:var(--vox-void);background:linear-gradient(180deg,var(--vox-cyan),var(--vox-cyan-deep));border-color:transparent;box-shadow:var(--vox-glow-cyan)}
-.vrec-dot{width:11px;height:11px;border-radius:50%;background:#fff;opacity:.9}
-.vrec-dot.is-live{background:var(--vox-red);box-shadow:0 0 10px var(--vox-red);animation:vrecPulse 1.1s ease-in-out infinite}
+.vrec-btn--rec{color:var(--vox-on-accent);background:var(--vox-weak);border-color:transparent;box-shadow:var(--vox-shadow-1)}
+.vrec-btn--stop{color:var(--vox-on-accent);background:var(--vox-accent);border-color:transparent;box-shadow:var(--vox-shadow-1)}
+.vrec-btn--go{color:var(--vox-on-accent);background:var(--vox-accent);border-color:transparent;box-shadow:var(--vox-shadow-1)}
+.vrec-dot{width:11px;height:11px;border-radius:50%;background:var(--vox-on-accent);opacity:.9}
+.vrec-dot.is-live{background:var(--vox-weak);animation:vrecPulse 1.1s ease-in-out infinite}
 @keyframes vrecPulse{0%,100%{opacity:1}50%{opacity:.35}}
 .vrec-sq{width:10px;height:10px;border-radius:2px;background:currentColor}
 
 .vrec-field{display:grid;gap:6px;width:100%;text-align:left}
 .vrec-field span{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--vox-muted)}
-.vrec-device{width:100%;border:1px solid var(--vox-line-2);background:#080c11;color:var(--vox-ink);border-radius:8px;padding:9px 11px;font:inherit}
+.vrec-device{width:100%;border:1px solid var(--vox-line-2);background:var(--vox-panel);color:var(--vox-ink);border-radius:8px;padding:9px 11px;font:inherit}
 
-.vrec-meter{position:relative;width:100%;height:14px;border-radius:7px;background:#0a141c;border:1px solid var(--vox-line);overflow:hidden}
-.vrec-meter__fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan));transition:width .05s linear}
+.vrec-meter{position:relative;width:100%;height:14px;border-radius:7px;background:var(--vox-sunken);border:1px solid var(--vox-line);overflow:hidden}
+.vrec-meter__fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--vox-accent);transition:width .05s linear}
 .vrec-levelmsg{font-family:var(--vox-mono);font-size:11px;color:var(--vox-muted);min-height:1em}
 
 .vrec-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;width:100%}
@@ -32,19 +32,19 @@
    repaints, so they stay painted on iOS/WebKit. */
 .vrec-stage[data-stage="live"] .vrec-row{position:relative;z-index:1;transform:translateZ(0)}
 .vrec-check{display:inline-flex;align-items:center;gap:7px;font-family:var(--vox-mono);font-size:11px;letter-spacing:.05em;color:var(--vox-muted);cursor:pointer}
-.vrec-check input{accent-color:var(--vox-cyan)}
+.vrec-check input{accent-color:var(--vox-accent)}
 
 /* Give the live waveform its OWN compositing layer so its per-frame repaints
    don't invalidate the Stop button below it — without this, iOS/WebKit leaves
    the button unpainted until a scroll, then flashes and drops it. */
-.vrec-wave{width:100%;height:96px;display:block;border:1px solid var(--vox-line);border-radius:10px;background:#070c11;
+.vrec-wave{width:100%;height:96px;display:block;border:1px solid var(--vox-line);border-radius:10px;background:var(--vox-sunken);
   transform:translateZ(0);-webkit-transform:translateZ(0)}
-.vrec-count{font-family:var(--vox-mono);font-size:52px;font-weight:800;color:var(--vox-cyan);text-shadow:var(--vox-glow-cyan);margin:-70px 0 18px}
+.vrec-count{font-family:var(--vox-mono);font-size:52px;font-weight:800;color:var(--vox-accent);margin:-70px 0 18px;font-variant-numeric:tabular-nums}
 .vrec-rec{display:inline-flex;align-items:center;gap:9px;font-family:var(--vox-mono);font-size:13px;letter-spacing:.1em;color:var(--vox-ink)}
-.vrec-timer{color:var(--vox-cyan)}
+.vrec-timer{color:var(--vox-accent);font-variant-numeric:tabular-nums}
 
 .vrec-reviewhead{display:flex;align-items:center;gap:9px;justify-content:center;font-size:14px;color:var(--vox-ink)}
-.vrec-check-ic{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:rgba(95,208,160,.15);color:var(--vox-green);font-size:12px}
+.vrec-check-ic{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--vox-good-tint);color:var(--vox-good);font-size:12px}
 .vrec-dur{color:var(--vox-muted);font-family:var(--vox-mono);margin-left:4px}
 .vrec-player{width:100%;filter:saturate(.7)}
 
@@ -53,33 +53,32 @@
    to their content — these have none of their own, so they must claim the row */
 .vrec-trim,.vrec-trimbar,.vrec-trimnote{width:100%;justify-self:stretch}
 .vrec-trim{position:relative;height:104px;border:1px solid var(--vox-line);border-radius:10px;
-  background:#070c11;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+  background:var(--vox-sunken);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 .vrec-trimwave{position:absolute;inset:0;width:100%;height:100%;display:block}
-.vrec-shade{position:absolute;top:0;bottom:0;background:rgba(4,8,12,.72);pointer-events:none}
+.vrec-shade{position:absolute;top:0;bottom:0;background:var(--vox-scrim);pointer-events:none}
 .vrec-shade--in{left:0;width:0}
 .vrec-shade--out{right:auto;width:0}
 /* Generous hit area: these get dragged with a thumb on a phone. */
 .vrec-grip{position:absolute;top:0;bottom:0;width:34px;margin-left:-17px;cursor:ew-resize;
   display:grid;place-items:center;touch-action:none}
-.vrec-grip::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:var(--vox-cyan);
-  box-shadow:0 0 8px rgba(63,224,255,.7)}
-.vrec-grip::after{content:"";width:14px;height:30px;border-radius:5px;border:1px solid var(--vox-cyan);
-  background:linear-gradient(180deg,#12303c,#0b1a22);box-shadow:0 2px 8px #0009}
+.vrec-grip::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:var(--vox-accent)}
+.vrec-grip::after{content:"";width:14px;height:30px;border-radius:5px;border:1px solid var(--vox-accent);
+  background:var(--vox-panel);box-shadow:var(--vox-shadow-1)}
 .vrec-grip:focus-visible{outline:none}
-.vrec-grip:focus-visible::after{outline:2px solid var(--vox-cyan);outline-offset:2px}
-.vrec-cursor{position:absolute;top:0;bottom:0;width:1.5px;background:var(--vox-amber);pointer-events:none}
+.vrec-grip:focus-visible::after{outline:2px solid var(--vox-accent);outline-offset:2px}
+.vrec-cursor{position:absolute;top:0;bottom:0;width:1.5px;background:var(--vox-watch);pointer-events:none}
 .vrec-trimwait{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--vox-mono);
-  font-size:11px;letter-spacing:.08em;color:var(--vox-muted);background:rgba(7,12,17,.9);text-align:center;padding:0 14px}
+  font-size:11px;letter-spacing:.08em;color:var(--vox-muted);background:var(--vox-panel);text-align:center;padding:0 14px}
 
 .vrec-trimbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .vrec-tl{font-family:var(--vox-mono);font-size:11px;letter-spacing:.06em;color:var(--vox-muted)}
-.vrec-tl b{color:var(--vox-cyan);margin-left:3px}
+.vrec-tl b{color:var(--vox-accent);margin-left:3px}
 .vrec-prevs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 .vrec-btn--tiny{padding:7px 10px;font-size:11px;letter-spacing:.04em;min-height:36px}
 .vrec-btn--tiny:disabled{opacity:.45;cursor:not-allowed}
 .vrec-trimnote{font-size:12px;line-height:1.5;color:var(--vox-muted);text-align:center}
 .vrec-trimnote b{color:var(--vox-ink);font-family:var(--vox-mono)}
-.vrec-linkbtn{appearance:none;background:none;border:0;padding:0 2px;color:var(--vox-cyan);
+.vrec-linkbtn{appearance:none;background:none;border:0;padding:0 2px;color:var(--vox-accent);
   font:inherit;text-decoration:underline;cursor:pointer}
 .vrec-linkbtn:disabled{opacity:.45;cursor:not-allowed;text-decoration:none}
 @media(max-width:520px){
@@ -88,5 +87,17 @@
   .vrec-prevs{order:3;width:100%}
 }
 
-.vrec-err{border:1px solid rgba(255,181,71,.4);background:rgba(255,181,71,.08);color:var(--vox-amber);
+.vrec-err{border:1px solid var(--vox-watch);background:var(--vox-watch-tint);color:var(--vox-watch);
   border-radius:9px;padding:11px 13px;font-size:12.5px;line-height:1.5}
+
+/* ---- take context: declarative chips (metadata only, never a score input) -- */
+.vrec-ctx{display:grid;gap:7px;width:100%;text-align:left}
+.vrec-ctx__k{font-family:var(--vox-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--vox-muted)}
+.vrec-chips{display:flex;gap:8px}
+.vrec-chips button{flex:1;font:600 12px/1.2 var(--vox-sans);min-height:44px;cursor:pointer;
+  border:1px solid var(--vox-line-2);border-radius:8px;background:var(--vox-panel);color:var(--vox-body)}
+.vrec-chips button.on{background:var(--vox-accent-tint);border-color:var(--vox-accent);color:var(--vox-accent)}
+.vrec-chips button:focus-visible{outline:2px solid var(--vox-accent);outline-offset:2px}
+.vrec-ctxnote{box-sizing:border-box;width:100%;min-height:44px;font:inherit;font-size:13px;color:var(--vox-body);
+  border:1px solid var(--vox-line-2);border-radius:8px;background:var(--vox-panel);padding:10px 12px}
+.vrec-ctxnote::placeholder{color:var(--vox-dim)}

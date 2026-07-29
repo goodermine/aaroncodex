@@ -4,10 +4,9 @@
 <meta charset="utf-8">
 <title>VOX Suite — Command Deck · Polish</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>try{var t=localStorage.getItem('vox-theme')||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 <link rel="manifest" href="/static/site.webmanifest">
 <link rel="apple-touch-icon" href="/static/vox-icon-180.png">
-<meta name="theme-color" content="#070a0e">
+<meta name="theme-color" content="#f6f7f9">
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-record.css?v=__ASSET_VERSION__">
@@ -32,11 +31,11 @@
   /* bigger, touch-friendly scrubber with a knob */
   .vox-transport .vox-seek{position:relative;height:24px;display:flex;align-items:center;cursor:pointer;touch-action:none}
   .vox-transport .vox-seek::before{content:"";position:absolute;left:0;right:0;height:6px;border-radius:3px;background:var(--vox-surface-1);border:1px solid var(--vox-line)}
-  .vox-transport .vox-seek i{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan));box-shadow:0 0 8px rgba(63,224,255,.5)}
-  .vox-transport .vox-seek i::after{content:"";position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:15px;height:15px;border-radius:50%;background:var(--vox-cyan);box-shadow:0 0 10px var(--vox-cyan),0 0 0 3px rgba(63,224,255,.18)}
+  .vox-transport .vox-seek i{position:relative;height:6px;border-radius:3px;background:var(--vox-accent)}
+  .vox-transport .vox-seek i::after{content:"";position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:15px;height:15px;border-radius:50%;background:var(--vox-accent);box-shadow:0 0 0 3px var(--vox-accent-tint)}
   .vox-newbtn{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
-    color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:var(--vox-surface-1);transition:background .15s,box-shadow .15s}
-  .vox-newbtn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
+    color:var(--vox-accent);border:1px solid var(--vox-line-2);border-radius:8px;padding:8px 14px;background:var(--vox-panel);transition:background .15s,border-color .15s}
+  .vox-newbtn:hover{background:var(--vox-accent-tint);border-color:var(--vox-accent)}
   .vox-newbtn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   .hidden{display:none!important}
 </style>
@@ -162,10 +161,10 @@
 
 <script>window.VOX_MODE="polish";</script>
 <script src="/static/vox-about.js?v=__ASSET_VERSION__"></script>
-<script src="/static/vox-theme.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-record.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
+function TOK(n){try{return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}catch(e){return ""}}
 (function(){
   "use strict";
   var $=function(s){return document.querySelector(s);};
@@ -180,12 +179,12 @@
 
   // Modules: how the document's bypass/amounts/denoise map to rows.
   var MODULES=[
-    {key:"clean",name:"Clean",meta:"denoise",denoise:true,color:"#3fe0ff"},
-    {key:"dynamics",name:"Dynamics",meta:"leveler",amount:"dynamics",color:"#3fe0ff"},
-    {key:"gate",name:"Gate",meta:"pauses",count:"pauses",color:"#ff8f6b"},
-    {key:"breath",name:"Breath",meta:"breaths",amount:"breath",count:"breaths",color:"#5fd0a0"},
-    {key:"sibilance",name:"Sibilance",meta:"events",amount:"sibilance",count:"sibilants",color:"#59b0ff"},
-    {key:"tune",name:"Tune",meta:"pitch",amount:"tune",color:"#8b7cff"}
+    {key:"clean",name:"Clean",meta:"denoise",denoise:true,color:"var(--vox-cat-1)"},
+    {key:"dynamics",name:"Dynamics",meta:"leveler",amount:"dynamics",color:"var(--vox-cat-1)"},
+    {key:"gate",name:"Gate",meta:"pauses",count:"pauses",color:"var(--vox-cat-2)"},
+    {key:"breath",name:"Breath",meta:"breaths",amount:"breath",count:"breaths",color:"var(--vox-cat-3)"},
+    {key:"sibilance",name:"Sibilance",meta:"events",amount:"sibilance",count:"sibilants",color:"var(--vox-cat-4)"},
+    {key:"tune",name:"Tune",meta:"pitch",amount:"tune",color:"var(--vox-cat-5)"}
   ];
   function moduleOn(m){return m.denoise?((doc.denoise&&doc.denoise.amount||0)>0):!(doc.bypass&&doc.bypass[m.key]);}
   function moduleAmt(m){return m.denoise?(doc.denoise&&doc.denoise.amount||0):(doc.amounts&&doc.amounts[m.amount]!=null?doc.amounts[m.amount]:1);}
@@ -198,7 +197,7 @@
       return '<div class="vox-module'+(on?" on":"")+'" data-i="'+i+'"><div class="vox-module__top">'+
         '<span class="vox-module__swatch" style="color:'+m.color+';background:'+m.color+'"></span>'+
         '<span class="vox-module__name">'+m.name+'</span><span class="vox-module__toggle" data-role="toggle" tabindex="0" role="switch" aria-checked="'+on+'"'+(fixed?' aria-disabled="true" style="opacity:.35;cursor:not-allowed"':'')+' aria-label="'+m.name+'"></span></div>'+
-        ((m.amount||m.denoise)&&!fixed?'<div class="vox-module__track"><i style="width:'+Math.min(100,amt)+'%;background:linear-gradient(90deg,'+m.color+'55,'+m.color+')"></i></div>':'')+
+        ((m.amount||m.denoise)&&!fixed?'<div class="vox-module__track"><i style="width:'+Math.min(100,amt)+'%;background:'+m.color+'"></i></div>':'')+
         '<div class="vox-module__meta"><span>'+meta+'</span><span>'+(fixed?(amt>0?amt+"%":"off"):(m.amount||m.denoise?amt+"%":(on?"on":"off")))+'</span></div></div>';
     }).join("");
     document.querySelectorAll("#modules .vox-module").forEach(function(row){
@@ -386,13 +385,12 @@
   function drawWave(){
     if(!peaks)return;var r=stage.getBoundingClientRect(),w=r.width,h=r.height,mid=h/2,n=peaks.min.length,PAD=6;
     sctx.clearRect(0,0,w,h);
-    sctx.strokeStyle="rgba(63,224,255,.10)";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(0,mid);sctx.lineTo(w,mid);sctx.stroke();
-    var grad=sctx.createLinearGradient(0,0,0,h);grad.addColorStop(0,"#3fe0ff");grad.addColorStop(.5,"#8fefff");grad.addColorStop(1,"#3fe0ff");
-    sctx.strokeStyle=grad;sctx.lineWidth=1;sctx.globalAlpha=.9;
+    sctx.strokeStyle=TOK("--vox-line");sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(0,mid);sctx.lineTo(w,mid);sctx.stroke();
+    sctx.strokeStyle=TOK("--vox-accent");sctx.lineWidth=1;sctx.globalAlpha=.9;
     for(var x=0;x<w;x++){var i=Math.floor(x/w*n),lo=peaks.min[i]||0,hi=peaks.max[i]||0;var y1=mid-hi*(mid-PAD),y2=mid-lo*(mid-PAD);sctx.beginPath();sctx.moveTo(x,y1);sctx.lineTo(x,y2);sctx.stroke();}
     sctx.globalAlpha=1;
     var dur=peaks.duration||deckAudio.duration||1,ct=deckAudio.currentTime||0;
-    if(dur){var px=ct/dur*w;sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
+    if(dur){var px=ct/dur*w;sctx.strokeStyle=TOK("--vox-accent");sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
   }
   var waveLooping=false;
   function waveLoop(){

@@ -12,6 +12,14 @@
 (function (root) {
   "use strict";
 
+  // Canvas palette bridge: canvases can't use var(), so read the token at draw
+  // time. Tokens always ship with the kit, so no hex fallback (and none allowed
+  // here — tools/ui_guard.sh forbids colours outside vox-tokens.css).
+  function tok(name) {
+    try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+    catch (e) { return ""; }
+  }
+
   var MIME = [["audio/webm;codecs=opus", "webm"], ["audio/ogg;codecs=opus", "ogg"],
               ["audio/mp4", "mp4"], ["audio/webm", "webm"]];
   function pickMime() {
@@ -69,6 +77,21 @@
           '<div class="vrec-trimnote">Drag the handles to cut dead air, chatter or applause — then listen to check. ' +
             'Trimmed length <b class="vrec-len vox-tnum">—</b> <button class="vrec-linkbtn vrec-reset" type="button">reset</button></div>' +
           '<audio class="vrec-player" controls></audio>' +
+          '<div class="vrec-ctx">' +
+            '<div class="vrec-ctx__k">This take is</div>' +
+            '<div class="vrec-chips" data-ctx="intent" role="group" aria-label="Take intent">' +
+              '<button type="button" class="on" data-v="performance">Performance</button>' +
+              '<button type="button" data-v="learning">Learning</button>' +
+              '<button type="button" data-v="warmup">Warm-up</button>' +
+            '</div>' +
+            '<div class="vrec-ctx__k">Where</div>' +
+            '<div class="vrec-chips" data-ctx="capture" role="group" aria-label="Capture location">' +
+              '<button type="button" data-v="studio">Studio</button>' +
+              '<button type="button" class="on" data-v="home">Home</button>' +
+              '<button type="button" data-v="live">Live</button>' +
+            '</div>' +
+            '<input class="vrec-ctxnote" maxlength="200" placeholder="Note (optional) \u2014 e.g. first time on the high note">' +
+          '</div>' +
           '<div class="vrec-row"><button class="vrec-btn vrec-again" type="button">&#8635; Re-record</button>' +
             '<button class="vrec-btn vrec-btn--go vrec-analyze" type="button">Analyze this take</button></div>' +
         '</div>' +
@@ -165,7 +188,7 @@
         wx.clearRect(0, 0, r.width, r.height); analyser.getByteTimeDomainData(tdat);
         // No per-frame shadowBlur: it's costly on mobile and thrashes compositing,
         // which is what made the Stop button vanish. A crisp 1.6px stroke reads fine.
-        wx.strokeStyle = "#3fe0ff"; wx.lineWidth = 1.6; wx.beginPath();
+        wx.strokeStyle = tok("--vox-accent"); wx.lineWidth = 1.6; wx.beginPath();
         for (var i = 0; i < tdat.length; i++) { var x = i / (tdat.length - 1) * r.width, y = r.height / 2 + ((tdat[i] - 128) / 128) * r.height * 0.42; i ? wx.lineTo(x, y) : wx.moveTo(x, y); }
         wx.stroke();
         raf = requestAnimationFrame(loop);
@@ -263,7 +286,7 @@
         var c = Math.floor(px / r.width * peaks.cols); if (c >= peaks.cols) break;
         var t = px / r.width * (audioBuf ? audioBuf.duration : 1);
         var kept = t >= trimIn && t <= trimOut;
-        cx.fillStyle = kept ? "#3fe0ff" : "rgba(127,147,164,.35)";
+        cx.fillStyle = kept ? tok("--vox-accent") : tok("--vox-line-2");
         var y1 = mid - peaks.mx[c] * mid * 0.92, y2 = mid - peaks.mn[c] * mid * 0.92;
         cx.fillRect(px, y1, 1, Math.max(1, y2 - y1));
       }
@@ -351,7 +374,15 @@
         file = new File([blob], el._name || ("recording." + mime[1]), { type: blob.type });
       }
       stopPreview(); teardown();
-      opts.onAnalyze && opts.onAnalyze(file);
+      opts.onAnalyze && opts.onAnalyze(file, takeContext());
+    }
+    // Declarative take context (intent/capture/note). Metadata only — the
+    // engine never reads it for scoring; it rides along to take_context in
+    // the analysis JSON (docs/plans/TAKE_CONTEXT_TAG.md).
+    function takeContext() {
+      function sel(g) { var b = el.querySelector('.vrec-chips[data-ctx="' + g + '"] button.on'); return b ? b.dataset.v : ""; }
+      var note = ($(".vrec-ctxnote") ? $(".vrec-ctxnote").value : "").trim().slice(0, 200);
+      return { intent: sel("intent"), capture: sel("capture"), note: note };
     }
     function teardown() { cancelAnimationFrame(raf); if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; try { ac && ac.close(); } catch (e) {} ac = null; }
 
@@ -361,6 +392,12 @@
     $(".vrec-stop").addEventListener("click", stopRecording);
     $(".vrec-again").addEventListener("click", function () { stopPreview(); openMic(); });
     $(".vrec-analyze").addEventListener("click", commit);
+    el.querySelectorAll(".vrec-chips").forEach(function (g) {
+      g.addEventListener("click", function (ev) {
+        var b = ev.target.closest("button"); if (!b) return;
+        g.querySelectorAll("button").forEach(function (x) { x.classList.toggle("on", x === b); });
+      });
+    });
 
     // ---- trim controls
     $(".vrec-grip--in").addEventListener("pointerdown", function (e) { e.preventDefault(); dragGrip("in", e); });
