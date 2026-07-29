@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 133,
+      "n": 134,
       "overall": {
         "min": 6.1,
         "max": 9.2,
@@ -19,13 +19,13 @@
       "capture_fair": {
         "min": 4.5,
         "max": 9.7,
-        "mean": 7.64,
+        "mean": 7.65,
         "spread": 5.2
       },
       "dynamics": {
         "min": 5.6,
         "max": 10.0,
-        "mean": 8.95,
+        "mean": 8.94,
         "spread": 4.4
       }
     },
@@ -4588,6 +4588,41 @@
         "dyn_phrase_spread_db": 16.83,
         "dyn_effective_range_db": 29.85,
         "median_phrase_s": 4.57
+      }
+    },
+    {
+      "take": "2026-07-29-rilda-bow-river-take-001",
+      "singer": "rilda",
+      "song": "bow-river-take-001",
+      "date": "2026-07-29",
+      "n_notes": 205,
+      "prior_score_status": "current",
+      "overall": 8.4,
+      "capture_fair": 8.1,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 6.24,
+        "voice_quality": 10.0,
+        "vibrato_control": 9.8,
+        "dynamics_expression": 7.86,
+        "phrase_control": 5.79,
+        "breath_support": 6.23
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 45.2,
+        "pct_within_25c": 58.0,
+        "jitter_pct": 0.5012,
+        "shimmer_pct": 3.24,
+        "hnr_db": 20.82,
+        "vibrato_pct_notes": 58.1,
+        "dyn_phrase_spread_db": 9.5,
+        "dyn_effective_range_db": 20.86,
+        "median_phrase_s": 2.41
       }
     },
     {
