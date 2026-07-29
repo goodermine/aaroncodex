@@ -8,7 +8,7 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 Overall: min 6.1 · max 9.2 · mean 7.74. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 131/131 takes.
+Full coverage: 132/132 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -110,7 +110,7 @@ Full coverage: 131/131 takes.
 | aaron | pressure-down-take-007 | 207 | **7.6** | 8.0 | high | 10.0 | 7.84 | 4.92 | 8.64 | 9.42 | 3.45 | 6.54 |
 | aaron | pressure-down-take-008 | 226 | **7.9** | 8.4 | high | 10.0 | 9.67 | 4.64 | 8.43 | 9.42 | 5.12 | 6.05 |
 | aaron | tutti-frutti-take-001 | 167 | **7.6** | 7.1 | high | 6.0 | 7.14 | 10.0 | 9.22 | 7.19 | 10.0 | 3.67 |
-| aaron | tutti-frutti-take-002 | 168 | **7.4** | 7.5 | high | 10.0 | 4.68 | 4.88 | 8.93 | 9.66 | 3.36 | 7.85 |
+| aaron | tutti-frutti-take-002 | 168 | **7.4** | 7.6 | high | 10.0 | 4.68 | 4.88 | 8.93 | 9.66 | 3.36 | 7.85 |
 | aaron | danger-zone-take-001 | 140 | **7.1** | 6.0 | high | 6.0 | 2.35 | 10.0 | 8.37 | 9.13 | 10.0 | 3.67 |
 | aaron | kryptonite-take-001 | 154 | **8.8** | 8.3 | high | 10.0 | 6.85 | 10.0 | 9.96 | 9.77 | 10.0 | 1.9 |
 | aaron | the-heat-is-on-take-001 | 198 | **6.7** | 5.5 | high | 6.0 | 3.32 | 10.0 | 9.06 | 8.39 | 4.21 | 3.28 |
@@ -123,6 +123,7 @@ Full coverage: 131/131 takes.
 | aaron-g | vienna-take-001 | 165 | **8.6** | 7.9 | high | 6.0 | 9.02 | 10.0 | 10.0 | 9.81 | 8.97 | 7.05 |
 | chris | feeling-good-take-001 | 204 | **6.6** | 6.4 | high | 6.0 | 5.36 | 4.67 | 10.0 | 9.98 | 4.55 | 5.29 |
 | leo | chasin-that-neon-rainbow | 204 | **7.8** | 8.0 | high | 8.0 | 9.22 | 6.03 | 8.59 | 9.33 | 7.7 | 5.4 |
+| leo | livin-on-a-prayer-take-001 | 191 | **8.9** | 9.3 | high | 10.0 | 9.67 | 6.72 | 9.41 | 9.86 | 7.18 | 9.08 |
 | rilda | blue-bayou-take-001 | 225 | **7.6** | 7.8 | high | 10.0 | 5.65 | 6.06 | 10.0 | 8.47 | 4.45 | 5.8 |
 | rilda | on-the-radio-take-001 | 226 | **9.1** | 9.7 | high | 10.0 | 8.57 | 7.1 | 10.0 | 8.66 | 10.0 | 9.54 |
 | rilda | flowers-take-002 | 182 | **8.1** | 9.3 | high | 10.0 | 9.4 | 4.58 | 9.71 | 6.69 | 8.73 | 7.05 |
