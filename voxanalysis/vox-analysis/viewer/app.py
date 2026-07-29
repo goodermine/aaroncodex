@@ -368,13 +368,14 @@ def _serve_shell(name: str) -> HTMLResponse:
 
 @app.get("/", response_class=HTMLResponse)
 async def index() -> HTMLResponse:
-    return _serve_shell("index.html")
+    """The command deck is the viewer. The classic dark page was retired in
+    the v2 light redesign (docs/plans/UI_REDESIGN_AUDIT.md, Phase 2)."""
+    return _serve_shell("deck.html")
 
 
 @app.get("/deck", response_class=HTMLResponse)
 async def deck() -> HTMLResponse:
-    """Unified VOX Suite command deck (Analyze mode), wired to the live job
-    stage stream. Additive alongside the classic view at /."""
+    """Kept for bookmarks: same shell as /."""
     return _serve_shell("deck.html")
 
 

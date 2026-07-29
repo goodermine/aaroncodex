@@ -15,7 +15,6 @@ cd "$root"
 fail=0
 
 # Shipped UI surfaces under the gate. NOT yet included (tracked debt):
-#   voxanalysis/vox-analysis/viewer/static/index.html  — legacy page, retired in Phase 2
 #   pitchmonitor/                                       — rebuilt on the kit in Phase 4
 #   design/vox-suite-concept.html, design/vox-suite-spec.html — dark-era design archives
 #   design/next/                                        — Phase-0 static mockups
