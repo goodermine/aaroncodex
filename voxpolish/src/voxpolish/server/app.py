@@ -73,6 +73,17 @@ def create_app(root: Path) -> FastAPI:
     # Render progress for the current session; reset whenever current changes.
     render_state = {"status": "idle", "error": None, "revision": 0, "session": None}
 
+    def _public_render_state() -> dict:
+        """render_state minus internal keys, safe to return as JSON.
+
+        `render_state` holds non-serialisable internals under `_`-prefixed keys
+        (e.g. `_thread`, the worker Thread). Returning the raw dict from
+        `/api/session` made it 500 right after a render, once `_thread` was set —
+        FastAPI cannot serialise a Thread. Both `/api/session` and `/api/render`
+        go through here so they can never drift apart again.
+        """
+        return {k: v for k, v in render_state.items() if not k.startswith("_")}
+
     def require_current() -> Session:
         s = ws.current()
         if s is None:
@@ -238,7 +249,7 @@ def create_app(root: Path) -> FastAPI:
             "duration": doc.duration,
             "sample_rate": doc.sample_rate,
             "mode": doc.mode,
-            "render": dict(render_state),
+            "render": _public_render_state(),
             "capabilities": {
                 "tune": tune_ok,
                 "tune_unavailable_reason": tune_why,
@@ -323,7 +334,7 @@ def create_app(root: Path) -> FastAPI:
     @app.get("/api/render")
     def render_status():
         require_current()
-        out = {k: v for k, v in render_state.items() if not k.startswith("_")}
+        out = _public_render_state()
         started, finished = out.get("started_at"), out.get("finished_at")
         if out.get("status") == "running" and started:
             out["elapsed_s"] = round(time.time() - started, 1)
