@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VOX — Player &amp; Inspector (mock)</title>
+<link rel="stylesheet" href="vox-tokens.css">
+<style>
+/* Phase-0 mock: playback + live inspection in the light language.
+   The instrument surfaces (pitch scope, spectrum) stay light: ink grid,
+   blue contour, semantic dots — no black-canvas island in a white app. */
+*{box-sizing:border-box;margin:0}
+html{font-size:16px}
+body{background:var(--vox-page);color:var(--vox-body);font-family:var(--vox-sans);
+  font-size:var(--vox-fs-3);line-height:1.55;-webkit-font-smoothing:antialiased}
+
+.bar{background:var(--vox-panel);border-bottom:1px solid var(--vox-line);
+  display:flex;align-items:center;gap:var(--vox-sp-4);padding:0 var(--vox-sp-6);height:56px}
+.brand{font-size:var(--vox-fs-2);font-weight:650;letter-spacing:.14em;color:var(--vox-ink)}
+.brand em{font-style:normal;color:var(--vox-accent)}
+.bar nav{display:flex;gap:var(--vox-sp-1);margin-left:var(--vox-sp-5)}
+.bar nav a{font-size:var(--vox-fs-2);color:var(--vox-muted);text-decoration:none;
+  padding:6px 12px;border-radius:var(--vox-r-ctl)}
+.bar nav a.on{color:var(--vox-accent);background:var(--vox-accent-tint);font-weight:600}
+.bar .spacer{flex:1}
+
+.wrap{max-width:1120px;margin:0 auto;padding:var(--vox-sp-6)}
+.head{display:flex;align-items:baseline;gap:var(--vox-sp-3);flex-wrap:wrap;margin-bottom:var(--vox-sp-5)}
+h1{font-size:var(--vox-fs-6);font-weight:700;color:var(--vox-ink);letter-spacing:-.015em}
+.chip{font-size:var(--vox-fs-1);font-weight:600;color:var(--vox-muted);
+  background:var(--vox-sunken);border-radius:999px;padding:3px 10px}
+.headscore{margin-left:auto;font-size:var(--vox-fs-2);color:var(--vox-muted)}
+.headscore b{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--vox-fs-5);color:var(--vox-ink);margin-left:6px}
+
+.card{background:var(--vox-panel);border:1px solid var(--vox-line);border-radius:var(--vox-r-card);
+  box-shadow:var(--vox-shadow-1)}
+.card h2 .sub{text-transform:none;letter-spacing:0;font-weight:500;color:var(--vox-dim)}
+.card h2{font-size:var(--vox-fs-1);font-weight:650;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--vox-muted);padding:var(--vox-sp-4) var(--vox-sp-5) 0}
+
+/* transport */
+.transport{display:flex;align-items:center;gap:var(--vox-sp-4);
+  padding:var(--vox-sp-4) var(--vox-sp-5)}
+.play{width:52px;height:52px;border-radius:50%;border:0;cursor:pointer;flex:none;
+  background:var(--vox-accent);color:var(--vox-on-accent);display:grid;place-items:center}
+.play svg{width:20px;height:20px;fill:currentColor;margin-left:2px}
+.seg{display:flex;border:1px solid var(--vox-line-2);border-radius:var(--vox-r-ctl);overflow:hidden}
+.seg button{font:inherit;font-size:var(--vox-fs-2);font-weight:600;padding:9px 16px;border:0;
+  cursor:pointer;background:var(--vox-panel);color:var(--vox-muted)}
+.seg button.on{background:var(--vox-accent-tint);color:var(--vox-accent)}
+.seek{flex:1;position:relative;height:6px;border-radius:3px;background:var(--vox-sunken)}
+.seek .done{position:absolute;left:0;top:0;bottom:0;width:44%;border-radius:3px;background:var(--vox-accent)}
+.seek .knob{position:absolute;left:44%;top:50%;width:14px;height:14px;border-radius:50%;
+  transform:translate(-50%,-50%);background:var(--vox-accent);
+  box-shadow:0 0 0 3px var(--vox-panel),0 1px 3px rgba(19,26,34,.3)}
+.tc{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--vox-fs-2);color:var(--vox-muted)}
+.tc b{color:var(--vox-ink);font-weight:650}
+
+/* pitch scope */
+.scope{margin-top:var(--vox-sp-5)}
+.scope .frame{margin:var(--vox-sp-3) var(--vox-sp-5) var(--vox-sp-4)}
+.scope svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:var(--vox-sp-5);align-items:center;flex-wrap:wrap;
+  padding:0 var(--vox-sp-5) var(--vox-sp-4);font-size:var(--vox-fs-1);color:var(--vox-muted)}
+.legend .li{display:inline-flex;align-items:center;gap:7px}
+.sw{width:18px;height:0;border-top:2.5px solid var(--vox-accent);border-radius:2px}
+.sw.tgt{border-top:2.5px dashed var(--vox-line-2)}
+.dot{width:9px;height:9px;border-radius:50%}
+.dot.slide{background:var(--vox-watch)}
+.dot.off{background:var(--vox-weak)}
+.scope .head-extra{display:flex;justify-content:space-between;align-items:baseline;
+  padding-right:var(--vox-sp-5)}
+.nowplay{font-size:var(--vox-fs-1);color:var(--vox-muted)}
+.nowplay b{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;color:var(--vox-ink)}
+
+/* lower band: spectrum + harmonics */
+.lower{display:grid;grid-template-columns:1fr 360px;gap:var(--vox-sp-5);margin-top:var(--vox-sp-5)}
+.spec .frame{margin:var(--vox-sp-3) var(--vox-sp-5) var(--vox-sp-4)}
+.spec svg{display:block;width:100%;height:auto}
+.harm{padding-bottom:var(--vox-sp-3)}
+.hrow{display:grid;grid-template-columns:34px 1fr 64px;gap:var(--vox-sp-3);align-items:center;
+  padding:8px var(--vox-sp-5)}
+.hrow .k{font-family:var(--vox-mono);font-size:var(--vox-fs-2);font-weight:650;color:var(--vox-ink)}
+.hrow .track{height:6px;border-radius:3px;background:var(--vox-sunken);overflow:hidden}
+.hrow .fill{height:100%;border-radius:3px;background:var(--vox-accent)}
+.hrow .v{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--vox-fs-1);color:var(--vox-muted);text-align:right}
+.fund{padding:var(--vox-sp-2) var(--vox-sp-5) var(--vox-sp-4);font-size:var(--vox-fs-1);
+  color:var(--vox-muted);border-top:1px solid var(--vox-line);margin-top:var(--vox-sp-2)}
+.fund b{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;color:var(--vox-ink)}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">VOX <em>ANALYSIS</em></div>
+  <nav>
+    <a href="#">Record</a><a href="#" class="on">Results</a><a href="#">Progress</a><a href="#">Library</a>
+  </nav>
+  <div class="spacer"></div>
+</header>
+
+<main class="wrap">
+  <div class="head">
+    <h1>Pressure Down — Take 3</h1>
+    <span class="chip">Live · tavern</span>
+    <div class="headscore">Capture-fair<b>9.2</b></div>
+  </div>
+
+  <!-- transport: play the take, play the original, scrub -->
+  <section class="card">
+    <div class="transport">
+      <button class="play" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+      <div class="seg" role="group" aria-label="Source">
+        <button class="on">Take 3</button><button>Original</button>
+      </div>
+      <div class="seek"><div class="done"></div><div class="knob"></div></div>
+      <div class="tc"><b>01:24.6</b> / 03:10.2</div>
+    </div>
+  </section>
+
+  <!-- pitch scope -->
+  <section class="card scope">
+    <div class="head-extra">
+      <h2>Pitch</h2>
+      <div class="nowplay">at playhead <b>E4 −4¢</b></div>
+    </div>
+    <div class="frame">
+      <svg viewBox="0 0 1040 250" role="img" aria-label="Sung pitch against the melody">
+        <!-- note grid -->
+        <g stroke="var(--vox-line)" stroke-width="1">
+          <line x1="36" y1="30"  x2="1040" y2="30"/>
+          <line x1="36" y1="74"  x2="1040" y2="74"/>
+          <line x1="36" y1="118" x2="1040" y2="118"/>
+          <line x1="36" y1="162" x2="1040" y2="162"/>
+          <line x1="36" y1="206" x2="1040" y2="206"/>
+        </g>
+        <g fill="var(--vox-dim)" font-family="ui-monospace,monospace" font-size="11">
+          <text x="0" y="34">C5</text>
+          <text x="0" y="78">A4</text>
+          <text x="0" y="122">G4</text>
+          <text x="0" y="166">E4</text>
+          <text x="0" y="210">C4</text>
+        </g>
+        <!-- target melody (dashed steps) -->
+        <path d="M36 162 H150 V118 H320 V74 H430 V118 H580 V162 H700 V118 H880 V74 H1040"
+              fill="none" stroke="var(--vox-line-2)" stroke-width="2.5" stroke-dasharray="7 6"/>
+        <!-- sung contour -->
+        <path d="M36 165 C70 163 90 162 110 161 S140 158 152 148 S170 121 200 119
+                 S260 116 290 118 S310 112 322 96 S350 74 380 76 S415 79 428 90
+                 S450 116 480 119 S545 121 566 132 S590 158 620 161"
+              fill="none" stroke="var(--vox-accent)" stroke-width="3" stroke-linecap="round"/>
+        <!-- deviation dots: amber = slid into the note, red = out of place -->
+        <circle cx="152" cy="148" r="5.5" fill="var(--vox-watch)"/>
+        <circle cx="322" cy="96"  r="5.5" fill="var(--vox-watch)"/>
+        <circle cx="290" cy="118" r="5.5" fill="var(--vox-weak)"/>
+        <circle cx="566" cy="132" r="5.5" fill="var(--vox-watch)"/>
+        <circle cx="480" cy="128" r="5.5" fill="var(--vox-weak)"/>
+        <!-- playhead -->
+        <line x1="620" y1="14" x2="620" y2="236" stroke="var(--vox-accent)" stroke-width="2"/>
+        <circle cx="620" cy="161" r="6.5" fill="var(--vox-accent)" stroke="var(--vox-panel)" stroke-width="2.5"/>
+        <!-- upcoming region hint -->
+        <rect x="620" y="14" width="420" height="222" fill="var(--vox-ink)" opacity=".025"/>
+      </svg>
+    </div>
+    <div class="legend">
+      <span class="li"><span class="sw"></span>Sung pitch</span>
+      <span class="li"><span class="sw tgt"></span>Melody</span>
+      <span class="li"><span class="dot slide"></span>Slid into the note</span>
+      <span class="li"><span class="dot off"></span>Out of place</span>
+    </div>
+  </section>
+
+  <div class="lower">
+    <!-- spectrum with harmonic peaks -->
+    <section class="card spec">
+      <div class="head-extra">
+        <h2>Spectrum <span class="sub">· harmonic peaks at the playhead</span></h2>
+      </div>
+      <div class="frame">
+        <svg viewBox="0 0 640 190" role="img" aria-label="Spectrum with harmonic peaks">
+          <g stroke="var(--vox-line)" stroke-width="1">
+            <line x1="0" y1="150" x2="640" y2="150"/>
+          </g>
+          <!-- spectrum bars (opacity carries energy; hue stays the accent) -->
+          <g fill="var(--vox-accent)">
+            <rect x="8"   y="118" width="10" height="32" opacity=".28"/>
+            <rect x="24"  y="96"  width="10" height="54" opacity=".38"/>
+            <rect x="40"  y="34"  width="10" height="116" opacity=".95"/>
+            <rect x="56"  y="88"  width="10" height="62"  opacity=".45"/>
+            <rect x="72"  y="112" width="10" height="38"  opacity=".3"/>
+            <rect x="88"  y="52"  width="10" height="98"  opacity=".8"/>
+            <rect x="104" y="98"  width="10" height="52"  opacity=".4"/>
+            <rect x="120" y="118" width="10" height="32"  opacity=".26"/>
+            <rect x="136" y="66"  width="10" height="84"  opacity=".66"/>
+            <rect x="152" y="108" width="10" height="42"  opacity=".32"/>
+            <rect x="168" y="122" width="10" height="28"  opacity=".24"/>
+            <rect x="184" y="84"  width="10" height="66"  opacity=".5"/>
+            <rect x="200" y="116" width="10" height="34"  opacity=".26"/>
+            <rect x="216" y="126" width="10" height="24"  opacity=".2"/>
+            <rect x="232" y="98"  width="10" height="52"  opacity=".38"/>
+            <rect x="248" y="124" width="10" height="26"  opacity=".2"/>
+            <rect x="264" y="132" width="10" height="18"  opacity=".16"/>
+            <rect x="280" y="112" width="10" height="38"  opacity=".26"/>
+            <rect x="296" y="130" width="10" height="20"  opacity=".16"/>
+            <rect x="312" y="136" width="10" height="14"  opacity=".13"/>
+            <rect x="328" y="124" width="10" height="26"  opacity=".18"/>
+            <rect x="344" y="136" width="10" height="14"  opacity=".12"/>
+            <rect x="360" y="140" width="10" height="10"  opacity=".1"/>
+            <rect x="376" y="132" width="10" height="18"  opacity=".14"/>
+            <rect x="392" y="140" width="10" height="10"  opacity=".1"/>
+            <rect x="408" y="142" width="10" height="8"   opacity=".09"/>
+            <rect x="424" y="138" width="10" height="12"  opacity=".1"/>
+            <rect x="440" y="143" width="10" height="7"   opacity=".08"/>
+            <rect x="456" y="144" width="10" height="6"   opacity=".08"/>
+            <rect x="472" y="141" width="10" height="9"   opacity=".08"/>
+            <rect x="488" y="145" width="10" height="5"   opacity=".07"/>
+            <rect x="504" y="146" width="10" height="4"   opacity=".07"/>
+            <rect x="520" y="144" width="10" height="6"   opacity=".07"/>
+            <rect x="536" y="146" width="10" height="4"   opacity=".06"/>
+            <rect x="552" y="147" width="10" height="3"   opacity=".06"/>
+            <rect x="568" y="146" width="10" height="4"   opacity=".06"/>
+            <rect x="584" y="147" width="10" height="3"   opacity=".05"/>
+            <rect x="600" y="148" width="10" height="2"   opacity=".05"/>
+            <rect x="616" y="148" width="10" height="2"   opacity=".05"/>
+          </g>
+          <!-- harmonic markers -->
+          <g fill="var(--vox-muted)" font-family="ui-monospace,monospace" font-size="11" text-anchor="middle">
+            <text x="45"  y="24">H1</text>
+            <text x="93"  y="42">H2</text>
+            <text x="141" y="56">H3</text>
+            <text x="189" y="74">H4</text>
+            <text x="237" y="88">H5</text>
+          </g>
+          <g fill="var(--vox-dim)" font-family="ui-monospace,monospace" font-size="10">
+            <text x="36" y="168">196</text>
+            <text x="86" y="168">392</text>
+            <text x="182" y="168">784</text>
+            <text x="330" y="168">1.6k</text>
+            <text x="600" y="168">Hz</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- harmonic intensities -->
+    <section class="card harm">
+      <h2>Harmonics at playhead</h2>
+      <div style="height:8px"></div>
+      <div class="hrow"><span class="k">H1</span><div class="track"><div class="fill" style="width:96%"></div></div><span class="v">−6.2 dB</span></div>
+      <div class="hrow"><span class="k">H2</span><div class="track"><div class="fill" style="width:78%"></div></div><span class="v">−9.8 dB</span></div>
+      <div class="hrow"><span class="k">H3</span><div class="track"><div class="fill" style="width:60%"></div></div><span class="v">−14.1 dB</span></div>
+      <div class="hrow"><span class="k">H4</span><div class="track"><div class="fill" style="width:38%"></div></div><span class="v">−21.9 dB</span></div>
+      <div class="hrow"><span class="k">H5</span><div class="track"><div class="fill" style="width:24%"></div></div><span class="v">−28.4 dB</span></div>
+      <div class="fund">Fundamental <b>196.4 Hz · G3</b> — strong, centred; upper partials thin
+        out in the last chorus.</div>
+    </section>
+  </div>
+</main>
+</body>
+</html>
