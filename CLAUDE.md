@@ -116,6 +116,33 @@ The engine picks `PRIMARY FOCUS` as the lowest-scoring component, which on a liv
 capture is often `voice_quality` — i.e. the room, not the singer. Check whether
 the weak component is capture-sensitive before turning it into coaching advice.
 
+## 8. An analysis is not done until the singer has been GIVEN the results
+
+Running the engine, committing the JSON and pushing the branch is **plumbing, not
+delivery.** The job is done only when the person who asked has received the
+**actual analysis** — not a git status.
+
+After every analysis you run, you MUST hand back, in the conversation:
+
+1. **The headline `/10`** — with the right number led per rule 5 (overall for a
+   clean capture, capture-fair for live/room/phone), stated confidence, and the
+   "10 = a typical pro" anchor.
+2. **The full results** — rendered via rule 6
+   (`render_full_results_text(build_v2_report(raw), result)` or
+   `GET /api/pitch-jobs/{id}/full-results`). Send all of it; chunk for length.
+   Never hide it in a committed file only.
+
+A commit hash, a branch name, "preflight passed" and "worktree clean" are
+**confirmations of the plumbing** — necessary, but they are NOT the deliverable
+and never stand in for it. If you cannot render the full results for any reason,
+say so explicitly and give the headline score plus the component table — never
+report "complete" with nothing the singer can read.
+
+> This rule exists because a full, valid analysis of "Reasons" (8.0/10) was
+> computed, verified, committed and pushed — and the singer was handed only a
+> commit hash and a row of green checkmarks. The one thing the whole system
+> exists to produce, the result, was the one thing not delivered.
+
 ---
 
 ## Repo orientation
