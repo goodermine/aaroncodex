@@ -8,7 +8,7 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 Overall: min 6.1 · max 9.2 · mean 7.73. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 129/129 takes.
+Full coverage: 130/130 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -116,6 +116,7 @@ Full coverage: 129/129 takes.
 | aaron | the-heat-is-on-take-001 | 198 | **6.7** | 5.5 | high | 6.0 | 3.32 | 10.0 | 9.06 | 8.39 | 4.21 | 3.28 |
 | aaron | you-sexy-thing-take-001 | 224 | **6.1** | 4.9 | high | 6.0 | 0.9 | 10.0 | 8.91 | 7.46 | 6.15 | 0.53 |
 | aaron | reasons-take-001 | 182 | **8.0** | 7.5 | high | 10.0 | 4.45 | 10.0 | 9.56 | 8.11 | 6.3 | 3.6 |
+| aaron | two-strong-hearts-take-001 | 227 | **7.8** | 7.2 | high | 6.0 | 5.87 | 8.9 | 8.52 | 9.61 | 10.0 | 7.35 |
 | aaron-g | 1973-take-001 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind-take-001 | 201 | **8.5** | 7.8 | high | 6.0 | 7.39 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
 | aaron-g | vienna-take-001 | 165 | **8.6** | 7.9 | high | 6.0 | 9.02 | 10.0 | 10.0 | 9.81 | 8.97 | 7.05 |

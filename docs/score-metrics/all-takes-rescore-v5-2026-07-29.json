@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 129,
+      "n": 130,
       "overall": {
         "min": 6.1,
         "max": 9.2,
@@ -19,13 +19,13 @@
       "capture_fair": {
         "min": 4.5,
         "max": 9.7,
-        "mean": 7.64,
+        "mean": 7.63,
         "spread": 5.2
       },
       "dynamics": {
         "min": 5.6,
         "max": 10.0,
-        "mean": 8.94,
+        "mean": 8.95,
         "spread": 4.4
       }
     },
@@ -3678,6 +3678,41 @@
         "dyn_phrase_spread_db": 36.9,
         "dyn_effective_range_db": 37.52,
         "median_phrase_s": 2.58
+      }
+    },
+    {
+      "take": "2026-07-29-aaron-two-strong-hearts-take-001",
+      "singer": "aaron",
+      "song": "two-strong-hearts-take-001",
+      "date": "2026-07-29",
+      "n_notes": 227,
+      "prior_score_status": "current",
+      "overall": 7.8,
+      "capture_fair": 7.2,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 6.0,
+        "pitch_stability": 5.87,
+        "voice_quality": 8.9,
+        "vibrato_control": 8.52,
+        "dynamics_expression": 9.61,
+        "phrase_control": 10.0,
+        "breath_support": 7.35
+      },
+      "raw": {
+        "median_abs_dev_cents": 30.0,
+        "median_intra_note_drift_cents": 47.3,
+        "pct_within_25c": 44.5,
+        "jitter_pct": 0.8528,
+        "shimmer_pct": 10.5704,
+        "hnr_db": 15.62,
+        "vibrato_pct_notes": 23.7,
+        "dyn_phrase_spread_db": 53.04,
+        "dyn_effective_range_db": 28.18,
+        "median_phrase_s": 6.19
       }
     },
     {
