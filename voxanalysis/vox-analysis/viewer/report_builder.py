@@ -342,6 +342,9 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
         "headline": headline,
         "overview": overview,
         "archetype": raw.get("archetype"),
+        # Declarative take context (intent/capture/note) — metadata stamped at
+        # upload, never a score input. Lets renderers say which number to quote.
+        "take_context": raw.get("take_context"),
         "score": {
             "overall": _number(overall, 1),
             "capture_fair": _number(score.get("capture_fair_score_0_to_10"), 1),
@@ -506,9 +509,23 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
     overall, cf, conf = s.get("overall"), s.get("capture_fair"), s.get("confidence") or "—"
     line(f"Overall: {overall}/10  ({conf} confidence)"
          if overall is not None else "Overall: — (score withheld pending calibration review)")
-    line(f"Capture-fair: {cf}/10  — same rubric minus the mic/room-sensitive "
-         "voice-quality & dynamics; quote this for live or rough captures"
-         if cf is not None else "Capture-fair: —")
+    tc = report.get("take_context") or {}
+    capture = tc.get("capture")
+    if cf is None:
+        line("Capture-fair: —")
+    elif capture in ("studio", "home"):
+        line(f"Capture-fair: {cf}/10  — shown for completeness; this was a declared "
+             f"clean capture ({capture}), so the OVERALL above is the number to quote")
+    elif capture == "live":
+        line(f"Capture-fair: {cf}/10  — same rubric minus the mic/room-sensitive "
+             "voice-quality & dynamics; declared live capture, so quote THIS number")
+    else:
+        line(f"Capture-fair: {cf}/10  — same rubric minus the mic/room-sensitive "
+             "voice-quality & dynamics; quote this for live or rough captures")
+    if tc.get("intent") or capture or tc.get("note"):
+        bits = [b for b in (tc.get("intent"), f"{capture} capture" if capture else None,
+                            tc.get("note")) if b]
+        line("Take context: " + " · ".join(bits))
     refs = s.get("calibration_references")
     if s.get("calibrated"):
         line(f"Calibrated · {refs} pro refs · 10 = a typical pro" if refs

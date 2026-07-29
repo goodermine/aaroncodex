@@ -154,3 +154,26 @@ class ReportBuilderTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_capture_fair_line_is_capture_aware():
+    """Declared clean captures say to quote the OVERALL; declared live says to
+    quote capture-fair; undeclared keeps the neutral wording. The take context
+    itself is echoed so it travels with the results."""
+    base = {"technical_score": {"overall_score_0_to_10": 8.7,
+                                "capture_fair_score_0_to_10": 8.1,
+                                "confidence": "high"}}
+    def text_for(ctx):
+        raw = dict(base)
+        if ctx:
+            raw["take_context"] = ctx
+        return render_full_results_text(build_v2_report(raw))
+    home = text_for({"intent": "performance", "capture": "home"})
+    assert "shown for completeness" in home and "OVERALL" in home
+    assert "Take context: performance · home capture" in home
+    live = text_for({"capture": "live", "note": "tavern set"})
+    assert "declared live capture, so quote THIS number" in live
+    assert "tavern set" in live
+    plain = text_for(None)
+    assert "quote this for live or rough captures" in plain
+    assert "Take context:" not in plain
