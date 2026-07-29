@@ -110,16 +110,17 @@
     var x = canvas.getContext("2d"), w = canvas.width, h = canvas.height, cx = w / 2, cy = h / 2, r = w / 2 - 10;
     x.setTransform(1, 0, 0, 1, 0, 0);
     x.clearRect(0, 0, w, h); x.lineWidth = 9; x.lineCap = "round";
-    // track colour follows the theme (canvas can't use var() directly)
-    var track = "";
-    try { track = getComputedStyle(document.documentElement).getPropertyValue("--vox-surface-2").trim(); } catch (e) {}
-    x.strokeStyle = track || "#16242f"; x.beginPath(); x.arc(cx, cy, r, .75 * Math.PI, 2.25 * Math.PI); x.stroke();
+    // canvas palette bridge: canvases can't use var(), so read tokens at draw
+    // time (no hex fallbacks — tools/ui_guard.sh forbids colours outside the
+    // tokens file; the kit always ships them).
+    function tok(name) {
+      try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+      catch (e) { return ""; }
+    }
+    x.strokeStyle = tok("--vox-sunken"); x.beginPath(); x.arc(cx, cy, r, .75 * Math.PI, 2.25 * Math.PI); x.stroke();
     var end = .75 * Math.PI + 1.5 * Math.PI * (clamp(val, 0, 100) / 100), hot = val > 88;
-    var grad = x.createLinearGradient(0, 0, w, h);
-    if (hot) { grad.addColorStop(0, "#3fe0ff"); grad.addColorStop(1, "#ffb547"); }
-    else { grad.addColorStop(0, "#1a9fc4"); grad.addColorStop(1, "#3fe0ff"); }
-    x.strokeStyle = grad; x.shadowColor = hot ? "#ffb547" : "#3fe0ff"; x.shadowBlur = 10;
-    x.beginPath(); x.arc(cx, cy, r, .75 * Math.PI, end); x.stroke(); x.shadowBlur = 0;
+    x.strokeStyle = hot ? tok("--vox-watch") : tok("--vox-accent");
+    x.beginPath(); x.arc(cx, cy, r, .75 * Math.PI, end); x.stroke();
   }
 
   // Populate a mini bar meter (command bar) with N bars.

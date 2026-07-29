@@ -45,6 +45,7 @@ class JobMeta:
     song: str = ""
     artist: str = ""
     tune: bool = True
+    take_context: dict | None = None  # declarative metadata, never a score input
 
 
 @dataclass

@@ -49,7 +49,7 @@ def test_full_fused_lifecycle_over_http():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)
         r = c.post("/api/fused-jobs",
-                   data={"name": "Ada", "tune": "true"},
+                   data={"name": "Ada", "tune": "true", "take_capture": "home"},
                    files={"file": ("take.wav", b"RIFF-bytes", "audio/wav")})
         assert r.status_code == 202
         jid = r.json()["id"]
@@ -81,8 +81,28 @@ def test_cross_mode_tabs_serve_html_never_json_download():
 def test_rejects_unsupported_upload():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)
-        r = c.post("/api/fused-jobs", files={"file": ("notes.txt", b"hi", "text/plain")})
+        r = c.post("/api/fused-jobs", data={"name": "Ada", "take_capture": "home"},
+                   files={"file": ("notes.txt", b"hi", "text/plain")})
         assert r.status_code == 415
+
+
+def test_requires_singer_name_and_capture():
+    """Aaron's rule: no take enters the system without a singer's name and a
+    declared capture location (studio / home / live)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        c = _client(tmp)
+        r = c.post("/api/fused-jobs", data={"take_capture": "home"},
+                   files={"file": ("take.wav", b"RIFF", "audio/wav")})
+        assert r.status_code == 422 and r.json()["detail"]["code"] == "missing_performer_name"
+        r = c.post("/api/fused-jobs", data={"name": "   "},
+                   files={"file": ("take.wav", b"RIFF", "audio/wav")})
+        assert r.status_code == 422 and r.json()["detail"]["code"] == "missing_performer_name"
+        r = c.post("/api/fused-jobs", data={"name": "Ada"},
+                   files={"file": ("take.wav", b"RIFF", "audio/wav")})
+        assert r.status_code == 422 and r.json()["detail"]["code"] == "missing_take_capture"
+        r = c.post("/api/fused-jobs", data={"name": "Ada", "take_capture": "moon"},
+                   files={"file": ("take.wav", b"RIFF", "audio/wav")})
+        assert r.status_code == 422 and r.json()["detail"]["code"] == "missing_take_capture"
 
 
 def test_unknown_job_is_404():

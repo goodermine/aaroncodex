@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VOX — Analysis Report (mock)</title>
+<link rel="stylesheet" href="vox-tokens.css">
+<style>
+/* Phase-0 mock. Layout styles here graduate into vox-kit.css v2 on sign-off. */
+*{box-sizing:border-box;margin:0}
+html{font-size:16px}
+body{background:var(--vox-page);color:var(--vox-body);font-family:var(--vox-sans);
+  font-size:var(--vox-fs-3);line-height:1.55;-webkit-font-smoothing:antialiased}
+
+/* command bar */
+.bar{background:var(--vox-panel);border-bottom:1px solid var(--vox-line);
+  display:flex;align-items:center;gap:var(--vox-sp-4);padding:0 var(--vox-sp-6);height:56px}
+.brand{font-size:var(--vox-fs-2);font-weight:650;letter-spacing:.14em;color:var(--vox-ink)}
+.brand em{font-style:normal;color:var(--vox-accent)}
+.bar nav{display:flex;gap:var(--vox-sp-1);margin-left:var(--vox-sp-5)}
+.bar nav a{font-size:var(--vox-fs-2);color:var(--vox-muted);text-decoration:none;
+  padding:6px 12px;border-radius:var(--vox-r-ctl)}
+.bar nav a.on{color:var(--vox-accent);background:var(--vox-accent-tint);font-weight:600}
+.bar .spacer{flex:1}
+.btn{font:inherit;font-size:var(--vox-fs-2);font-weight:600;border-radius:var(--vox-r-ctl);
+  padding:8px 14px;cursor:pointer;border:1px solid var(--vox-line-2);
+  background:var(--vox-panel);color:var(--vox-body)}
+.btn--primary{background:var(--vox-accent);border-color:var(--vox-accent);color:var(--vox-on-accent)}
+
+/* page frame */
+.wrap{max-width:1120px;margin:0 auto;padding:var(--vox-sp-6)}
+.crumb{font-size:var(--vox-fs-1);color:var(--vox-muted);margin-bottom:var(--vox-sp-2)}
+.head{display:flex;align-items:baseline;gap:var(--vox-sp-3);flex-wrap:wrap;margin-bottom:var(--vox-sp-5)}
+h1{font-size:var(--vox-fs-6);font-weight:700;color:var(--vox-ink);letter-spacing:-.015em}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:var(--vox-fs-1);font-weight:600;
+  color:var(--vox-muted);background:var(--vox-sunken);border-radius:999px;padding:3px 10px}
+.chip.ctx{color:var(--vox-accent);background:var(--vox-accent-tint)}
+
+.grid{display:grid;grid-template-columns:360px 1fr;gap:var(--vox-sp-5);align-items:start}
+.card{background:var(--vox-panel);border:1px solid var(--vox-line);border-radius:var(--vox-r-card);
+  box-shadow:var(--vox-shadow-1)}
+.card h2{font-size:var(--vox-fs-1);font-weight:650;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--vox-muted);padding:var(--vox-sp-4) var(--vox-sp-5) 0}
+
+/* hero score */
+.hero{padding:var(--vox-sp-5)}
+.hero .lead-label{font-size:var(--vox-fs-1);font-weight:650;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--vox-muted)}
+.hero .score{display:flex;align-items:baseline;gap:10px;margin:6px 0 2px}
+.hero .score b{font-size:var(--vox-fs-hero);line-height:1;font-weight:700;color:var(--vox-ink);
+  font-family:var(--vox-sans);font-variant-numeric:tabular-nums;letter-spacing:-.035em}
+.hero .score span{font-size:var(--vox-fs-4);color:var(--vox-muted)}
+.hero .secondary{font-size:var(--vox-fs-2);color:var(--vox-muted);
+  padding-bottom:var(--vox-sp-4);border-bottom:1px solid var(--vox-line)}
+.hero .secondary b{color:var(--vox-ink);font-weight:650}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:var(--vox-sp-3);padding-top:var(--vox-sp-4)}
+.fact .k{font-size:var(--vox-fs-0);letter-spacing:.08em;text-transform:uppercase;color:var(--vox-muted)}
+.fact .v{font-size:var(--vox-fs-3);font-weight:650;color:var(--vox-ink)}
+.fact .v.good{color:var(--vox-good)}
+.anchor{margin:var(--vox-sp-4) var(--vox-sp-5) var(--vox-sp-5);padding:var(--vox-sp-3) var(--vox-sp-4);
+  background:var(--vox-sunken);border-radius:var(--vox-r-ctl);
+  font-size:var(--vox-fs-2);color:var(--vox-body)}
+.anchor b{color:var(--vox-ink)}
+
+/* components table */
+.comps{padding:var(--vox-sp-3) var(--vox-sp-5) var(--vox-sp-5)}
+.comp{display:grid;grid-template-columns:200px 1fr 84px 56px;gap:var(--vox-sp-4);
+  align-items:center;padding:11px 0;border-bottom:1px solid var(--vox-line)}
+.comp:last-child{border-bottom:0}
+.comp .name{font-size:var(--vox-fs-2);font-weight:600;color:var(--vox-ink)}
+.comp .name small{display:block;font-weight:500;color:var(--vox-dim);font-size:var(--vox-fs-0)}
+.track{height:6px;border-radius:3px;background:var(--vox-sunken);overflow:hidden}
+.fill{height:100%;border-radius:3px;background:var(--vox-accent)}
+.comp .val{font-size:var(--vox-fs-4);font-weight:650;color:var(--vox-ink);text-align:right}
+.comp .wt{font-size:var(--vox-fs-1);color:var(--vox-dim);text-align:right}
+.tag{display:inline-block;font-size:var(--vox-fs-0);font-weight:600;color:var(--vox-muted);
+  background:var(--vox-sunken);border-radius:4px;padding:1px 6px;margin-top:3px;
+  white-space:nowrap}
+
+/* lower band */
+.lower{display:grid;grid-template-columns:1fr 1fr;gap:var(--vox-sp-5);margin-top:var(--vox-sp-5)}
+.focus{padding:var(--vox-sp-4) var(--vox-sp-5) var(--vox-sp-5)}
+.focus .which{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.focus .which b{font-size:var(--vox-fs-4);color:var(--vox-ink)}
+.focus .which .n{font-size:var(--vox-fs-4);font-weight:650;color:var(--vox-watch)}
+.focus p{font-size:var(--vox-fs-2);color:var(--vox-body)}
+.metrics{padding:var(--vox-sp-4) var(--vox-sp-5) var(--vox-sp-5);display:grid;
+  grid-template-columns:repeat(3,1fr);gap:var(--vox-sp-4)}
+.metric .k{font-size:var(--vox-fs-0);letter-spacing:.08em;text-transform:uppercase;color:var(--vox-muted)}
+.metric .v{font-size:var(--vox-fs-5);font-weight:650;color:var(--vox-ink)}
+.metric .v small{font-size:var(--vox-fs-1);font-weight:500;color:var(--vox-muted)}
+
+/* takes strip */
+.takes{margin-top:var(--vox-sp-5);padding:var(--vox-sp-4) var(--vox-sp-5) var(--vox-sp-5)}
+.takerow{display:flex;gap:var(--vox-sp-2);align-items:flex-end;
+  padding-top:var(--vox-sp-4)}
+.take{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.take .col{width:100%;max-width:56px;border-radius:4px 4px 0 0;background:var(--vox-line-2)}
+.take.cur .col{background:var(--vox-accent)}
+.take .t{font-size:var(--vox-fs-0);color:var(--vox-muted)}
+.take .s{font-size:var(--vox-fs-1);font-weight:650;color:var(--vox-ink)}
+
+.prov{margin-top:var(--vox-sp-5);font-size:var(--vox-fs-0);color:var(--vox-dim)}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">VOX <em>ANALYSIS</em></div>
+  <nav>
+    <a href="#">Record</a><a href="#" class="on">Results</a><a href="#">Progress</a><a href="#">Library</a>
+  </nav>
+  <div class="spacer"></div>
+  <button class="btn">Export</button>
+  <button class="btn--primary btn">New analysis</button>
+</header>
+
+<main class="wrap">
+  <div class="crumb">Aaron · 24 July 2026</div>
+  <div class="head">
+    <h1>Pressure Down — Take 3</h1>
+    <span class="chip ctx">Performance</span>
+    <span class="chip">Live · tavern</span>
+    <span class="chip">Rubric v5</span>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <div class="hero">
+        <div class="lead-label">Capture-fair score</div>
+        <div class="score"><b class="vox-num">9.2</b><span>/ 10</span></div>
+        <div class="secondary">Overall <b class="vox-num">9.3</b> · capture-fair excludes what the room
+          measures, not the voice</div>
+        <div class="facts">
+          <div class="fact"><div class="k">Confidence</div><div class="v good">High</div></div>
+          <div class="fact"><div class="k">Separation</div><div class="v">Clean</div></div>
+          <div class="fact"><div class="k">Coverage</div><div class="v vox-num">7 / 7</div></div>
+          <div class="fact"><div class="k">Calibration</div><div class="v">v5 · pack 2</div></div>
+        </div>
+      </div>
+      <div class="anchor"><b>Scale:</b> calibrated against 50 professional reference
+        vocals — <b>10 = a typical pro</b>. A 7 is a strong amateur result.</div>
+    </section>
+
+    <section class="card">
+      <h2>Components</h2>
+      <div class="comps">
+        <div class="comp"><div class="name">Intonation accuracy</div>
+          <div class="track"><div class="fill" style="width:95.2%"></div></div>
+          <div class="val vox-num">9.52</div><div class="wt vox-num">×.25</div></div>
+        <div class="comp"><div class="name">Vibrato control</div>
+          <div class="track"><div class="fill" style="width:97.9%"></div></div>
+          <div class="val vox-num">9.79</div><div class="wt vox-num">×.15</div></div>
+        <div class="comp"><div class="name">Voice quality<small><span class="tag">capture-sensitive</span></small></div>
+          <div class="track"><div class="fill" style="width:100%"></div></div>
+          <div class="val vox-num">10.0</div><div class="wt vox-num">×.20</div></div>
+        <div class="comp"><div class="name">Breath support</div>
+          <div class="track"><div class="fill" style="width:90.7%"></div></div>
+          <div class="val vox-num">9.07</div><div class="wt vox-num">×.10</div></div>
+        <div class="comp"><div class="name">Phrase control</div>
+          <div class="track"><div class="fill" style="width:86.6%"></div></div>
+          <div class="val vox-num">8.66</div><div class="wt vox-num">×.10</div></div>
+        <div class="comp"><div class="name">Dynamics &amp; expression<small><span class="tag">capture-sensitive</span></small></div>
+          <div class="track"><div class="fill" style="width:85.7%"></div></div>
+          <div class="val vox-num">8.57</div><div class="wt vox-num">×.15</div></div>
+        <div class="comp"><div class="name">Pitch stability</div>
+          <div class="track"><div class="fill" style="width:84.7%"></div></div>
+          <div class="val vox-num">8.47</div><div class="wt vox-num">×.15</div></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="lower">
+    <section class="card">
+      <h2>Primary focus</h2>
+      <div class="focus">
+        <div class="which"><b>Pitch stability</b><span class="n vox-num">8.47</span></div>
+        <p>Sustained notes drift slightly late in long phrases, most visibly in the final
+        chorus. Not a capture artefact — this component is room-independent. Steady-tone
+        work at phrase ends is the highest-leverage next step.</p>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Raw measures</h2>
+      <div class="metrics">
+        <div class="metric"><div class="k">Median pitch error</div>
+          <div class="v vox-num">11.3 <small>cents</small></div></div>
+        <div class="metric"><div class="k">Dynamic range</div>
+          <div class="v vox-num">18.4 <small>dB</small></div></div>
+        <div class="metric"><div class="k">Phrase-end sag</div>
+          <div class="v vox-num">4 <small>of 31 phrases</small></div></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card takes">
+    <h2 style="padding:0">Pressure Down — all takes</h2>
+    <div class="takerow">
+      <div class="take"><div class="col" style="height:56px"></div><div class="s vox-num">7.9</div><div class="t">T1</div></div>
+      <div class="take"><div class="col" style="height:63px"></div><div class="s vox-num">8.3</div><div class="t">T2</div></div>
+      <div class="take cur"><div class="col" style="height:84px"></div><div class="s vox-num">9.2</div><div class="t">T3</div></div>
+      <div class="take"><div class="col" style="height:70px"></div><div class="s vox-num">8.7</div><div class="t">T4</div></div>
+      <div class="take"><div class="col" style="height:75px"></div><div class="s vox-num">8.9</div><div class="t">T5</div></div>
+    </div>
+  </section>
+
+  <p class="prov">Engine analyse_song.py · rubric v5 · calibration pack 2 · preflight clean ·
+    scored 24 Jul 2026 — provenance current, comparable across this table.</p>
+</main>
+</body>
+</html>

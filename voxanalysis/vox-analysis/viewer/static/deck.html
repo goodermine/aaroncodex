@@ -4,10 +4,9 @@
 <meta charset="utf-8">
 <title>VOX Suite — Command Deck</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>try{var t=localStorage.getItem('vox-theme')||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 <link rel="manifest" href="/static/site.webmanifest">
 <link rel="apple-touch-icon" href="/static/vox-icon-180.png">
-<meta name="theme-color" content="#070a0e">
+<meta name="theme-color" content="#f6f7f9">
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-report.css?v=__ASSET_VERSION__">
@@ -30,8 +29,8 @@
   .intake-source{display:grid;justify-items:center;gap:12px;width:100%}
   .intake-source[hidden]{display:none}
   .vox-newbtn{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
-    color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:var(--vox-surface-1);transition:background .15s,box-shadow .15s}
-  .vox-newbtn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
+    color:var(--vox-accent);border:1px solid var(--vox-line-2);border-radius:8px;padding:8px 14px;background:var(--vox-panel);transition:background .15s,border-color .15s}
+  .vox-newbtn:hover{background:var(--vox-accent-tint);border-color:var(--vox-accent)}
   .vox-newbtn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
   /* horizontal drag/pinch belongs to the scope; vertical swipes still scroll */
   #scope{touch-action:pan-y}
@@ -48,8 +47,8 @@
   /* bigger, touch-friendly scrubber with a draggable knob */
   .vox-transport .vox-seek{position:relative;height:24px;display:flex;align-items:center;cursor:pointer;touch-action:none}
   .vox-transport .vox-seek::before{content:"";position:absolute;left:0;right:0;height:6px;border-radius:3px;background:var(--vox-surface-1);border:1px solid var(--vox-line)}
-  .vox-transport .vox-seek i{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--vox-cyan-deep),var(--vox-cyan));box-shadow:0 0 8px rgba(63,224,255,.5)}
-  .vox-transport .vox-seek i::after{content:"";position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:15px;height:15px;border-radius:50%;background:var(--vox-cyan);box-shadow:0 0 10px var(--vox-cyan),0 0 0 3px rgba(63,224,255,.18)}
+  .vox-transport .vox-seek i{position:relative;height:6px;border-radius:3px;background:var(--vox-accent)}
+  .vox-transport .vox-seek i::after{content:"";position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:15px;height:15px;border-radius:50%;background:var(--vox-accent);box-shadow:0 0 0 3px var(--vox-accent-tint)}
   /* playback (backing music) panel */
   .pb-tgl{display:block;width:100%;text-align:left;margin-bottom:9px}
   .pb-vol{display:flex;align-items:center;gap:9px;margin-bottom:2px}
@@ -67,32 +66,32 @@
 
   /* score badge — overall + capture-fair + confidence + calibration provenance */
   .vox-score{margin:4px 0 12px;padding:12px;border:1px solid var(--vox-line);border-radius:12px;
-    background:linear-gradient(180deg,rgba(63,224,255,.06),transparent)}
+    background:linear-gradient(180deg,var(--vox-accent-tint),transparent)}
   .vox-score__top{display:flex;gap:10px}
   .vox-score__box{flex:1;text-align:center;padding:9px 6px;border-radius:9px;
-    background:rgba(255,255,255,.03);border:1px solid var(--vox-line)}
-  .vox-score__box--main{background:rgba(63,224,255,.12);border-color:rgba(63,224,255,.38)}
+    background:var(--vox-sunken);border:1px solid var(--vox-line)}
+  .vox-score__box--main{background:var(--vox-accent-tint);border-color:var(--vox-accent)}
   .vox-score__num{font:700 30px/1 var(--vox-sans);color:var(--vox-ink);font-variant-numeric:tabular-nums}
-  .vox-score__box--main .vox-score__num{color:#bfeffb}
+  .vox-score__box--main .vox-score__num{color:var(--vox-accent)}
   .vox-score__cap{margin-top:5px;font:600 8.5px/1.2 var(--vox-mono);letter-spacing:.1em;color:var(--vox-muted);text-transform:uppercase}
   .vox-score__meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
   .vox-score__conf{font:700 9px/1 var(--vox-mono);letter-spacing:.12em;padding:4px 7px;border-radius:5px;text-transform:uppercase}
-  .vox-score__conf.conf-high{background:rgba(90,224,138,.15);color:#5ae08a}
-  .vox-score__conf.conf-medium{background:rgba(255,193,88,.15);color:#ffc158}
-  .vox-score__conf.conf-low{background:rgba(255,109,122,.15);color:#ff6d7a}
-  .vox-score__conf.conf-unknown{background:rgba(127,147,164,.15);color:var(--vox-muted)}
+  .vox-score__conf.conf-high{background:var(--vox-good-tint);color:var(--vox-good)}
+  .vox-score__conf.conf-medium{background:var(--vox-watch-tint);color:var(--vox-watch)}
+  .vox-score__conf.conf-low{background:var(--vox-weak-tint);color:var(--vox-weak)}
+  .vox-score__conf.conf-unknown{background:var(--vox-sunken);color:var(--vox-muted)}
   .vox-score__cal{font:500 10px/1.35 var(--vox-mono);color:var(--vox-muted)}
-  .vox-score__hint{margin-top:9px;font:500 11px/1.5 var(--vox-sans);color:#ffc158;
-    padding:7px 9px;border-radius:7px;background:rgba(255,193,88,.08);border:1px solid rgba(255,193,88,.25)}
+  .vox-score__hint{margin-top:9px;font:500 11px/1.5 var(--vox-sans);color:var(--vox-watch);
+    padding:7px 9px;border-radius:7px;background:var(--vox-watch-tint);border:1px solid var(--vox-watch)}
   /* legacy (superseded-rubric) score: drain the emphasis, it must not read as current */
-  .vox-score.legacy .vox-score__box{background:rgba(255,255,255,.03);border-color:var(--vox-line);opacity:.55}
+  .vox-score.legacy .vox-score__box{background:var(--vox-sunken);border-color:var(--vox-line);opacity:.55}
   .vox-score.legacy .vox-score__num{color:var(--vox-muted)}
-  .vox-score.legacy .vox-score__hint{color:#ff8a95;background:rgba(255,109,122,.09);border-color:rgba(255,109,122,.3)}
+  .vox-score.legacy .vox-score__hint{color:var(--vox-weak);background:var(--vox-weak-tint);border-color:var(--vox-weak)}
   /* room/live capture: move the cyan emphasis onto capture-fair */
-  .vox-score.capture-risk .vox-score__box--main{background:rgba(255,255,255,.03);border-color:var(--vox-line)}
+  .vox-score.capture-risk .vox-score__box--main{background:var(--vox-sunken);border-color:var(--vox-line)}
   .vox-score.capture-risk .vox-score__box--main .vox-score__num{color:var(--vox-ink)}
-  .vox-score.capture-risk #scoreBoxCF{background:rgba(63,224,255,.12);border-color:rgba(63,224,255,.38)}
-  .vox-score.capture-risk #scoreBoxCF .vox-score__num{color:#bfeffb}
+  .vox-score.capture-risk #scoreBoxCF{background:var(--vox-accent-tint);border-color:var(--vox-accent)}
+  .vox-score.capture-risk #scoreBoxCF .vox-score__num{color:var(--vox-accent)}
 
   /* analyzer lane stack: vibrato band / main / navigator, shared time window */
   .lanes{position:absolute;inset:8px;display:flex;flex-direction:column;gap:6px}
@@ -115,6 +114,17 @@
     #harmSide{width:74px}
   }
   .hidden{display:none!important}
+  .vox-ctxrow{display:grid;gap:7px;margin-top:10px;text-align:left}
+  .vox-ctxchips{display:flex;gap:8px}
+  .vox-ctxchips button{flex:1;font:600 12px/1.2 var(--vox-sans);min-height:40px;cursor:pointer;
+    border:1px solid var(--vox-line-2);border-radius:8px;background:var(--vox-panel);color:var(--vox-body)}
+  .vox-ctxchips button.on{background:var(--vox-accent-tint);border-color:var(--vox-accent);color:var(--vox-accent)}
+  .vox-ctxchips button:focus-visible{outline:2px solid var(--vox-accent);outline-offset:2px}
+  #fCtxNote{box-sizing:border-box;width:100%;min-height:40px;font:inherit;font-size:13px;color:var(--vox-body);
+    border:1px solid var(--vox-line-2);border-radius:8px;background:var(--vox-panel);padding:9px 12px}
+  #fCtxNote::placeholder{color:var(--vox-dim)}
+  #fPerformer.is-missing{border-color:var(--vox-weak);background:var(--vox-weak-tint)}
+  #nameWarn{font-size:12px;color:var(--vox-weak);margin-top:4px}
 </style>
 </head>
 <body class="vox-deck-bg">
@@ -231,9 +241,26 @@
           </div>
           <div class="intake-source" id="intakeRecord" hidden><div id="recMount"></div></div>
           <div class="fields">
-            <label>Performer<input id="fPerformer" placeholder="Singer"></label>
+            <label>Singer’s name<input id="fPerformer" placeholder="required" required></label>
+            <div id="nameWarn" hidden>The singer’s name is required before a take can be analysed.</div>
             <label>Song title<input id="fSong" placeholder="optional"></label>
             <label class="full">Original artist or composer<input id="fArtist" placeholder="optional — enables comparison"></label>
+            <div class="vox-ctxrow" id="ctxRow">
+              <span class="vox-label">This take is</span>
+              <span class="vox-ctxchips" data-ctx="intent" role="group" aria-label="Take intent">
+                <button type="button" class="on" data-v="performance">Performance</button>
+                <button type="button" data-v="learning">Learning</button>
+                <button type="button" data-v="warmup">Warm-up</button>
+              </span>
+              <span class="vox-label">Where</span>
+              <span class="vox-ctxchips" data-ctx="capture" role="group" aria-label="Capture location">
+                <button type="button" data-v="studio">Studio</button>
+                <button type="button" class="on" data-v="home">Home</button>
+                <button type="button" data-v="live">Live</button>
+              </span>
+              <input id="fCtxNote" maxlength="200" placeholder="Note (optional) — e.g. first time on the high note">
+            </div>
+
           </div>
         </div>
         <!-- running / done message -->
@@ -307,11 +334,35 @@
 
 <script>window.VOX_MODE="analyze";</script>
 <script src="/static/vox-about.js?v=__ASSET_VERSION__"></script>
-<script src="/static/vox-theme.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-report.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-record.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
+  var pendingTake=null;
+  function requireSingerName(file,ctx){
+    var nm=($("#fPerformer").value||"").trim();
+    if(nm){pendingTake=null;$("#fPerformer").classList.remove("is-missing");return true;}
+    pendingTake={file:file,ctx:ctx};
+    $("#fPerformer").classList.add("is-missing");
+    $("#fPerformer").focus();
+    var w=$("#nameWarn");if(w)w.hidden=false;
+    return false;
+  }
+  $("#fPerformer").addEventListener("input",function(){
+    if(this.value.trim()){this.classList.remove("is-missing");var w=$("#nameWarn");if(w)w.hidden=true;
+      if(pendingTake){var t=pendingTake;pendingTake=null;startJob(t.file,t.ctx);}}
+  });
+  function deckTakeContext(){
+    function sel(g){var b=document.querySelector('.vox-ctxchips[data-ctx="'+g+'"] button.on');return b?b.dataset.v:"";}
+    var n=document.getElementById("fCtxNote");
+    return {intent:sel("intent"),capture:sel("capture"),note:(n&&n.value||"").trim().slice(0,200)};
+  }
+  document.querySelectorAll(".vox-ctxchips").forEach(function(g){
+    g.addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
+      g.querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b);});});
+  });
+  function TOK(n){try{return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}catch(e){return ""}}
+function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseInt(m[1].slice(0,2),16),parseInt(m[1].slice(2,4),16),parseInt(m[1].slice(4,6),16)]:[0,0,0]}
 (function(){
   "use strict";
   var $=function(s){return document.querySelector(s);};
@@ -492,12 +543,17 @@
   });
 
   // ---- real upload → job → poll -------------------------------------------
-  function startJob(file){
+  function startJob(file,ctx){
+    if(!requireSingerName(file,ctx))return;
     var fd=new FormData();
     fd.append("file",file);
-    fd.append("name",($("#fPerformer").value||"Singer"));
+    fd.append("name",$("#fPerformer").value.trim());
     fd.append("song",$("#fSong").value||"");
     fd.append("artist",$("#fArtist").value||"");
+    var tc=(ctx&&(ctx.intent||ctx.capture||ctx.note))?ctx:deckTakeContext();
+    if(tc.intent)fd.append("take_intent",tc.intent);
+    if(tc.capture)fd.append("take_capture",tc.capture);
+    if(tc.note)fd.append("take_note",tc.note);
     var compare=!!($("#fSong").value&&$("#fArtist").value);
     fd.append("comparison",compare?"true":"false");
     $("#jobTag").textContent="SESSION · uploading";
@@ -541,7 +597,7 @@
   function mountRecorder(){
     if(recMounted)return !!recCtl;
     recMounted=true;
-    if(window.VOXRecord)recCtl=VOXRecord.mount($("#recMount"),{onAnalyze:function(file){startJob(file);}});
+    if(window.VOXRecord)recCtl=VOXRecord.mount($("#recMount"),{onAnalyze:function(file,ctx){startJob(file,ctx);}});
     else $("#recMount").innerHTML='<p class="stage-msg"><span>Recording is unavailable in this browser — use Upload.</span></p>';
     return !!recCtl;
   }
@@ -596,7 +652,7 @@
   // Frequency range shown on Y. With the spectrogram on, open it up two octaves
   // so the harmonic bands above the melody are visible (as in the classic view).
   function yBounds(){var lo=scopeData.lo,hi=spectroOn?scopeData.hi+24:scopeData.hi;return{lo:lo,hi:hi,range:Math.max(1,hi-lo)};}
-  function pitchErrorColour(cents){var m=69+cents/100,err=Math.min(50,Math.abs((m-Math.round(m))*100)),a=err<=15?0:err<=30?(err-15)/15*.22:err<=40?.22+(err-30)/10*.38:.6+(err-40)/10*.4,s=[139,124,255],e=[255,77,94];return "rgb("+s.map(function(v,i){return Math.round(v+(e[i]-v)*a);}).join(",")+")";}
+  function pitchErrorColour(cents){var m=69+cents/100,err=Math.min(50,Math.abs((m-Math.round(m))*100)),a=err<=15?0:err<=30?(err-15)/15*.22:err<=40?.22+(err-30)/10*.38:.6+(err-40)/10*.4,s=TOKRGB("--vox-accent"),e=TOKRGB("--vox-weak");return "rgb("+s.map(function(v,i){return Math.round(v+(e[i]-v)*a);}).join(",")+")";}
   function drawScope(){
     if(!scopeData)return;
     drawPitch();drawVib();drawNav();drawHarmPanel();
@@ -615,10 +671,10 @@
     sctx.clearRect(0,0,w,h);
     if(spectroOn&&spectroImg){var iw=spectroImg.width;sctx.save();sctx.globalAlpha=.72;sctx.globalCompositeOperation="lighter";sctx.drawImage(spectroImg,v.start/v.dur*iw,0,Math.max(1,v.win/v.dur*iw),spectroImg.height,PAD,0,w-PAD,h);sctx.restore();}
     sctx.font="10px "+mono();sctx.textBaseline="middle";
-    for(var m=lo;m<=eb.hi;m++){var y=h-(m-lo)/range*h;sctx.strokeStyle=(m%12===0)?"#34404e":"#202832";sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(PAD,y);sctx.lineTo(w,y);sctx.stroke();if(range<=30||m%2===0){sctx.fillStyle="#7f93a4";sctx.fillText(noteName(m),6,y);}}
-    if(originalOn&&refContour)drawContourLine(refContour,"#ff935c",2,false);
-    drawContourLine(scopeData.contour,"#8b7cff",2,accuracyOn);
-    var ct=clockObj().currentTime||0;if(ct>=v.start&&ct<=v.end){var px=xForT(ct,w);sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
+    for(var m=lo;m<=eb.hi;m++){var y=h-(m-lo)/range*h;sctx.strokeStyle=(m%12===0)?TOK("--vox-line-2"):TOK("--vox-line");sctx.lineWidth=1;sctx.beginPath();sctx.moveTo(PAD,y);sctx.lineTo(w,y);sctx.stroke();if(range<=30||m%2===0){sctx.fillStyle=TOK("--vox-dim");sctx.fillText(noteName(m),6,y);}}
+    if(originalOn&&refContour)drawContourLine(refContour,TOK("--vox-dim"),2,false);
+    drawContourLine(scopeData.contour,TOK("--vox-accent"),2,accuracyOn);
+    var ct=clockObj().currentTime||0;if(ct>=v.start&&ct<=v.end){var px=xForT(ct,w);sctx.strokeStyle=TOK("--vox-accent");sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
   }
 
   // ---- vibrato strip (per-note rate band, top lane) -----------------------
@@ -629,8 +685,8 @@
   function drawVib(){
     var r=vibCanvas.getBoundingClientRect(),w=r.width,h=r.height;vctx.clearRect(0,0,w,h);
     if(!scopeData)return;
-    vctx.fillStyle="rgba(10,20,28,.4)";vctx.fillRect(0,0,w,h);
-    vctx.fillStyle="#7f93a4";vctx.font="9px "+mono();vctx.textBaseline="middle";vctx.textAlign="left";vctx.fillText("VIB",6,h/2);
+    vctx.fillStyle=TOK("--vox-scrim");vctx.fillRect(0,0,w,h);
+    vctx.fillStyle=TOK("--vox-dim");vctx.font="9px "+mono();vctx.textBaseline="middle";vctx.textAlign="left";vctx.fillText("VIB",6,h/2);
     var v=vWin(),plot=w-PAD;
     function X(t){return PAD+(t-v.start)/v.win*plot;}
     if(vibNotes&&vibNotes.length){
@@ -638,12 +694,12 @@
         if(t1<v.start||t0>v.end)continue;
         var x0=Math.max(PAD,X(t0)),x1=Math.min(w,X(t1));if(x1<=x0)continue;
         var rate=nt.rate_hz||0,frac=clampN((rate-3)/6,0,1),bh=nt.has_vibrato?(4+frac*(h-10)):3,y=h-2-bh;
-        vctx.fillStyle=nt.has_vibrato?"rgba(90,224,138,.75)":"rgba(127,147,164,.35)";
+        vctx.fillStyle=nt.has_vibrato?TOK("--vox-good"):TOK("--vox-line-2");
         vctx.fillRect(x0,y,Math.max(1,x1-x0),bh);
-        if(nt.has_vibrato&&x1-x0>26){vctx.fillStyle="#0a141c";vctx.font="8px "+mono();vctx.fillText(rate.toFixed(1),x0+3,y+bh/2);vctx.font="9px "+mono();}
+        if(nt.has_vibrato&&x1-x0>26){vctx.fillStyle=TOK("--vox-on-accent");vctx.font="8px "+mono();vctx.fillText(rate.toFixed(1),x0+3,y+bh/2);vctx.font="9px "+mono();}
       }
     }
-    var ct=clockObj().currentTime||0;if(ct>=v.start&&ct<=v.end){var px=X(ct);vctx.strokeStyle="#3fe0ff";vctx.lineWidth=1;vctx.beginPath();vctx.moveTo(px,0);vctx.lineTo(px,h);vctx.stroke();}
+    var ct=clockObj().currentTime||0;if(ct>=v.start&&ct<=v.end){var px=X(ct);vctx.strokeStyle=TOK("--vox-accent");vctx.lineWidth=1;vctx.beginPath();vctx.moveTo(px,0);vctx.lineTo(px,h);vctx.stroke();}
   }
 
   // ---- navigator (full-take waveform overview, bottom lane) ----------------
@@ -655,17 +711,17 @@
     var r=navCanvas.getBoundingClientRect(),w=r.width,h=r.height;nctx.clearRect(0,0,w,h);
     if(!scopeData)return;
     var dur=scopeData.dur||1,mid=h/2,plot=w-PAD;
-    if(navPeaks){nctx.fillStyle="rgba(63,224,255,.30)";var cols=navPeaks.cols;
+    if(navPeaks){nctx.fillStyle=TOK("--vox-accent-tint");var cols=navPeaks.cols;
       for(var x=PAD;x<w;x++){var c=Math.floor((x-PAD)/plot*cols);if(c<0||c>=cols)continue;
         var hi=navPeaks.mx[c],loo=navPeaks.mn[c],y1=mid-hi*mid*0.9,y2=mid-loo*mid*0.9;nctx.fillRect(x,y1,1,Math.max(1,y2-y1));}}
-    nctx.fillStyle="#7f93a4";nctx.font="9px "+mono();nctx.textBaseline="top";nctx.textAlign="left";nctx.fillText("00:00",PAD+2,2);
+    nctx.fillStyle=TOK("--vox-dim");nctx.font="9px "+mono();nctx.textBaseline="top";nctx.textAlign="left";nctx.fillText("00:00",PAD+2,2);
     nctx.textAlign="right";nctx.textBaseline="bottom";nctx.fillText(fmt(dur),w-2,h-2);nctx.textAlign="left";
     var v=vWin();
     if(view.zoom>1){var wx=PAD+v.start/dur*plot,ww=Math.max(6,v.win/dur*plot);
-      nctx.fillStyle="rgba(139,124,255,.16)";nctx.fillRect(wx,0,ww,h);
-      nctx.strokeStyle="rgba(139,124,255,.7)";nctx.lineWidth=1;nctx.strokeRect(wx+.5,.5,Math.max(1,ww-1),h-1);}
+      nctx.fillStyle=TOK("--vox-accent-tint");nctx.fillRect(wx,0,ww,h);
+      nctx.strokeStyle=TOK("--vox-accent");nctx.lineWidth=1;nctx.strokeRect(wx+.5,.5,Math.max(1,ww-1),h-1);}
     var ct=clockObj().currentTime||0,px=PAD+clampN(ct/dur,0,1)*plot;
-    nctx.strokeStyle="#3fe0ff";nctx.lineWidth=1.5;nctx.beginPath();nctx.moveTo(px,0);nctx.lineTo(px,h);nctx.stroke();
+    nctx.strokeStyle=TOK("--vox-accent");nctx.lineWidth=1.5;nctx.beginPath();nctx.moveTo(px,0);nctx.lineTo(px,h);nctx.stroke();
   }
   function buildNavPeaks(ab){
     try{var data=ab.getChannelData(0),cols=900,mn=new Float32Array(cols),mx=new Float32Array(cols),step=data.length/cols;
@@ -743,8 +799,8 @@
     if(!scopeData)return;
     var ct=clockObj().currentTime||0,f0=currentF0();
     hctx.font="9px "+mono();hctx.textBaseline="middle";
-    hctx.fillStyle="rgba(10,20,28,.55)";hctx.fillRect(0,0,w,h);
-    hctx.strokeStyle="#263a4a";hctx.beginPath();hctx.moveTo(0.5,0);hctx.lineTo(0.5,h);hctx.stroke();
+    hctx.fillStyle=TOK("--vox-scrim");hctx.fillRect(0,0,w,h);
+    hctx.strokeStyle=TOK("--vox-line-2");hctx.beginPath();hctx.moveTo(0.5,0);hctx.lineTo(0.5,h);hctx.stroke();
     if(!f0)return;
     var eb=yBounds(),lo=eb.lo,range=eb.range,playing=!clockObj().paused;
     for(var k=1;k<=8;k++){
@@ -753,9 +809,9 @@
       var db=(playing&&analyser)?liveHarmDb(k,f0):harmDbAt(k,ct);
       if(db==null&&(fakeClock||!analyser))db=playing?-4*(k-1):null;  // demo stand-in
       var len=db==null?0:clampN((db+42)/42,0,1)*(w-30);
-      hctx.fillStyle=k===1?"rgba(63,224,255,.9)":"rgba(63,224,255,.5)";
+      hctx.fillStyle=k===1?TOK("--vox-accent"):TOK("--vox-line-2");
       if(len>0)hctx.fillRect(w-4-len,y-2,len,4);
-      hctx.fillStyle="#7f93a4";hctx.fillText("H"+k,4,y);
+      hctx.fillStyle=TOK("--vox-dim");hctx.fillText("H"+k,4,y);
     }
   }
   var harmRowEls=null,lastTableT=-1;

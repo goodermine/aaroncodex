@@ -112,3 +112,22 @@ def test_a_leaked_lock_does_not_wedge_renders_forever(client):
             lock.release()
         except RuntimeError:
             pass
+
+
+def test_session_survives_a_completed_render(client):
+    """/api/session must not 500 after a render.
+
+    A finished render leaves `render_state["_thread"]` set to the worker Thread,
+    which is not JSON-serialisable. /api/session used to return the raw dict and
+    threw 500 on the next poll until the service was restarted. It must go through
+    the same `_`-key filter /api/render uses.
+    """
+    client.post("/api/render")
+    _settle(client)
+
+    r = client.get("/api/session")
+    assert r.status_code == 200, r.text
+    render = r.json()["render"]
+    assert render["status"] in ("done", "error")
+    # no internal (thread/lock) keys leak into the JSON
+    assert not [k for k in render if k.startswith("_")], render

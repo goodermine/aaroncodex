@@ -275,6 +275,13 @@ def _process(job_id: str) -> None:
             if not v2_analysis_file or not v2_report_file:
                 raise RuntimeError("VOXAI V2 result artifacts are unavailable")
             raw_v2 = json.loads((job_dir / v2_analysis_file).read_text(encoding="utf-8"))
+            take_context = manifest.get("take_context")
+            if take_context:
+                # stamped AFTER scoring: context can never influence the engine
+                raw_v2["take_context"] = take_context
+                (job_dir / v2_analysis_file).write_text(
+                    json.dumps(raw_v2, indent=2), encoding="utf-8"
+                )
             reference = analysis.get("reference") or {}
             reference_analysis_file = reference.pop("analysis_file", None)
             if reference_analysis_file:
@@ -285,6 +292,8 @@ def _process(job_id: str) -> None:
                 conditions=manifest.get("recording_conditions", ""),
                 comparison=analysis.get("comparison"),
             )
+            if take_context:
+                analysis["take_context"] = take_context
             analysis["v2_report_url"] = f"/api/pitch-jobs/{job_id}/report"
             analysis["audio_urls"] = {
                 "vocals": f"/api/pitch-jobs/{job_id}/audio?track=vocals",
@@ -368,13 +377,14 @@ def _serve_shell(name: str) -> HTMLResponse:
 
 @app.get("/", response_class=HTMLResponse)
 async def index() -> HTMLResponse:
-    return _serve_shell("index.html")
+    """The command deck is the viewer. The classic dark page was retired in
+    the v2 light redesign (docs/plans/UI_REDESIGN_AUDIT.md, Phase 2)."""
+    return _serve_shell("deck.html")
 
 
 @app.get("/deck", response_class=HTMLResponse)
 async def deck() -> HTMLResponse:
-    """Unified VOX Suite command deck (Analyze mode), wired to the live job
-    stage stream. Additive alongside the classic view at /."""
+    """Kept for bookmarks: same shell as /."""
     return _serve_shell("deck.html")
 
 
@@ -412,15 +422,35 @@ async def _mode_elsewhere() -> HTMLResponse:
     return HTMLResponse(_MODE_HINT_HTML, status_code=404)
 
 
+def _sanitise_take_context(intent: str, capture: str, note: str) -> dict | None:
+    """Declarative take context (docs/plans/TAKE_CONTEXT_TAG.md). Metadata
+    only — it NEVER reaches the scoring engine; it is stamped into the
+    analysis JSON after scoring so ranking can group takes fairly."""
+    intent = (intent or "").strip().lower()
+    capture = (capture or "").strip().lower()
+    note = " ".join((note or "").split())[:200]
+    ctx = {}
+    if intent in {"performance", "learning", "warmup"}:
+        ctx["intent"] = intent
+    if capture in {"studio", "home", "live"}:
+        ctx["capture"] = capture
+    if note:
+        ctx["note"] = note
+    return ctx or None
+
+
 @app.post("/api/pitch-jobs", status_code=202)
 async def create_job(
     request: Request,
     file: UploadFile,
-    name: str = Form("Singer"),
+    name: str = Form(""),
     song: str = Form(""),
     artist: str = Form(""),
     conditions: str = Form(""),
     comparison: bool = Form(True),
+    take_intent: str = Form(""),
+    take_capture: str = Form(""),
+    take_note: str = Form(""),
 ) -> dict:
     _cleanup()
     active_jobs = 0
@@ -432,6 +462,12 @@ async def create_job(
             continue
     if active_jobs >= MAX_ACTIVE_JOBS:
         raise HTTPException(503, {"code": "worker_unavailable"})
+    performer_check = " ".join((name or "").strip().split())
+    if not performer_check:
+        raise HTTPException(422, {"code": "missing_performer_name"})
+    if (take_capture or "").strip().lower() not in {"studio", "home", "live"}:
+        raise HTTPException(422, {"code": "missing_take_capture",
+                                  "detail": "take_capture must be studio, home or live"})
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in ALLOWED_EXTENSIONS:
         raise HTTPException(415, {"code": "unsupported_media"})
@@ -464,7 +500,7 @@ async def create_job(
             raise HTTPException(415, {"code": "unsupported_media"})
         if duration > MAX_DURATION:
             raise HTTPException(422, {"code": "media_too_long"})
-        performer_name = " ".join((name or "Singer").strip().split())[:80] or "Singer"
+        performer_name = " ".join((name or "").strip().split())[:80]
         song_name = " ".join((song or "").strip().split())[:160]
         original_artist = " ".join((artist or "").strip().split())[:160]
         recording_conditions = " ".join((conditions or "").strip().split())[:1000]
@@ -482,6 +518,9 @@ async def create_job(
             "comparison_enabled": comparison,
             "created_at": time.time(),
         }
+        take_context = _sanitise_take_context(take_intent, take_capture, take_note)
+        if take_context:
+            manifest["take_context"] = take_context
         _write_manifest(job_dir, manifest)
         executor.submit(_process, job_id)
         return {"id": job_id, "status": "queued", "status_url": f"/api/pitch-jobs/{job_id}"}

@@ -8,7 +8,7 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 Overall: min 6.1 · max 9.2 · mean 7.74. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 131/131 takes.
+Full coverage: 132/132 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -110,11 +110,12 @@ Full coverage: 131/131 takes.
 | aaron | pressure-down-take-007 | 207 | **7.6** | 8.0 | high | 10.0 | 7.84 | 4.92 | 8.64 | 9.42 | 3.45 | 6.54 |
 | aaron | pressure-down-take-008 | 226 | **7.9** | 8.4 | high | 10.0 | 9.67 | 4.64 | 8.43 | 9.42 | 5.12 | 6.05 |
 | aaron | tutti-frutti-take-001 | 167 | **7.6** | 7.1 | high | 6.0 | 7.14 | 10.0 | 9.22 | 7.19 | 10.0 | 3.67 |
-| aaron | tutti-frutti-take-002 | 168 | **7.4** | 7.5 | high | 10.0 | 4.68 | 4.88 | 8.93 | 9.66 | 3.36 | 7.85 |
+| aaron | tutti-frutti-take-002 | 168 | **7.4** | 7.6 | high | 10.0 | 4.68 | 4.88 | 8.93 | 9.66 | 3.36 | 7.85 |
 | aaron | danger-zone-take-001 | 140 | **7.1** | 6.0 | high | 6.0 | 2.35 | 10.0 | 8.37 | 9.13 | 10.0 | 3.67 |
 | aaron | kryptonite-take-001 | 154 | **8.8** | 8.3 | high | 10.0 | 6.85 | 10.0 | 9.96 | 9.77 | 10.0 | 1.9 |
 | aaron | the-heat-is-on-take-001 | 198 | **6.7** | 5.5 | high | 6.0 | 3.32 | 10.0 | 9.06 | 8.39 | 4.21 | 3.28 |
 | aaron | you-sexy-thing-take-001 | 224 | **6.1** | 4.9 | high | 6.0 | 0.9 | 10.0 | 8.91 | 7.46 | 6.15 | 0.53 |
+| aaron | hammer-to-the-heart-take-001 | 229 | **8.5** | 8.2 | high | 10.0 | 6.62 | 10.0 | 9.22 | 8.14 | 10.0 | 3.05 |
 | aaron | reasons-take-001 | 182 | **8.0** | 7.5 | high | 10.0 | 4.45 | 10.0 | 9.56 | 8.11 | 6.3 | 3.6 |
 | aaron | two-strong-hearts-take-001 | 227 | **7.8** | 7.2 | high | 6.0 | 5.87 | 8.9 | 8.52 | 9.61 | 10.0 | 7.35 |
 | aaron-g | 1973-take-001 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |

@@ -123,13 +123,25 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
 
     @app.get("/monitor", response_class=HTMLResponse)
     def pitch_monitor() -> HTMLResponse:
-        """Standalone real-time pitch monitor. Self-contained (no /static deps),
-        so riding the suite's HTTPS origin gives it the secure context the mic
-        (getUserMedia) needs on phones."""
+        """Real-time pitch monitor. Rides the suite's HTTPS origin for the
+        secure context the mic (getUserMedia) needs on phones. Assets resolve
+        against /monitor/ (see below) so the page shares the design tokens."""
         path = _pitchmonitor_root() / "index.html"
         if not path.is_file():
             raise HTTPException(404, "pitch monitor not installed")
         return HTMLResponse(path.read_text(encoding="utf-8"), headers={"Cache-Control": "no-cache"})
+
+    @app.get("/monitor/{asset}")
+    def pitch_monitor_asset(asset: str):
+        """Sibling assets for the monitor (vox-tokens.css, vendored by
+        design/sync.sh) — lets the page use one relative link that also works
+        when the directory is served or opened standalone."""
+        clean = Path(asset).name
+        path = _pitchmonitor_root() / clean
+        if clean != asset or not path.is_file() or path.suffix not in {".css", ".png", ".webmanifest"}:
+            raise HTTPException(404, "not found")
+        media = {".css": "text/css", ".png": "image/png", ".webmanifest": "application/manifest+json"}[path.suffix]
+        return Response(path.read_bytes(), media_type=media, headers={"Cache-Control": "no-cache"})
 
     @app.get("/api/build")
     def build(request: Request, format: str | None = None):

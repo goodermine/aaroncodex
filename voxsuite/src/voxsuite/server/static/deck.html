@@ -4,10 +4,9 @@
 <meta charset="utf-8">
 <title>VOX Suite — Command Deck · Fused</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>try{var t=localStorage.getItem('vox-theme')||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 <link rel="manifest" href="/static/site.webmanifest">
 <link rel="apple-touch-icon" href="/static/vox-icon-180.png">
-<meta name="theme-color" content="#070a0e">
+<meta name="theme-color" content="#f6f7f9">
 <link rel="stylesheet" href="/static/vox-tokens.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-kit.css?v=__ASSET_VERSION__">
 <link rel="stylesheet" href="/static/vox-record.css?v=__ASSET_VERSION__">
@@ -31,9 +30,20 @@
   .intake-source[hidden]{display:none}
   .hidden{display:none!important}
   .vox-newbtn{font-family:var(--vox-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
-    color:var(--vox-cyan);border:1px solid rgba(63,224,255,.35);border-radius:8px;padding:8px 14px;background:var(--vox-surface-1);transition:background .15s,box-shadow .15s;margin-right:10px}
-  .vox-newbtn:hover{background:rgba(63,224,255,.12);box-shadow:var(--vox-glow-cyan)}
+    color:var(--vox-accent);border:1px solid var(--vox-line-2);border-radius:8px;padding:8px 14px;background:var(--vox-panel);transition:background .15s,border-color .15s;margin-right:10px}
+  .vox-newbtn:hover{background:var(--vox-accent-tint);border-color:var(--vox-accent)}
   .vox-newbtn:focus-visible{outline:2px solid var(--vox-cyan);outline-offset:2px}
+  .vox-ctxrow{display:grid;gap:7px;margin-top:10px;text-align:left}
+  .vox-ctxchips{display:flex;gap:8px}
+  .vox-ctxchips button{flex:1;font:600 12px/1.2 var(--vox-sans);min-height:40px;cursor:pointer;
+    border:1px solid var(--vox-line-2);border-radius:8px;background:var(--vox-panel);color:var(--vox-body)}
+  .vox-ctxchips button.on{background:var(--vox-accent-tint);border-color:var(--vox-accent);color:var(--vox-accent)}
+  .vox-ctxchips button:focus-visible{outline:2px solid var(--vox-accent);outline-offset:2px}
+  #fCtxNote{box-sizing:border-box;width:100%;min-height:40px;font:inherit;font-size:13px;color:var(--vox-body);
+    border:1px solid var(--vox-line-2);border-radius:8px;background:var(--vox-panel);padding:9px 12px}
+  #fCtxNote::placeholder{color:var(--vox-dim)}
+  #fPerformer.is-missing{border-color:var(--vox-weak);background:var(--vox-weak-tint)}
+  #nameWarn{font-size:12px;color:var(--vox-weak);margin-top:4px}
 </style>
 </head>
 <body class="vox-deck-bg">
@@ -108,9 +118,26 @@
           </div>
           <div class="intake-source" id="intakeRecord" hidden><div id="recMount"></div></div>
           <div class="fields">
-            <label>Performer<input id="fPerformer" placeholder="Singer"></label>
+            <label>Singer’s name<input id="fPerformer" placeholder="required" required></label>
+            <div id="nameWarn" hidden>The singer’s name is required before a take can be analysed.</div>
             <label>Song title<input id="fSong" placeholder="optional"></label>
             <label class="full">Original artist or composer<input id="fArtist" placeholder="optional — noted in the report"></label>
+            <div class="vox-ctxrow" id="ctxRow">
+              <span class="vox-label">This take is</span>
+              <span class="vox-ctxchips" data-ctx="intent" role="group" aria-label="Take intent">
+                <button type="button" class="on" data-v="performance">Performance</button>
+                <button type="button" data-v="learning">Learning</button>
+                <button type="button" data-v="warmup">Warm-up</button>
+              </span>
+              <span class="vox-label">Where</span>
+              <span class="vox-ctxchips" data-ctx="capture" role="group" aria-label="Capture location">
+                <button type="button" data-v="studio">Studio</button>
+                <button type="button" class="on" data-v="home">Home</button>
+                <button type="button" data-v="live">Live</button>
+              </span>
+              <input id="fCtxNote" maxlength="200" placeholder="Note (optional) — e.g. first time on the high note">
+            </div>
+
           </div>
         </div>
         <div class="stage-msg hidden" id="stageMsg"></div>
@@ -172,11 +199,34 @@
 
 <script>window.VOX_MODE="fused";</script>
 <script src="/static/vox-about.js?v=__ASSET_VERSION__"></script>
-<script src="/static/vox-theme.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-record.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-report.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
+  var pendingTake=null;
+  function requireSingerName(file,ctx){
+    var nm=($("#fPerformer").value||"").trim();
+    if(nm){pendingTake=null;$("#fPerformer").classList.remove("is-missing");return true;}
+    pendingTake={file:file,ctx:ctx};
+    $("#fPerformer").classList.add("is-missing");
+    $("#fPerformer").focus();
+    var w=$("#nameWarn");if(w)w.hidden=false;
+    return false;
+  }
+  $("#fPerformer").addEventListener("input",function(){
+    if(this.value.trim()){this.classList.remove("is-missing");var w=$("#nameWarn");if(w)w.hidden=true;
+      if(pendingTake){var t=pendingTake;pendingTake=null;startJob(t.file,t.ctx);}}
+  });
+  function deckTakeContext(){
+    function sel(g){var b=document.querySelector('.vox-ctxchips[data-ctx="'+g+'"] button.on');return b?b.dataset.v:"";}
+    var n=document.getElementById("fCtxNote");
+    return {intent:sel("intent"),capture:sel("capture"),note:(n&&n.value||"").trim().slice(0,200)};
+  }
+  document.querySelectorAll(".vox-ctxchips").forEach(function(g){
+    g.addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
+      g.querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b);});});
+  });
+  function TOK(n){try{return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}catch(e){return ""}}
 (function(){
   "use strict";
   var $=function(s){return document.querySelector(s);};
@@ -225,7 +275,7 @@
       var warn=$("#isoWarn");
       if(skipped){
         if(!warn){warn=document.createElement("p");warn.id="isoWarn";
-          warn.style.cssText="margin:10px 0 0;padding:9px 11px;border:1px solid rgba(255,181,71,.45);border-radius:8px;background:rgba(255,181,71,.08);color:var(--vox-amber);font-size:12px;line-height:1.5";
+          warn.style.cssText="margin:10px 0 0;padding:9px 11px;border:1px solid var(--vox-watch);border-radius:8px;background:var(--vox-watch-tint);color:var(--vox-watch);font-size:12px;line-height:1.5";
           $("#aScore").parentNode.appendChild(warn);}
         warn.textContent="Vocal isolation didn't run ("+(ev.isolation.note||"unavailable")+"). If this was a full song, these numbers reflect the whole mix — not just the voice.";
         log("warn","isolation skipped — treat scores as indicative only");
@@ -262,12 +312,12 @@
   function drawScope(){
     if(!scopeData)return;var r=stage.getBoundingClientRect(),w=r.width,h=r.height,lo=scopeData.lo,range=scopeData.range,PAD=44;
     sctx.clearRect(0,0,w,h);sctx.font="10px "+getComputedStyle(document.body).getPropertyValue("--vox-mono");sctx.textBaseline="middle";
-    for(var m=lo;m<=scopeData.hi;m++){var y=h-(m-lo)/range*h;sctx.strokeStyle=(m%12===0)?"#34404e":"#202832";sctx.beginPath();sctx.moveTo(PAD,y);sctx.lineTo(w,y);sctx.stroke();if(range<=30||m%2===0){sctx.fillStyle="#7f93a4";sctx.fillText(noteName(m),6,y);}}
+    for(var m=lo;m<=scopeData.hi;m++){var y=h-(m-lo)/range*h;sctx.strokeStyle=(m%12===0)?TOK("--vox-line-2"):TOK("--vox-line");sctx.beginPath();sctx.moveTo(PAD,y);sctx.lineTo(w,y);sctx.stroke();if(range<=30||m%2===0){sctx.fillStyle=TOK("--vox-dim");sctx.fillText(noteName(m),6,y);}}
     // Accuracy-coloured contour (parity with the Analyze scope): violet in tune,
     // amber past 25 cents off the nearest semitone, red past 45. Segments are
     // batched per colour so long takes stay cheap to redraw.
     var vals=scopeData.vals,rate=scopeData.rate,dur=scopeData.dur;sctx.lineWidth=2;
-    function segColor(c){var d=Math.abs(c-Math.round(c/100)*100);return d>45?"#ff5d6c":(d>25?"#ffb547":"#8b7cff");}
+    function segColor(c){var d=Math.abs(c-Math.round(c/100)*100);return d>45?TOK("--vox-weak"):(d>25?TOK("--vox-watch"):TOK("--vox-accent"));}
     var pen=false,curCol=null;
     for(var i=0;i<vals.length;i++){var c=vals[i];
       if(c==null||!isFinite(c)){if(pen)sctx.stroke();pen=false;curCol=null;continue;}
@@ -278,7 +328,7 @@
       else sctx.lineTo(x,yy);
     }
     if(pen)sctx.stroke();
-    var ct=$("#deckAudio").currentTime||0;if(dur){var px=PAD+(ct/dur)*(w-PAD);sctx.strokeStyle="#3fe0ff";sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
+    var ct=$("#deckAudio").currentTime||0;if(dur){var px=PAD+(ct/dur)*(w-PAD);sctx.strokeStyle=TOK("--vox-accent");sctx.lineWidth=1.5;sctx.beginPath();sctx.moveTo(px,0);sctx.lineTo(px,h);sctx.stroke();}
   }
   function noteName(m){var n=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"],r=Math.round(m);return n[((r%12)+12)%12]+(Math.floor(r/12)-1);}
   var looping=false;
@@ -315,15 +365,20 @@
     $("#modeRecord").classList.toggle("on",!up);$("#modeRecord").setAttribute("aria-selected",!up);
     $("#intakeUpload").hidden=!up;$("#intakeRecord").hidden=up;
     if(!up&&!recMounted){recMounted=true;
-      if(window.VOXRecord)VOXRecord.mount($("#recMount"),{onAnalyze:function(file){startJob(file);}});
+      if(window.VOXRecord)VOXRecord.mount($("#recMount"),{onAnalyze:function(file,ctx){startJob(file,ctx);}});
       else $("#recMount").innerHTML='<p class="stage-msg"><span>Recording is unavailable in this browser — use Upload.</span></p>';}
   }
   $("#modeUpload").addEventListener("click",function(){setInputMode("upload");});
   $("#modeRecord").addEventListener("click",function(){setInputMode("record");});
   ["dragover","drop"].forEach(function(t){stage.addEventListener(t,function(e){e.preventDefault();});});
   stage.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)startJob(f);});
-  function startJob(file){
-    var fd=new FormData();fd.append("file",file);fd.append("name",$("#fPerformer").value||"Singer");fd.append("song",$("#fSong").value||"");fd.append("artist",$("#fArtist").value||"");fd.append("tune","true");
+  function startJob(file,ctx){
+    if(!requireSingerName(file,ctx))return;
+    var fd=new FormData();fd.append("file",file);fd.append("name",$("#fPerformer").value.trim());fd.append("song",$("#fSong").value||"");fd.append("artist",$("#fArtist").value||"");
+    var tc=(ctx&&(ctx.intent||ctx.capture||ctx.note))?ctx:deckTakeContext();
+    if(tc.intent)fd.append("take_intent",tc.intent);
+    if(tc.capture)fd.append("take_capture",tc.capture);
+    if(tc.note)fd.append("take_note",tc.note);fd.append("tune","true");
     $("#jobTag").textContent="JOB · uploading";log("info","upload once · "+file.name);setStage('<b>Processing…</b><span>isolating vocal</span>');
     fetch("/api/fused-jobs",{method:"POST",body:fd})
       .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return{ok:r.ok,j:j};});})
