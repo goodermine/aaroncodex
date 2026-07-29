@@ -6,9 +6,9 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 ## Singer takes
 
-Overall: min 6.1 · max 9.2 · mean 7.7. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 6.1 · max 9.2 · mean 7.73. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 105/105 takes.
+Full coverage: 129/129 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -102,6 +102,15 @@ Full coverage: 105/105 takes.
 | aaron | pressure-down-take-006 | 187 | **7.3** | 7.7 | high | 8.0 | 7.77 | 4.91 | 9.08 | 8.05 | 4.45 | 8.15 |
 | aaron | my-babe-take-001 | 178 | **8.1** | 8.5 | high | 10.0 | 9.04 | 6.53 | 8.39 | 7.93 | 3.67 | 8.82 |
 | aaron | my-babe-take-002 | 121 | **8.6** | 8.0 | high | 10.0 | 3.53 | 10.0 | 7.87 | 9.73 | 10.0 | 8.11 |
+| aaron | my-babe-take-003 | 160 | **7.1** | 7.0 | high | 8.0 | 7.77 | 5.35 | 7.74 | 9.95 | 1.79 | 7.71 |
+| aaron | play-that-funky-music-take-001 | 192 | **8.7** | 8.2 | high | 6.0 | 10.0 | 9.93 | 8.95 | 9.44 | 8.15 | 9.65 |
+| aaron | play-that-funky-music-take-002 | 221 | **8.1** | 8.7 | high | 10.0 | 10.0 | 4.67 | 9.57 | 9.77 | 4.09 | 7.05 |
+| aaron | play-that-funky-music-take-003 | 221 | **8.1** | 8.7 | high | 10.0 | 10.0 | 4.67 | 9.57 | 9.77 | 4.09 | 7.05 |
+| aaron | pressure-down-captain-cook-tavern-take-001 | 226 | **7.9** | 8.4 | high | 10.0 | 9.67 | 4.64 | 8.43 | 9.42 | 5.12 | 6.05 |
+| aaron | pressure-down-take-007 | 207 | **7.6** | 8.0 | high | 10.0 | 7.84 | 4.92 | 8.64 | 9.42 | 3.45 | 6.54 |
+| aaron | pressure-down-take-008 | 226 | **7.9** | 8.4 | high | 10.0 | 9.67 | 4.64 | 8.43 | 9.42 | 5.12 | 6.05 |
+| aaron | tutti-frutti-take-001 | 167 | **7.6** | 7.1 | high | 6.0 | 7.14 | 10.0 | 9.22 | 7.19 | 10.0 | 3.67 |
+| aaron | tutti-frutti-take-002 | 168 | **7.4** | 7.6 | high | 10.0 | 4.68 | 4.88 | 8.93 | 9.66 | 3.36 | 7.85 |
 | aaron | danger-zone-take-001 | 140 | **7.1** | 6.0 | high | 6.0 | 2.35 | 10.0 | 8.37 | 9.13 | 10.0 | 3.67 |
 | aaron | kryptonite-take-001 | 154 | **8.8** | 8.3 | high | 10.0 | 6.85 | 10.0 | 9.96 | 9.77 | 10.0 | 1.9 |
 | aaron | the-heat-is-on-take-001 | 198 | **6.7** | 5.5 | high | 6.0 | 3.32 | 10.0 | 9.06 | 8.39 | 4.21 | 3.28 |
@@ -112,9 +121,24 @@ Full coverage: 105/105 takes.
 | aaron-g | vienna-take-001 | 165 | **8.6** | 7.9 | high | 6.0 | 9.02 | 10.0 | 10.0 | 9.81 | 8.97 | 7.05 |
 | chris | feeling-good-take-001 | 204 | **6.6** | 6.4 | high | 6.0 | 5.36 | 4.67 | 10.0 | 9.98 | 4.55 | 5.29 |
 | leo | chasin-that-neon-rainbow | 204 | **7.8** | 8.0 | high | 8.0 | 9.22 | 6.03 | 8.59 | 9.33 | 7.7 | 5.4 |
+| rilda | blue-bayou-take-001 | 225 | **7.6** | 7.8 | high | 10.0 | 5.65 | 6.06 | 10.0 | 8.47 | 4.45 | 5.8 |
+| rilda | on-the-radio-take-001 | 226 | **9.1** | 9.7 | high | 10.0 | 8.57 | 7.1 | 10.0 | 8.66 | 10.0 | 9.54 |
+| rilda | flowers-take-002 | 182 | **8.1** | 9.3 | high | 10.0 | 9.4 | 4.58 | 9.71 | 6.69 | 8.73 | 7.05 |
+| rilda | moonlight-serenade-take-001 | 181 | **8.4** | 7.9 | high | 10.0 | 0.0 | 10.0 | 9.84 | 8.81 | 10.0 | 9.51 |
+| rilda | moonlight-serenade-take-001 | 183 | **7.4** | 7.3 | high | 10.0 | 0.0 | 6.89 | 10.0 | 8.76 | 5.85 | 8.99 |
+| rilda | sexy-eyes-take-001 | 161 | **7.6** | 8.0 | high | 8.0 | 10.0 | 4.55 | 10.0 | 9.46 | 2.33 | 7.8 |
+| rilda | sway-with-my-heart-take-001 | 182 | **8.0** | 7.4 | high | 7.0 | 6.01 | 10.0 | 9.9 | 8.46 | 7.73 | 6.75 |
+| rilda | moondance-take-001 | 314 | **7.6** | 7.5 | high | 8.0 | 5.76 | 6.33 | 9.43 | 9.88 | 6.33 | 7.39 |
+| rilda | moonlight-serenade-take-001 | 196 | **7.5** | 7.3 | high | 10.0 | 0.0 | 7.14 | 10.0 | 8.55 | 5.12 | 10.0 |
+| rilda | sexy-eyes-take-001 | 161 | **7.6** | 8.0 | high | 8.0 | 10.0 | 4.55 | 10.0 | 9.46 | 2.33 | 7.8 |
 | rilda | lets-stay-together-home-take-001 | 199 | **7.6** | 6.5 | high | 8.0 | 0.7 | 10.0 | 9.82 | 9.87 | 8.85 | 4.3 |
 | rilda | this-masquerade-take-001 | 181 | **8.0** | 7.3 | high | 8.0 | 0.0 | 10.0 | 10.0 | 8.79 | 10.0 | 9.81 |
 | rilda | she-s-not-there-take-001 | 143 | **8.3** | 8.7 | high | 8.0 | 6.91 | 5.9 | 10.0 | 9.23 | 10.0 | 10.0 |
+| rilda | make-it-with-you-take-001 | 132 | **8.3** | 8.1 | high | 9.0 | 4.56 | 9.01 | 10.0 | 8.35 | 6.58 | 9.54 |
+| rilda | make-it-with-you-take-002 | 132 | **8.3** | 8.1 | high | 9.0 | 4.56 | 9.01 | 10.0 | 8.35 | 6.58 | 9.54 |
+| rilda | hot-stuff-take-001 | 235 | **7.8** | 8.1 | high | 8.0 | 10.0 | 5.63 | 10.0 | 9.0 | 4.21 | 6.91 |
+| rilda | at-last-take-001 | 186 | **7.3** | 7.8 | high | 6.0 | 7.53 | 4.73 | 10.0 | 8.47 | 8.03 | 8.92 |
+| rilda | black-velvet-take-001 | 264 | **7.4** | 7.5 | high | 8.6 | 3.64 | 5.62 | 10.0 | 9.63 | 6.33 | 7.72 |
 | rilda | dreams-take-001 | 260 | **8.0** | 8.3 | high | 10.0 | 6.19 | 6.94 | 10.0 | 8.13 | 4.39 | 8.48 |
 | rilda | you-sexy-thing-take-001 | 204 | **8.1** | 8.0 | high | 8.0 | 6.8 | 7.48 | 9.69 | 9.07 | 10.0 | 5.54 |
 
