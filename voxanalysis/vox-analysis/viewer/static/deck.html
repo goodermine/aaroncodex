@@ -114,6 +114,15 @@
     #harmSide{width:74px}
   }
   .hidden{display:none!important}
+  .vox-ctxrow{display:grid;gap:7px;margin-top:10px;text-align:left}
+  .vox-ctxchips{display:flex;gap:8px}
+  .vox-ctxchips button{flex:1;font:600 12px/1.2 var(--vox-sans);min-height:40px;cursor:pointer;
+    border:1px solid var(--vox-line-2);border-radius:8px;background:var(--vox-panel);color:var(--vox-body)}
+  .vox-ctxchips button.on{background:var(--vox-accent-tint);border-color:var(--vox-accent);color:var(--vox-accent)}
+  .vox-ctxchips button:focus-visible{outline:2px solid var(--vox-accent);outline-offset:2px}
+  #fCtxNote{box-sizing:border-box;width:100%;min-height:40px;font:inherit;font-size:13px;color:var(--vox-body);
+    border:1px solid var(--vox-line-2);border-radius:8px;background:var(--vox-panel);padding:9px 12px}
+  #fCtxNote::placeholder{color:var(--vox-dim)}
 </style>
 </head>
 <body class="vox-deck-bg">
@@ -233,6 +242,22 @@
             <label>Performer<input id="fPerformer" placeholder="Singer"></label>
             <label>Song title<input id="fSong" placeholder="optional"></label>
             <label class="full">Original artist or composer<input id="fArtist" placeholder="optional — enables comparison"></label>
+            <div class="vox-ctxrow" id="ctxRow">
+              <span class="vox-label">This take is</span>
+              <span class="vox-ctxchips" data-ctx="intent" role="group" aria-label="Take intent">
+                <button type="button" class="on" data-v="performance">Performance</button>
+                <button type="button" data-v="learning">Learning</button>
+                <button type="button" data-v="warmup">Warm-up</button>
+              </span>
+              <span class="vox-label">Where</span>
+              <span class="vox-ctxchips" data-ctx="capture" role="group" aria-label="Capture location">
+                <button type="button" data-v="studio">Studio</button>
+                <button type="button" class="on" data-v="home">Home</button>
+                <button type="button" data-v="live">Live</button>
+              </span>
+              <input id="fCtxNote" maxlength="200" placeholder="Note (optional) — e.g. first time on the high note">
+            </div>
+
           </div>
         </div>
         <!-- running / done message -->
@@ -310,7 +335,16 @@
 <script src="/static/vox-record.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
-function TOK(n){try{return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}catch(e){return ""}}
+  function deckTakeContext(){
+    function sel(g){var b=document.querySelector('.vox-ctxchips[data-ctx="'+g+'"] button.on');return b?b.dataset.v:"";}
+    var n=document.getElementById("fCtxNote");
+    return {intent:sel("intent"),capture:sel("capture"),note:(n&&n.value||"").trim().slice(0,200)};
+  }
+  document.querySelectorAll(".vox-ctxchips").forEach(function(g){
+    g.addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
+      g.querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b);});});
+  });
+  function TOK(n){try{return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}catch(e){return ""}}
 function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseInt(m[1].slice(0,2),16),parseInt(m[1].slice(2,4),16),parseInt(m[1].slice(4,6),16)]:[0,0,0]}
 (function(){
   "use strict";
@@ -492,12 +526,16 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
   });
 
   // ---- real upload → job → poll -------------------------------------------
-  function startJob(file){
+  function startJob(file,ctx){
     var fd=new FormData();
     fd.append("file",file);
     fd.append("name",($("#fPerformer").value||"Singer"));
     fd.append("song",$("#fSong").value||"");
     fd.append("artist",$("#fArtist").value||"");
+    var tc=(ctx&&(ctx.intent||ctx.capture||ctx.note))?ctx:deckTakeContext();
+    if(tc.intent)fd.append("take_intent",tc.intent);
+    if(tc.capture)fd.append("take_capture",tc.capture);
+    if(tc.note)fd.append("take_note",tc.note);
     var compare=!!($("#fSong").value&&$("#fArtist").value);
     fd.append("comparison",compare?"true":"false");
     $("#jobTag").textContent="SESSION · uploading";
@@ -541,7 +579,7 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
   function mountRecorder(){
     if(recMounted)return !!recCtl;
     recMounted=true;
-    if(window.VOXRecord)recCtl=VOXRecord.mount($("#recMount"),{onAnalyze:function(file){startJob(file);}});
+    if(window.VOXRecord)recCtl=VOXRecord.mount($("#recMount"),{onAnalyze:function(file,ctx){startJob(file,ctx);}});
     else $("#recMount").innerHTML='<p class="stage-msg"><span>Recording is unavailable in this browser — use Upload.</span></p>';
     return !!recCtl;
   }

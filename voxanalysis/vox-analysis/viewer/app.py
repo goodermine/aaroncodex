@@ -275,6 +275,13 @@ def _process(job_id: str) -> None:
             if not v2_analysis_file or not v2_report_file:
                 raise RuntimeError("VOXAI V2 result artifacts are unavailable")
             raw_v2 = json.loads((job_dir / v2_analysis_file).read_text(encoding="utf-8"))
+            take_context = manifest.get("take_context")
+            if take_context:
+                # stamped AFTER scoring: context can never influence the engine
+                raw_v2["take_context"] = take_context
+                (job_dir / v2_analysis_file).write_text(
+                    json.dumps(raw_v2, indent=2), encoding="utf-8"
+                )
             reference = analysis.get("reference") or {}
             reference_analysis_file = reference.pop("analysis_file", None)
             if reference_analysis_file:
@@ -285,6 +292,8 @@ def _process(job_id: str) -> None:
                 conditions=manifest.get("recording_conditions", ""),
                 comparison=analysis.get("comparison"),
             )
+            if take_context:
+                analysis["take_context"] = take_context
             analysis["v2_report_url"] = f"/api/pitch-jobs/{job_id}/report"
             analysis["audio_urls"] = {
                 "vocals": f"/api/pitch-jobs/{job_id}/audio?track=vocals",
@@ -413,6 +422,23 @@ async def _mode_elsewhere() -> HTMLResponse:
     return HTMLResponse(_MODE_HINT_HTML, status_code=404)
 
 
+def _sanitise_take_context(intent: str, capture: str, note: str) -> dict | None:
+    """Declarative take context (docs/plans/TAKE_CONTEXT_TAG.md). Metadata
+    only — it NEVER reaches the scoring engine; it is stamped into the
+    analysis JSON after scoring so ranking can group takes fairly."""
+    intent = (intent or "").strip().lower()
+    capture = (capture or "").strip().lower()
+    note = " ".join((note or "").split())[:200]
+    ctx = {}
+    if intent in {"performance", "learning", "warmup"}:
+        ctx["intent"] = intent
+    if capture in {"studio", "home", "live"}:
+        ctx["capture"] = capture
+    if note:
+        ctx["note"] = note
+    return ctx or None
+
+
 @app.post("/api/pitch-jobs", status_code=202)
 async def create_job(
     request: Request,
@@ -422,6 +448,9 @@ async def create_job(
     artist: str = Form(""),
     conditions: str = Form(""),
     comparison: bool = Form(True),
+    take_intent: str = Form(""),
+    take_capture: str = Form(""),
+    take_note: str = Form(""),
 ) -> dict:
     _cleanup()
     active_jobs = 0
@@ -483,6 +512,9 @@ async def create_job(
             "comparison_enabled": comparison,
             "created_at": time.time(),
         }
+        take_context = _sanitise_take_context(take_intent, take_capture, take_note)
+        if take_context:
+            manifest["take_context"] = take_context
         _write_manifest(job_dir, manifest)
         executor.submit(_process, job_id)
         return {"id": job_id, "status": "queued", "status_url": f"/api/pitch-jobs/{job_id}"}

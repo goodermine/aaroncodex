@@ -68,6 +68,10 @@ class RealEngines:
         pitch = pitch_track.analyze_wav(Path(stem), duration)
         analysis_rel, report_rel = pitch_track.run_v2_analysis(Path(stem), job_dir, meta.performer)
         raw = json.loads((job_dir / analysis_rel).read_text())
+        if meta.take_context:
+            # stamped AFTER scoring: context can never influence the engine
+            raw["take_context"] = meta.take_context
+            (job_dir / analysis_rel).write_text(json.dumps(raw, indent=2))
         # build_v2_report(raw, conditions="", comparison=None): song/artist are
         # recording *context* here — the fused path has no reference-comparison
         # pipeline, so comparison is honestly None (it used to receive the artist

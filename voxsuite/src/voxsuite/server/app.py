@@ -87,6 +87,9 @@ def create_app(base_dir, engines=None) -> FastAPI:
         song: str = Form(""),
         artist: str = Form(""),
         tune: str = Form("true"),
+        take_intent: str = Form(""),
+        take_capture: str = Form(""),
+        take_note: str = Form(""),
     ):
         ext = Path(file.filename or "").suffix.lower()
         if ext not in _ALLOWED:
@@ -95,8 +98,17 @@ def create_app(base_dir, engines=None) -> FastAPI:
         uploads.mkdir(exist_ok=True)
         dest = uploads / f"{uuid.uuid4().hex[:8]}{ext}"
         dest.write_bytes(await file.read())
+        ctx = {}
+        if (take_intent or "").strip().lower() in {"performance", "learning", "warmup"}:
+            ctx["intent"] = take_intent.strip().lower()
+        if (take_capture or "").strip().lower() in {"studio", "home", "live"}:
+            ctx["capture"] = take_capture.strip().lower()
+        note = " ".join((take_note or "").split())[:200]
+        if note:
+            ctx["note"] = note
         meta = JobMeta(performer=name or "Singer", song=song, artist=artist,
-                       tune=str(tune).lower() in ("1", "true", "yes", "on"))
+                       tune=str(tune).lower() in ("1", "true", "yes", "on"),
+                       take_context=ctx or None)
         job = runner.start(file.filename or dest.name, dest, meta)
         return {"id": job.id, "status": job.status, "status_url": f"/api/fused-jobs/{job.id}"}
 

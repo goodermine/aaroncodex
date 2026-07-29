@@ -77,6 +77,21 @@
           '<div class="vrec-trimnote">Drag the handles to cut dead air, chatter or applause — then listen to check. ' +
             'Trimmed length <b class="vrec-len vox-tnum">—</b> <button class="vrec-linkbtn vrec-reset" type="button">reset</button></div>' +
           '<audio class="vrec-player" controls></audio>' +
+          '<div class="vrec-ctx">' +
+            '<div class="vrec-ctx__k">This take is</div>' +
+            '<div class="vrec-chips" data-ctx="intent" role="group" aria-label="Take intent">' +
+              '<button type="button" class="on" data-v="performance">Performance</button>' +
+              '<button type="button" data-v="learning">Learning</button>' +
+              '<button type="button" data-v="warmup">Warm-up</button>' +
+            '</div>' +
+            '<div class="vrec-ctx__k">Where</div>' +
+            '<div class="vrec-chips" data-ctx="capture" role="group" aria-label="Capture location">' +
+              '<button type="button" data-v="studio">Studio</button>' +
+              '<button type="button" class="on" data-v="home">Home</button>' +
+              '<button type="button" data-v="live">Live</button>' +
+            '</div>' +
+            '<input class="vrec-ctxnote" maxlength="200" placeholder="Note (optional) \u2014 e.g. first time on the high note">' +
+          '</div>' +
           '<div class="vrec-row"><button class="vrec-btn vrec-again" type="button">&#8635; Re-record</button>' +
             '<button class="vrec-btn vrec-btn--go vrec-analyze" type="button">Analyze this take</button></div>' +
         '</div>' +
@@ -359,7 +374,15 @@
         file = new File([blob], el._name || ("recording." + mime[1]), { type: blob.type });
       }
       stopPreview(); teardown();
-      opts.onAnalyze && opts.onAnalyze(file);
+      opts.onAnalyze && opts.onAnalyze(file, takeContext());
+    }
+    // Declarative take context (intent/capture/note). Metadata only — the
+    // engine never reads it for scoring; it rides along to take_context in
+    // the analysis JSON (docs/plans/TAKE_CONTEXT_TAG.md).
+    function takeContext() {
+      function sel(g) { var b = el.querySelector('.vrec-chips[data-ctx="' + g + '"] button.on'); return b ? b.dataset.v : ""; }
+      var note = ($(".vrec-ctxnote") ? $(".vrec-ctxnote").value : "").trim().slice(0, 200);
+      return { intent: sel("intent"), capture: sel("capture"), note: note };
     }
     function teardown() { cancelAnimationFrame(raf); if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; try { ac && ac.close(); } catch (e) {} ac = null; }
 
@@ -369,6 +392,12 @@
     $(".vrec-stop").addEventListener("click", stopRecording);
     $(".vrec-again").addEventListener("click", function () { stopPreview(); openMic(); });
     $(".vrec-analyze").addEventListener("click", commit);
+    el.querySelectorAll(".vrec-chips").forEach(function (g) {
+      g.addEventListener("click", function (ev) {
+        var b = ev.target.closest("button"); if (!b) return;
+        g.querySelectorAll("button").forEach(function (x) { x.classList.toggle("on", x === b); });
+      });
+    });
 
     // ---- trim controls
     $(".vrec-grip--in").addEventListener("pointerdown", function (e) { e.preventDefault(); dragGrip("in", e); });
