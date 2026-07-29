@@ -9,11 +9,11 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 132,
+      "n": 133,
       "overall": {
         "min": 6.1,
         "max": 9.2,
-        "mean": 7.74,
+        "mean": 7.75,
         "spread": 3.1
       },
       "capture_fair": {
@@ -25,7 +25,7 @@
       "dynamics": {
         "min": 5.6,
         "max": 10.0,
-        "mean": 8.94,
+        "mean": 8.95,
         "spread": 4.4
       }
     },
@@ -4588,6 +4588,41 @@
         "dyn_phrase_spread_db": 16.83,
         "dyn_effective_range_db": 29.85,
         "median_phrase_s": 4.57
+      }
+    },
+    {
+      "take": "2026-07-29-rilda-bring-me-some-water-take-001",
+      "singer": "rilda",
+      "song": "bring-me-some-water-take-001",
+      "date": "2026-07-29",
+      "n_notes": 192,
+      "prior_score_status": "current",
+      "overall": 8.7,
+      "capture_fair": 8.1,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 6.13,
+        "voice_quality": 10.0,
+        "vibrato_control": 9.71,
+        "dynamics_expression": 9.74,
+        "phrase_control": 7.15,
+        "breath_support": 5.04
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 45.8,
+        "pct_within_25c": 51.0,
+        "jitter_pct": 0.5371,
+        "shimmer_pct": 3.8691,
+        "hnr_db": 19.94,
+        "vibrato_pct_notes": 59.5,
+        "dyn_phrase_spread_db": 11.83,
+        "dyn_effective_range_db": 27.78,
+        "median_phrase_s": 2.86
       }
     },
     {
