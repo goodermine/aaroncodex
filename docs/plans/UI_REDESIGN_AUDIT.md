@@ -136,3 +136,26 @@ Enforced by scripts where possible (added in Phase 1, e.g.
 11. **Screenshot review each phase** — rendered in Chromium, judged by eye
     with Aaron. Automated gates catch regressions; taste is approved by a
     human.
+
+---
+
+## Status — 29 Jul 2026
+
+All phases landed on this branch:
+
+- **Phase 0** — three hero mocks approved (report, capture, player), harmonics
+  folded in as a magma side-spectrogram per Aaron's direction (`design/next/`).
+- **Phase 1** — kit rebuilt light-only on tokens v2; dark layer deleted;
+  canvas palette bridge; gates live (`tools/ui_guard.sh`,
+  `tools/check_contrast.py` — 19/19 pairs AA).
+- **Phase 2** — legacy dark viewer retired; `/` serves the deck.
+- **Phase 3** — take-context chips in the shared recorder and both deck
+  upload forms; sanitised server-side and stamped into the analysis JSON
+  after scoring (never a score input).
+- **Phase 4** — pitch monitor on the kit: light grid instrument, magma
+  spectrogram from the token ramp, `--vox-spec-trace` green over magma.
+- **Phase 5** — print styles for the report, light PWA icons, docs updated.
+
+Remaining ideas (not scheduled): learning-curve view per song; ranked views
+surfacing take-context in the deck UI; full-texture spectrogram in the deck
+player (design/next mock shows the target).

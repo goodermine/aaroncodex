@@ -145,3 +145,17 @@
   .vox-report .timeline{height:56px}
   .vox-report .spot{width:18px;height:40px;top:8px;border-radius:5px}
 }
+
+/* ---- print: the report is a document someone hands to a coach ------------- */
+@media print{
+  .vox-report{color:var(--vox-ink)}
+  .vox-report .report-actions{display:none}
+  .vox-report .executive,.vox-report .rack{box-shadow:none;border:1px solid var(--vox-line-2);
+    break-inside:avoid}
+  .vox-report .rack>summary{cursor:default}
+  .vox-report .rack:not([open])>summary::after{content:" — expand on screen for detail";
+    font-size:11px;color:var(--vox-muted)}
+  .vox-report .spot span{opacity:1;position:static;transform:none;display:inline-block;
+    margin-left:4px}
+  .vox-report .practice-grid{grid-template-columns:1fr}
+}
