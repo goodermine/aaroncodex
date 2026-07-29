@@ -203,20 +203,26 @@
 <script src="/static/vox-report.js?v=__ASSET_VERSION__"></script>
 <script src="/static/vox-telemetry.js?v=__ASSET_VERSION__"></script>
 <script>
+  // NOTE: runs at the top of the deck script, BEFORE the $ helper exists —
+  // must use document.* directly (a $ call here killed the whole script).
   var pendingTake=null;
   function requireSingerName(file,ctx){
-    var nm=($("#fPerformer").value||"").trim();
-    if(nm){pendingTake=null;$("#fPerformer").classList.remove("is-missing");return true;}
+    var f=document.getElementById("fPerformer");
+    var nm=(f&&f.value||"").trim();
+    if(nm){pendingTake=null;if(f)f.classList.remove("is-missing");return true;}
     pendingTake={file:file,ctx:ctx};
-    $("#fPerformer").classList.add("is-missing");
-    $("#fPerformer").focus();
-    var w=$("#nameWarn");if(w)w.hidden=false;
+    if(f){f.classList.add("is-missing");f.focus();}
+    var w=document.getElementById("nameWarn");if(w)w.hidden=false;
     return false;
   }
-  $("#fPerformer").addEventListener("input",function(){
-    if(this.value.trim()){this.classList.remove("is-missing");var w=$("#nameWarn");if(w)w.hidden=true;
-      if(pendingTake){var t=pendingTake;pendingTake=null;startJob(t.file,t.ctx);}}
-  });
+  (function(){
+    var f=document.getElementById("fPerformer");
+    if(f)f.addEventListener("input",function(){
+      if(this.value.trim()){this.classList.remove("is-missing");
+        var w=document.getElementById("nameWarn");if(w)w.hidden=true;
+        if(pendingTake){var t=pendingTake;pendingTake=null;startJob(t.file,t.ctx);}}
+    });
+  })();
   function deckTakeContext(){
     function sel(g){var b=document.querySelector('.vox-ctxchips[data-ctx="'+g+'"] button.on');return b?b.dataset.v:"";}
     var n=document.getElementById("fCtxNote");
