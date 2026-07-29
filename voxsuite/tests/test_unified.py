@@ -239,7 +239,7 @@ def test_all_three_engine_apis_are_reachable():
 def test_fused_lifecycle_runs_through_the_unified_app():
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)
-        r = c.post("/api/fused-jobs", data={"name": "Ada", "tune": "true"},
+        r = c.post("/api/fused-jobs", data={"name": "Ada", "tune": "true", "take_capture": "home"},
                    files={"file": ("take.wav", b"RIFF-bytes", "audio/wav")})
         assert r.status_code == 202
         jid = r.json()["id"]

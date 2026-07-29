@@ -443,7 +443,7 @@ def _sanitise_take_context(intent: str, capture: str, note: str) -> dict | None:
 async def create_job(
     request: Request,
     file: UploadFile,
-    name: str = Form("Singer"),
+    name: str = Form(""),
     song: str = Form(""),
     artist: str = Form(""),
     conditions: str = Form(""),
@@ -462,6 +462,12 @@ async def create_job(
             continue
     if active_jobs >= MAX_ACTIVE_JOBS:
         raise HTTPException(503, {"code": "worker_unavailable"})
+    performer_check = " ".join((name or "").strip().split())
+    if not performer_check:
+        raise HTTPException(422, {"code": "missing_performer_name"})
+    if (take_capture or "").strip().lower() not in {"studio", "home", "live"}:
+        raise HTTPException(422, {"code": "missing_take_capture",
+                                  "detail": "take_capture must be studio, home or live"})
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in ALLOWED_EXTENSIONS:
         raise HTTPException(415, {"code": "unsupported_media"})
@@ -494,7 +500,7 @@ async def create_job(
             raise HTTPException(415, {"code": "unsupported_media"})
         if duration > MAX_DURATION:
             raise HTTPException(422, {"code": "media_too_long"})
-        performer_name = " ".join((name or "Singer").strip().split())[:80] or "Singer"
+        performer_name = " ".join((name or "").strip().split())[:80]
         song_name = " ".join((song or "").strip().split())[:160]
         original_artist = " ".join((artist or "").strip().split())[:160]
         recording_conditions = " ".join((conditions or "").strip().split())[:1000]

@@ -30,3 +30,18 @@ def test_note_is_whitespace_collapsed_and_bounded():
     ctx = _sanitise_take_context("", "", "  a   lot\n of   space  " + "x" * 500)
     assert ctx["note"].startswith("a lot of space")
     assert len(ctx["note"]) <= 200
+
+
+def test_viewer_requires_name_and_capture():
+    """No take enters the archive anonymous or unlocated: create_job rejects a
+    missing singer name or capture before touching the upload."""
+    from fastapi.testclient import TestClient
+    import app as viewer_app
+    c = TestClient(viewer_app.app)
+    wav = {"file": ("take.wav", b"RIFF0000WAVE", "audio/wav")}
+    r = c.post("/api/pitch-jobs", data={"take_capture": "live"}, files=wav)
+    assert r.status_code == 422 and r.json()["detail"]["code"] == "missing_performer_name"
+    r = c.post("/api/pitch-jobs", data={"name": "Rilda"}, files=wav)
+    assert r.status_code == 422 and r.json()["detail"]["code"] == "missing_take_capture"
+    r = c.post("/api/pitch-jobs", data={"name": "Rilda", "take_capture": "bar"}, files=wav)
+    assert r.status_code == 422 and r.json()["detail"]["code"] == "missing_take_capture"

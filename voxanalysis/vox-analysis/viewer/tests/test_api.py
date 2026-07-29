@@ -39,7 +39,9 @@ class ApiTests(unittest.TestCase):
         self.assertIn("reference_lookup", response.json()["checks"])
 
     def test_rejects_unsupported_extension(self):
-        response = self.request("POST", "/api/pitch-jobs", files={"file": ("notes.txt", b"hello", "text/plain")})
+        response = self.request("POST", "/api/pitch-jobs",
+                                data={"name": "Test Singer", "take_capture": "home"},
+                                files={"file": ("notes.txt", b"hello", "text/plain")})
         self.assertEqual(response.status_code, 415)
         self.assertEqual(response.json()["detail"]["code"], "unsupported_media")
 
@@ -56,6 +58,7 @@ class ApiTests(unittest.TestCase):
                     "song": "Original Song",
                     "artist": "Test Composer",
                     "comparison": "false",
+                    "take_capture": "home",
                 },
                 files={"file": ("take.wav", b"RIFF-test", "audio/wav")},
             )
@@ -74,7 +77,7 @@ class ApiTests(unittest.TestCase):
             response = self.request(
                 "POST",
                 "/api/pitch-jobs",
-                data={"name": "Test Singer", "comparison": "true"},
+                data={"name": "Test Singer", "comparison": "true", "take_capture": "home"},
                 files={"file": ("take.wav", b"RIFF-test", "audio/wav")},
             )
         self.assertEqual(response.status_code, 422)
@@ -414,7 +417,7 @@ class ApiTests(unittest.TestCase):
         ):
             response = self.request(
                 "POST", "/api/pitch-jobs",
-                data={"name": "Singer", "comparison": "false"},
+                data={"name": "Singer", "comparison": "false", "take_capture": "home"},
                 files={"file": ("recording.webm", b"webm-bytes", "audio/webm")},
             )
         self.assertEqual(response.status_code, 202)

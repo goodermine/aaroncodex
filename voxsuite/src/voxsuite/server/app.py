@@ -83,7 +83,7 @@ def create_app(base_dir, engines=None) -> FastAPI:
     @app.post("/api/fused-jobs", status_code=202)
     async def create_fused_job(
         file: UploadFile = File(...),
-        name: str = Form("Singer"),
+        name: str = Form(""),
         song: str = Form(""),
         artist: str = Form(""),
         tune: str = Form("true"),
@@ -91,6 +91,11 @@ def create_app(base_dir, engines=None) -> FastAPI:
         take_capture: str = Form(""),
         take_note: str = Form(""),
     ):
+        if not " ".join((name or "").strip().split()):
+            raise HTTPException(422, {"code": "missing_performer_name"})
+        if (take_capture or "").strip().lower() not in {"studio", "home", "live"}:
+            raise HTTPException(422, {"code": "missing_take_capture",
+                                      "detail": "take_capture must be studio, home or live"})
         ext = Path(file.filename or "").suffix.lower()
         if ext not in _ALLOWED:
             raise HTTPException(415, {"code": "unsupported_media", "ext": ext})
@@ -106,7 +111,7 @@ def create_app(base_dir, engines=None) -> FastAPI:
         note = " ".join((take_note or "").split())[:200]
         if note:
             ctx["note"] = note
-        meta = JobMeta(performer=name or "Singer", song=song, artist=artist,
+        meta = JobMeta(performer=" ".join(name.strip().split()), song=song, artist=artist,
                        tune=str(tune).lower() in ("1", "true", "yes", "on"),
                        take_context=ctx or None)
         job = runner.start(file.filename or dest.name, dest, meta)
