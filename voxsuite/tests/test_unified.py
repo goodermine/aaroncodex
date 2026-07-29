@@ -57,20 +57,20 @@ def test_shared_static_serves_the_kit():
         assert c.get("/static/../app.py").status_code == 404  # traversal guarded
 
 
-def test_light_dark_theme_toggle_is_wired():
-    """Every deck ships the theme module + no-flash init, and the kit defines a
-    light palette the toggle flips to."""
+def test_single_light_theme_no_toggle():
+    """v2 kit is light-only: the theme toggle is gone everywhere, the tokens
+    define exactly one (light) palette, and no page ships dark-mode plumbing."""
     with tempfile.TemporaryDirectory() as tmp:
         c = _client(tmp)
-        assert c.get("/static/vox-theme.js").status_code == 200
-        theme_js = c.get("/static/vox-theme.js").text
-        assert "data-theme" in theme_js and "vox-theme" in theme_js  # persists + sets attr
-        # the light palette exists in the shared tokens
-        assert ':root[data-theme="light"]' in c.get("/static/vox-tokens.css").text
+        assert c.get("/static/vox-theme.js").status_code == 404   # module deleted
+        tokens = c.get("/static/vox-tokens.css").text
+        assert "data-theme" not in tokens                          # one palette
+        assert "--vox-page:#f6f7f9" in tokens                      # and it is light
         for path in ("/", "/analyze", "/polish"):
             body = c.get(path).text
-            assert "/static/vox-theme.js?v=" in body, path        # module loaded
-            assert "prefers-color-scheme" in body, path           # no-flash head init
+            assert "vox-theme" not in body, path                   # no module, no init
+            assert "prefers-color-scheme" not in body, path
+            assert "data-theme" not in body, path
 
 
 def test_phone_layer_and_pwa_are_wired():

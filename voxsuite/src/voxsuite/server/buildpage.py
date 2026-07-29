@@ -10,30 +10,29 @@ from __future__ import annotations
 import html
 
 _CSS = """
-:root{color-scheme:dark}
-body{margin:0;padding:22px 16px 60px;background:#070a0e;color:#eaf3f8;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+:root{color-scheme:light}
+body{margin:0;padding:22px 16px 60px;background:var(--vox-page);color:var(--vox-ink);
+  font-family:var(--vox-sans);
   -webkit-text-size-adjust:100%}
 .wrap{max-width:760px;margin:0 auto}
-.kick{font:700 11px/1 ui-monospace,monospace;letter-spacing:.22em;color:#3fe0ff}
+.kick{font:700 11px/1 var(--vox-mono);letter-spacing:.22em;color:var(--vox-accent)}
 h1{font-size:21px;margin:12px 0 4px}
-p.sub{color:#7f93a4;font-size:13px;line-height:1.6;margin:0 0 18px}
-.card{border:1px solid #263a4a;border-radius:12px;background:#0c141b;padding:14px 16px;margin:0 0 14px}
-.card h2{font:700 11px/1 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;
-  color:#7f93a4;margin:0 0 10px}
-.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #16232c;
+p.sub{color:var(--vox-muted);font-size:13px;line-height:1.6;margin:0 0 18px}
+.card{border:1px solid var(--vox-line);border-radius:12px;background:var(--vox-panel);padding:14px 16px;margin:0 0 14px}
+.card h2{font:700 11px/1 var(--vox-mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--vox-muted);margin:0 0 10px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--vox-line);
   font-size:13.5px;align-items:baseline}
 .row:last-child{border-bottom:0}
-.row b{font-family:ui-monospace,monospace;font-weight:600;color:#bfeffb;word-break:break-all;text-align:right}
-.k{color:#7f93a4;flex:0 0 auto}
-.big{font:700 15px/1.4 ui-monospace,monospace;padding:12px 14px;border-radius:10px;margin:0 0 16px}
-.ok{background:rgba(90,224,138,.12);border:1px solid rgba(90,224,138,.45);color:#5ae08a}
-.bad{background:rgba(255,109,122,.12);border:1px solid rgba(255,109,122,.5);color:#ff8a95}
-.warn{background:rgba(255,193,88,.12);border:1px solid rgba(255,193,88,.5);color:#ffc158}
-code{font-family:ui-monospace,monospace;background:#0a141c;border:1px solid #1d2c38;
+.row b{font-family:var(--vox-mono);font-weight:600;color:var(--vox-ink);word-break:break-all;text-align:right}
+.k{color:var(--vox-muted);flex:0 0 auto}
+.big{font:700 15px/1.4 var(--vox-mono);padding:12px 14px;border-radius:10px;margin:0 0 16px}
+.ok{background:var(--vox-good-tint);border:1px solid var(--vox-good);color:var(--vox-good)}
+.bad{background:var(--vox-weak-tint);border:1px solid var(--vox-weak);color:var(--vox-weak)}
+.warn{background:var(--vox-watch-tint);border:1px solid var(--vox-watch);color:var(--vox-watch)}
+code{font-family:var(--vox-mono);background:var(--vox-sunken);border:1px solid var(--vox-line-2);
   border-radius:5px;padding:1px 5px;font-size:12.5px}
 """
-
 
 def _rows(pairs) -> str:
     out = []
@@ -78,7 +77,9 @@ def render(info: dict, title: str = "Build") -> str:
     return (
         "<!doctype html><html lang=en><head><meta charset=utf-8>"
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
-        f"<title>{html.escape(title)} &mdash; VOX Suite</title><style>{_CSS}</style></head><body><div class=wrap>"
+        f"<title>{html.escape(title)} &mdash; VOX Suite</title>"
+        '<link rel="stylesheet" href="/static/vox-tokens.css">'
+        f"<style>{_CSS}</style></head><body><div class=wrap>"
         '<div class="kick">VOX//SUITE</div>'
         "<h1>Which build is live?</h1>"
         '<p class="sub">The hashes below are of the files this running process is actually reading '

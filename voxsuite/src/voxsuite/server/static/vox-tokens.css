@@ -1,163 +1,114 @@
 /* ============================================================================
-   VOX Suite — design tokens  (Visual System v0.1)
-   Single source of truth for the shared palette across VoxPolish + VoxAnalysis.
+   VOX Suite — design tokens v2 "clean & precise"
+   Single light palette. This file is the ONLY place a colour may be defined;
+   every component, page, canvas bridge and server-emitted style consumes these
+   custom properties. There is no dark theme and no toggle.
+
+   Accent policy: ONE accent (deep calm blue) for primary actions, active and
+   focus state. Semantic bands (good / watch / weak) are reserved for judgement.
+   The magma ramp is chart data for spectrograms only — never chrome.
+
+   Every text/surface pair below meets WCAG AA — verified by
+   tools/check_contrast.py (run via tools/ui_guard.sh).
+
    Canonical copy lives in /design; run design/sync.sh to vendor into each app.
-
-   Palette law (see design/README.md):
-     · cyan   = the primary brand accent — everything live / interactive
-     · violet = Analyze-mode identity + the "singer" pitch trace (narrow use)
-     · green / amber / red = SEMANTIC ONLY (healthy·done / warning / critical)
-   Deliberately single-theme: a lit control room, dark ground.
    ============================================================================ */
+
 :root{
-  /* ground — near-black with a slight blue bias, chosen not defaulted */
-  --vox-void:#070a0e;
-  --vox-panel:#0c1119;
-  --vox-raised:#12202b;
-  --vox-raised-2:#0e1721;
-  --vox-sunken:#05090d;
-  --vox-line:#1d2b38;
-  --vox-line-2:#263a4a;
+  /* ---- surfaces ------------------------------------------------------- */
+  --vox-page:#f6f7f9;         /* app background                            */
+  --vox-panel:#ffffff;        /* cards / panels / bars                     */
+  --vox-sunken:#eef1f4;       /* wells, inputs, meter tracks               */
+  --vox-line:#e4e8ed;         /* hairline rules                            */
+  --vox-line-2:#cfd7df;       /* emphasised rules / control borders        */
 
-  /* text */
-  --vox-ink:#eaf3f8;
-  --vox-body:#c4d3dd;    /* long-form body copy — a step softer than ink */
-  --vox-muted:#7f93a4;   /* cyan-biased grey */
-  --vox-dim:#4a5c6b;
+  /* ---- ink ------------------------------------------------------------ */
+  --vox-ink:#131a22;          /* headings, hero figures                    */
+  --vox-body:#3c4653;         /* long-form body copy                       */
+  --vox-muted:#5d6a77;        /* secondary labels                          */
+  --vox-dim:#8894a0;          /* tertiary; never for essential text        */
 
-  /* primary signal */
-  --vox-cyan:#3fe0ff;
-  --vox-cyan-deep:#1a9fc4;
-  --vox-cyan-ink:#bfeffb;
+  /* ---- the accent ------------------------------------------------------ */
+  --vox-accent:#1d4ed8;       /* deep calm blue                            */
+  --vox-accent-deep:#1e40af;  /* hover / pressed                           */
+  --vox-accent-tint:#eef3fe;  /* selected wash                             */
+  --vox-on-accent:#ffffff;    /* text on accent                            */
 
-  /* secondary identity */
-  --vox-violet:#8b7cff;
-  --vox-violet-deep:#5a4fd6;
+  /* ---- semantic score bands (judgement only) --------------------------- */
+  --vox-good:#15803d;
+  --vox-watch:#b45309;
+  --vox-weak:#b91c1c;
+  --vox-good-tint:#ecf7f0;
+  --vox-watch-tint:#fdf3e7;
+  --vox-weak-tint:#fdefef;
 
-  /* semantic — reserved, do not use as accents */
-  --vox-green:#37d98a;
-  --vox-amber:#ffb547;
-  --vox-red:#ff5d6c;
+  /* ---- spectrogram colormap (magma) ------------------------------------ */
+  /* Domain-standard data-visualisation ramp — coaches and professionals
+     read spectrograms in these colours, so the spectrogram is the ONE
+     deliberate dark instrument in the light UI. Chart data only: never
+     chrome, text or state.                                                */
+  --vox-spec-0:#000004;  --vox-spec-1:#1c1044;  --vox-spec-2:#4f127b;
+  --vox-spec-3:#812581;  --vox-spec-4:#b5367a;  --vox-spec-5:#e55064;
+  --vox-spec-6:#fb8761;  --vox-spec-7:#fec287;  --vox-spec-8:#fcfdbf;
 
-  /* categorical data palette (waveform regions, chart series).
-     Distinct hues for information encoding — kept separate from chrome. */
-  --vox-cat-1:#3fe0ff;   /* dynamics / primary   */
-  --vox-cat-2:#ff8f6b;   /* gate / pauses        */
-  --vox-cat-3:#5fd0a0;   /* breath               */
-  --vox-cat-4:#59b0ff;   /* sibilance            */
-  --vox-cat-5:#b78bff;   /* tune                 */
+  /* ---- categorical (charts needing distinction, not judgement) ---------- */
+  --vox-cat-1:#1d4ed8;
+  --vox-cat-2:#0f766e;
+  --vox-cat-3:#7c3aed;
+  --vox-cat-4:#be185d;
+  --vox-cat-5:#4d7c0f;
 
-  /* type */
+  /* ---- type ------------------------------------------------------------ */
+  --vox-sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
   --vox-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-  --vox-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 
-  /* control surfaces — recurring panel/input shades, tokenised so the light
-     theme can remap them (dark defaults keep the control-room look) */
-  --vox-surface-0:#080c11;   /* deepest input well            */
-  --vox-surface-1:#0a141c;   /* standard control / chip bg    */
-  --vox-surface-2:#16242f;   /* raised / hover control        */
+  --vox-fs-0:.6875rem;  --vox-fs-1:.75rem;   --vox-fs-2:.8125rem;
+  --vox-fs-3:.9375rem;  --vox-fs-4:1.0625rem;--vox-fs-5:1.375rem;
+  --vox-fs-6:1.75rem;   --vox-fs-hero:4.25rem;
 
-  /* contrast colour for text sitting ON a bright accent (cyan/violet).
-     Stays dark on the bright dark-theme accents; goes light in the light
-     theme where the accents are deepened. */
-  --vox-on-accent:#04222b;
+  /* ---- space (4px base) ------------------------------------------------ */
+  --vox-sp-1:4px;  --vox-sp-2:8px;  --vox-sp-3:12px; --vox-sp-4:16px;
+  --vox-sp-5:24px; --vox-sp-6:32px; --vox-sp-7:48px; --vox-sp-8:64px;
 
-  /* container fills — whole gradients held in tokens so the light theme can
-     swap the whole "console" surface (page ground / panel cards / command bar /
-     secondary button) in one place. */
-  --vox-grad-page:
-    radial-gradient(1200px 520px at 50% -8%,rgba(63,224,255,.11),transparent 60%),
-    radial-gradient(900px 520px at 100% 118%,rgba(63,224,255,.05),transparent 55%),
-    linear-gradient(180deg,var(--vox-surface-0) 0,#060809 100%);
-  --vox-grad-panel:linear-gradient(160deg,#0d1620,#0a1017);
-  --vox-grad-bar:linear-gradient(180deg,rgba(18,32,43,.7),rgba(10,16,22,.85));
-  --vox-grad-btn:linear-gradient(#18202a,#10161e);
-  --vox-btn-ink:#dce4ec;
+  /* ---- shape & elevation ---------------------------------------------- */
+  --vox-r-ctl:6px;
+  --vox-r-card:10px;
+  --vox-radius:10px;          /* kit-wide card radius                      */
+  --vox-radius-sm:6px;        /* kit-wide control radius                   */
+  --vox-shadow-1:0 1px 2px rgba(19,26,34,.06),0 1px 3px rgba(19,26,34,.04);
+  --vox-shadow-2:0 4px 12px rgba(19,26,34,.08),0 1px 3px rgba(19,26,34,.05);
+  --vox-scrim:rgba(19,26,34,.42);   /* overlay scrim                       */
 
-  /* effects */
-  --vox-glow-cyan:0 0 14px rgba(63,224,255,.55);
-  --vox-glow-violet:0 0 14px rgba(139,124,255,.5);
-  --vox-glow-green:0 0 12px rgba(55,217,138,.6);
-  --vox-glow-amber:0 0 12px rgba(255,181,71,.6);
-  --vox-glow-red:0 0 12px rgba(255,93,108,.6);
-  --vox-radius:14px;
-  --vox-radius-sm:8px;
+  /* ======================================================================
+     DEPRECATED ALIASES — dark-era names remapped to the light palette so
+     surfaces not yet rebuilt (Phase 2: decks/buildpage · Phase 4: monitor)
+     keep rendering. Do not use in new code; removed when those phases land.
+     ====================================================================== */
+  --vox-void:#ffffff;         /* was the page black; also used as text-on-accent */
+  --vox-raised:var(--vox-panel);
+  --vox-raised-2:var(--vox-panel);
+  --vox-cyan:var(--vox-accent);
+  --vox-cyan-deep:var(--vox-accent-deep);
+  --vox-cyan-ink:var(--vox-accent);
+  --vox-violet:var(--vox-accent);
+  --vox-violet-deep:var(--vox-accent-deep);
+  --vox-green:var(--vox-good);
+  --vox-amber:var(--vox-watch);
+  --vox-red:var(--vox-weak);
+  --vox-surface-0:var(--vox-sunken);
+  --vox-surface-1:var(--vox-panel);
+  --vox-surface-2:var(--vox-sunken);
+  --vox-btn-ink:var(--vox-body);
+  --vox-grad-page:var(--vox-page);
+  --vox-grad-panel:var(--vox-panel);
+  --vox-grad-bar:var(--vox-panel);
+  --vox-grad-btn:var(--vox-panel);
+  --vox-glow-cyan:0 0 0 0 transparent;
+  --vox-glow-violet:0 0 0 0 transparent;
+  --vox-glow-green:0 0 0 0 transparent;
+  --vox-glow-amber:0 0 0 0 transparent;
+  --vox-glow-red:0 0 0 0 transparent;
 }
 
-/* ----------------------------------------------------------------------------
-   Light theme — set data-theme="light" on <html> (the vox-theme toggle does).
-   The signal displays (pitch scope, spectrogram, waveform, VU meters) are drawn
-   on <canvas> in JS with their own dark fills and deliberately STAY dark, like a
-   DAW/oscilloscope — only the chrome flips. Accents keep their identity but are
-   deepened so cyan/violet read on a light ground.
-   ------------------------------------------------------------------------- */
-:root[data-theme="light"]{
-  --vox-void:#eef2f6;
-  --vox-panel:#ffffff;
-  --vox-raised:#f5f9fc;
-  --vox-raised-2:#eef3f8;
-  --vox-sunken:#e4ebf1;
-  --vox-line:#d6e0e8;
-  --vox-line-2:#c2d1dc;
-
-  --vox-ink:#0d1a24;
-  --vox-body:#2e4152;
-  --vox-muted:#546575;
-  --vox-dim:#8494a3;
-
-  --vox-cyan:#0b93bd;
-  --vox-cyan-deep:#0a7699;
-  --vox-cyan-ink:#075f7c;
-
-  --vox-violet:#6b5cf0;
-  --vox-violet-deep:#4a3fca;
-
-  --vox-green:#12a866;
-  --vox-amber:#b9760f;
-  --vox-red:#df374a;
-
-  --vox-surface-0:#e6edf2;
-  --vox-surface-1:#eef4f8;
-  --vox-surface-2:#dde7ef;
-
-  --vox-on-accent:#ffffff;
-
-  --vox-grad-page:
-    radial-gradient(1200px 520px at 50% -8%,rgba(11,147,189,.06),transparent 60%),
-    radial-gradient(900px 520px at 100% 118%,rgba(107,92,240,.05),transparent 55%),
-    linear-gradient(180deg,#f4f7fa 0,#e7eef3 100%);
-  --vox-grad-panel:linear-gradient(160deg,#ffffff,#f1f6fa);
-  --vox-grad-bar:linear-gradient(180deg,#ffffff,#eaf1f6);
-  --vox-grad-btn:linear-gradient(#ffffff,#eef3f7);
-  --vox-btn-ink:#243441;
-
-  --vox-glow-cyan:0 0 10px rgba(11,147,189,.26);
-  --vox-glow-violet:0 0 10px rgba(107,92,240,.24);
-  --vox-glow-green:0 0 10px rgba(18,168,102,.28);
-  --vox-glow-amber:0 0 10px rgba(185,118,15,.28);
-  --vox-glow-red:0 0 10px rgba(223,55,74,.28);
-}
-
-/* The scope card is a dark "display screen" in a light console: the canvas
-   (pitch/spectrogram/waveform) reads best on dark, and everything overlaid on
-   the stage (intake, timecode, transport) must stay light-on-dark. So in light
-   mode we restore the dark palette scoped to .vox-scope — it becomes a
-   self-contained dark module while the rails / header / chain flip light. */
-:root[data-theme="light"] .vox-scope{
-  --vox-void:#070a0e; --vox-panel:#0c1119; --vox-raised:#12202b; --vox-raised-2:#0e1721;
-  --vox-sunken:#05090d; --vox-line:#1d2b38; --vox-line-2:#263a4a;
-  --vox-ink:#eaf3f8; --vox-body:#c4d3dd; --vox-muted:#7f93a4; --vox-dim:#4a5c6b;
-  --vox-cyan:#3fe0ff; --vox-cyan-deep:#1a9fc4; --vox-cyan-ink:#bfeffb;
-  --vox-violet:#8b7cff; --vox-violet-deep:#5a4fd6;
-  --vox-green:#37d98a; --vox-amber:#ffb547; --vox-red:#ff5d6c;
-  --vox-surface-0:#080c11; --vox-surface-1:#0a141c; --vox-surface-2:#16242f;
-  --vox-on-accent:#04222b;
-  --vox-grad-panel:linear-gradient(160deg,#0d1620,#0a1017);
-  --vox-grad-btn:linear-gradient(#18202a,#10161e); --vox-btn-ink:#dce4ec;
-  --vox-glow-cyan:0 0 14px rgba(63,224,255,.55);
-  --vox-glow-violet:0 0 14px rgba(139,124,255,.5);
-  --vox-glow-green:0 0 12px rgba(55,217,138,.6);
-  --vox-glow-amber:0 0 12px rgba(255,181,71,.6);
-  --vox-glow-red:0 0 12px rgba(255,93,108,.6);
-  border-color:var(--vox-line);
-}
+/* Numerals: every figure aligns like an instrument readout. */
+.vox-num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}

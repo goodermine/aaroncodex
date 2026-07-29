@@ -12,6 +12,14 @@
 (function (root) {
   "use strict";
 
+  // Canvas palette bridge: canvases can't use var(), so read the token at draw
+  // time. Tokens always ship with the kit, so no hex fallback (and none allowed
+  // here — tools/ui_guard.sh forbids colours outside vox-tokens.css).
+  function tok(name) {
+    try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+    catch (e) { return ""; }
+  }
+
   var MIME = [["audio/webm;codecs=opus", "webm"], ["audio/ogg;codecs=opus", "ogg"],
               ["audio/mp4", "mp4"], ["audio/webm", "webm"]];
   function pickMime() {
@@ -165,7 +173,7 @@
         wx.clearRect(0, 0, r.width, r.height); analyser.getByteTimeDomainData(tdat);
         // No per-frame shadowBlur: it's costly on mobile and thrashes compositing,
         // which is what made the Stop button vanish. A crisp 1.6px stroke reads fine.
-        wx.strokeStyle = "#3fe0ff"; wx.lineWidth = 1.6; wx.beginPath();
+        wx.strokeStyle = tok("--vox-accent"); wx.lineWidth = 1.6; wx.beginPath();
         for (var i = 0; i < tdat.length; i++) { var x = i / (tdat.length - 1) * r.width, y = r.height / 2 + ((tdat[i] - 128) / 128) * r.height * 0.42; i ? wx.lineTo(x, y) : wx.moveTo(x, y); }
         wx.stroke();
         raf = requestAnimationFrame(loop);
@@ -263,7 +271,7 @@
         var c = Math.floor(px / r.width * peaks.cols); if (c >= peaks.cols) break;
         var t = px / r.width * (audioBuf ? audioBuf.duration : 1);
         var kept = t >= trimIn && t <= trimOut;
-        cx.fillStyle = kept ? "#3fe0ff" : "rgba(127,147,164,.35)";
+        cx.fillStyle = kept ? tok("--vox-accent") : tok("--vox-line-2");
         var y1 = mid - peaks.mx[c] * mid * 0.92, y2 = mid - peaks.mn[c] * mid * 0.92;
         cx.fillRect(px, y1, 1, Math.max(1, y2 - y1));
       }
