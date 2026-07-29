@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>VOX — Capture (mock)</title>
+<link rel="stylesheet" href="vox-tokens.css">
+<style>
+/* Phase-0 mock — mobile capture-first shell. Not squished desktop: the record
+   action and live readout own the screen; everything else steps back. */
+*{box-sizing:border-box;margin:0}
+html{font-size:16px}
+body{background:var(--vox-page);color:var(--vox-body);font-family:var(--vox-sans);
+  min-height:100dvh;display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  -webkit-font-smoothing:antialiased}
+
+/* header: what am I singing */
+.top{padding:var(--vox-sp-4) var(--vox-sp-5) 0}
+.brand{font-size:var(--vox-fs-0);font-weight:650;letter-spacing:.14em;color:var(--vox-muted)}
+.brand em{font-style:normal;color:var(--vox-accent)}
+.song{display:flex;align-items:baseline;justify-content:space-between;margin-top:2px}
+.song h1{font-size:var(--vox-fs-5);font-weight:700;color:var(--vox-ink);letter-spacing:-.01em}
+.song .take{font-size:var(--vox-fs-2);font-weight:650;color:var(--vox-muted)}
+
+/* live instrument */
+.live{margin:var(--vox-sp-4) var(--vox-sp-4) 0;background:var(--vox-panel);
+  border:1px solid var(--vox-line);border-radius:var(--vox-r-card);
+  box-shadow:var(--vox-shadow-1);padding:var(--vox-sp-5);text-align:center}
+.note{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;
+  font-size:3.4rem;line-height:1;font-weight:700;color:var(--vox-ink)}
+.note small{font-size:var(--vox-fs-4);font-weight:600;color:var(--vox-good);margin-left:8px}
+.tgt{font-size:var(--vox-fs-1);color:var(--vox-muted);margin-top:4px}
+/* pitch lane: where the sung pitch sits against the target */
+.lane{position:relative;height:8px;border-radius:4px;background:var(--vox-sunken);
+  margin:var(--vox-sp-5) var(--vox-sp-2) var(--vox-sp-2)}
+.lane .zone{position:absolute;left:38%;right:38%;top:0;bottom:0;border-radius:4px;
+  background:var(--vox-good-tint);border:1px solid var(--vox-good)}
+.lane .dot{position:absolute;left:47%;top:50%;width:16px;height:16px;border-radius:50%;
+  transform:translate(-50%,-50%);background:var(--vox-accent);
+  box-shadow:0 0 0 3px var(--vox-panel),0 1px 3px rgba(19,26,34,.25)}
+.lane-cap{display:flex;justify-content:space-between;font-size:var(--vox-fs-0);
+  color:var(--vox-dim);padding:0 var(--vox-sp-2)}
+/* input level */
+.lvl{display:flex;align-items:center;gap:10px;margin-top:var(--vox-sp-4)}
+.lvl .k{font-size:var(--vox-fs-0);letter-spacing:.08em;color:var(--vox-muted)}
+.lvl .track{flex:1;height:6px;border-radius:3px;background:var(--vox-sunken);overflow:hidden}
+.lvl .fill{width:62%;height:100%;border-radius:3px;background:var(--vox-good)}
+.lvl .db{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--vox-fs-1);color:var(--vox-muted)}
+
+/* take context — the merged tag, one thumb-tap */
+.ctx{margin:var(--vox-sp-4) var(--vox-sp-4) 0}
+.ctx .k{font-size:var(--vox-fs-0);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--vox-muted);margin-bottom:var(--vox-sp-2)}
+.chips{display:flex;gap:var(--vox-sp-2)}
+.chips button{flex:1;font:inherit;font-size:var(--vox-fs-2);font-weight:600;
+  min-height:44px;border-radius:var(--vox-r-ctl);cursor:pointer;
+  border:1px solid var(--vox-line-2);background:var(--vox-panel);color:var(--vox-body)}
+.chips button.on{background:var(--vox-accent-tint);border-color:var(--vox-accent);
+  color:var(--vox-accent)}
+.chips.small button{min-height:40px;font-size:var(--vox-fs-1)}
+.ctx .note-in{margin-top:var(--vox-sp-2);width:100%;font:inherit;
+  font-size:var(--vox-fs-2);color:var(--vox-body);min-height:44px;
+  padding:10px var(--vox-sp-4);border-radius:var(--vox-r-ctl);
+  border:1px solid var(--vox-line-2);background:var(--vox-panel)}
+.ctx .note-in::placeholder{color:var(--vox-dim)}
+
+/* tonight — recent takes, so the singer sees the session growing */
+.recent{margin:var(--vox-sp-4) var(--vox-sp-4) 0}
+.recent .k{font-size:var(--vox-fs-0);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--vox-muted);margin-bottom:var(--vox-sp-2)}
+.rlist{background:var(--vox-panel);border:1px solid var(--vox-line);
+  border-radius:var(--vox-r-card);box-shadow:var(--vox-shadow-1)}
+.rrow{display:flex;align-items:center;gap:var(--vox-sp-3);min-height:48px;
+  padding:0 var(--vox-sp-4);border-bottom:1px solid var(--vox-line)}
+.rrow:last-child{border-bottom:0}
+.rrow .t{font-size:var(--vox-fs-2);font-weight:600;color:var(--vox-ink)}
+.rrow .c{font-size:var(--vox-fs-0);color:var(--vox-muted);flex:1}
+.rrow .s{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--vox-fs-3);font-weight:650;color:var(--vox-ink)}
+.rrow.learn .s{color:var(--vox-muted)}
+
+/* thumb zone */
+.deck{margin-top:auto;padding:var(--vox-sp-5) var(--vox-sp-5) var(--vox-sp-6);
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:var(--vox-sp-4)}
+.timer{font-family:var(--vox-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--vox-fs-4);font-weight:650;color:var(--vox-ink);text-align:center}
+.timer small{display:block;font-size:var(--vox-fs-0);font-weight:600;
+  letter-spacing:.08em;color:var(--vox-muted)}
+.rec{width:84px;height:84px;border-radius:50%;border:0;cursor:pointer;
+  background:var(--vox-accent);box-shadow:var(--vox-shadow-2);
+  display:grid;place-items:center;justify-self:center}
+.rec .glyph{width:26px;height:26px;border-radius:50%;background:var(--vox-on-accent)}
+.ghost{font:inherit;font-size:var(--vox-fs-2);font-weight:600;color:var(--vox-muted);
+  background:none;border:0;cursor:pointer;min-height:44px;text-align:center}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">VOX <em>CAPTURE</em></div>
+  <div class="song">
+    <h1>Pressure Down</h1>
+    <span class="take vox-num">Take 6</span>
+  </div>
+</header>
+
+<section class="live" aria-label="Live pitch and level">
+  <div class="note vox-num">G4<small>−4¢</small></div>
+  <div class="tgt">target G4 · verse 2</div>
+  <div class="lane"><div class="zone"></div><div class="dot"></div></div>
+  <div class="lane-cap"><span>flat</span><span>in tune</span><span>sharp</span></div>
+  <div class="lvl">
+    <span class="k">MIC</span>
+    <div class="track"><div class="fill"></div></div>
+    <span class="db vox-num">−14 dB</span>
+  </div>
+</section>
+
+<section class="ctx" aria-label="Take context">
+  <div class="k">This take is</div>
+  <div class="chips" role="group">
+    <button class="on">Performance</button>
+    <button>Learning</button>
+    <button>Warm-up</button>
+  </div>
+  <div class="k" style="margin-top:var(--vox-sp-3)">Where</div>
+  <div class="chips small" role="group">
+    <button>Studio</button>
+    <button class="on">Home</button>
+    <button>Live</button>
+  </div>
+  <input class="note-in" placeholder="Note (optional) — e.g. first time on the high note">
+</section>
+
+<section class="recent" aria-label="Tonight's takes">
+  <div class="k">Tonight</div>
+  <div class="rlist">
+    <div class="rrow"><span class="t">Take 5</span><span class="c">Performance · Home</span><span class="s">9.2</span></div>
+    <div class="rrow"><span class="t">Take 4</span><span class="c">Performance · Home</span><span class="s">8.7</span></div>
+    <div class="rrow learn"><span class="t">Take 3</span><span class="c">Learning — first run at the bridge</span><span class="s">6.1</span></div>
+  </div>
+</section>
+
+<footer class="deck">
+  <button class="ghost">Last result<br><b style="color:var(--vox-ink)" class="vox-num">9.2</b></button>
+  <button class="rec" aria-label="Start recording"><span class="glyph"></span></button>
+  <div class="timer vox-num">00:00<small>READY</small></div>
+</footer>
+
+</body>
+</html>
