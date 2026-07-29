@@ -6,9 +6,9 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 ## Singer takes
 
-Overall: min 6.1 · max 9.2 · mean 7.75. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 6.1 · max 9.2 · mean 7.76. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 134/134 takes.
+Full coverage: 135/135 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -143,6 +143,7 @@ Full coverage: 134/134 takes.
 | rilda | dreams-take-001 | 260 | **8.0** | 8.3 | high | 10.0 | 6.19 | 6.94 | 10.0 | 8.13 | 4.39 | 8.48 |
 | rilda | you-sexy-thing-take-001 | 204 | **8.1** | 8.0 | high | 8.0 | 6.8 | 7.48 | 9.69 | 9.07 | 10.0 | 5.54 |
 | rilda | bow-river-take-001 | 205 | **8.4** | 8.1 | high | 10.0 | 6.24 | 10.0 | 9.8 | 7.86 | 5.79 | 6.23 |
+| rilda | bow-river-take-002 | 206 | **8.4** | 8.1 | high | 8.0 | 9.52 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
 | rilda | bring-me-some-water-take-001 | 192 | **8.7** | 8.1 | high | 10.0 | 6.13 | 10.0 | 9.71 | 9.74 | 7.15 | 5.04 |
 | rilda | ex-s-oh-s-take-001 | 204 | **8.5** | 8.2 | high | 10.0 | 4.72 | 10.0 | 9.98 | 8.07 | 10.0 | 4.41 |
 | rilda | who-s-that-girl-take-001 | 215 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.65 | 10.0 | 8.82 |
