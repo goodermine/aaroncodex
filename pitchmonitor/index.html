@@ -99,7 +99,10 @@
   <div class="topbar">
     <span class="scaleTag" id="scaleTag">C Major</span>
     <div class="bigNote" id="bigNote">—</div>
-    <button class="btn hold" id="holdBtn" type="button">HOLD</button>
+    <div class="hold" style="display:flex;gap:8px">
+      <button class="btn" id="viewBtn" type="button">SPEC</button>
+      <button class="btn" id="holdBtn" type="button">HOLD</button>
+    </div>
   </div>
 
   <div class="tuner show" id="tunerWrap"><canvas id="tunerCanvas"></canvas></div>
@@ -169,6 +172,8 @@
       <div class="row"><label class="chk"><input type="checkbox" id="cAuto" checked> Auto-scroll to follow pitch</label></div>
       <div class="row"><label class="chk"><input type="checkbox" id="cHz"> Show frequency in Hz</label></div>
       <div class="row"><label class="chk"><input type="checkbox" id="cTuner" checked> Show the tuner strip</label></div>
+      <div class="row"><label class="chk"><input type="checkbox" id="cHarm" checked> Harmonic overlay in Spectrum view</label>
+        <p class="hint">Spectrum view (top-right <b>SPEC</b>) shows a live scrolling spectrogram with your pitch and its harmonics marked, and the 2–4 kHz "ring" band highlighted.</p></div>
 
       <div class="row rowcolor"><label style="margin:0">Pitch line colour</label>
         <input type="color" id="cPitch" value="#ffe100"></div>
@@ -183,6 +188,12 @@
 (function(){
   "use strict";
   var $=function(s){return document.querySelector(s);};
+
+  // spectrogram fixed log-frequency axis + colour range (dB) and scroll speed
+  var SPEC_MINDB=-92,SPEC_MAXDB=-30,SPEC_FLO=55,SPEC_FHI=8000,SPEC_SCROLL=2;
+  // pitch trace over the spectrogram: bright green reads clearly against the
+  // orange/yellow spectrogram, where the yellow pitch colour would disappear.
+  var SPEC_PITCH="#39ff14";
 
   // ---------------------------------------------------------------- note math
   var NAMES_LATIN=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"];
@@ -211,22 +222,25 @@
 
   // ---------------------------------------------------------------- settings
   var DEFAULTS={thresh:2.0,hzoom:1.0,vzoom:1.0,smooth:3,cal:440,names:"latin",octave:"4",
-    scale:"C Major",semis:true,labels:false,auto:true,hz:false,tuner:true,pitchColor:"#ffe100"};
+    scale:"C Major",semis:true,labels:false,auto:true,hz:false,tuner:true,pitchColor:"#ffe100",
+    view:"pitch",harmonics:true};
   var S=load();
   function load(){try{var s=JSON.parse(localStorage.getItem("pm.settings"));return Object.assign({},DEFAULTS,s||{});}catch(e){return Object.assign({},DEFAULTS);}}
   function save(){try{localStorage.setItem("pm.settings",JSON.stringify(S));}catch(e){}}
 
   // ---------------------------------------------------------------- audio
-  var ac=null,analyser=null,buf=null,stream=null,srcNode=null,running=false;
+  var ac=null,analyser=null,buf=null,freqBuf=null,stream=null,srcNode=null,running=false;
   var SR=44100;
   function startAudio(){
     var constraints={audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false};
     return navigator.mediaDevices.getUserMedia(constraints).then(function(s){
       stream=s; ac=new (window.AudioContext||window.webkitAudioContext)(); SR=ac.sampleRate;
-      analyser=ac.createAnalyser(); analyser.fftSize=2048; analyser.smoothingTimeConstant=0;
-      buf=new Float32Array(analyser.fftSize);
+      analyser=ac.createAnalyser(); analyser.fftSize=4096; analyser.smoothingTimeConstant=0;
+      analyser.minDecibels=SPEC_MINDB; analyser.maxDecibels=SPEC_MAXDB;
+      buf=new Float32Array(analyser.fftSize);                 // time domain (YIN reads a 2048 slice)
+      freqBuf=new Float32Array(analyser.frequencyBinCount);   // magnitude spectrum (dB) for the spectrogram
       srcNode=ac.createMediaStreamSource(stream); srcNode.connect(analyser);
-      running=true;
+      running=true; sizeSpec();
     });
   }
   function stopAudio(){running=false;
@@ -242,7 +256,7 @@
   var YIN_THRESH=0.15;
   function detect(){
     analyser.getFloatTimeDomainData(buf);
-    var SIZE=buf.length,i,rms=0;
+    var SIZE=Math.min(2048,buf.length),i,rms=0;   // YIN uses a 2048 slice; the FFT keeps the full 4096 for finer spectral lines
     for(i=0;i<SIZE;i++){rms+=buf[i]*buf[i];}
     rms=Math.sqrt(rms/SIZE); lastRms=rms;
     if(rms<S.thresh/100)return -1;                              // volume gate (0–20 → 0–0.2)
@@ -256,6 +270,7 @@
       if(dp[tau]<YIN_THRESH){while(tau+1<=maxLag&&dp[tau+1]<dp[tau])tau++;found=tau;break;}
     }
     if(found<0){var mn=1e9;for(tau=minLag;tau<=maxLag;tau++)if(dp[tau]<mn){mn=dp[tau];found=tau;}if(mn>0.3)return -1;}
+    detAperiodic=dp[found];   // how periodic the detection was: low = confident, high = a guess
     var t=found,y1=dp[t-1]||dp[t],y2=dp[t],y3=dp[t+1]||dp[t],a=(y1+y3-2*y2)/2,b=(y3-y1)/2,tt=t;
     if(a)tt=t-b/(2*a);
     var f=SR/tt;
@@ -286,14 +301,144 @@
   var stage=$("#stage"),grid=$("#grid"),gx=grid.getContext("2d");
   var tunerWrap=$("#tunerWrap"),tcan=$("#tunerCanvas"),tx=tcan.getContext("2d");
   var DPR=Math.min(window.devicePixelRatio||1,2),GW=0,GH=0,TW=0,TH=0;
+  // spectrogram offscreen buffer (CSS-px; drawImage upscales onto the grid canvas)
+  var spec=document.createElement("canvas"),sx=spec.getContext("2d");
+  var specW=0,specH=0,binForY=null;
+  // per-column pitch history for the trace overlaid on the spectrogram, plus the
+  // YIN aperiodicity of the latest detection (0 = pure tone, 1 = noise) and a
+  // hysteretic confident/unsure state so the dotted↔solid switch doesn't flicker.
+  var specTrace=[],detAperiodic=1,specConfState=false;
   function fit(){
     DPR=Math.min(window.devicePixelRatio||1,2);
     var r=stage.getBoundingClientRect();GW=r.width;GH=r.height;
     grid.width=Math.round(GW*DPR);grid.height=Math.round(GH*DPR);gx.setTransform(DPR,0,0,DPR,0,0);
     var tr=tunerWrap.getBoundingClientRect();TW=tr.width;TH=tr.height;
     tcan.width=Math.round(TW*DPR);tcan.height=Math.round(TH*DPR);tx.setTransform(DPR,0,0,DPR,0,0);
+    sizeSpec();
   }
   window.addEventListener("resize",function(){fit();});
+
+  // -------------------------------------------------------------- spectrogram
+  // A scrolling spectrogram on a FIXED log-frequency axis (55 Hz–8 kHz), so the
+  // fast self-blit scroll works and harmonics sit at stable heights. The live
+  // pitch and its harmonic stack are overlaid on top, and the 2–4 kHz singer's
+  // "ring" band is marked — the measurement the score already cares about.
+  function specFHi(){return Math.min(SPEC_FHI,SR/2);}
+  function specFreqForY(y){var t=1-(y/specH);return SPEC_FLO*Math.pow(specFHi()/SPEC_FLO,t);}
+  function specYForFreq(f){return (1-Math.log(f/SPEC_FLO)/Math.log(specFHi()/SPEC_FLO))*specH;}
+  function sizeSpec(){
+    specW=Math.max(1,Math.round((GW-PADR)-PADL));
+    specH=Math.max(1,Math.round(GH));
+    spec.width=specW;spec.height=specH;sx.clearRect(0,0,specW,specH);specTrace.length=0;
+    var nb=analyser?analyser.frequencyBinCount:1024,binHz=(SR/2)/nb;
+    binForY=new Int16Array(specH);
+    for(var y=0;y<specH;y++){var b=Math.round(specFreqForY(y)/binHz);
+      binForY[y]=b<0?0:(b>=nb?nb-1:b);}
+  }
+  // inferno-ish colour lookup (dark→purple→red→orange→yellow), built once
+  var SPECLUT=(function(){
+    var st=[[0,4,4],[27,12,65],[74,12,107],[120,28,109],[165,44,96],
+            [207,68,70],[237,105,37],[251,155,6],[252,255,164]],lut=new Array(256);
+    for(var i=0;i<256;i++){var p=i/255*(st.length-1),k=Math.floor(p),f=p-k,
+      a=st[k],b=st[Math.min(st.length-1,k+1)];
+      lut[i]="rgb("+Math.round(a[0]+(b[0]-a[0])*f)+","+Math.round(a[1]+(b[1]-a[1])*f)+","+
+        Math.round(a[2]+(b[2]-a[2])*f)+")";}
+    return lut;
+  })();
+  function pushSpecColumn(){
+    if(!analyser||!freqBuf||!binForY)return;
+    analyser.getFloatFrequencyData(freqBuf);
+    sx.globalCompositeOperation="copy";sx.drawImage(spec,-SPEC_SCROLL,0);sx.globalCompositeOperation="source-over";
+    var x=specW-SPEC_SCROLL,rng=SPEC_MAXDB-SPEC_MINDB;
+    for(var y=0;y<specH;y++){
+      var t=(freqBuf[binForY[y]]-SPEC_MINDB)/rng; if(t<0)t=0;else if(t>1)t=1;
+      sx.fillStyle=SPECLUT[(t*255)|0];sx.fillRect(x,y,SPEC_SCROLL,1);
+    }
+    // record this column's pitch so the trace scrolls in lock-step with the image.
+    // hysteresis on aperiodicity: solid below .18, dotted above .30, hold between.
+    var pm=(smoothM!=null&&isFinite(smoothM))?smoothM:null;
+    if(pm==null)specConfState=false;
+    else if(detAperiodic<0.18)specConfState=true;
+    else if(detAperiodic>0.30)specConfState=false;
+    specTrace.push({m:pm,c:specConfState});
+    var maxc=Math.ceil(specW/SPEC_SCROLL)+2; while(specTrace.length>maxc)specTrace.shift();
+  }
+  function drawSpectrum(){
+    gx.clearRect(0,0,GW,GH);
+    var fHi=specFHi(),plotR=GW-PADR;
+    gx.drawImage(spec,0,0,specW,specH,PADL,0,plotR-PADL,GH);
+
+    // 2–4 kHz singer's-formant "ring" band
+    if(fHi>=4000){
+      var yr1=specYForFreq(4000),yr2=specYForFreq(2000);
+      gx.fillStyle="rgba(63,224,255,.07)";gx.fillRect(PADL,yr1,plotR-PADL,yr2-yr1);
+      gx.strokeStyle="rgba(63,224,255,.35)";gx.lineWidth=1;
+      gx.beginPath();gx.moveTo(PADL,yr1+.5);gx.lineTo(plotR,yr1+.5);
+      gx.moveTo(PADL,yr2+.5);gx.lineTo(plotR,yr2+.5);gx.stroke();
+      gx.fillStyle="rgba(63,224,255,.75)";gx.font="600 9px ui-monospace,monospace";gx.textAlign="left";
+      gx.fillText("RING 2–4k",PADL+4,yr1+9);
+    }
+
+    // octave (C) lines + note labels on the fixed axis
+    gx.font="11px ui-monospace,monospace";gx.textBaseline="middle";
+    var mLo=Math.ceil(midiFromHz(SPEC_FLO)),mHi=Math.floor(midiFromHz(fHi));
+    for(var m=mLo;m<=mHi;m++){
+      if(pc(m)!==0)continue;
+      var y=specYForFreq(hzFromMidi(m)),nn=noteName(m);
+      gx.strokeStyle="rgba(120,140,160,.16)";gx.lineWidth=1;
+      gx.beginPath();gx.moveTo(PADL,y+.5);gx.lineTo(plotR,y+.5);gx.stroke();
+      gx.fillStyle="#6b7680";gx.textAlign="left";gx.fillText(nn.name+nn.oct,4,y);
+      gx.textAlign="right";gx.fillText(nn.name+nn.oct,GW-4,y);
+    }
+
+    // harmonic guides for the CURRENT note: short overtone lines near the live
+    // edge (2f, 3f …) with labels. The fundamental is shown by the pitch trace.
+    if(S.harmonics&&smoothM!=null){
+      var f0=hzFromMidi(smoothM),gStart=plotR-(plotR-PADL)*0.33;
+      for(var k=1;k<=10;k++){
+        var fk=f0*k; if(fk<SPEC_FLO)continue; if(fk>fHi)break;
+        var yk=specYForFreq(fk);
+        if(k>1){gx.strokeStyle="rgba(255,225,0,.30)";gx.lineWidth=1;gx.setLineDash([3,4]);
+          gx.beginPath();gx.moveTo(gStart,yk+.5);gx.lineTo(plotR,yk+.5);gx.stroke();gx.setLineDash([]);
+          gx.fillStyle="rgba(255,225,0,.65)";gx.beginPath();gx.arc(plotR-3,yk,2.2,0,7);gx.fill();}
+        if(k<=6){gx.font="600 9px ui-monospace,monospace";gx.textAlign="right";
+          gx.fillStyle=(k===1)?SPEC_PITCH:"rgba(255,225,0,.75)";
+          gx.fillText(k===1?"f₀":(k+"f"),plotR-8,yk-6);}
+      }
+    }
+    // the sung pitch contour drawn over the spectrogram (dotted where unsure)
+    drawPitchTrace(plotR);
+    gx.textAlign="left";
+  }
+
+  // the melody line the singer is actually producing, scrolling in lock-step with
+  // the spectrogram (same per-frame column pitch). Solid where the detector was
+  // confident, dotted where it was unsure — so a guessed pitch never looks certain.
+  function drawPitchTrace(plotR){
+    var n=specTrace.length; if(n<2)return;
+    gx.lineJoin="round";gx.lineCap="round";gx.strokeStyle=SPEC_PITCH;
+    var i=0;
+    while(i<n){
+      if(specTrace[i].m==null){i++;continue;}
+      var conf=specTrace[i].c,j=i,pts=[];
+      while(j<n&&specTrace[j].m!=null&&specTrace[j].c===conf){
+        var x=plotR-(n-1-j)*SPEC_SCROLL;
+        if(x>=PADL){pts.push(x);pts.push(specYForFreq(hzFromMidi(specTrace[j].m)));}
+        j++;
+      }
+      if(pts.length>=4){
+        // solid + thick when confident; thinner dotted when unsure
+        gx.lineWidth=conf?4:3;gx.setLineDash(conf?[]:[2,6]);gx.globalAlpha=conf?1:0.92;
+        gx.beginPath();gx.moveTo(pts[0],pts[1]);
+        for(var p=2;p<pts.length;p+=2)gx.lineTo(pts[p],pts[p+1]);
+        gx.stroke();
+      }
+      i=j;
+    }
+    gx.setLineDash([]);gx.globalAlpha=1;
+    if(smoothM!=null){gx.fillStyle=SPEC_PITCH;gx.beginPath();
+      gx.arc(plotR-3,specYForFreq(hzFromMidi(smoothM)),4.5,0,7);gx.fill();}
+  }
 
   var PADL=34,PADR=36; // note-label gutters (left + right); the plot lives between
   function vRange(){
@@ -396,7 +541,13 @@
       if(S.auto&&m!=null&&isFinite(m)){viewCenter+=(m-viewCenter)*0.08;}
     }
     if(playing)stepPlayback(now);
-    drawGrid();drawTuner();updateReadout();
+    if(S.view==="spectrum"){
+      if(running&&!heldFreeze&&!playing)pushSpecColumn();
+      drawSpectrum();
+    }else{
+      drawGrid();
+    }
+    drawTuner();updateReadout();
     requestAnimationFrame(loop);
   }
 
@@ -464,6 +615,11 @@
   // ---------------------------------------------------------------- UI wiring
   function setHold(on){heldFreeze=on;$("#holdBtn").classList.toggle("on",on);}
   $("#holdBtn").addEventListener("click",function(){setHold(!heldFreeze);});
+
+  function applyView(){var on=S.view==="spectrum";$("#viewBtn").classList.toggle("on",on);
+    if(on){sizeSpec();}}
+  $("#viewBtn").addEventListener("click",function(){
+    S.view=(S.view==="spectrum")?"pitch":"spectrum";save();applyView();});
   $("#stopBtn").addEventListener("click",function(){stopRecording();stopPlayback();setHold(false);});
   $("#recBtn").addEventListener("click",function(){
     if(recording){stopRecording();}else{stopPlayback();startRecording();}
@@ -494,6 +650,7 @@
   bindChk("#cAuto","auto");
   bindChk("#cHz","hz");
   bindChk("#cTuner","tuner",function(){applyTunerVis();});
+  bindChk("#cHarm","harmonics");
   $("#cPitch").addEventListener("input",function(){S.pitchColor=this.value;save();});
 
   // scale dropdown
@@ -514,7 +671,8 @@
     $("#selScale").value=S.scale;$("#scaleTag").textContent=S.scale;
     $("#cSemis").checked=S.semis;$("#cLabels").checked=S.labels;$("#cAuto").checked=S.auto;
     $("#cHz").checked=S.hz;$("#cTuner").checked=S.tuner;$("#cPitch").value=S.pitchColor;
-    applyTunerVis();
+    $("#cHarm").checked=S.harmonics;
+    applyTunerVis();applyView();
   }
 
   // ---------------------------------------------------------------- boot

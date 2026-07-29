@@ -59,22 +59,35 @@ since last month, keep doing X" narrative yet — `tools/progress_report.py` has
 the trend data but nothing turns it into coaching.
 
 ### 4. Real time — pitch, spectrum, harmonics live
-**Partly built.** `pitchmonitor/` does real-time pitch: YIN detection (chosen
-because plain autocorrelation locked onto 1633 Hz for a 110 Hz note), verified
-82–1046 Hz to within 0.4 cents, with note labels on both axes.
+**Partly built — real-time pitch AND live spectrum/harmonics now in the monitor.**
+`pitchmonitor/` does real-time pitch: YIN detection (chosen because plain
+autocorrelation locked onto 1633 Hz for a 110 Hz note), verified 82–1046 Hz to
+within 0.4 cents, with note labels on both axes.
 
-*Gap — this is the biggest hole in the stated goal.* The `AnalyserNode` is used
-only for the time-domain buffer YIN reads. **There is no live spectrum display
-and no live harmonic display.** Both are named in the goal and neither exists.
-Also missing: metronome, tempo/beat lines, transpose, PWA install.
+*Live spectrum + harmonic display — built (28 Jul).* A **SPEC** toggle in the
+monitor switches the stage to a scrolling spectrogram on a fixed log-frequency
+axis (55 Hz–8 kHz), loudness as colour. The detected pitch is drawn as a solid
+f₀ line with its overtones (2f, 3f … 10f) marked, and the 2–4 kHz singer's
+"ring" band is highlighted — so the harmonics are read against where they sit,
+not eyeballed. The FFT was already running for YIN (`getFloatFrequencyData` on
+the same `AnalyserNode`, bumped to 4096 for finer lines while YIN keeps a 2048
+slice), so this was drawing, not new signal work.
 
-*Planned — spectrogram / harmonic display (28 Jul).* A scrolling spectrogram
-(frequency up, time across, loudness as colour) like the CVT-style analyser
-Aaron uses, in **both** places it is wanted:
+*Full-take render — first version built (28 Jul).*
+`tools/render_take_spectrogram.py` draws a whole take as one image in the same
+style (inferno spectrogram, log axis with note lines, ring band) with the sung
+pitch overlaid in green — solid where the pitch is a steady held note, dotted
+where it is jumpy/uncertain. It is a CLI renderer, not yet wired into the
+analyser deck; that UI integration is the remaining piece.
 
-- **Live, in the monitor** — the FFT already runs (the `AnalyserNode` above); it
-  only feeds the pitch detector. Calling `getFloatFrequencyData` and drawing it
-  is a front-end job, no new signal work.
+*Gap:* still missing: metronome, tempo/beat lines, transpose, PWA install, a
+live metallic-index readout beside the picture, and folding the full-take render
+above into the standalone analyser UI.
+
+*Planned — the same spectrogram inside the standalone analyser UI.* The scrolling
+spectrogram is live in the monitor and the full-take still image exists as a CLI
+tool; the remaining work is drawing it in the deck:
+
 - **After a take, in the standalone analyser** — the frame layer already computes
   the same data (`alpha_ratio`, `sfr_2_4k`, the H1–H8 harmonic tracks, §2 of
   `docs/plans/STANDALONE_SONG_ANALYSIS_PLAN.md`). It comes out as numbers today;
@@ -157,10 +170,10 @@ Not "most features". Three things, in order:
 
 ## Nearest-term work, ordered by distance from the goal
 
-1. **Live spectrum + harmonics in the monitor** — named in the goal, absent in
-   the code. Closest gap to close. The FFT already runs; this is drawing, not
-   new signal work (see pillar 4). Draw the same view in the standalone
-   analyser once its frame layer lands.
+1. ~~**Live spectrum + harmonics in the monitor**~~ — **done (28 Jul).** SPEC
+   toggle draws a scrolling spectrogram with f₀ + overtone overlay and the
+   2–4 kHz ring band (see pillar 4). Still to draw: the same view in the
+   standalone analyser once its frame layer lands.
 2. **KB retrieval + ask interface** — the content is done, the product is not.
 3. **Auth and per-user isolation** — the gate on public testing.
 4. **Fix the vocoder on the deployed host**, then re-render Pressure-Down-Cook.
