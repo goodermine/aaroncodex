@@ -329,7 +329,7 @@ class PitchMathTests(unittest.TestCase):
                 Path(command[-1]).parent.mkdir(parents=True, exist_ok=True)
                 Path(command[-1]).touch()
 
-            def write_fixed_v2(_wav_path, target_job_dir, _performer_name):
+            def write_fixed_v2(_wav_path, target_job_dir, _performer_name, **_kw):
                 analysis_path = target_job_dir / "v2" / "output" / "fixed-take_analysis.json"
                 report_path = target_job_dir / "v2" / "reports" / "fixed-take_report.md"
                 analysis_path.parent.mkdir(parents=True, exist_ok=True)

@@ -3752,6 +3752,13 @@ def main():
         help="Path to stem separation helper script (relative to repo or absolute).",
     )
     parser.add_argument(
+        "--instrumental",
+        default=None,
+        help="Path to a vocal-free backing/instrumental track. Feeds the groove/"
+             "timing diagnostic directly (no self-separation), for the "
+             "supply-your-own-backing flow. Never affects the scored components.",
+    )
+    parser.add_argument(
         "--formant-ceiling",
         type=float,
         default=5500.0,
@@ -3790,6 +3797,17 @@ def main():
 
     analysis_input_path = args.input_file
     stem_metadata = None
+
+    # Supply-your-own-backing: the caller already has a vocal-free instrumental
+    # (e.g. a dry-vocal home take + its karaoke track), so we skip separation and
+    # point the groove/timing diagnostic straight at it. Groove is NOT one of the
+    # scored components, so this can never move the /10.
+    if args.instrumental and not args.separate_stems:
+        if os.path.exists(args.instrumental):
+            stem_metadata = {"instrumental_path": args.instrumental,
+                             "source": "supplied_backing"}
+        else:
+            print(f"  Supplied instrumental not found, groove skipped: {args.instrumental}")
 
     # Stage 0: Optional stem separation
     if args.separate_stems:
@@ -3860,11 +3878,17 @@ def main():
         results["onsets"] = analyse_onsets(raw_f0, sr)
         results["harmonics"] = analyse_harmonics(y, sr, raw_f0)
         if stem_metadata and stem_metadata.get("instrumental_path"):
-            results["groove"] = analyse_groove(
-                y, sr,
-                stem_metadata["instrumental_path"],
-                mix_path=stem_metadata.get("original_mix_path"),
-            )
+            # Groove is a DIAGNOSTIC, not a scored component — it must never be
+            # able to break a scored analysis. Any failure degrades to an error
+            # note, exactly as an absent instrumental already does.
+            try:
+                results["groove"] = analyse_groove(
+                    y, sr,
+                    stem_metadata["instrumental_path"],
+                    mix_path=stem_metadata.get("original_mix_path"),
+                )
+            except Exception as groove_error:
+                results["groove"] = {"error": f"groove diagnostic failed: {groove_error}"}
         results["time_diagnostics"] = analyse_time_diagnostics(
             y,
             sr,

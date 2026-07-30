@@ -18,7 +18,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from fastapi import FastAPI, Form, HTTPException, Query, Request, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 
 HERE = Path(__file__).resolve().parent
@@ -232,6 +232,8 @@ def _process(job_id: str) -> None:
         ]
         if not manifest.get("comparison_enabled", True):
             command.append("--skip-comparison")
+        if manifest.get("backing_file"):
+            command += ["--backing", str(job_dir / manifest["backing_file"])]
         # Run the tracker in its own process group so a timeout can kill the whole
         # tree (audio-separator/ffmpeg grandchildren used to survive as GPU-eating
         # orphans). The timeout is handled locally: TimeoutExpired.stdout is *bytes*
@@ -451,6 +453,7 @@ async def create_job(
     take_intent: str = Form(""),
     take_capture: str = Form(""),
     take_note: str = Form(""),
+    backing: UploadFile | None = File(None),
 ) -> dict:
     _cleanup()
     active_jobs = 0
@@ -521,6 +524,17 @@ async def create_job(
         take_context = _sanitise_take_context(take_intent, take_capture, take_note)
         if take_context:
             manifest["take_context"] = take_context
+        # Supply-your-own-backing (optional): a vocal-free track that lets the
+        # groove/timing diagnostic run without separating the (already dry) vocal.
+        if backing is not None and backing.filename:
+            b_suffix = Path(backing.filename).suffix.lower()
+            if b_suffix not in ALLOWED_EXTENSIONS:
+                raise HTTPException(415, {"code": "unsupported_media", "detail": "backing"})
+            backing_name = f"backing{b_suffix}"
+            with (job_dir / backing_name).open("wb") as bd:
+                while bchunk := await backing.read(1024 * 1024):
+                    bd.write(bchunk)
+            manifest["backing_file"] = backing_name
         _write_manifest(job_dir, manifest)
         executor.submit(_process, job_id)
         return {"id": job_id, "status": "queued", "status_url": f"/api/pitch-jobs/{job_id}"}
