@@ -69,6 +69,7 @@ def _lead(ts: dict, analysis: dict):
 
 def collect(singer_filter: str | None):
     rows = []
+    superseded_count = {}
     for p in sorted(glob.glob(os.path.join(ARCHIVE, "*_analysis.json"))):
         name = os.path.basename(p).replace("_analysis.json", "")
         singer = _singer(name)
@@ -78,17 +79,21 @@ def collect(singer_filter: str | None):
             d = json.load(open(p))
         except (OSError, json.JSONDecodeError):
             continue
+        ctx = read_context(d)
+        # Retired duplicates are kept on disk but never ranked or averaged.
+        if ctx["superseded"]:
+            superseded_count[singer] = superseded_count.get(singer, 0) + 1
+            continue
         ts = d.get("technical_score", {})
         lead, which, ov, cf = _lead(ts, d)
         if lead is None:
             continue
-        ctx = read_context(d)
         rows.append({
             "singer": singer, "song": _song(name, singer), "name": name,
             "lead": lead, "which": which, "overall": ov, "capture_fair": cf,
             "intent": ctx["intent"], "milestone": ctx["milestone"], "note": ctx["note"],
         })
-    return rows
+    return rows, superseded_count
 
 
 def _print_block(title: str, rows: list, best_of: bool):
@@ -118,7 +123,7 @@ def main() -> int:
     ap.add_argument("singer", nargs="?", help="aaron / aaron-g / rilda / chris / leo")
     ap.add_argument("--best-of", action="store_true", help="one row per song (its best take)")
     a = ap.parse_args()
-    rows = collect(a.singer)
+    rows, superseded = collect(a.singer)
     if not rows:
         print("no takes found")
         return 1
@@ -132,6 +137,9 @@ def main() -> int:
         _print_block("Performance", perf, a.best_of)
         if learn:
             _print_block("Learning / warm-up (not ranked against performance)", learn, False)
+        retired = superseded.get(singer, 0)
+        if retired:
+            print(f"\n  ({retired} retired duplicate take(s) kept on disk but not ranked)")
     return 0
 
 
