@@ -137,7 +137,7 @@
   // (stale keys here made the chain snap back to "Upload / 0%" mid-run).
   var VIEWER_STAGE_KEY = {
     queued: "upload",
-    separating_vocals: "isolate", preparing_audio: "isolate",
+    separating_vocals: "isolate", using_supplied_backing: "isolate", preparing_audio: "isolate",
     tracking_pitch: "pitch",
     running_v2_analysis: "analysis",
     finding_original: "match", analysing_original: "match",

@@ -185,7 +185,8 @@ def _unlink_temporary_audio(path: Path) -> None:
         pass
 
 
-def run_v2_analysis(wav_path: Path, job_dir: Path, performer_name: str) -> tuple[str, str]:
+def run_v2_analysis(wav_path: Path, job_dir: Path, performer_name: str,
+                    instrumental_path: Path | None = None) -> tuple[str, str]:
     """Run the shared calibrated VOXAI analysis in an isolated job."""
     if not SHARED_ANALYZER.is_file() or not V2_CALIBRATION.is_file():
         raise PitchTrackError("v2_analysis_failed: shared VOXAI engine or calibration is unavailable")
@@ -201,6 +202,10 @@ def run_v2_analysis(wav_path: Path, job_dir: Path, performer_name: str) -> tuple
         "--calibration",
         str(V2_CALIBRATION),
     ]
+    # Feed the groove/timing diagnostic a vocal-free grid. Diagnostic only —
+    # never touches the scored components.
+    if instrumental_path is not None:
+        command += ["--instrumental", str(Path(instrumental_path).resolve())]
     try:
         result = subprocess.run(
             command,
@@ -654,12 +659,22 @@ def analyze(
     comparison_enabled: bool = True,
     export_spectral_enabled: bool = False,
     analysis_deadline: float | None = None,
+    backing_path: Path | None = None,
 ) -> dict:
     job_dir.mkdir(parents=True, exist_ok=True)
     duration = probe_duration(input_path)
     wav_path = job_dir / "analysis.wav"
-    _write_stage(stage_file, "separating_vocals")
-    vocals_path, instrumental_path = separate_stems(input_path, job_dir)
+    if backing_path is not None:
+        # Supply-your-own-backing: the upload IS a clean dry vocal and the caller
+        # provided a vocal-free backing. Skip separation entirely — pristine
+        # vocal onsets + a real beat grid, the groove scorer's ideal input.
+        _write_stage(stage_file, "using_supplied_backing")
+        vocals_path, instrumental_path = input_path, backing_path
+        supplied_backing = True
+    else:
+        _write_stage(stage_file, "separating_vocals")
+        vocals_path, instrumental_path = separate_stems(input_path, job_dir)
+        supplied_backing = False
     _write_stage(stage_file, "preparing_audio")
     vocal_playback = job_dir / "vocals.mp3"
     instrumental_playback = job_dir / "instrumental.mp3"
@@ -669,10 +684,13 @@ def analyze(
     _write_stage(stage_file, "tracking_pitch")
     result = analyze_wav(wav_path, duration)
     _write_stage(stage_file, "running_v2_analysis")
-    v2_analysis_file, v2_report_file = run_v2_analysis(wav_path, job_dir, performer_name)
+    v2_analysis_file, v2_report_file = run_v2_analysis(
+        wav_path, job_dir, performer_name, instrumental_path=instrumental_path)
     original_spectral_input = None
     pending_original_spectral_input = None
-    result["stem_separation"] = {"enabled": True, "model": "UVR_MDXNET_Main"}
+    result["stem_separation"] = ({"enabled": False, "model": None, "source": "supplied_backing"}
+                                 if supplied_backing else
+                                 {"enabled": True, "model": "UVR_MDXNET_Main"})
     result["audio_files"] = {"vocals": vocal_playback.name, "instrumental": instrumental_playback.name}
     result["v2_analysis_file"] = v2_analysis_file
     result["v2_report_file"] = v2_report_file
@@ -779,6 +797,9 @@ def main() -> int:
     parser.add_argument("--conditions", default="")
     parser.add_argument("--stage-file", type=Path)
     parser.add_argument("--skip-comparison", action="store_true")
+    parser.add_argument("--backing", type=Path, default=None,
+                        help="Vocal-free backing track. Skips separation: the input "
+                             "is treated as a clean dry vocal, this as the beat grid.")
     parser.add_argument("--export-spectral", action="store_true")
     parser.add_argument("--analysis-deadline-monotonic", type=float)
     args = parser.parse_args()
@@ -793,6 +814,7 @@ def main() -> int:
             stage_file=args.stage_file.resolve() if args.stage_file else None,
             comparison_enabled=not args.skip_comparison,
             export_spectral_enabled=args.export_spectral,
+            backing_path=args.backing.resolve() if args.backing else None,
             analysis_deadline=args.analysis_deadline_monotonic,
         )
     except PitchTrackError as exc:

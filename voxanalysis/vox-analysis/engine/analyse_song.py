@@ -3752,6 +3752,13 @@ def main():
         help="Path to stem separation helper script (relative to repo or absolute).",
     )
     parser.add_argument(
+        "--instrumental",
+        default=None,
+        help="Path to a vocal-free backing/instrumental track. Feeds the groove/"
+             "timing diagnostic directly (no self-separation), for the "
+             "supply-your-own-backing flow. Never affects the scored components.",
+    )
+    parser.add_argument(
         "--formant-ceiling",
         type=float,
         default=5500.0,
@@ -3790,6 +3797,17 @@ def main():
 
     analysis_input_path = args.input_file
     stem_metadata = None
+
+    # Supply-your-own-backing: the caller already has a vocal-free instrumental
+    # (e.g. a dry-vocal home take + its karaoke track), so we skip separation and
+    # point the groove/timing diagnostic straight at it. Groove is NOT one of the
+    # scored components, so this can never move the /10.
+    if args.instrumental and not args.separate_stems:
+        if os.path.exists(args.instrumental):
+            stem_metadata = {"instrumental_path": args.instrumental,
+                             "source": "supplied_backing"}
+        else:
+            print(f"  Supplied instrumental not found, groove skipped: {args.instrumental}")
 
     # Stage 0: Optional stem separation
     if args.separate_stems:
