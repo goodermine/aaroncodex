@@ -3878,11 +3878,17 @@ def main():
         results["onsets"] = analyse_onsets(raw_f0, sr)
         results["harmonics"] = analyse_harmonics(y, sr, raw_f0)
         if stem_metadata and stem_metadata.get("instrumental_path"):
-            results["groove"] = analyse_groove(
-                y, sr,
-                stem_metadata["instrumental_path"],
-                mix_path=stem_metadata.get("original_mix_path"),
-            )
+            # Groove is a DIAGNOSTIC, not a scored component — it must never be
+            # able to break a scored analysis. Any failure degrades to an error
+            # note, exactly as an absent instrumental already does.
+            try:
+                results["groove"] = analyse_groove(
+                    y, sr,
+                    stem_metadata["instrumental_path"],
+                    mix_path=stem_metadata.get("original_mix_path"),
+                )
+            except Exception as groove_error:
+                results["groove"] = {"error": f"groove diagnostic failed: {groove_error}"}
         results["time_diagnostics"] = analyse_time_diagnostics(
             y,
             sr,
