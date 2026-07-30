@@ -6,9 +6,9 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 ## Singer takes
 
-Overall: min 6.1 · max 9.2 · mean 7.77. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 6.1 · max 9.2 · mean 7.76. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 138/138 takes.
+Full coverage: 139/139 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -118,6 +118,7 @@ Full coverage: 138/138 takes.
 | aaron | hammer-to-the-heart-take-001 | 229 | **8.5** | 8.2 | high | 10.0 | 6.62 | 10.0 | 9.22 | 8.14 | 10.0 | 3.05 |
 | aaron | reasons-take-001 | 182 | **8.0** | 7.5 | high | 10.0 | 4.45 | 10.0 | 9.56 | 8.11 | 6.3 | 3.6 |
 | aaron | two-strong-hearts-take-001 | 227 | **7.8** | 7.2 | high | 6.0 | 5.87 | 8.9 | 8.52 | 9.61 | 10.0 | 7.35 |
+| aaron | my-babe-take-001 | 120 | **7.4** | 7.0 | high | 8.0 | 5.15 | 8.96 | 8.91 | 7.67 | 5.55 | 5.87 |
 | aaron | pressure-down-take-001 | 160 | **7.3** | 6.7 | high | 6.0 | 5.35 | 9.11 | 9.51 | 7.97 | 5.48 | 7.8 |
 | aaron-g | 1973-take-001 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind-take-001 | 201 | **8.5** | 7.8 | high | 6.0 | 7.39 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |

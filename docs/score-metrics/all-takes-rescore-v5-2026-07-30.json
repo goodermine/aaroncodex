@@ -9,17 +9,17 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 138,
+      "n": 139,
       "overall": {
         "min": 6.1,
         "max": 9.2,
-        "mean": 7.77,
+        "mean": 7.76,
         "spread": 3.1
       },
       "capture_fair": {
         "min": 4.5,
         "max": 9.7,
-        "mean": 7.66,
+        "mean": 7.65,
         "spread": 5.2
       },
       "dynamics": {
@@ -3748,6 +3748,41 @@
         "dyn_phrase_spread_db": 53.04,
         "dyn_effective_range_db": 28.18,
         "median_phrase_s": 6.19
+      }
+    },
+    {
+      "take": "2026-07-30-aaron-my-babe-take-001",
+      "singer": "aaron",
+      "song": "my-babe-take-001",
+      "date": "2026-07-30",
+      "n_notes": 120,
+      "prior_score_status": "current",
+      "overall": 7.4,
+      "capture_fair": 7.0,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 8.0,
+        "pitch_stability": 5.15,
+        "voice_quality": 8.96,
+        "vibrato_control": 8.91,
+        "dynamics_expression": 7.67,
+        "phrase_control": 5.55,
+        "breath_support": 5.87
+      },
+      "raw": {
+        "median_abs_dev_cents": 25.0,
+        "median_intra_note_drift_cents": 51.3,
+        "pct_within_25c": 50.0,
+        "jitter_pct": 0.6769,
+        "shimmer_pct": 3.6868,
+        "hnr_db": 22.6,
+        "vibrato_pct_notes": 29.3,
+        "dyn_phrase_spread_db": 40.39,
+        "dyn_effective_range_db": 41.27,
+        "median_phrase_s": 2.33
       }
     },
     {
