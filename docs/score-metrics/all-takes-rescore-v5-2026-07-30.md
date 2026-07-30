@@ -8,7 +8,7 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 Overall: min 6.1 · max 9.2 · mean 7.79. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 141/141 takes.
+Full coverage: 142/142 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -118,6 +118,7 @@ Full coverage: 141/141 takes.
 | aaron | hammer-to-the-heart-take-001 | 229 | **8.5** | 8.2 | high | 10.0 | 6.62 | 10.0 | 9.22 | 8.14 | 10.0 | 3.05 |
 | aaron | reasons-take-001 | 182 | **8.0** | 7.5 | high | 10.0 | 4.45 | 10.0 | 9.56 | 8.11 | 6.3 | 3.6 |
 | aaron | two-strong-hearts-take-001 | 227 | **7.8** | 7.2 | high | 6.0 | 5.87 | 8.9 | 8.52 | 9.61 | 10.0 | 7.35 |
+| aaron | and-rilda-burning-down-the-house-take-001 | 198 | **8.0** | 8.2 | high | 9.0 | 5.69 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron | kung-fu-fighting-take-001 | 207 | **8.8** | 9.0 | high | 10.0 | 6.89 | 8.05 | 10.0 | 8.78 | 9.67 | 7.28 |
 | aaron | reasons-take-001 | 196 | **7.7** | 7.2 | high | 6.0 | 5.72 | 9.84 | 9.95 | 7.87 | 7.64 | 7.55 |
 | aaron | you-sexy-thing-take-001 | 186 | **8.5** | 8.2 | high | 7.0 | 9.43 | 9.4 | 9.1 | 9.01 | 7.39 | 8.45 |
