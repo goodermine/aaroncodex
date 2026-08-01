@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 148,
+      "n": 149,
       "overall": {
         "min": 6.1,
         "max": 9.2,
@@ -5218,6 +5218,41 @@
         "dyn_phrase_spread_db": 38.27,
         "dyn_effective_range_db": 30.78,
         "median_phrase_s": 2.76
+      }
+    },
+    {
+      "take": "2026-08-01-rilda-smile-take-001",
+      "singer": "rilda",
+      "song": "smile-take-001",
+      "date": "2026-08-01",
+      "n_notes": 104,
+      "prior_score_status": "current",
+      "overall": 8.5,
+      "capture_fair": 7.9,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 10.0,
+        "vibrato_control": 9.88,
+        "dynamics_expression": 9.24,
+        "phrase_control": 9.73,
+        "breath_support": 10.0
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 110.0,
+        "pct_within_25c": 53.8,
+        "jitter_pct": 0.3887,
+        "shimmer_pct": 2.8566,
+        "hnr_db": 24.9,
+        "vibrato_pct_notes": 62.3,
+        "dyn_phrase_spread_db": 8.02,
+        "dyn_effective_range_db": 29.33,
+        "median_phrase_s": 3.71
       }
     }
   ],
