@@ -8,7 +8,7 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 Overall: min 6.1 · max 9.2 · mean 7.8. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 149/149 takes.
+Full coverage: 150/150 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -159,6 +159,7 @@ Full coverage: 149/149 takes.
 | rilda | bring-me-some-water-take-001 | 192 | **8.7** | 8.1 | high | 10.0 | 6.13 | 10.0 | 9.71 | 9.74 | 7.15 | 5.04 |
 | rilda | ex-s-oh-s-take-001 | 204 | **8.5** | 8.2 | high | 10.0 | 4.72 | 10.0 | 9.98 | 8.07 | 10.0 | 4.41 |
 | rilda | who-s-that-girl-take-001 | 215 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.65 | 10.0 | 8.82 |
+| rilda | crazy-take-001 | 125 | **7.8** | 7.0 | high | 8.0 | 0.0 | 10.0 | 9.94 | 9.09 | 10.0 | 7.51 |
 | rilda | love-will-keep-us-together-take-001 | 216 | **8.9** | 9.3 | high | 10.0 | 10.0 | 7.29 | 10.0 | 8.77 | 6.85 | 8.1 |
 | rilda | smile-take-001 | 104 | **8.5** | 7.9 | high | 10.0 | 0.0 | 10.0 | 9.88 | 9.24 | 9.73 | 10.0 |
 
