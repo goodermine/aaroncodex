@@ -9,17 +9,17 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 152,
+      "n": 154,
       "overall": {
         "min": 6.1,
         "max": 9.2,
-        "mean": 7.8,
+        "mean": 7.81,
         "spread": 3.1
       },
       "capture_fair": {
         "min": 4.5,
         "max": 9.7,
-        "mean": 7.67,
+        "mean": 7.68,
         "spread": 5.2
       },
       "dynamics": {
@@ -4101,6 +4101,41 @@
       }
     },
     {
+      "take": "2026-08-01-aaron-kung-fu-fighting-take-003",
+      "singer": "aaron",
+      "song": "kung-fu-fighting-take-003",
+      "date": "2026-08-01",
+      "n_notes": 188,
+      "prior_score_status": "current",
+      "overall": 8.5,
+      "capture_fair": 7.9,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 5.22,
+        "voice_quality": 10.0,
+        "vibrato_control": 9.14,
+        "dynamics_expression": 9.48,
+        "phrase_control": 9.0,
+        "breath_support": 3.4
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 50.9,
+        "pct_within_25c": 53.2,
+        "jitter_pct": 0.6988,
+        "shimmer_pct": 6.1646,
+        "hnr_db": 18.65,
+        "vibrato_pct_notes": 29.8,
+        "dyn_phrase_spread_db": 19.58,
+        "dyn_effective_range_db": 33.57,
+        "median_phrase_s": 3.47
+      }
+    },
+    {
       "take": "2026-08-01-aaron-pressure-down-take-009",
       "singer": "aaron",
       "song": "pressure-down-take-009",
@@ -5288,6 +5323,41 @@
         "dyn_phrase_spread_db": 38.27,
         "dyn_effective_range_db": 30.78,
         "median_phrase_s": 2.76
+      }
+    },
+    {
+      "take": "2026-07-31-rilda-at-last-take-001",
+      "singer": "rilda",
+      "song": "at-last-take-001",
+      "date": "2026-07-31",
+      "n_notes": 114,
+      "prior_score_status": "current",
+      "overall": 8.3,
+      "capture_fair": 7.8,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 10.0,
+        "vibrato_control": 9.84,
+        "dynamics_expression": 8.42,
+        "phrase_control": 10.0,
+        "breath_support": 8.66
+      },
+      "raw": {
+        "median_abs_dev_cents": 15.0,
+        "median_intra_note_drift_cents": 98.6,
+        "pct_within_25c": 62.3,
+        "jitter_pct": 0.4294,
+        "shimmer_pct": 4.4294,
+        "hnr_db": 21.49,
+        "vibrato_pct_notes": 60.3,
+        "dyn_phrase_spread_db": 14.96,
+        "dyn_effective_range_db": 18.87,
+        "median_phrase_s": 6.07
       }
     },
     {
