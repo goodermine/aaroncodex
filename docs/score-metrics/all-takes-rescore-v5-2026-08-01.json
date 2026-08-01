@@ -9,11 +9,11 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 163,
+      "n": 164,
       "overall": {
         "min": 6.1,
         "max": 9.2,
-        "mean": 7.81,
+        "mean": 7.82,
         "spread": 3.1
       },
       "capture_fair": {
@@ -40,6 +40,41 @@
     }
   },
   "takes": [
+    {
+      "take": "2019-12-31-aaron-3am-take-001",
+      "singer": "aaron",
+      "song": "3am-take-001",
+      "date": "2019-12-31",
+      "n_notes": 153,
+      "prior_score_status": "current",
+      "overall": 8.9,
+      "capture_fair": 8.4,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 2.31,
+        "voice_quality": 9.96,
+        "vibrato_control": 9.88,
+        "dynamics_expression": 9.48,
+        "phrase_control": 10.0,
+        "breath_support": 10.0
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 67.1,
+        "pct_within_25c": 56.2,
+        "jitter_pct": 0.8804,
+        "shimmer_pct": 6.3797,
+        "hnr_db": 22.61,
+        "vibrato_pct_notes": 42.4,
+        "dyn_phrase_spread_db": 25.99,
+        "dyn_effective_range_db": 36.43,
+        "median_phrase_s": 3.84
+      }
+    },
     {
       "take": "2024-08-01-aaron-kryptonite-2yr-take-001",
       "singer": "aaron",
