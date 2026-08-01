@@ -8,7 +8,7 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 Overall: min 6.1 · max 9.2 · mean 7.8. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 150/150 takes.
+Full coverage: 152/152 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -128,6 +128,7 @@ Full coverage: 150/150 takes.
 | aaron | kung-fu-fighting-take-002 | 192 | **8.9** | 9.3 | high | 10.0 | 8.75 | 6.69 | 9.11 | 9.37 | 10.0 | 8.2 |
 | aaron | reasons-take-002 | 200 | **8.3** | 7.9 | high | 7.0 | 8.38 | 8.72 | 9.98 | 9.75 | 7.3 | 6.6 |
 | aaron | you-sexy-thing-take-002 | 199 | **6.9** | 6.7 | high | 8.0 | 3.87 | 6.4 | 8.26 | 8.81 | 6.09 | 5.86 |
+| aaron | pressure-down-take-009 | 188 | **8.5** | 8.0 | high | 6.96 | 8.57 | 10.0 | 9.86 | 8.76 | 6.85 | 8.31 |
 | aaron-g | 1973-take-001 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind-take-001 | 201 | **8.5** | 7.8 | high | 6.0 | 7.39 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
 | aaron-g | vienna-take-001 | 165 | **8.6** | 7.9 | high | 6.0 | 9.02 | 10.0 | 10.0 | 9.81 | 8.97 | 7.05 |
@@ -161,6 +162,7 @@ Full coverage: 150/150 takes.
 | rilda | who-s-that-girl-take-001 | 215 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.65 | 10.0 | 8.82 |
 | rilda | crazy-take-001 | 125 | **7.8** | 7.0 | high | 8.0 | 0.0 | 10.0 | 9.94 | 9.09 | 10.0 | 7.51 |
 | rilda | love-will-keep-us-together-take-001 | 216 | **8.9** | 9.3 | high | 10.0 | 10.0 | 7.29 | 10.0 | 8.77 | 6.85 | 8.1 |
+| rilda | mustang-sally-take-001 | 185 | **7.2** | 6.0 | high | 6.0 | 1.67 | 10.0 | 9.88 | 9.59 | 10.0 | 2.5 |
 | rilda | smile-take-001 | 104 | **8.5** | 7.9 | high | 10.0 | 0.0 | 10.0 | 9.88 | 9.24 | 9.73 | 10.0 |
 
 ## Professional references (calibration sanity check)
