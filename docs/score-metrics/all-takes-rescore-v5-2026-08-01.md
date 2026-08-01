@@ -8,7 +8,7 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 Overall: min 6.1 · max 9.2 · mean 7.81. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 160/160 takes.
+Full coverage: 161/161 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -133,6 +133,7 @@ Full coverage: 160/160 takes.
 | aaron | kung-fu-fighting-take-005 | 197 | **8.8** | 9.4 | high | 10.0 | 8.39 | 6.21 | 9.77 | 9.6 | 8.7 | 9.54 |
 | aaron | pressure-down-take-009 | 188 | **8.5** | 8.0 | high | 6.96 | 8.57 | 10.0 | 9.86 | 8.76 | 6.85 | 8.31 |
 | aaron | pressure-down-take-010 | 164 | **7.6** | 8.1 | high | 9.0 | 7.82 | 4.59 | 8.41 | 9.39 | 5.7 | 7.88 |
+| aaron | reasons-take-003 | 190 | **7.4** | 8.6 | high | 10.0 | 8.63 | 3.5 | 7.95 | 6.4 | 10.0 | 4.92 |
 | aaron-g | 1973-take-001 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind-take-001 | 201 | **8.5** | 7.8 | high | 6.0 | 7.39 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
 | aaron-g | vienna-take-001 | 165 | **8.6** | 7.9 | high | 6.0 | 9.02 | 10.0 | 10.0 | 9.81 | 8.97 | 7.05 |

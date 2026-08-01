@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 160,
+      "n": 161,
       "overall": {
         "min": 6.1,
         "max": 9.2,
@@ -19,13 +19,13 @@
       "capture_fair": {
         "min": 4.5,
         "max": 9.7,
-        "mean": 7.71,
+        "mean": 7.72,
         "spread": 5.2
       },
       "dynamics": {
         "min": 5.6,
         "max": 10.0,
-        "mean": 8.91,
+        "mean": 8.89,
         "spread": 4.4
       }
     },
@@ -4273,6 +4273,41 @@
         "dyn_phrase_spread_db": 18.62,
         "dyn_effective_range_db": 25.23,
         "median_phrase_s": 2.38
+      }
+    },
+    {
+      "take": "2026-08-01-aaron-reasons-take-003",
+      "singer": "aaron",
+      "song": "reasons-take-003",
+      "date": "2026-08-01",
+      "n_notes": 190,
+      "prior_score_status": "current",
+      "overall": 7.4,
+      "capture_fair": 8.6,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 8.63,
+        "voice_quality": 3.5,
+        "vibrato_control": 7.95,
+        "dynamics_expression": 6.4,
+        "phrase_control": 10.0,
+        "breath_support": 4.92
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 31.9,
+        "pct_within_25c": 51.1,
+        "jitter_pct": 1.7982,
+        "shimmer_pct": 17.0169,
+        "hnr_db": 8.7,
+        "vibrato_pct_notes": 26.4,
+        "dyn_phrase_spread_db": 6.0,
+        "dyn_effective_range_db": 15.95,
+        "median_phrase_s": 4.13
       }
     },
     {
