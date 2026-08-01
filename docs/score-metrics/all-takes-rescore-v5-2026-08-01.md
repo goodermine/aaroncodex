@@ -8,7 +8,7 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 Overall: min 6.1 · max 9.2 · mean 7.81. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 158/158 takes.
+Full coverage: 160/160 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -130,6 +130,7 @@ Full coverage: 158/158 takes.
 | aaron | you-sexy-thing-take-002 | 199 | **6.9** | 6.7 | high | 8.0 | 3.87 | 6.4 | 8.26 | 8.81 | 6.09 | 5.86 |
 | aaron | kung-fu-fighting-take-003 | 188 | **8.5** | 7.9 | high | 10.0 | 5.22 | 10.0 | 9.14 | 9.48 | 9.0 | 3.4 |
 | aaron | kung-fu-fighting-take-004 | 187 | **8.5** | 9.1 | high | 10.0 | 8.16 | 6.11 | 9.19 | 8.91 | 9.97 | 7.05 |
+| aaron | kung-fu-fighting-take-005 | 197 | **8.8** | 9.4 | high | 10.0 | 8.39 | 6.21 | 9.77 | 9.6 | 8.7 | 9.54 |
 | aaron | pressure-down-take-009 | 188 | **8.5** | 8.0 | high | 6.96 | 8.57 | 10.0 | 9.86 | 8.76 | 6.85 | 8.31 |
 | aaron | pressure-down-take-010 | 164 | **7.6** | 8.1 | high | 9.0 | 7.82 | 4.59 | 8.41 | 9.39 | 5.7 | 7.88 |
 | aaron-g | 1973-take-001 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
@@ -167,6 +168,7 @@ Full coverage: 158/158 takes.
 | rilda | love-will-keep-us-together-take-001 | 216 | **8.9** | 9.3 | high | 10.0 | 10.0 | 7.29 | 10.0 | 8.77 | 6.85 | 8.1 |
 | rilda | at-last-take-001 | 114 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 9.84 | 8.42 | 10.0 | 8.66 |
 | rilda | mustang-sally-take-001 | 185 | **7.2** | 6.0 | high | 6.0 | 1.67 | 10.0 | 9.88 | 9.59 | 10.0 | 2.5 |
+| rilda | back-to-black-take-001 | 229 | **7.4** | 8.2 | high | 10.0 | 4.32 | 4.8 | 10.0 | 7.29 | 9.79 | 4.9 |
 | rilda | bow-river-take-003 | 236 | **7.8** | 8.5 | high | 10.0 | 8.13 | 4.18 | 9.94 | 9.05 | 4.7 | 6.74 |
 | rilda | flowers-take-003 | 159 | **6.9** | 8.3 | high | 10.0 | 7.35 | 2.72 | 10.0 | 5.75 | 4.48 | 6.46 |
 | rilda | smile-take-001 | 104 | **8.5** | 7.9 | high | 10.0 | 0.0 | 10.0 | 9.88 | 9.24 | 9.73 | 10.0 |
