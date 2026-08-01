@@ -8,10 +8,12 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 Overall: min 6.1 · max 9.2 · mean 7.81. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 161/161 takes.
+Full coverage: 163/163 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
+| aaron | kryptonite-2yr-take-001 | 130 | **8.4** | 7.7 | medium | 10.0 | 5.56 | 10.0 | 8.85 | 9.93 | 10.0 | 1.25 |
+| aaron | lean-on-me-take-001 | 282 | **8.2** | 8.1 | medium | 10.0 | 7.09 | 9.2 | 8.75 | 7.11 | 6.79 | 5.04 |
 | aaron | play-that-funky-music-take-001 | 206 | **8.0** | 9.0 | high | 10.0 | 10.0 | 3.23 | 9.74 | 9.61 | 5.12 | 7.41 |
 | aaron | beggin-take-002 | 145 | **7.7** | 8.7 | high | 10.0 | 10.0 | 3.12 | 10.0 | 8.5 | 0.27 | 10.0 |
 | aaron | lonely-boy-take-001 | 102 | **6.9** | 8.7 | medium | 10.0 | 10.0 | 0.74 | 10.0 | 6.29 | 0.0 | 10.0 |
