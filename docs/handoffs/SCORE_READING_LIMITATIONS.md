@@ -180,6 +180,37 @@ by-ear estimate.**
 — Heat Is On breath 4.86 / 63.2% sag, Pressure Down breath 5.78 / 58.1% sag. He
 identifies the failing component by ear, not merely the overall standard.
 
+
+### Correction — the professional reference distribution (2 Aug 2026)
+
+An earlier step in this investigation compared Aaron's takes against the **10**
+reference analyses that happen to be copied into `archive/scratch-analyses`,
+and concluded that his 2019 beginner take "out-scores 7 of 10 professional
+masters" — presented as evidence of a validity failure.
+
+**That was a small-sample artefact.** The calibration pack contains **50**
+scored professional references (`engine/calibration/references/`, all on
+calibration pack `0da01ef1e30f`). The full distribution:
+
+| min | p10 | median | p90 | max |
+|---|---|---|---|---|
+| 8.1 | 8.3 | **9.05** | 9.6 | 9.8 |
+
+The 10-file subset was skewed low (median 8.6 vs 9.05). Against all fifty,
+Aaron's 2019 take (8.9) out-scores **20/50 (40%)** and sits just *below* the
+professional median — notable, but not the validity failure previously claimed.
+**The case for a v6 rubric change is correspondingly weaker.**
+
+Two further notes:
+- Do not compare a **capture-fair** score against professional **overalls**;
+  capture-fair strips two components and is not the same measure. Aaron's KFF
+  Prince of Wales is 8.85 overall, not the 9.4 room-fair figure.
+- Useful framing that falls out of the full distribution: **no professional
+  master in the set scores below 8.1**, so the professional band on this scale
+  is 8.1–9.8. Aaron's best takes (8.8–9.3 overall) fall inside it; his active
+  average of 7.96 falls just below it. His ceiling is professional; his
+  consistency is not yet.
+
 ### Methodological notes for whoever repeats this
 - Estimates must be taken **blind and before** any score is shown. One estimate
   in this set (You Sexy Thing, 10 Jun) was revised from 7.2 to 6.8 *after* the
