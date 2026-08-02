@@ -6,9 +6,9 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 ## Singer takes
 
-Overall: min 6.1 · max 9.2 · mean 7.82. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 6.1 · max 9.2 · mean 7.81. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 166/166 takes.
+Full coverage: 172/172 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -17,6 +17,12 @@ Full coverage: 166/166 takes.
 | aaron | twist-and-shout-take-001 | 119 | **7.8** | 7.8 | high | 10.0 | 6.71 | 7.34 | 9.31 | 8.55 | 1.85 | 7.94 |
 | aaron | kryptonite-2yr-take-001 | 130 | **8.4** | 7.7 | medium | 10.0 | 5.56 | 10.0 | 8.85 | 9.93 | 10.0 | 1.25 |
 | aaron | lean-on-me-take-001 | 282 | **8.2** | 8.1 | medium | 10.0 | 7.09 | 9.2 | 8.75 | 7.11 | 6.79 | 5.04 |
+| aaron | bad-things-take-001 | 88 | **7.2** | 6.3 | high | 10.0 | 0.0 | 10.0 | 8.3 | 8.08 | 10.0 | 0.0 |
+| aaron | i-m-a-believer-take-001 | 141 | **7.6** | 6.6 | high | 10.0 | 0.86 | 10.0 | 7.9 | 9.58 | 5.64 | 5.47 |
+| aaron | mustang-sally-take-001 | 199 | **7.1** | 5.9 | high | 6.0 | 0.0 | 10.0 | 7.9 | 9.4 | 10.0 | 7.05 |
+| aaron | stand-by-me-take-001 | 148 | **7.8** | 7.3 | high | 6.0 | 3.3 | 10.0 | 9.74 | 7.64 | 10.0 | 10.0 |
+| aaron | the-letter-take-001 | 171 | **8.0** | 7.2 | high | 6.0 | 3.73 | 10.0 | 9.25 | 9.34 | 9.85 | 10.0 |
+| aaron | you-spin-me-round-take-001 | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | -0.0 |
 | aaron | play-that-funky-music-take-001 | 206 | **8.0** | 9.0 | high | 10.0 | 10.0 | 3.23 | 9.74 | 9.61 | 5.12 | 7.41 |
 | aaron | beggin-take-002 | 145 | **7.7** | 8.7 | high | 10.0 | 10.0 | 3.12 | 10.0 | 8.5 | 0.27 | 10.0 |
 | aaron | lonely-boy-take-001 | 102 | **6.9** | 8.7 | medium | 10.0 | 10.0 | 0.74 | 10.0 | 6.29 | 0.0 | 10.0 |
