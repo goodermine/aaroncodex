@@ -105,3 +105,55 @@ does not measure repertoire, stagecraft, night-to-night consistency, recovery,
 or song selection — and Aaron has no historical multi-venue night to compare
 against his 1 Aug 2026 one. The most visible recent development may be entirely
 outside what these numbers can see.
+
+---
+
+## Addendum — the blind calibration test (2 Aug 2026)
+
+The investigation above was extended with a **blind calibration set**: Aaron
+gave a by-ear score for eight takes he had not seen scores for, chosen by the
+analyst to span the range. Estimates were recorded before any number was
+revealed.
+
+**Result: on current material the engine and the singer agree closely.**
+
+| Set | n | correlation | mean abs error | bias |
+|---|---|---|---|---|
+| Recent takes (current pipeline) | 8 | **+0.82** | **0.53** | +0.23 |
+| Historical Zoom-H8 uploads | 3 | +0.32 | 2.11 | +2.11 |
+
+The engine independently scored two of the eight in the 6s (6.2, 6.5) and was
+*harsher* than the singer on one. **There is no floor compression and no
+systematic inflation on current takes.**
+
+### Four hypotheses tested and rejected
+Each was proposed to explain the historical gap, and each was killed by data:
+
+1. **Aggregation blend** (0.75·mean + 0.25·worst) — fit two takes to within 0.3,
+   then missed Lose Control by 1.6. Textbook overfitting on n=2.
+2. **Floor compression** — refuted by the recent set scoring 6.2 and 6.5.
+3. **Processed/AI-training source files** — refuted; the historical takes were
+   recorded on a Zoom H8 field recorder, which explains their clean signal
+   (HNR 22 dB) mundanely.
+4. **More scooping in the old era** — refuted; scooping is *higher* now
+   (49.1% median) than historically (38.0%).
+
+### What remains
+The ~2-point gap appears only on historical material, whose measurements are
+technically sound. The most parsimonious remaining explanation is that the
+singer's retrospective judgement of old material is harsher than the recordings
+warrant — supported by contemporaneous external listeners who rated him well at
+the time, and by the fact that he approached those files stating in advance that
+he knew they were poor. **Not yet tested:** a blind A/B where a third party
+queues old and recent takes unlabelled, removing the expectation effect. Until
+that runs, the gap is unexplained, not explained.
+
+### Methodological notes for whoever repeats this
+- Estimates must be taken **blind and before** any score is shown. One estimate
+  in this set (You Sexy Thing, 10 Jun) was revised from 7.2 to 6.8 *after* the
+  engine's 6.2 was visible. The revision improves agreement (r 0.82 → 0.88) and
+  is therefore **not independent evidence** — the blind 7.2 is retained as the
+  primary figure.
+- Do not fit an aggregation change on fewer than ~10 points spanning the range,
+  and hold half out for testing. Two of the four hypotheses above would have
+  survived a fit and failed a test.
