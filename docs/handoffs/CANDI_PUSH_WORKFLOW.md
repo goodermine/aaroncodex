@@ -72,6 +72,40 @@ Leave `docs/score-metrics/all-takes-rescore-*` untouched; whoever merges runs
 > Why: two branches regenerating the tables collide every time — this was the
 > repeated merge-conflict source.
 
+## 4b. Never commit into `engine/output/` — it is gitignored
+
+`voxanalysis/.gitignore` ignores `vox-analysis/engine/output/*`. A file
+committed there on one branch is invisible to every ranking, scoring and report
+tool on another, and `git status` will not show it as missing. This has now cost
+two folds: analyses landing there instead of `archive/scratch-analyses/`, and a
+blind-listening-test record that had to be relocated by hand.
+
+| Artefact | Where it goes |
+|---|---|
+| A take's analysis | `voxanalysis/archive/scratch-analyses/<date>-<singer>-<song>-take-NNN_analysis.json` |
+| A listening-test / by-ear record | `docs/score-metrics/blind-listening-tests/` |
+| Anything else score-related | `docs/score-metrics/` |
+
+A by-ear record must carry `"is_voxai_score": false` and is **never** trended,
+averaged or compared against engine scores — it is a different measuring
+instrument (rule 3 in spirit: raw human ratings are not a `/10` from the engine).
+
+## 4c. If you re-analyse anything, re-score the archive in place
+
+An analysis scored against an older calibration pack keeps that pack's stored
+score forever, and `is_legacy_score()` will not flag it — but `score_conflict()`
+refuses to compare it with a current one. After any merge that brings in
+analyses from another machine or an older pack:
+
+```bash
+python3 docs/score-metrics/rescore_archive_inplace.py   # one pack, in place
+python3 docs/score-metrics/rescore_all.py               # rebuild the tables
+python3 tools/score_preflight.py                        # now gates on this
+```
+
+Preflight fails on a mixed archive since 2 Aug 2026. Before that gate existed,
+113 of 182 analyses were silently on a superseded pack.
+
 ## 5. The standing guardrails still apply
 
 - `python3 tools/score_preflight.py` **before** scoring (rule 2) — exit 1 means

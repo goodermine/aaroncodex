@@ -30,14 +30,18 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ARCHIVE = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
-SINGERS = ("aaron-g", "aaron", "rilda", "chris", "leo")
+# Longest name FIRST — the regex alternation is ordered, so "aaron" placed
+# before "aaron-and-rilda" would swallow the duet into Aaron's solo stats. A
+# duet is its own singer, not either half of it: one stem carries two voices,
+# so every per-voice measurement in it describes neither of them cleanly.
+SINGERS = ("aaron-and-rilda", "aaron-g", "aaron", "rilda", "chris", "leo")
 
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 from take_context import read_context, leads_capture_fair  # noqa: E402
 
 
 def _singer(name: str) -> str | None:
-    m = re.match(r"20\d\d-\d\d-\d\d-(aaron-g|aaron|rilda|chris|leo)-", name)
+    m = re.match(r"20\d\d-\d\d-\d\d-(" + "|".join(SINGERS) + r")-", name)
     return m.group(1) if m else None
 
 

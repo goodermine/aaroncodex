@@ -129,7 +129,6 @@ Full coverage: 172/172 takes.
 | aaron | hammer-to-the-heart-take-001 | 229 | **8.5** | 8.2 | high | 10.0 | 6.62 | 10.0 | 9.22 | 8.14 | 10.0 | 3.05 |
 | aaron | reasons-take-001 | 182 | **8.0** | 7.5 | high | 10.0 | 4.45 | 10.0 | 9.56 | 8.11 | 6.3 | 3.6 |
 | aaron | two-strong-hearts-take-001 | 227 | **7.8** | 7.2 | high | 6.0 | 5.87 | 8.9 | 8.52 | 9.61 | 10.0 | 7.35 |
-| aaron | and-rilda-burning-down-the-house-take-001 | 198 | **8.0** | 8.2 | high | 9.0 | 5.69 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron | kung-fu-fighting-take-001 | 207 | **8.8** | 9.0 | high | 10.0 | 6.89 | 8.05 | 10.0 | 8.78 | 9.67 | 7.28 |
 | aaron | my-babe-take-001 | 120 | **7.4** | 7.0 | high | 8.0 | 5.15 | 8.96 | 8.91 | 7.67 | 5.55 | 5.87 |
 | aaron | pressure-down-take-001 | 160 | **7.3** | 6.7 | high | 6.0 | 5.35 | 9.11 | 9.51 | 7.97 | 5.48 | 7.8 |
@@ -145,6 +144,7 @@ Full coverage: 172/172 takes.
 | aaron | pressure-down-take-009 | 188 | **8.5** | 8.0 | high | 6.96 | 8.57 | 10.0 | 9.86 | 8.76 | 6.85 | 8.31 |
 | aaron | pressure-down-take-010 | 164 | **7.6** | 8.1 | high | 9.0 | 7.82 | 4.59 | 8.41 | 9.39 | 5.7 | 7.88 |
 | aaron | reasons-take-003 | 190 | **7.4** | 8.6 | high | 10.0 | 8.63 | 3.5 | 7.95 | 6.4 | 10.0 | 4.92 |
+| aaron-and-rilda | burning-down-the-house-take-001 | 198 | **8.0** | 8.2 | high | 9.0 | 5.69 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973-take-001 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind-take-001 | 201 | **8.5** | 7.8 | high | 6.0 | 7.39 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
 | aaron-g | vienna-take-001 | 165 | **8.6** | 7.9 | high | 6.0 | 9.02 | 10.0 | 10.0 | 9.81 | 8.97 | 7.05 |

@@ -48,3 +48,37 @@ def test_preflight_tool_exists_and_is_runnable():
     path = os.path.join(REPO, "tools/score_preflight.py")
     assert os.path.isfile(path)
     assert "--update" in open(path).read()
+
+
+def test_every_archived_score_is_on_the_pinned_calibration_pack():
+    """A score anchored to an older pack passes `is_legacy_score()` — it has the
+    right contract and the right rubric — but `score_conflict()` refuses to
+    compare it with a current one. That gap let 113 of 182 archived analyses sit
+    on a superseded pack while preflight reported "safe to publish", so the
+    leaderboard, the archive average and a cross-era comparison were all built
+    from two rulers that disagreed by up to 0.5.
+
+    Fix when this fails:
+        python3 docs/score-metrics/rescore_archive_inplace.py
+        python3 docs/score-metrics/rescore_all.py
+    """
+    import glob
+
+    archive = os.path.join(REPO, "voxanalysis/archive/scratch-analyses")
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    pinned = A.score_identity({}, cal)["calibration_fingerprint"]
+
+    stale = []
+    for path in sorted(glob.glob(os.path.join(archive, "*_analysis.json"))):
+        with open(path) as fh:
+            score = (json.load(fh) or {}).get("technical_score")
+        if not isinstance(score, dict) or score.get("status") == "retired_legacy_score":
+            continue
+        fp = (score.get("identity") or {}).get("calibration_fingerprint")
+        if fp != pinned:
+            stale.append((os.path.basename(path), fp))
+
+    assert not stale, (
+        f"{len(stale)} archived score(s) anchored to a superseded calibration pack "
+        f"(pinned {pinned}), e.g. {stale[:3]} — re-score with "
+        "docs/score-metrics/rescore_archive_inplace.py")

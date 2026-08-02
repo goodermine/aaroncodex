@@ -33,7 +33,8 @@ ROOT = _repo_root(os.path.dirname(os.path.abspath(__file__)))
 ARCHIVE = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
 
 EXPECTED_ARTIST = {"aaron": "Aaron", "aaron-g": "Aaron G", "rilda": "Rilda",
-                   "chris": "Chris", "leo": "Leo"}
+                   "chris": "Chris", "leo": "Leo",
+                   "aaron-and-rilda": "Aaron and Rilda"}
 
 
 def _rescore_module():
@@ -95,3 +96,18 @@ def test_leading_name_and_dated_name_both_classify():
     assert singer("aaron-danger-zone-home-2026-07-11-normalized") == "aaron"
     assert singer("leo-chasin-that-neon-rainbow-2026-07-11-normalized") == "leo"
     assert singer("tina-turner-lets-stay-together-reference") == "reference"
+
+
+def test_a_duet_is_its_own_singer_not_either_half():
+    """One stem carrying two voices measures neither of them cleanly, so a duet
+    must not land in a soloist's leaderboard or average. Burning Down the House
+    was filed under Aaron — and its song name mangled to
+    "and-rilda-burning-down-the-house" — because "aaron" matched first."""
+    ns = _rescore_module()
+    name = "2026-07-30-aaron-and-rilda-burning-down-the-house-take-001"
+    assert ns["singer"](name) == "aaron-and-rilda"
+    assert ns["song"](name) == "burning-down-the-house-take-001"
+
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import ranked_takes
+    assert ranked_takes._singer(name) == "aaron-and-rilda"

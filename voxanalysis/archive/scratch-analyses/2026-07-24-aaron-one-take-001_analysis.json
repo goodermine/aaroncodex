@@ -2003,13 +2003,13 @@
     "min_hz": 93.57,
     "max_hz": 932.33,
     "std_hz": 133.93,
-    "mean_note": "F\u266f4",
-    "median_note": "F\u266f4",
-    "min_note": "F\u266f2",
-    "max_note": "A\u266f5",
+    "mean_note": "F♯4",
+    "median_note": "F♯4",
+    "min_note": "F♯2",
+    "max_note": "A♯5",
     "robust_min_hz": 159.2,
     "robust_max_hz": 770.52,
-    "robust_min_note": "D\u266f3",
+    "robust_min_note": "D♯3",
     "robust_max_note": "G5",
     "range_semitones": 27.3,
     "range_semitones_note": "Robust range (2.5th-97.5th percentile of voiced frames). Immune to single octave-error frames.",
@@ -2030,7 +2030,7 @@
       {
         "time_range": "10-20s",
         "mean_hz": 202.02,
-        "mean_note": "G\u266f3",
+        "mean_note": "G♯3",
         "std_hz": 53.72,
         "cv_percent": 26.59,
         "voiced_pct": 28.7
@@ -2054,7 +2054,7 @@
       {
         "time_range": "40-50s",
         "mean_hz": 315.22,
-        "mean_note": "D\u266f4",
+        "mean_note": "D♯4",
         "std_hz": 137.45,
         "cv_percent": 43.6,
         "voiced_pct": 78.0
@@ -2078,7 +2078,7 @@
       {
         "time_range": "70-80s",
         "mean_hz": 276.14,
-        "mean_note": "C\u266f4",
+        "mean_note": "C♯4",
         "std_hz": 38.16,
         "cv_percent": 13.82,
         "voiced_pct": 85.1
@@ -2102,7 +2102,7 @@
       {
         "time_range": "100-110s",
         "mean_hz": 367.21,
-        "mean_note": "F\u266f4",
+        "mean_note": "F♯4",
         "std_hz": 66.38,
         "cv_percent": 18.08,
         "voiced_pct": 92.8
@@ -2142,7 +2142,7 @@
       {
         "time_range": "150-160s",
         "mean_hz": 416.76,
-        "mean_note": "G\u266f4",
+        "mean_note": "G♯4",
         "std_hz": 86.42,
         "cv_percent": 20.74,
         "voiced_pct": 94.7
@@ -2150,7 +2150,7 @@
       {
         "time_range": "160-170s",
         "mean_hz": 410.24,
-        "mean_note": "G\u266f4",
+        "mean_note": "G♯4",
         "std_hz": 88.83,
         "cv_percent": 21.65,
         "voiced_pct": 85.8
@@ -2166,7 +2166,7 @@
       {
         "time_range": "180-190s",
         "mean_hz": 544.33,
-        "mean_note": "C\u266f5",
+        "mean_note": "C♯5",
         "std_hz": 189.36,
         "cv_percent": 34.79,
         "voiced_pct": 71.7
@@ -2174,7 +2174,7 @@
       {
         "time_range": "190-200s",
         "mean_hz": 370.48,
-        "mean_note": "F\u266f4",
+        "mean_note": "F♯4",
         "std_hz": 245.12,
         "cv_percent": 66.16,
         "voiced_pct": 69.7
@@ -2202,20 +2202,20 @@
       "n_strained": 2,
       "pct_top_notes_strained": 5.1,
       "method": "high pitch + above-median loudness + HNR >=4 dB below this take's own median",
-      "reliability": "medium \u2014 heuristic; intentional grit also trips it, confirm by ear at the timestamps"
+      "reliability": "medium — heuristic; intentional grit also trips it, confirm by ear at the timestamps"
     },
     "strained_notes": [
       {
         "time": "2:38",
         "start_s": 158.49,
-        "note": "G\u266f4",
+        "note": "G♯4",
         "duration_s": 0.27,
         "hnr_drop_db": 9.3
       },
       {
         "time": "2:58",
         "start_s": 177.69,
-        "note": "A\u266f4",
+        "note": "A♯4",
         "duration_s": 0.93,
         "hnr_drop_db": 7.6
       }
@@ -2231,12 +2231,12 @@
     "harmonic_residual_db": 15.52,
     "harmonic_percussive_db": 15.52,
     "method": "hpss_whole_file",
-    "note": "Global tonal-balance descriptor over the whole file (includes silence/consonants). NOT clinical HNR \u2014 see voice_quality.hnr_db_median."
+    "note": "Global tonal-balance descriptor over the whole file (includes silence/consonants). NOT clinical HNR — see voice_quality.hnr_db_median."
   },
   "resonance": {
     "singers_formant_ratio_db": -17.69,
     "singers_formant_read": "Moderate projection",
-    "singers_formant_note": "Median 2-4 kHz vs 80 Hz-2 kHz energy on active frames. Heuristic bands; NOT part of the technical score \u2014 no pro-pack anchors exist for it yet (unlike CPPS, which is anchored and scored).",
+    "singers_formant_note": "Median 2-4 kHz vs 80 Hz-2 kHz energy on active frames. Heuristic bands; NOT part of the technical score — no pro-pack anchors exist for it yet (unlike CPPS, which is anchored and scored).",
     "spectral_centroid_mean_hz": 1700.64,
     "spectral_centroid_median_hz": 1581.27,
     "spectral_rolloff_85_mean_hz": 2957.84,
@@ -2261,7 +2261,7 @@
     "n_phrases": 33
   },
   "rhythm": {
-    "measures": "onset density & regularity of the vocal delivery \u2014 NOT timing vs the backing (see groove)",
+    "measures": "onset density & regularity of the vocal delivery — NOT timing vs the backing (see groove)",
     "estimated_tempo_bpm": 136.0,
     "tempo_confidence": "medium",
     "timing_vs_backing": "scored separately by analyse_groove (canonical)",
@@ -2815,7 +2815,7 @@
           "vowel": "uh (cut)"
         }
       ],
-      "reliability": "medium \u2014 vowel identity from F1/F2 is approximate on sung (vs spoken) vowels; excluded above F0 350 Hz where formant tracking breaks down"
+      "reliability": "medium — vowel identity from F1/F2 is approximate on sung (vs spoken) vowels; excluded above F0 350 Hz where formant tracking breaks down"
     }
   },
   "vibrato": {
@@ -2827,7 +2827,7 @@
       {
         "start_s": 2.29,
         "duration_s": 0.84,
-        "note": "A\u266f3",
+        "note": "A♯3",
         "rate_hz": 3.59,
         "extent_cents": 116.1,
         "band_power_ratio": 0.373,
@@ -2857,7 +2857,7 @@
       {
         "start_s": 7.7,
         "duration_s": 0.94,
-        "note": "G\u266f3",
+        "note": "G♯3",
         "rate_hz": 4.25,
         "extent_cents": 80.5,
         "band_power_ratio": 0.134,
@@ -2887,7 +2887,7 @@
       {
         "start_s": 33.18,
         "duration_s": 1.04,
-        "note": "F\u266f4",
+        "note": "F♯4",
         "rate_hz": 3.83,
         "extent_cents": 124.5,
         "band_power_ratio": 0.177,
@@ -2897,7 +2897,7 @@
       {
         "start_s": 35.97,
         "duration_s": 1.68,
-        "note": "A\u266f3",
+        "note": "A♯3",
         "rate_hz": 3.56,
         "extent_cents": 57.5,
         "band_power_ratio": 0.376,
@@ -2947,7 +2947,7 @@
       {
         "start_s": 46.29,
         "duration_s": 0.73,
-        "note": "A\u266f3",
+        "note": "A♯3",
         "rate_hz": 5.47,
         "extent_cents": 41.4,
         "band_power_ratio": 0.18,
@@ -2967,7 +2967,7 @@
       {
         "start_s": 51.82,
         "duration_s": 0.53,
-        "note": "D\u266f4",
+        "note": "D♯4",
         "rate_hz": 5.62,
         "extent_cents": 84.4,
         "band_power_ratio": 0.088,
@@ -3097,7 +3097,7 @@
       {
         "start_s": 87.64,
         "duration_s": 0.55,
-        "note": "D\u266f4",
+        "note": "D♯4",
         "rate_hz": 3.67,
         "extent_cents": 59.6,
         "band_power_ratio": 0.45,
@@ -3177,7 +3177,7 @@
       {
         "start_s": 97.25,
         "duration_s": 0.78,
-        "note": "A\u266f3",
+        "note": "A♯3",
         "rate_hz": 3.86,
         "extent_cents": 91.0,
         "band_power_ratio": 0.237,
@@ -3197,7 +3197,7 @@
       {
         "start_s": 102.19,
         "duration_s": 0.7,
-        "note": "F\u266f4",
+        "note": "F♯4",
         "rate_hz": 4.31,
         "extent_cents": 54.5,
         "band_power_ratio": 0.203,
@@ -3207,7 +3207,7 @@
       {
         "start_s": 103.63,
         "duration_s": 1.14,
-        "note": "F\u266f4",
+        "note": "F♯4",
         "rate_hz": 4.39,
         "extent_cents": 58.2,
         "band_power_ratio": 0.26,
@@ -3227,7 +3227,7 @@
       {
         "start_s": 105.8,
         "duration_s": 0.66,
-        "note": "F\u266f4",
+        "note": "F♯4",
         "rate_hz": 3.02,
         "extent_cents": 80.7,
         "band_power_ratio": 0.491,
@@ -3247,7 +3247,7 @@
       {
         "start_s": 107.65,
         "duration_s": 0.66,
-        "note": "F\u266f4",
+        "note": "F♯4",
         "rate_hz": 4.53,
         "extent_cents": 47.5,
         "band_power_ratio": 0.221,
@@ -3257,7 +3257,7 @@
       {
         "start_s": 108.31,
         "duration_s": 0.59,
-        "note": "F\u266f4",
+        "note": "F♯4",
         "rate_hz": 3.38,
         "extent_cents": 69.6,
         "band_power_ratio": 0.318,
@@ -3277,7 +3277,7 @@
       {
         "start_s": 110.92,
         "duration_s": 1.89,
-        "note": "A\u266f4",
+        "note": "A♯4",
         "rate_hz": 3.17,
         "extent_cents": 76.9,
         "band_power_ratio": 0.27,
@@ -3337,7 +3337,7 @@
       {
         "start_s": 123.7,
         "duration_s": 0.86,
-        "note": "C\u266f5",
+        "note": "C♯5",
         "rate_hz": 4.66,
         "extent_cents": 106.8,
         "band_power_ratio": 0.137,
@@ -3417,7 +3417,7 @@
       {
         "start_s": 139.45,
         "duration_s": 0.73,
-        "note": "G\u266f4",
+        "note": "G♯4",
         "rate_hz": 4.1,
         "extent_cents": 94.2,
         "band_power_ratio": 0.407,
@@ -3467,7 +3467,7 @@
       {
         "start_s": 149.37,
         "duration_s": 0.52,
-        "note": "G\u266f4",
+        "note": "G♯4",
         "rate_hz": 3.83,
         "extent_cents": 76.7,
         "band_power_ratio": 0.281,
@@ -3537,7 +3537,7 @@
       {
         "start_s": 162.71,
         "duration_s": 1.82,
-        "note": "G\u266f4",
+        "note": "G♯4",
         "rate_hz": 3.29,
         "extent_cents": 83.3,
         "band_power_ratio": 0.503,
@@ -3557,7 +3557,7 @@
       {
         "start_s": 167.26,
         "duration_s": 0.77,
-        "note": "F\u266f4",
+        "note": "F♯4",
         "rate_hz": 3.92,
         "extent_cents": 76.5,
         "band_power_ratio": 0.193,
@@ -3637,7 +3637,7 @@
       {
         "start_s": 177.69,
         "duration_s": 0.93,
-        "note": "A\u266f4",
+        "note": "A♯4",
         "rate_hz": 8.61,
         "extent_cents": 81.3,
         "band_power_ratio": 0.07,
@@ -3707,7 +3707,7 @@
       {
         "start_s": 193.06,
         "duration_s": 0.75,
-        "note": "F\u266f5",
+        "note": "F♯5",
         "rate_hz": 3.98,
         "extent_cents": 73.9,
         "band_power_ratio": 0.05,
@@ -3727,7 +3727,7 @@
       {
         "start_s": 200.23,
         "duration_s": 0.84,
-        "note": "F\u266f3",
+        "note": "F♯3",
         "rate_hz": 4.79,
         "extent_cents": 110.9,
         "band_power_ratio": 0.18,
@@ -3776,8 +3776,8 @@
         "time": "0:00",
         "start_s": 0.0,
         "duration_s": 0.48,
-        "note": "A\u266f4",
-        "note_detailed": "A\u266f4+20ct",
+        "note": "A♯4",
+        "note_detailed": "A♯4+20ct",
         "deviation_cents": 20.0,
         "drift_cents": 218.1,
         "held_drift_cents": 0.0
@@ -3796,8 +3796,8 @@
         "time": "0:02",
         "start_s": 1.76,
         "duration_s": 0.37,
-        "note": "F\u266f3",
-        "note_detailed": "F\u266f3+10ct",
+        "note": "F♯3",
+        "note_detailed": "F♯3+10ct",
         "deviation_cents": 10.0,
         "drift_cents": 42.6,
         "held_drift_cents": 0.0
@@ -3806,8 +3806,8 @@
         "time": "0:02",
         "start_s": 2.29,
         "duration_s": 0.84,
-        "note": "A\u266f3",
-        "note_detailed": "A\u266f3+50ct",
+        "note": "A♯3",
+        "note_detailed": "A♯3+50ct",
         "deviation_cents": -50.0,
         "drift_cents": 228.0,
         "held_drift_cents": 49.9
@@ -3826,8 +3826,8 @@
         "time": "0:05",
         "start_s": 5.18,
         "duration_s": 0.42,
-        "note": "A\u266f3",
-        "note_detailed": "A\u266f3-20ct",
+        "note": "A♯3",
+        "note_detailed": "A♯3-20ct",
         "deviation_cents": -20.0,
         "drift_cents": 242.3,
         "held_drift_cents": 0.0
@@ -3846,8 +3846,8 @@
         "time": "0:08",
         "start_s": 7.7,
         "duration_s": 0.94,
-        "note": "G\u266f3",
-        "note_detailed": "G\u266f3+0ct",
+        "note": "G♯3",
+        "note_detailed": "G♯3+0ct",
         "deviation_cents": 0.0,
         "drift_cents": 189.4,
         "held_drift_cents": 10.4
@@ -3926,8 +3926,8 @@
         "time": "0:30",
         "start_s": 30.46,
         "duration_s": 0.48,
-        "note": "G\u266f3",
-        "note_detailed": "G\u266f3+40ct",
+        "note": "G♯3",
+        "note_detailed": "G♯3+40ct",
         "deviation_cents": 40.0,
         "drift_cents": 204.1,
         "held_drift_cents": 0.0
@@ -3936,8 +3936,8 @@
         "time": "0:33",
         "start_s": 33.18,
         "duration_s": 1.04,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4-20ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4-20ct",
         "deviation_cents": -20.0,
         "drift_cents": 316.2,
         "held_drift_cents": 118.6
@@ -3956,8 +3956,8 @@
         "time": "0:35",
         "start_s": 34.7,
         "duration_s": 0.26,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4+50ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4+50ct",
         "deviation_cents": -50.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -3976,8 +3976,8 @@
         "time": "0:35",
         "start_s": 35.39,
         "duration_s": 0.41,
-        "note": "C\u266f4",
-        "note_detailed": "C\u266f4-40ct",
+        "note": "C♯4",
+        "note_detailed": "C♯4-40ct",
         "deviation_cents": -40.0,
         "drift_cents": 155.0,
         "held_drift_cents": 0.0
@@ -3986,8 +3986,8 @@
         "time": "0:36",
         "start_s": 35.97,
         "duration_s": 1.68,
-        "note": "A\u266f3",
-        "note_detailed": "A\u266f3-10ct",
+        "note": "A♯3",
+        "note_detailed": "A♯3-10ct",
         "deviation_cents": -10.0,
         "drift_cents": 267.5,
         "held_drift_cents": 120.9
@@ -4046,8 +4046,8 @@
         "time": "0:46",
         "start_s": 45.78,
         "duration_s": 0.41,
-        "note": "F\u266f3",
-        "note_detailed": "F\u266f3+30ct",
+        "note": "F♯3",
+        "note_detailed": "F♯3+30ct",
         "deviation_cents": 30.0,
         "drift_cents": 113.4,
         "held_drift_cents": 0.0
@@ -4056,8 +4056,8 @@
         "time": "0:46",
         "start_s": 46.29,
         "duration_s": 0.73,
-        "note": "A\u266f3",
-        "note_detailed": "A\u266f3+0ct",
+        "note": "A♯3",
+        "note_detailed": "A♯3+0ct",
         "deviation_cents": -0.0,
         "drift_cents": 258.8,
         "held_drift_cents": 152.8
@@ -4096,8 +4096,8 @@
         "time": "0:51",
         "start_s": 51.0,
         "duration_s": 0.35,
-        "note": "D\u266f5",
-        "note_detailed": "D\u266f5-40ct",
+        "note": "D♯5",
+        "note_detailed": "D♯5-40ct",
         "deviation_cents": -40.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -4106,8 +4106,8 @@
         "time": "0:52",
         "start_s": 51.82,
         "duration_s": 0.53,
-        "note": "D\u266f4",
-        "note_detailed": "D\u266f4-20ct",
+        "note": "D♯4",
+        "note_detailed": "D♯4-20ct",
         "deviation_cents": -20.0,
         "drift_cents": 168.5,
         "held_drift_cents": 0.0
@@ -4156,8 +4156,8 @@
         "time": "0:59",
         "start_s": 59.01,
         "duration_s": 0.44,
-        "note": "G\u266f3",
-        "note_detailed": "G\u266f3+40ct",
+        "note": "G♯3",
+        "note_detailed": "G♯3+40ct",
         "deviation_cents": 40.0,
         "drift_cents": 78.4,
         "held_drift_cents": 0.0
@@ -4196,8 +4196,8 @@
         "time": "1:05",
         "start_s": 64.51,
         "duration_s": 0.37,
-        "note": "G\u266f4",
-        "note_detailed": "G\u266f4+30ct",
+        "note": "G♯4",
+        "note_detailed": "G♯4+30ct",
         "deviation_cents": 30.0,
         "drift_cents": 16.4,
         "held_drift_cents": 0.0
@@ -4206,8 +4206,8 @@
         "time": "1:05",
         "start_s": 65.29,
         "duration_s": 0.41,
-        "note": "A\u266f4",
-        "note_detailed": "A\u266f4+10ct",
+        "note": "A♯4",
+        "note_detailed": "A♯4+10ct",
         "deviation_cents": 10.0,
         "drift_cents": 53.2,
         "held_drift_cents": 0.0
@@ -4226,8 +4226,8 @@
         "time": "1:06",
         "start_s": 66.46,
         "duration_s": 0.36,
-        "note": "A\u266f3",
-        "note_detailed": "A\u266f3+20ct",
+        "note": "A♯3",
+        "note_detailed": "A♯3+20ct",
         "deviation_cents": 20.0,
         "drift_cents": 13.5,
         "held_drift_cents": 0.0
@@ -4376,8 +4376,8 @@
         "time": "1:26",
         "start_s": 85.93,
         "duration_s": 0.3,
-        "note": "C\u266f4",
-        "note_detailed": "C\u266f4+30ct",
+        "note": "C♯4",
+        "note_detailed": "C♯4+30ct",
         "deviation_cents": 30.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -4386,8 +4386,8 @@
         "time": "1:27",
         "start_s": 86.8,
         "duration_s": 0.27,
-        "note": "G\u266f5",
-        "note_detailed": "G\u266f5+20ct",
+        "note": "G♯5",
+        "note_detailed": "G♯5+20ct",
         "deviation_cents": 20.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -4396,8 +4396,8 @@
         "time": "1:28",
         "start_s": 87.64,
         "duration_s": 0.55,
-        "note": "D\u266f4",
-        "note_detailed": "D\u266f4+0ct",
+        "note": "D♯4",
+        "note_detailed": "D♯4+0ct",
         "deviation_cents": 0.0,
         "drift_cents": 113.9,
         "held_drift_cents": 0.0
@@ -4406,8 +4406,8 @@
         "time": "1:28",
         "start_s": 88.31,
         "duration_s": 0.38,
-        "note": "C\u266f4",
-        "note_detailed": "C\u266f4+40ct",
+        "note": "C♯4",
+        "note_detailed": "C♯4+40ct",
         "deviation_cents": 40.0,
         "drift_cents": 40.1,
         "held_drift_cents": 0.0
@@ -4446,8 +4446,8 @@
         "time": "1:31",
         "start_s": 90.79,
         "duration_s": 0.24,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4+20ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4+20ct",
         "deviation_cents": 20.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -4526,8 +4526,8 @@
         "time": "1:37",
         "start_s": 97.25,
         "duration_s": 0.78,
-        "note": "A\u266f3",
-        "note_detailed": "A\u266f3-30ct",
+        "note": "A♯3",
+        "note_detailed": "A♯3-30ct",
         "deviation_cents": -30.0,
         "drift_cents": 36.9,
         "held_drift_cents": 39.1
@@ -4556,8 +4556,8 @@
         "time": "1:39",
         "start_s": 98.94,
         "duration_s": 0.28,
-        "note": "C\u266f4",
-        "note_detailed": "C\u266f4-30ct",
+        "note": "C♯4",
+        "note_detailed": "C♯4-30ct",
         "deviation_cents": -30.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -4586,8 +4586,8 @@
         "time": "1:42",
         "start_s": 102.19,
         "duration_s": 0.7,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4+10ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4+10ct",
         "deviation_cents": 10.0,
         "drift_cents": 153.3,
         "held_drift_cents": 87.6
@@ -4606,8 +4606,8 @@
         "time": "1:44",
         "start_s": 103.63,
         "duration_s": 1.14,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4+50ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4+50ct",
         "deviation_cents": -50.0,
         "drift_cents": 146.0,
         "held_drift_cents": 44.9
@@ -4626,8 +4626,8 @@
         "time": "1:46",
         "start_s": 105.8,
         "duration_s": 0.66,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4+30ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4+30ct",
         "deviation_cents": 30.0,
         "drift_cents": 60.3,
         "held_drift_cents": 68.8
@@ -4646,8 +4646,8 @@
         "time": "1:48",
         "start_s": 107.65,
         "duration_s": 0.66,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4+10ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4+10ct",
         "deviation_cents": 10.0,
         "drift_cents": 101.7,
         "held_drift_cents": 55.1
@@ -4656,8 +4656,8 @@
         "time": "1:48",
         "start_s": 108.31,
         "duration_s": 0.59,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4-20ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4-20ct",
         "deviation_cents": -20.0,
         "drift_cents": 148.2,
         "held_drift_cents": 0.0
@@ -4676,8 +4676,8 @@
         "time": "1:51",
         "start_s": 110.92,
         "duration_s": 1.89,
-        "note": "A\u266f4",
-        "note_detailed": "A\u266f4-50ct",
+        "note": "A♯4",
+        "note_detailed": "A♯4-50ct",
         "deviation_cents": -50.0,
         "drift_cents": 161.5,
         "held_drift_cents": 67.1
@@ -4686,8 +4686,8 @@
         "time": "1:53",
         "start_s": 113.08,
         "duration_s": 0.35,
-        "note": "G\u266f4",
-        "note_detailed": "G\u266f4+0ct",
+        "note": "G♯4",
+        "note_detailed": "G♯4+0ct",
         "deviation_cents": 0.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -4706,8 +4706,8 @@
         "time": "1:56",
         "start_s": 116.46,
         "duration_s": 0.27,
-        "note": "D\u266f4",
-        "note_detailed": "D\u266f4+0ct",
+        "note": "D♯4",
+        "note_detailed": "D♯4+0ct",
         "deviation_cents": 0.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -4776,8 +4776,8 @@
         "time": "2:04",
         "start_s": 123.7,
         "duration_s": 0.86,
-        "note": "C\u266f5",
-        "note_detailed": "C\u266f5+10ct",
+        "note": "C♯5",
+        "note_detailed": "C♯5+10ct",
         "deviation_cents": 10.0,
         "drift_cents": 217.3,
         "held_drift_cents": 30.5
@@ -4886,8 +4886,8 @@
         "time": "2:17",
         "start_s": 137.11,
         "duration_s": 0.26,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4-10ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4-10ct",
         "deviation_cents": -10.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -4916,8 +4916,8 @@
         "time": "2:19",
         "start_s": 139.45,
         "duration_s": 0.73,
-        "note": "G\u266f4",
-        "note_detailed": "G\u266f4+20ct",
+        "note": "G♯4",
+        "note_detailed": "G♯4+20ct",
         "deviation_cents": 20.0,
         "drift_cents": 54.3,
         "held_drift_cents": 98.1
@@ -5016,8 +5016,8 @@
         "time": "2:27",
         "start_s": 147.09,
         "duration_s": 0.24,
-        "note": "A\u266f4",
-        "note_detailed": "A\u266f4+40ct",
+        "note": "A♯4",
+        "note_detailed": "A♯4+40ct",
         "deviation_cents": 40.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -5046,8 +5046,8 @@
         "time": "2:29",
         "start_s": 148.71,
         "duration_s": 0.39,
-        "note": "A\u266f4",
-        "note_detailed": "A\u266f4-40ct",
+        "note": "A♯4",
+        "note_detailed": "A♯4-40ct",
         "deviation_cents": -40.0,
         "drift_cents": 73.0,
         "held_drift_cents": 0.0
@@ -5056,8 +5056,8 @@
         "time": "2:29",
         "start_s": 149.37,
         "duration_s": 0.52,
-        "note": "G\u266f4",
-        "note_detailed": "G\u266f4+50ct",
+        "note": "G♯4",
+        "note_detailed": "G♯4+50ct",
         "deviation_cents": -50.0,
         "drift_cents": 104.0,
         "held_drift_cents": 0.0
@@ -5066,8 +5066,8 @@
         "time": "2:30",
         "start_s": 149.9,
         "duration_s": 0.24,
-        "note": "G\u266f4",
-        "note_detailed": "G\u266f4-20ct",
+        "note": "G♯4",
+        "note_detailed": "G♯4-20ct",
         "deviation_cents": -20.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -5146,8 +5146,8 @@
         "time": "2:38",
         "start_s": 157.98,
         "duration_s": 0.31,
-        "note": "A\u266f4",
-        "note_detailed": "A\u266f4-30ct",
+        "note": "A♯4",
+        "note_detailed": "A♯4-30ct",
         "deviation_cents": -30.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -5156,8 +5156,8 @@
         "time": "2:38",
         "start_s": 158.49,
         "duration_s": 0.27,
-        "note": "G\u266f4",
-        "note_detailed": "G\u266f4-10ct",
+        "note": "G♯4",
+        "note_detailed": "G♯4-10ct",
         "deviation_cents": -10.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -5166,8 +5166,8 @@
         "time": "2:39",
         "start_s": 158.82,
         "duration_s": 0.42,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4-15ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4-15ct",
         "deviation_cents": -15.0,
         "drift_cents": 132.9,
         "held_drift_cents": 0.0
@@ -5216,8 +5216,8 @@
         "time": "2:43",
         "start_s": 162.71,
         "duration_s": 1.82,
-        "note": "G\u266f4",
-        "note_detailed": "G\u266f4+50ct",
+        "note": "G♯4",
+        "note_detailed": "G♯4+50ct",
         "deviation_cents": -50.0,
         "drift_cents": 147.2,
         "held_drift_cents": 88.1
@@ -5236,8 +5236,8 @@
         "time": "2:47",
         "start_s": 167.26,
         "duration_s": 0.77,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4+50ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4+50ct",
         "deviation_cents": -50.0,
         "drift_cents": 133.8,
         "held_drift_cents": 7.8
@@ -5276,8 +5276,8 @@
         "time": "2:52",
         "start_s": 172.38,
         "duration_s": 0.36,
-        "note": "A\u266f4",
-        "note_detailed": "A\u266f4-50ct",
+        "note": "A♯4",
+        "note_detailed": "A♯4-50ct",
         "deviation_cents": -50.0,
         "drift_cents": 10.3,
         "held_drift_cents": 0.0
@@ -5326,8 +5326,8 @@
         "time": "2:58",
         "start_s": 177.69,
         "duration_s": 0.93,
-        "note": "A\u266f4",
-        "note_detailed": "A\u266f4-40ct",
+        "note": "A♯4",
+        "note_detailed": "A♯4-40ct",
         "deviation_cents": -40.0,
         "drift_cents": 300.2,
         "held_drift_cents": 182.7
@@ -5396,8 +5396,8 @@
         "time": "3:11",
         "start_s": 191.26,
         "duration_s": 0.29,
-        "note": "D\u266f4",
-        "note_detailed": "D\u266f4-10ct",
+        "note": "D♯4",
+        "note_detailed": "D♯4-10ct",
         "deviation_cents": -10.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -5416,8 +5416,8 @@
         "time": "3:13",
         "start_s": 193.06,
         "duration_s": 0.75,
-        "note": "F\u266f5",
-        "note_detailed": "F\u266f5+30ct",
+        "note": "F♯5",
+        "note_detailed": "F♯5+30ct",
         "deviation_cents": 30.0,
         "drift_cents": 207.6,
         "held_drift_cents": 97.5
@@ -5476,8 +5476,8 @@
         "time": "3:20",
         "start_s": 200.23,
         "duration_s": 0.84,
-        "note": "F\u266f3",
-        "note_detailed": "F\u266f3+40ct",
+        "note": "F♯3",
+        "note_detailed": "F♯3+40ct",
         "deviation_cents": 40.0,
         "drift_cents": 182.6,
         "held_drift_cents": 27.1
@@ -5496,8 +5496,8 @@
         "time": "3:22",
         "start_s": 201.98,
         "duration_s": 0.42,
-        "note": "C\u266f4",
-        "note_detailed": "C\u266f4+45ct",
+        "note": "C♯4",
+        "note_detailed": "C♯4+45ct",
         "deviation_cents": 45.1,
         "drift_cents": 346.4,
         "held_drift_cents": 0.0
@@ -5526,8 +5526,8 @@
         "time": "3:25",
         "start_s": 205.4,
         "duration_s": 0.33,
-        "note": "F\u266f3",
-        "note_detailed": "F\u266f3+35ct",
+        "note": "F♯3",
+        "note_detailed": "F♯3+35ct",
         "deviation_cents": 35.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -5536,8 +5536,8 @@
         "time": "3:27",
         "start_s": 206.62,
         "duration_s": 0.43,
-        "note": "G\u266f4",
-        "note_detailed": "G\u266f4+40ct",
+        "note": "G♯4",
+        "note_detailed": "G♯4+40ct",
         "deviation_cents": 40.0,
         "drift_cents": 30.8,
         "held_drift_cents": 0.0
@@ -5548,8 +5548,8 @@
         "time": "0:02",
         "start_s": 2.29,
         "duration_s": 0.84,
-        "note": "A\u266f3",
-        "note_detailed": "A\u266f3+50ct",
+        "note": "A♯3",
+        "note_detailed": "A♯3+50ct",
         "deviation_cents": -50.0,
         "drift_cents": 228.0,
         "held_drift_cents": 49.9
@@ -5558,8 +5558,8 @@
         "time": "0:35",
         "start_s": 34.7,
         "duration_s": 0.26,
-        "note": "F\u266f4",
-        "note_detailed": "F\u266f4+50ct",
+        "note": "F♯4",
+        "note_detailed": "F♯4+50ct",
         "deviation_cents": -50.0,
         "drift_cents": 0.0,
         "held_drift_cents": 0.0
@@ -5660,8 +5660,8 @@
         "time": "2:58",
         "start_s": 177.69,
         "duration_s": 0.93,
-        "note": "A\u266f4",
-        "note_detailed": "A\u266f4-40ct",
+        "note": "A♯4",
+        "note_detailed": "A♯4-40ct",
         "deviation_cents": -40.0,
         "drift_cents": 300.2,
         "held_drift_cents": 182.7
@@ -5690,8 +5690,8 @@
         "time": "0:46",
         "start_s": 46.29,
         "duration_s": 0.73,
-        "note": "A\u266f3",
-        "note_detailed": "A\u266f3+0ct",
+        "note": "A♯3",
+        "note_detailed": "A♯3+0ct",
         "deviation_cents": -0.0,
         "drift_cents": 258.8,
         "held_drift_cents": 152.8
@@ -5806,7 +5806,7 @@
   },
   "registers": {
     "method": "spectral_balance_heuristic_per_note",
-    "reliability": "medium \u2014 verify by ear at the timestamps",
+    "reliability": "medium — verify by ear at the timestamps",
     "n_notes": 177,
     "pct_full_voice": 40.1,
     "pct_light_head": 59.9,
@@ -5817,12 +5817,12 @@
       {
         "time": "0:05",
         "from": "full (D5)",
-        "to": "light (A\u266f3)"
+        "to": "light (A♯3)"
       },
       {
         "time": "0:08",
         "from": "light (D3)",
-        "to": "full (G\u266f3)"
+        "to": "full (G♯3)"
       },
       {
         "time": "0:10",
@@ -5836,7 +5836,7 @@
       },
       {
         "time": "0:35",
-        "from": "light (F\u266f4)",
+        "from": "light (F♯4)",
         "to": "full (F4)"
       },
       {
@@ -5847,7 +5847,7 @@
       {
         "time": "0:51",
         "from": "full (B4)",
-        "to": "light (D\u266f5)"
+        "to": "light (D♯5)"
       },
       {
         "time": "0:59",
@@ -5857,16 +5857,16 @@
       {
         "time": "1:05",
         "from": "full (G4)",
-        "to": "light (G\u266f4)"
+        "to": "light (G♯4)"
       },
       {
         "time": "1:06",
-        "from": "light (A\u266f4)",
+        "from": "light (A♯4)",
         "to": "full (F4)"
       },
       {
         "time": "1:07",
-        "from": "full (A\u266f3)",
+        "from": "full (A♯3)",
         "to": "light (A3)"
       },
       {
@@ -5879,7 +5879,7 @@
       {
         "start_s": 0.0,
         "time": "0:00",
-        "note": "A\u266f4",
+        "note": "A♯4",
         "balance_db": 16.0,
         "cluster": "full"
       },
@@ -5893,14 +5893,14 @@
       {
         "start_s": 1.8,
         "time": "0:02",
-        "note": "F\u266f3",
+        "note": "F♯3",
         "balance_db": 33.8,
         "cluster": "full"
       },
       {
         "start_s": 2.3,
         "time": "0:02",
-        "note": "A\u266f3",
+        "note": "A♯3",
         "balance_db": 21.3,
         "cluster": "full"
       },
@@ -5914,7 +5914,7 @@
       {
         "start_s": 5.2,
         "time": "0:05",
-        "note": "A\u266f3",
+        "note": "A♯3",
         "balance_db": 8.6,
         "cluster": "light"
       },
@@ -5928,7 +5928,7 @@
       {
         "start_s": 7.7,
         "time": "0:08",
-        "note": "G\u266f3",
+        "note": "G♯3",
         "balance_db": 18.3,
         "cluster": "full"
       },
@@ -5984,14 +5984,14 @@
       {
         "start_s": 30.5,
         "time": "0:30",
-        "note": "G\u266f3",
+        "note": "G♯3",
         "balance_db": 11.3,
         "cluster": "light"
       },
       {
         "start_s": 33.2,
         "time": "0:33",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 7.8,
         "cluster": "light"
       },
@@ -6005,7 +6005,7 @@
       {
         "start_s": 34.7,
         "time": "0:35",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 4.0,
         "cluster": "light"
       },
@@ -6019,14 +6019,14 @@
       {
         "start_s": 35.4,
         "time": "0:35",
-        "note": "C\u266f4",
+        "note": "C♯4",
         "balance_db": 14.1,
         "cluster": "full"
       },
       {
         "start_s": 36.0,
         "time": "0:36",
-        "note": "A\u266f3",
+        "note": "A♯3",
         "balance_db": 20.9,
         "cluster": "full"
       },
@@ -6068,14 +6068,14 @@
       {
         "start_s": 45.8,
         "time": "0:46",
-        "note": "F\u266f3",
+        "note": "F♯3",
         "balance_db": 13.5,
         "cluster": "full"
       },
       {
         "start_s": 46.3,
         "time": "0:46",
-        "note": "A\u266f3",
+        "note": "A♯3",
         "balance_db": 15.3,
         "cluster": "full"
       },
@@ -6103,14 +6103,14 @@
       {
         "start_s": 51.0,
         "time": "0:51",
-        "note": "D\u266f5",
+        "note": "D♯5",
         "balance_db": -5.5,
         "cluster": "light"
       },
       {
         "start_s": 51.8,
         "time": "0:52",
-        "note": "D\u266f4",
+        "note": "D♯4",
         "balance_db": -0.9,
         "cluster": "light"
       },
@@ -6145,7 +6145,7 @@
       {
         "start_s": 59.0,
         "time": "0:59",
-        "note": "G\u266f3",
+        "note": "G♯3",
         "balance_db": 17.4,
         "cluster": "full"
       },
@@ -6173,14 +6173,14 @@
       {
         "start_s": 64.5,
         "time": "1:05",
-        "note": "G\u266f4",
+        "note": "G♯4",
         "balance_db": 7.3,
         "cluster": "light"
       },
       {
         "start_s": 65.3,
         "time": "1:05",
-        "note": "A\u266f4",
+        "note": "A♯4",
         "balance_db": 4.3,
         "cluster": "light"
       },
@@ -6194,7 +6194,7 @@
       {
         "start_s": 66.5,
         "time": "1:06",
-        "note": "A\u266f3",
+        "note": "A♯3",
         "balance_db": 19.7,
         "cluster": "full"
       },
@@ -6299,28 +6299,28 @@
       {
         "start_s": 85.9,
         "time": "1:26",
-        "note": "C\u266f4",
+        "note": "C♯4",
         "balance_db": 19.4,
         "cluster": "full"
       },
       {
         "start_s": 86.8,
         "time": "1:27",
-        "note": "G\u266f5",
+        "note": "G♯5",
         "balance_db": -11.0,
         "cluster": "light"
       },
       {
         "start_s": 87.6,
         "time": "1:28",
-        "note": "D\u266f4",
+        "note": "D♯4",
         "balance_db": 8.3,
         "cluster": "light"
       },
       {
         "start_s": 88.3,
         "time": "1:28",
-        "note": "C\u266f4",
+        "note": "C♯4",
         "balance_db": 13.0,
         "cluster": "full"
       },
@@ -6348,7 +6348,7 @@
       {
         "start_s": 90.8,
         "time": "1:31",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 8.6,
         "cluster": "light"
       },
@@ -6404,7 +6404,7 @@
       {
         "start_s": 97.2,
         "time": "1:37",
-        "note": "A\u266f3",
+        "note": "A♯3",
         "balance_db": 7.9,
         "cluster": "light"
       },
@@ -6425,7 +6425,7 @@
       {
         "start_s": 98.9,
         "time": "1:39",
-        "note": "C\u266f4",
+        "note": "C♯4",
         "balance_db": 5.5,
         "cluster": "light"
       },
@@ -6446,7 +6446,7 @@
       {
         "start_s": 102.2,
         "time": "1:42",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 7.7,
         "cluster": "light"
       },
@@ -6460,7 +6460,7 @@
       {
         "start_s": 103.6,
         "time": "1:44",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 5.2,
         "cluster": "light"
       },
@@ -6474,7 +6474,7 @@
       {
         "start_s": 105.8,
         "time": "1:46",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 12.7,
         "cluster": "full"
       },
@@ -6488,14 +6488,14 @@
       {
         "start_s": 107.6,
         "time": "1:48",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 1.1,
         "cluster": "light"
       },
       {
         "start_s": 108.3,
         "time": "1:48",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 5.5,
         "cluster": "light"
       },
@@ -6509,14 +6509,14 @@
       {
         "start_s": 110.9,
         "time": "1:51",
-        "note": "A\u266f4",
+        "note": "A♯4",
         "balance_db": 2.3,
         "cluster": "light"
       },
       {
         "start_s": 113.1,
         "time": "1:53",
-        "note": "G\u266f4",
+        "note": "G♯4",
         "balance_db": 3.9,
         "cluster": "light"
       },
@@ -6530,7 +6530,7 @@
       {
         "start_s": 116.5,
         "time": "1:56",
-        "note": "D\u266f4",
+        "note": "D♯4",
         "balance_db": 2.1,
         "cluster": "light"
       },
@@ -6579,7 +6579,7 @@
       {
         "start_s": 123.7,
         "time": "2:04",
-        "note": "C\u266f5",
+        "note": "C♯5",
         "balance_db": -0.9,
         "cluster": "light"
       },
@@ -6656,7 +6656,7 @@
       {
         "start_s": 137.1,
         "time": "2:17",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 9.2,
         "cluster": "light"
       },
@@ -6677,7 +6677,7 @@
       {
         "start_s": 139.4,
         "time": "2:19",
-        "note": "G\u266f4",
+        "note": "G♯4",
         "balance_db": 3.3,
         "cluster": "light"
       },
@@ -6747,7 +6747,7 @@
       {
         "start_s": 147.1,
         "time": "2:27",
-        "note": "A\u266f4",
+        "note": "A♯4",
         "balance_db": 8.3,
         "cluster": "light"
       },
@@ -6768,21 +6768,21 @@
       {
         "start_s": 148.7,
         "time": "2:29",
-        "note": "A\u266f4",
+        "note": "A♯4",
         "balance_db": 2.3,
         "cluster": "light"
       },
       {
         "start_s": 149.4,
         "time": "2:29",
-        "note": "G\u266f4",
+        "note": "G♯4",
         "balance_db": 3.9,
         "cluster": "light"
       },
       {
         "start_s": 149.9,
         "time": "2:30",
-        "note": "G\u266f4",
+        "note": "G♯4",
         "balance_db": 1.6,
         "cluster": "light"
       },
@@ -6838,21 +6838,21 @@
       {
         "start_s": 158.0,
         "time": "2:38",
-        "note": "A\u266f4",
+        "note": "A♯4",
         "balance_db": 5.0,
         "cluster": "light"
       },
       {
         "start_s": 158.5,
         "time": "2:38",
-        "note": "G\u266f4",
+        "note": "G♯4",
         "balance_db": 4.1,
         "cluster": "light"
       },
       {
         "start_s": 158.8,
         "time": "2:39",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 5.3,
         "cluster": "light"
       },
@@ -6887,7 +6887,7 @@
       {
         "start_s": 162.7,
         "time": "2:43",
-        "note": "G\u266f4",
+        "note": "G♯4",
         "balance_db": 5.3,
         "cluster": "light"
       },
@@ -6901,7 +6901,7 @@
       {
         "start_s": 167.3,
         "time": "2:47",
-        "note": "F\u266f4",
+        "note": "F♯4",
         "balance_db": 2.6,
         "cluster": "light"
       },
@@ -6929,7 +6929,7 @@
       {
         "start_s": 172.4,
         "time": "2:52",
-        "note": "A\u266f4",
+        "note": "A♯4",
         "balance_db": 1.6,
         "cluster": "light"
       },
@@ -6964,7 +6964,7 @@
       {
         "start_s": 177.7,
         "time": "2:58",
-        "note": "A\u266f4",
+        "note": "A♯4",
         "balance_db": 3.7,
         "cluster": "light"
       },
@@ -7013,7 +7013,7 @@
       {
         "start_s": 191.3,
         "time": "3:11",
-        "note": "D\u266f4",
+        "note": "D♯4",
         "balance_db": 3.7,
         "cluster": "light"
       },
@@ -7027,7 +7027,7 @@
       {
         "start_s": 193.1,
         "time": "3:13",
-        "note": "F\u266f5",
+        "note": "F♯5",
         "balance_db": 15.4,
         "cluster": "full"
       },
@@ -7069,7 +7069,7 @@
       {
         "start_s": 200.2,
         "time": "3:20",
-        "note": "F\u266f3",
+        "note": "F♯3",
         "balance_db": 11.6,
         "cluster": "light"
       },
@@ -7083,7 +7083,7 @@
       {
         "start_s": 202.0,
         "time": "3:22",
-        "note": "C\u266f4",
+        "note": "C♯4",
         "balance_db": 11.2,
         "cluster": "light"
       },
@@ -7104,14 +7104,14 @@
       {
         "start_s": 205.4,
         "time": "3:25",
-        "note": "F\u266f3",
+        "note": "F♯3",
         "balance_db": 6.6,
         "cluster": "light"
       },
       {
         "start_s": 206.6,
         "time": "3:27",
-        "note": "G\u266f4",
+        "note": "G♯4",
         "balance_db": 2.1,
         "cluster": "light"
       }
@@ -7174,54 +7174,54 @@
         "sag_cents": 1210.0
       }
     ],
-    "note": "Sagging endings on LONG phrases suggest breath running out; on short phrases, intentional fall-offs are common in rock/soul \u2014 judge by ear. MEASUREMENT CAVEAT: the tail window is a fixed 0.5 s, not a proportion of the phrase. On material whose phrases are shorter than about 1 s the window spans most of the phrase (and possibly what precedes it), so the slope it fits is not the same quantity measured on a 5 s phrase. Compare pct_sagging_endings between takes of similar median_phrase_s."
+    "note": "Sagging endings on LONG phrases suggest breath running out; on short phrases, intentional fall-offs are common in rock/soul — judge by ear. MEASUREMENT CAVEAT: the tail window is a fixed 0.5 s, not a proportion of the phrase. On material whose phrases are shorter than about 1 s the window spans most of the phrase (and possibly what precedes it), so the slope it fits is not the same quantity measured on a 5 s phrase. Compare pct_sagging_endings between takes of similar median_phrase_s."
   },
   "range_map": {
-    "comfortable_core": "G\u266f3-B4",
-    "extremes_touched": "G\u266f2-G\u266f5",
+    "comfortable_core": "G♯3-B4",
+    "extremes_touched": "G♯2-G♯5",
     "most_used_note": "G4",
     "seconds_per_note": {
-      "F\u266f2": 0.2,
+      "F♯2": 0.2,
       "G2": 0.4,
-      "G\u266f2": 0.3,
+      "G♯2": 0.3,
       "A2": 0.2,
-      "A\u266f2": 0.2,
+      "A♯2": 0.2,
       "B2": 0.2,
       "C3": 0.5,
-      "C\u266f3": 0.6,
+      "C♯3": 0.6,
       "D3": 0.8,
-      "D\u266f3": 0.8,
+      "D♯3": 0.8,
       "E3": 1.3,
       "F3": 1.7,
-      "F\u266f3": 3.4,
+      "F♯3": 3.4,
       "G3": 2.8,
-      "G\u266f3": 3.5,
+      "G♯3": 3.5,
       "A3": 4.2,
-      "A\u266f3": 5.8,
+      "A♯3": 5.8,
       "B3": 7.0,
       "C4": 7.3,
-      "C\u266f4": 5.6,
+      "C♯4": 5.6,
       "D4": 16.4,
-      "D\u266f4": 3.4,
+      "D♯4": 3.4,
       "E4": 4.9,
       "F4": 7.9,
-      "F\u266f4": 10.7,
+      "F♯4": 10.7,
       "G4": 29.8,
-      "G\u266f4": 8.7,
+      "G♯4": 8.7,
       "A4": 8.9,
-      "A\u266f4": 7.5,
+      "A♯4": 7.5,
       "B4": 2.0,
       "C5": 1.8,
-      "C\u266f5": 2.1,
+      "C♯5": 2.1,
       "D5": 1.8,
-      "D\u266f5": 1.1,
+      "D♯5": 1.1,
       "E5": 0.8,
       "F5": 0.8,
-      "F\u266f5": 1.4,
+      "F♯5": 1.4,
       "G5": 3.8,
-      "G\u266f5": 1.0,
+      "G♯5": 1.0,
       "A5": 0.1,
-      "A\u266f5": 0.1
+      "A♯5": 0.1
     },
     "note": "Time-weighted from this take only. Compare across takes/songs for a true personal range picture."
   },
@@ -7236,7 +7236,7 @@
       {
         "time": "0:33",
         "start_s": 33.18,
-        "note": "F\u266f4",
+        "note": "F♯4",
         "kind": "scoop",
         "start_dev_cents": -418.1
       },
@@ -7250,21 +7250,21 @@
       {
         "time": "0:02",
         "start_s": 2.29,
-        "note": "A\u266f3",
+        "note": "A♯3",
         "kind": "scoop",
         "start_dev_cents": -293.1
       },
       {
         "time": "2:04",
         "start_s": 123.7,
-        "note": "C\u266f5",
+        "note": "C♯5",
         "kind": "scoop",
         "start_dev_cents": -291.2
       },
       {
         "time": "0:30",
         "start_s": 30.46,
-        "note": "G\u266f3",
+        "note": "G♯3",
         "kind": "scoop",
         "start_dev_cents": -264.7
       },
@@ -7287,7 +7287,7 @@
       {
         "time": "0:52",
         "start_s": 51.82,
-        "note": "D\u266f4",
+        "note": "D♯4",
         "kind": "overshoot",
         "start_dev_cents": 255.4
       },
@@ -7301,7 +7301,7 @@
       {
         "time": "0:08",
         "start_s": 7.7,
-        "note": "G\u266f3",
+        "note": "G♯3",
         "kind": "overshoot",
         "start_dev_cents": 227.7
       },
@@ -7315,12 +7315,12 @@
       {
         "time": "3:20",
         "start_s": 200.23,
-        "note": "F\u266f3",
+        "note": "F♯3",
         "kind": "overshoot",
         "start_dev_cents": 220.4
       }
     ],
-    "note": "Scooping can be deliberate style \u2014 consistency matters more than the raw percentage. Compare with the original via tools/compare_takes.py to see whether the original scoops in the same places."
+    "note": "Scooping can be deliberate style — consistency matters more than the raw percentage. Compare with the original via tools/compare_takes.py to see whether the original scoops in the same places."
   },
   "harmonics": {
     "method": "per-sustained-note FFT, harmonic peaks at k*F0, median across notes",
@@ -7335,7 +7335,7 @@
     "H8_median_db_rel_strongest": -31.2,
     "H1_minus_H2_median_db": 3.6,
     "h1_h2_read": "Balanced source",
-    "note": "Numeric overtone profile. On separated stems, separation artifacts add noise to upper harmonics \u2014 read H5+ cautiously."
+    "note": "Numeric overtone profile. On separated stems, separation artifacts add noise to upper harmonics — read H5+ cautiously."
   },
   "time_diagnostics": {
     "energy_blocks_10s": [
@@ -7505,14 +7505,14 @@
       "rubric_fingerprint": "7cbd02df8f62",
       "calibrated": true,
       "calibration_references": 50,
-      "calibration_fingerprint": "0da01ef1e30f",
+      "calibration_fingerprint": "fb035034bebd",
       "stem_model": "RoFormer",
       "take_fingerprint": "0b919907854b"
     },
-    "overall_score_0_to_10": 8.7,
-    "capture_fair_score_0_to_10": 8.3,
+    "overall_score_0_to_10": 8.6,
+    "capture_fair_score_0_to_10": 8.2,
     "capture_fair_note": "Rubric with the capture-sensitive components (voice_quality and dynamics_expression) excluded (weights renormalised). Jitter/shimmer/HNR and effective dynamic range partly measure the recording chain and stem-separation artefacts: vintage masters run through separation read far worse than clean modern captures of an equal voice. Use capture_fair on BOTH sides for any take-vs-original or cross-era comparison; use overall_score for a singer's absolute result and self-progress. Note breath_support is deliberately NOT excluded: phrase-ending sag is air running out, not the room, so it is scored on a phone or room take like any other.",
-    "provenance": "deterministic_rubric_v5 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
+    "provenance": "deterministic_rubric_v5 — computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
     "calibration": {
       "active": true,
       "file": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
@@ -7528,46 +7528,46 @@
     "components": {
       "intonation_accuracy": {
         "weight": 0.25,
-        "input": "median abs grid deviation = 20.0 cents \u2014 matches or beats 50.0% of 50 pro references",
-        "formula": "10 at pro-reference median (18.75 cents), 0 at 45 cents, linear",
-        "score": 9.52
+        "input": "median abs grid deviation = 20.0 cents — matches or beats 58.0% of 50 pro references",
+        "formula": "10 at pro-reference median (20.0 cents), 0 at 45 cents, linear",
+        "score": 10.0
       },
       "pitch_stability": {
         "weight": 0.15,
-        "input": "median intra-note drift = 60.4 cents \u2014 matches or beats 4.0% of 50 pro references",
-        "formula": "10 at pro-reference median (24.75 cents), 0 at 80 cents, linear",
-        "score": 3.55
+        "input": "median intra-note drift = 60.4 cents — matches or beats 4.0% of 50 pro references",
+        "formula": "10 at pro-reference median (24.25 cents), 0 at 80 cents, linear",
+        "score": 3.52
       },
       "voice_quality": {
         "weight": 0.2,
-        "input": "jitter = 0.7591% \u2014 matches or beats 66.0% of 50 pro references; shimmer = 9.7499% \u2014 matches or beats 50.0% of 50 pro references; HNR = 17.31 dB \u2014 matches or beats 82.0% of 50 pro references; CPPS = 13.35 dB \u2014 matches or beats 92.0% of 50 pro references",
+        "input": "jitter = 0.7591% — matches or beats 64.0% of 50 pro references; shimmer = 9.7499% — matches or beats 46.0% of 50 pro references; HNR = 17.31 dB — matches or beats 82.0% of 50 pro references; CPPS = 13.35 dB — matches or beats 8.0% of 50 pro references",
         "formula": "mean of jitter/shimmer/HNR/CPPS sub-scores (Praat, per sustained note)",
-        "score": 10.0
+        "score": 9.26
       },
       "vibrato_control": {
         "weight": 0.15,
-        "input": "37.6% of long notes carry vibrato (10 at >=40%); rate 4.7 Hz (ideal 4.943-6.046); extent 58.2 cents (ideal 53.09-78.32); intra-note drift 60.4 cents (straight-tone path)",
+        "input": "37.6% of long notes carry vibrato (10 at >=40%); rate 4.7 Hz (ideal 4.877-5.99); extent 58.2 cents (ideal 52.55-78.02); intra-note drift 60.4 cents (straight-tone path)",
         "formula": "best of vibrato-quality path and straight-tone steadiness path (consistent straight tone is a valid professional style)",
         "style_detected": "vibrato-led",
-        "score": 9.38
+        "score": 9.49
       },
       "dynamics_expression": {
         "weight": 0.15,
-        "input": "phrase-level spread 26.83 dB (pro p10/p50/p90 12.493/22.335/42.119); effective range 27.72 dB (pro p10/p50/p90 23.993/38.77/51.792)",
+        "input": "phrase-level spread 26.83 dB (pro p10/p50/p90 8.795/21.825/45.739); effective range 27.72 dB (pro p10/p50/p90 18.398/26.965/36.303)",
         "formula": "best of phrase-level shaping and effective range, graded to the pro distribution (10 at the professional median, ~7 across the pro range, floored not zeroed beyond it)",
         "capture_sensitive": true,
-        "score": 9.32
+        "score": 9.76
       },
       "phrase_control": {
         "weight": 0.1,
-        "input": "median phrase length = 2.87 s \u2014 matches or beats 38.0% of 50 pro references",
-        "formula": "10 at pro-reference median (3.145 s), 0 at 0.5 s, linear",
-        "score": 8.96
+        "input": "median phrase length = 2.87 s — matches or beats 38.0% of 50 pro references",
+        "formula": "10 at pro-reference median (3.8 s), 0 at 0.5 s, linear",
+        "score": 7.18
       },
       "breath_support": {
         "weight": 0.1,
-        "input": "11 of 33 phrase endings sag = 33.3% \u2014 matches or beats 60.0% of 50 pro references",
-        "formula": "10 at pro-reference median (34.85%), 0 at 90.0%, linear",
+        "input": "11 of 33 phrase endings sag = 33.3% — matches or beats 52.0% of 50 pro references",
+        "formula": "10 at pro-reference median (33.3%), 0 at 90.0%, linear",
         "capture_sensitive": false,
         "score": 10.0
       }
@@ -7588,7 +7588,7 @@
     "scope_note": "Technical execution only. Artistry, emotion, interpretation and style-appropriateness are human judgements and are not part of this number. Any 'listener impact' figure elsewhere in a report is a subjective estimate, not a measurement."
   },
   "prescriptions": {
-    "method": "deterministic_prescription_engine_v1 \u2014 rules over measured values; exercise content verbatim from the library; no LLM selection",
+    "method": "deterministic_prescription_engine_v1 — rules over measured values; exercise content verbatim from the library; no LLM selection",
     "map_version": "prescription_map_v1",
     "library_hash_verified": true,
     "library_hash_note": null,
@@ -7598,7 +7598,7 @@
       "severity_0_to_100": 96.0,
       "evidence": [
         "held notes drift 60.4 cents",
-        "33.3% of phrase endings sag (intentional fall-offs also register \u2014 confirm by ear)"
+        "33.3% of phrase endings sag (intentional fall-offs also register — confirm by ear)"
       ],
       "exercises": [
         {
@@ -7644,7 +7644,7 @@
         "selector_heading": "If vibrato is absent, uneven, forced, or wobbly",
         "severity_0_to_100": 3.6,
         "evidence": [
-          "vibrato on only 37.6% of long notes \u2014 attempted but inconsistent"
+          "vibrato on only 37.6% of long notes — attempted but inconsistent"
         ],
         "exercises": [
           {

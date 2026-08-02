@@ -26,7 +26,13 @@ cal = load_calibration(DEFAULT_CALIBRATION_PATH)
 #   plain substring "aaron"   -> swallows every aaron-g take into Aaron
 #   plain substring "aaron-g" -> swallows "aaron-goodbye-s-been-good-to-you"
 # The trailing hyphen is what separates "aaron-g-vienna" from "aaron-goodbye".
-SINGERS = ("aaron-g", "aaron", "rilda", "chris", "leo")
+#
+# A DUET is its own singer, listed before either half of it. One stem carrying
+# two voices measures neither of them: the Burning Down the House duet was filed
+# under Aaron and counted in his solo average, with its song name mangled to
+# "and-rilda-burning-down-the-house". The archive's own artist_name field ("Aaron
+# and Rilda") is the ground truth, and test_singer_identity.py checks against it.
+SINGERS = ("aaron-and-rilda", "aaron-g", "aaron", "rilda", "chris", "leo")
 
 
 def _sings(name, token):
@@ -48,7 +54,7 @@ def singer(name):
 def song(name):
     b = re.sub(r"_analysis$", "", name)
     b = re.sub(r"20\d\d-\d\d-\d\d-?", "", b)
-    b = re.sub(r"^(aaron-g-|aaron-|rilda-|chris-|leo-)", "", b)
+    b = re.sub(r"^(" + "|".join(s + "-" for s in SINGERS) + r")", "", b)
     b = re.sub(r"-normalized|-song-cut|-reference", "", b)
     return b.strip("-")
 

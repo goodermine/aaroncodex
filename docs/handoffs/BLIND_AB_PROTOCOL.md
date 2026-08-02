@@ -1,5 +1,12 @@
 # Blind A/B protocol — does the singer rate his old takes lower when he can't tell they're old?
 
+> **STATUS: RUN — 2 Aug 2026. Answer: yes, he does.**
+> Blind, Aaron rated the 2024 set 1.5 points below the 2026 set (34 of 36
+> cross-era pairs went to the 2026 clip). The gap is real, not expectation.
+> Raw record: `docs/score-metrics/blind-listening-tests/2026-08-02-aaron-recent-vs-voice-cloning.json`.
+> Full result, cause and caveats: `SCORE_READING_LIMITATIONS.md`, final addendum.
+> The protocol below is kept as the method — re-run it the same way.
+
 The outstanding experiment from the 2 Aug 2026 validity investigation. Both
 calibration rounds so far were **sighted** — Aaron knew which take he was
 rating — so the expectation effect is uncontrolled. This removes it.
@@ -82,4 +89,20 @@ judges the recording as heard, capture flaws included).
 
 Whatever happens, write it into `SCORE_READING_LIMITATIONS.md` alongside the
 sighted rounds — including if the result is null or contradicts the current
-working explanation.
+working explanation. (It did contradict it. That is written up.)
+
+Commit the raw record to `docs/score-metrics/blind-listening-tests/` — **not**
+`engine/output/`, which is gitignored. A listening-test record is subjective
+listener ratings and must carry `"is_voxai_score": false`; it is never mixed
+with engine scores, trended against them, or fed to any scoring tool.
+
+### What to fix next time
+- **Name the exact archived take per clip.** Two of the twelve were cut from "the
+  first distinct source" and could not be matched to an archived analysis, so
+  two engine numbers may describe a different take from the one heard. Put the
+  `*_analysis.json` filename in the record next to each clip.
+- **Run the limitation-3 validity gate on every clip before cutting it.** One
+  clip (Do Wah Diddy) had HNR 9.8 dB and jitter 2.75% — its pitch numbers were
+  not usable, which was only noticed afterwards.
+- Six per era is thin. Twelve per era would make the within-era correlation
+  worth reading; at n=6 with a narrow range it is noise.

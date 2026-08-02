@@ -1,4 +1,4 @@
-# How to read a VOXAI score — three measured limitations
+# How to read a VOXAI score — four measured limitations
 
 Findings from a deliberate validity investigation on 1–2 Aug 2026. Aaron
 supplied historical takes he *knew* contained severe faults, to test whether
@@ -83,6 +83,38 @@ than publishing it.
 | HNR ≥ 15 dB, jitter < 1.5%, separator named | measurement is sound |
 | HNR < 13 dB or jitter > 2% **with** implausibly low deviation/drift | contamination — withhold, re-separate |
 
+## 4. `pitch_stability` bottoms out at 80 cents of drift — "bad" and "far worse" score the same
+
+The component is linear between two anchors and then stops:
+
+```
+formula: 10 at pro-reference median (24.25 cents), 0 at 80 cents, linear
+```
+
+Past 80 cents of median intra-note drift the score is 0.0 and **cannot fall
+further**, so the engine has no way to say that one take is much worse than
+another:
+
+| Take | median intra-note drift | pitch_stability |
+|---|---|---|
+| Bad Things (2024) | **115.3c** | 0.00 |
+| Mustang Sally (2024) | **112.4c** | 0.00 |
+| You Spin Me Round (2024) | 80.3c | 0.00 |
+| The Heat Is On (2026) | 81.2c | 0.00 |
+
+115.3c is 44% worse than 80.3c and scores identically. Combined with
+limitation 1 — a 0.15-weight component cannot move the headline much anyway —
+this is the mechanism behind the blind-test result below: **a listener keeps
+hearing a note get worse long after the score has stopped moving.**
+
+This is not a defect in the anchors. 80 cents is already four-fifths of a
+semitone of wander inside a single note; the pack's professionals sit at 24c.
+It is a limitation on *reading*, exactly like the other three.
+
+**Practice rule:** when `pitch_stability` reads 0.0, the score has stopped
+measuring. Quote `intonation.median_intra_note_drift_cents` beside it — that
+number keeps going, and it is what the ear is tracking.
+
 ## What the validity test did NOT establish
 
 Three historical takes (2019 ×1, 2024 ×2) against 65 recent clean captures is
@@ -147,6 +179,12 @@ the time, and by the fact that he approached those files stating in advance that
 he knew they were poor. **Not yet tested:** a blind A/B where a third party
 queues old and recent takes unlabelled, removing the expectation effect. Until
 that runs, the gap is unexplained, not explained.
+
+> **SUPERSEDED — the blind A/B ran on 2 Aug 2026 and refuted this paragraph.**
+> Blind, Aaron still rated the old material 1.5 points lower. It was not
+> expectation; it was intra-note drift the engine stops measuring at 80 cents.
+> See the final addendum, "the blind A/B RAN", and limitation 4. The paragraph
+> is kept as written because retracted reasoning is part of the record.
 
 
 ### Round 2 — sighted calibration extended to 14 takes (2 Aug 2026)
@@ -220,3 +258,121 @@ Two further notes:
 - Do not fit an aggregation change on fewer than ~10 points spanning the range,
   and hold half out for testing. Two of the four hypotheses above would have
   survived a fit and failed a test.
+
+---
+
+## Addendum — the blind A/B RAN (2 Aug 2026). It overturned the standing explanation.
+
+Twelve clips, 28 seconds, vocals only, loudness-matched to −20.5 LUFS,
+cryptographically shuffled by a third party who held the key until every score
+was in. Six 2026 RoFormer stems, six 2024 voice-cloning dry vocals. Aaron scored
+each 0–10 by ear, one pass. Record:
+`docs/score-metrics/blind-listening-tests/2026-08-02-aaron-recent-vs-voice-cloning.json`
+(subjective listener ratings — **not** VOXAI scores, and never to be mixed with
+them).
+
+**Result: the era gap is REAL. It is not an expectation effect.**
+
+| | 2026 (n=6) | 2024 (n=6) | gap |
+|---|---|---|---|
+| Aaron, blind | 7.93 | 6.43 | **+1.50** |
+| Engine (overall) | 8.18 | 7.47 | **+0.72** |
+
+He could not see the labels and still separated the eras: **34 of 36
+cross-era pairs went to the 2026 clip**, and five of six 2026 clips scored above
+every 2024 clip. The engine sees the same difference in the same direction — but
+**less than half of it**.
+
+**The internal control went the same way.** *The Letter*, the one song in both
+sets, indistinguishable by title:
+
+| The Letter | ear | engine |
+|---|---|---|
+| 2024 | 6.8 | 8.00 |
+| 2026 | 7.7 | 8.20 |
+| separation | **+0.9** | **+0.20** |
+
+Same song, same singer, blind — his ear separates the two takes 4.5× more than
+the engine does.
+
+### The previous explanation is retracted
+
+The sighted rounds concluded that "the singer's retrospective judgement of old
+material is harsher than the recordings warrant." **That is now refuted.** Blind,
+with no idea which era he was hearing, he rated the old material a point and a
+half lower. He was hearing something. The engine under-reads it.
+
+### What he was hearing: drift
+
+Correlating his twelve blind scores against every raw metric, exactly one tracks
+his ear, and it is the one limitation 4 describes:
+
+| metric | r with blind ear score | 2026 median | 2024 median |
+|---|---|---|---|
+| **median intra-note drift** | **−0.653** | **39.6c** | **77.8c** |
+| vibrato rate | +0.527 | 5.19 Hz | 4.46 Hz |
+| HNR | −0.349 | 18.2 dB | 20.6 dB |
+| pct scooped onsets | −0.274 | 51.6% | 51.2% |
+| median deviation from grid | −0.209 | 21.3c | 25.0c |
+| % notes within 25c | +0.065 | 51.7% | 52.3% |
+
+(−0.662 for drift after dropping the two clips flagged below; direction and size
+hold.)
+
+The old takes wander nearly **twice as far inside a note** — 77.8c against 39.6c.
+Four of the six sit at or past the 80c floor where `pitch_stability` stops
+counting, so the engine records "0.0, same as the others" while the ear keeps
+hearing it get worse. The slower vibrato in the old set (4.46 Hz vs 5.19 Hz) is
+the same phenomenon heard from the other side: a slow wide wobble *is* drift.
+
+Note what is **not** on the list. Deviation from the grid barely moves (21c vs
+25c) and the within-25-cents rate is flat. His pitch *centring* was already
+reference-level in the old takes — consistent with everything the sighted rounds
+found. What changed is his ability to **hold** a note once he lands on it.
+
+### What this does and does not change
+
+- **It does not make the engine wrong.** The direction is right, the mechanism is
+  identified and measured, and on 2026 material the engine sat +0.25 from his
+  blind ear across six clips. It compresses one specific failure mode at the
+  extreme.
+- **It does not license a rubric change.** The v6 attempt (see
+  `V6_ONSET_COMPONENT_REJECTED.md`) is the standing precedent: a change must
+  measurably improve agreement across the range, not just on the takes that
+  motivated it, and it must be fit on more than a handful of points. Six old
+  takes is not that. **Read drift beside the score instead.**
+- **It does change how a cross-era claim may be made.** A gap of "+0.72 by
+  engine" between eras must be reported alongside the fact that a blind listener
+  put it at +1.50 and that four of the six old takes are jammed against the
+  `pitch_stability` floor.
+
+### Caveats on this run, stated plainly
+
+- **Two clips could not be matched to a specific archived take.** Candi cut clip
+  04 (Let's Stay Together) and clip 09 (Do Wah Diddy) from "the first distinct
+  source / take-001"; **no take-001 exists in the archive for either song on
+  2026-07-08.** Clip 04 was matched to take-003 (8.5, the only one) and clip 09
+  to take-002 (7.7) — but Do Wah Diddy take-003 scores **8.7**, a full point
+  apart, so that clip's engine number is uncertain across a 1.0 range. Clip 04
+  is also the single largest ear/engine disagreement in the set (+1.8) and may
+  be an artefact of the mismatch. Both are 2026 clips, so if anything they make
+  the engine's era separation look *larger* than it is; the finding is not
+  resting on them. Dropping both: ear gap **+1.79**, engine gap **+0.76** — the
+  under-reading gets wider, not narrower.
+- **Clip 09 fails the limitation-3 validity gate** — HNR 9.8 dB, jitter 2.75%,
+  separator `unknown`, drift 5.2c. Its pitch numbers are not trustworthy.
+- **Song identity still leaks era**, as the protocol warned. The Letter control
+  is the defence against that, and it agreed with the overall result.
+- n=6 per era. The within-2026 correlation on this set is r=+0.04, but the range
+  is only 6.7–8.8 and one point dominates; it does not overturn the r=+0.776
+  measured across the fourteen sighted takes, and it is not evidence of anything
+  on its own.
+
+### The honest summary for the singer
+
+He was right that something is off, and right about which direction — but not
+about the conclusion he feared. The engine is not flattering him *now*; on 2026
+material it agreed with his blind ear to a quarter of a point. It is **too kind
+to his 2024 self**, because the thing that was wrong back then — notes sliding
+around inside themselves — is the one fault this rubric stops being able to
+measure past a point. He has improved, by more than the scores say.
