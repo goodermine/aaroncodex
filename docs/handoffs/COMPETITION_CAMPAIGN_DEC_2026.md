@@ -42,6 +42,62 @@ He must arrive in song-three condition: full home warm-up + car singing +
 quiet sing-along at the venue before his slot. This alone is worth more than
 any drill.
 
+## The cold-open data point — Redcliffe Leagues, Sun 2 Aug 2026
+
+Aaron and Rilda went to a new Sunday-afternoon open mic. **Nobody put their name
+down.** He looked up a backing track and the lyrics on his phone, told the
+operator he'd give it a go, and sang *(I Can't Get No) Satisfaction* — no
+warm-up, no rehearsal, song chosen on the spot, fifth-ish session of the
+weekend, first and only song of the day. His account: got through it well, got
+into the groove, some trouble early from being cold and from the weekend's
+accumulated singing.
+
+**Not recorded.** So this is a self-report, not a measurement, and it is logged
+as one. Note also that the blind A/B validated his ear **listening back**;
+judging your own performance mid-adrenaline is a different and noisier
+instrument. Encouraging, not evidence.
+
+Three things it is worth keeping anyway:
+
+**1. It is the strongest counter to "there is no song two" so far — untested.**
+The whole campaign is built on his song #1 running 1–3 points below his song #3.
+Here song #1 was cold, unrehearsed and unfamiliar, and by his own account fine.
+n=1 and unmeasured, so the finding stands until a recorded cold open contradicts
+it. **Test it deliberately:** one recorded first-song-of-the-day take, no warm-up,
+and compare against his warm takes of the same song.
+
+**2. The song shape did the work, and that is a selection rule.** *Satisfaction*
+sits low and narrow, is more spoken than sung, and has short phrases — it stays
+under his passaggio and barely touches breath support, which are precisely the
+two columns that cost him points. **If a song ever has to be sung cold, pick one
+shaped like that.** Reasons and You're the Voice are warm-only material.
+
+**3. "Stop thinking and just act" is the campaign cue, arrived at independently.**
+His self-diagnosis of the semi-final loss was *nerves — pushed too hard*; the old
+profile and VOX both measured the same default-to-power under pressure.
+Deliberation feeds it. This is the same instruction as "one gear in reserve,"
+reached from the other direction, and it is his own words — which is what will
+survive on stage.
+
+### Capture rule that comes out of it
+
+**The phone cannot be the lyric sheet and the recorder at once.** That is the
+only reason this take does not exist. Fix, using gear he already owns:
+
+- **Zoom H8 on the table, phone for lyrics.** The H8 recorded his 2019–2020
+  material at ~22 dB HNR — cleaner signal than most current live captures.
+- Or print the lyrics and leave the phone recording.
+- Arm the rig on the way in, every venue, every time. The takes worth having are
+  the ones that were not planned.
+
+### Redcliffe Leagues Club — second pressure-inoculation slot
+
+Sunday afternoons, and on this showing the sign-up list is empty. That is a
+second live slot alongside Friday karaoke, in daylight, with effectively open
+stage time — and roughly ten Sundays before the Oct 7 warm-ups. **Sing a ladder
+song there weekly, recorded.** The goal is executing under a cold start and a
+strange room, not the score.
+
 ## The song ladder (different song each round)
 
 | Round | Song | Evidence |
@@ -70,6 +126,9 @@ any drill.
 3. **Friday karaoke nights = pressure inoculation.** Sing a ladder song each
    week in a loud room; the goal is executing "one gear in reserve" under
    adrenaline, not the score.
+3b. **Sunday afternoon, Redcliffe Leagues open mic = the second slot** (see the
+   cold-open section). Recorded, ladder song, cold start deliberately — this is
+   where "no song two" gets tested instead of assumed.
 4. **Daily micro-work stays on the two measured gaps:** entrance planting
    ("see it, land it, stay on it") and sustains (Messa di Voce — still first,
    shape second), plus rib-wide-to-the-last-word until it survives fatigue
@@ -83,6 +142,11 @@ any drill.
   condition.
 - One cue only on stage: **"one gear in reserve — let the chorus pull it out
   of me."** (Under nerves, one cue survives; three don't.)
+- Behind the cue, his own framing from the Redcliffe cold open: **stop thinking
+  and act.** Deliberation is what feeds the push; it is the same instruction
+  reached from the other side, and it is in his words, which is what survives.
+- **Recorder armed before walking in** — not the phone if the phone is holding
+  lyrics. One device cannot do both, and that is why the cold open has no take.
 - No foldback assumed: pitch from the backing's bass/keys; cup one ear on
   exposed sustains.
 - Record every round; the take gets analysed and tagged live like any other.
