@@ -148,6 +148,38 @@ he knew they were poor. **Not yet tested:** a blind A/B where a third party
 queues old and recent takes unlabelled, removing the expectation effect. Until
 that runs, the gap is unexplained, not explained.
 
+
+### Round 2 — sighted calibration extended to 14 takes (2 Aug 2026)
+
+A second round of six by-ear estimates on previously unrated recent takes
+brings the calibration set to **n=14**:
+
+| Set | n | correlation | mean abs error | bias |
+|---|---|---|---|---|
+| Round 1 | 8 | +0.82 | 0.53 | +0.23 |
+| Round 2 | 6 | +0.82 | 0.37 | -0.23 |
+| **Both rounds** | **14** | **+0.776** | **0.46** | **+0.03** |
+
+A bias of +0.03 across fourteen takes means there is no systematic offset
+between the singer's ear and the engine on current material.
+
+**Round 2 was NOT blind** — the songs and dates were named to him. It is a
+second sighted round, not the outstanding blind A/B, which still requires a
+third party to shuffle and relabel. The expectation effect remains uncontrolled
+in both rounds.
+
+**A fifth rejected hypothesis:** substituting capture-fair for overall on
+degraded-capture takes (HNR < 15) was tried as a fairer comparator and made
+agreement *worse* (r 0.776 -> 0.688, error 0.46 -> 0.63). The singer judges the
+recording as heard, capture flaws included; capture-fair deliberately discounts
+exactly what he is listening to. **Overall is the correct comparator against a
+by-ear estimate.**
+
+**Component-level accuracy:** on two takes he volunteered breath specifically
+("struggle with breath towards the end") without prompting. Both were confirmed
+— Heat Is On breath 4.86 / 63.2% sag, Pressure Down breath 5.78 / 58.1% sag. He
+identifies the failing component by ear, not merely the overall standard.
+
 ### Methodological notes for whoever repeats this
 - Estimates must be taken **blind and before** any score is shown. One estimate
   in this set (You Sexy Thing, 10 Jun) was revised from 7.2 to 6.8 *after* the
