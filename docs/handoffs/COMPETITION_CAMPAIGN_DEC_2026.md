@@ -82,13 +82,33 @@ survive on stage.
 ### Capture rule that comes out of it
 
 **The phone cannot be the lyric sheet and the recorder at once.** That is the
-only reason this take does not exist. Fix, using gear he already owns:
+only reason this take does not exist. It needs a second device or no device:
 
-- **Zoom H8 on the table, phone for lyrics.** The H8 recorded his 2019–2020
-  material at ~22 dB HNR — cleaner signal than most current live captures.
-- Or print the lyrics and leave the phone recording.
-- Arm the rig on the way in, every venue, every time. The takes worth having are
-  the ones that were not planned.
+- **Rilda's phone records.** She is there. Free, nothing to set up, nothing to
+  remember. This is the default.
+- **A paper cue card for lyrics.** He only glances to see where the next verse
+  starts — that is four or five opening lines on an index card, not a lyric
+  sheet. Frees the phone entirely, and paper does not glare or lock its screen.
+- **An old phone in the gig bag**, no SIM needed. Better than a device that has
+  to be consciously reassigned each time.
+- Apple Watch Voice Memos will do in a pinch.
+
+> **The Zoom H8 is NOT the answer** — Aaron no longer has its external capsule
+> mic, so the unit has no microphone of its own. It still has XLR inputs, so a
+> cheap dynamic mic on input 1 would restore it as a proper field recorder, and
+> it would beat any phone in a room. That is a purchase, not a fix for next
+> Sunday. (An earlier draft of this section recommended the H8 outright; that
+> was wrong and is corrected here.)
+
+**Do not over-engineer the capture.** Live room takes lead **capture-fair**,
+which excludes voice_quality and dynamics precisely because they measure the
+microphone and the room rather than the singer. Kung Fu Fighting at the Prince
+of Wales is a harsh capture — voice_quality 6.21, HNR 12.8 dB — and it is still
+his best take on file at 9.4 room-fair. Separation only needs enough signal to
+pull a vocal out. **The take does not need to be pristine. It needs to exist.**
+
+Arm whatever the rig is on the way in, every venue, every time. The takes worth
+having are the ones that were not planned.
 
 ### Redcliffe Leagues Club — second pressure-inoculation slot
 
@@ -147,6 +167,7 @@ strange room, not the score.
   reached from the other side, and it is in his words, which is what survives.
 - **Recorder armed before walking in** — not the phone if the phone is holding
   lyrics. One device cannot do both, and that is why the cold open has no take.
+  Default: Rilda's phone records, paper cue card for words.
 - No foldback assumed: pitch from the backing's bass/keys; cup one ear on
   exposed sustains.
 - Record every round; the take gets analysed and tagged live like any other.
