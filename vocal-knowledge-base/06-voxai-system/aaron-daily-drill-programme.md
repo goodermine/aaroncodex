@@ -1,7 +1,7 @@
 ---
 title: "Aaron — The 20-Minute Daily Drill Programme"
-category: voxai-system
-topics: [practice-design, sovt, onsets, breath, passaggio, range, messa-di-voce, farinelli]
+category: singer-profile
+topics: [practice-design, sovt, breath-support, passaggio, range-extension, pitch-accuracy]
 status: active
 built_from: 81 active Aaron takes (7 excluded by the contamination gate), June–August 2026, rubric v5 / calibration 1d3e2991f144
 ---
