@@ -7554,7 +7554,7 @@
       "rubric_fingerprint": "7cbd02df8f62",
       "calibrated": true,
       "calibration_references": 50,
-      "calibration_fingerprint": "fb035034bebd",
+      "calibration_fingerprint": "1d3e2991f144",
       "stem_model": "RoFormer",
       "take_fingerprint": "618393722df3"
     },
@@ -7785,5 +7785,24 @@
       "likely_cause": "Breath pressure decay or TA-dominant registration pulling pitch.",
       "intervention": "Fry to Head / Lip Trill / Messa di Voce on single pitches"
     }
-  ]
+  ],
+  "entry_accuracy": {
+    "is_score": false,
+    "not_a_score_note": "ENTRY ACCURACY is a diagnostic, not a score. It is NOT part of the overall or the capture-fair number and must never be quoted as a /10 or averaged with one. An onset_accuracy score component was built, tested and rejected in Aug 2026 for making agreement with the singer's ear worse.",
+    "method": "first 0.25 s of each sustained note vs its settled centre",
+    "n_onsets": 120,
+    "pct_clean": 26.7,
+    "pct_scooped": 36.7,
+    "pct_overshot": 36.7,
+    "median_scoop_depth_cents": -80.0,
+    "reliability": "high",
+    "percentile_vs_pro_pack": 24.0,
+    "pro_median_pct_clean": 33.2,
+    "n_references": 50,
+    "basis": "26.7% of entries land clean — matches or beats 24.0% of 50 pro references (pro median 33.2%)",
+    "scooped_percentile_vs_pro_pack": 60.0,
+    "pro_median_pct_scooped": 41.55,
+    "overshot_percentile_vs_pro_pack": 14.0,
+    "pro_median_pct_overshot": 24.0
+  }
 }

@@ -90,6 +90,13 @@ def score_row(f):
             "dyn_phrase_spread_db": dyn.get("phrase_level_spread_db"),
             "dyn_effective_range_db": dyn.get("effective_dynamic_range_db"),
             "median_phrase_s": phr.get("median_phrase_s"),
+            # Entry accuracy travels with the raw measures, never the scores:
+            # it is a diagnostic and is not part of any /10. Tracked here so the
+            # monthly progress check can trend it like cents and dB.
+            "onsets_pct_clean": (d.get("onsets") or {}).get("pct_clean"),
+            "onsets_pct_scooped": (d.get("onsets") or {}).get("pct_scooped"),
+            "onsets_pct_overshot": (d.get("onsets") or {}).get("pct_overshot"),
+            "entry_accuracy_reliability": (d.get("entry_accuracy") or {}).get("reliability"),
         },
     }
 

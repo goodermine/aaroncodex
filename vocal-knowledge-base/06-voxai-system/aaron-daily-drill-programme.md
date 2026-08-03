@@ -3,7 +3,7 @@ title: "Aaron — The 20-Minute Daily Drill Programme"
 category: voxai-system
 topics: [practice-design, sovt, onsets, breath, passaggio, range, messa-di-voce, farinelli]
 status: active
-built_from: 88 active Aaron takes, June–August 2026, rubric v5 / calibration fb035034bebd
+built_from: 81 active Aaron takes (7 excluded by the contamination gate), June–August 2026, rubric v5 / calibration 1d3e2991f144
 ---
 
 # Aaron — The 20-Minute Daily Drill Programme
@@ -19,18 +19,28 @@ restate it. This is the specific programme, for this voice, aimed at these gaps.
 
 ---
 
-## Where you actually are (88 active takes, June–August 2026)
+## Where you actually are (81 active takes, June–August 2026)
+
+Seven takes are excluded: they fail the contamination gate (degraded signal
+*with* superhuman pitch numbers — the pitch tracker was locked onto backing
+instruments). Including them flattered the onset figures, so every number below
+is the gated one.
 
 | What | You | Professional reference | Verdict |
 |---|---|---|---|
-| Clean note entries | **24.2%** | Farnham 37.9–57.1% (pack median 33.2%) | **worst gap** |
-| Entries scooped into | **44.6%**, from a median **−98.6 cents** | — | nearly a semitone below the note |
-| Phrase endings that sag | **50.0%** | Farnham 28.6–29.7% | **second worst** |
-| Drift inside a held note | **38.4c** | Farnham 15.1–24.0c | what listeners hear |
-| Median phrase length | **2.56s** | *You're the Voice* 5.57s | half the length |
+| Clean note entries | **23.7%** — the **16th percentile** of the pack | pack median 33.2%; Farnham 37.9–57.1% | **worst gap** |
+| Entries scooped into | **47.9%**, from a median **−98.8 cents** | pack median 41.6% | near-normal *rate* |
+| Entries overshot | **29.3%** | pack median 24.0% | the other half of the miss |
+| Phrase endings that sag | **51.5%** | Farnham 28.6–29.7% | **second worst** |
+| Drift inside a held note | **39.8c** | Farnham 15.1–24.0c | what listeners hear |
+| Median phrase length | **2.7s** | *You're the Voice* 5.57s | half the length |
 | `phrase_control` | **6.24** | — | your lowest column |
 | `breath_support` | 7.05 | — | second lowest |
-| Deviation from the note you land on | **20–25c** | 20–25c | **already reference level** |
+| Deviation from the note you land on | **22.5c** | 20–25c | **already reference level** |
+
+**Only 6 of 81 takes reach the professional median for clean entries.** Your
+median take sits at the 16th percentile — 42 of the 50 reference professionals
+start their notes more cleanly.
 
 ### Read that last row again
 
@@ -39,7 +49,7 @@ which is exactly where the Farnham and 3 Doors Down masters land, and it has
 measured at that level since 2019. Do not spend practice minutes on it.
 
 What you almost certainly mean by "pitch centring" is the **approach**: you slide
-up into 44.6% of your notes from nearly a semitone below. A listener hears that
+up into 47.9% of your notes from nearly a semitone below. A listener hears that
 as loose pitch even though the note you arrive at is dead centre. The engine
 scores where you *land* — your ear, and the judges' ears, hear how you *got
 there*.
@@ -67,11 +77,11 @@ the adaptation lands.
 | # | Block | Min | Moves this number |
 |---|---|---|---|
 | 0 | SOVTE wake-up | 3 | (prepares everything, costs nothing) |
-| 1 | Farinelli breath — silent | 3 | sag 50.0% → under 35% |
-| 2 | **Onset planting** | 5 | clean 24.2% → 33%+ |
-| 3 | Sustain → Messa di voce | 4 | drift 38.4c → under 25c |
+| 1 | Farinelli breath — silent | 3 | sag 51.5% → under 35% |
+| 2 | **Onset planting** | 5 | clean 23.7% → 33%+ |
+| 3 | Sustain → Messa di voce | 4 | drift 39.8c → under 25c |
 | 4 | Passaggio & range | 3 | working top; M2 in songs |
-| 5 | Song application | 2 | phrase 2.56s → 4s+ |
+| 5 | Song application | 2 | phrase 2.7s → 4s+ |
 
 **15-minute version:** blocks 0, 1, 2 and 3 only. Never cut block 0.
 
@@ -107,9 +117,9 @@ Costs your folds nothing, so it is safe on a recovery day and safe when sick.
 > it. If there is a click, a catch or a little push, you held it at the glottis —
 > reset and hold it at the ribs instead.
 
-This is your rib-loading work and your sag fix in one silent exercise. The 50%
-sag figure is not a lung-capacity problem — your median phrase is **2.56
-seconds**, and nobody runs out of air in two and a half seconds. **You are
+This is your rib-loading work and your sag fix in one silent exercise. The 51.5%
+sag figure is not a lung-capacity problem — your median phrase is **2.7
+seconds**, and nobody runs out of air in under three seconds. **You are
 letting go of the support before the phrase finishes.** The suspension is the
 antidote.
 
@@ -149,17 +159,17 @@ Contrast is how ears learn. You currently cannot reliably hear your own scoops
 because they are your normal; making them deliberate makes them audible.
 
 > **Scooping is not always wrong**, and your scoop *rate* is not the problem.
-> The 50-reference pack medians 41.5% scooped; you sit at 44.6%. That is normal.
+> The 50-reference pack medians 41.6% scooped; you sit at 47.9%. That is close to normal.
 >
-> **The problem is that you also overshoot.** You come in above the note 29.2%
-> of the time against a pack median of 24.0%. Scooped 44.6% plus overshot 29.2%
-> leaves only **24.2% clean**, against a pack median of 33.2%. You miss the
+> **The problem is that you also overshoot.** You come in above the note 29.3%
+> of the time against a pack median of 24.0%. Scooped 47.9% plus overshot 29.3%
+> leaves only **23.7% clean**, against a pack median of 33.2%. You miss the
 > centre in *both directions*, which is why the clean-entry gap (−9 points) is
 > so much wider than the scooping gap (−3 points).
 >
 > For contrast, Farnham on Pressure Down — the song you drill most — lands
 > **57.1% clean and scoops only 14.3%**, and when he does scoop it is from
-> −82.5c, barely shallower than your −98.6c. **He is not scooping less deeply
+> −82.5c, barely shallower than your −98.8c. **He is not scooping less deeply
 > than you. He is scooping three times less often, and by choice.**
 >
 > Get the clean entry as your default. Then put the scoop back where you *want*
@@ -175,7 +185,7 @@ Five notes.
 
 The drone is what makes this work: drift is nearly impossible to hear on your
 own, and instantly obvious against a reference pitch. This is the most direct
-attack on the 38.4-cent number there is, and it is the number the blind test
+attack on the 39.8-cent number there is, and it is the number the blind test
 proved your ear tracks.
 
 **3b. Messa di voce (2 min).** Same pitch. Soft → full → soft, all on one breath.
@@ -215,7 +225,7 @@ One phrase. Not a whole song.
 Take a phrase from a ladder song and apply **whatever today's focus was** — clean
 onsets, or supported ending, or straight sustain. Then the phrase-length ladder:
 
-- Yours: **2.56s median.** *You're the Voice*: **5.57s.**
+- Yours: **2.7s median.** *You're the Voice*: **5.57s.**
 - Take one long phrase and sing it on a single breath. Add a beat when it is
   comfortable. Track it.
 - **"Last word loud"** — carry the intensity all the way to the final syllable
@@ -271,14 +281,30 @@ month**, same conditions, and read four numbers:
 
 | Number | Today | 3-month target | Where to find it |
 |---|---|---|---|
-| `onsets.pct_clean` | 24.2% | **33%+** | full results, METRICS |
-| `breath.pct_sagging_endings` | 50.0% | **under 35%** | full results, METRICS |
-| `intonation.median_intra_note_drift_cents` | 38.4c | **under 25c** | full results, METRICS |
-| `phrasing.median_phrase_s` | 2.56s | **4s+** | full results, METRICS |
+| Clean entries | 23.7% (16th pct) | **33%+ (50th)** | full results, **ENTRY ACCURACY** |
+| `breath.pct_sagging_endings` | 51.5% | **under 35%** | full results, METRICS |
+| `intonation.median_intra_note_drift_cents` | 39.8c | **under 25c** | full results, METRICS |
+| `phrasing.median_phrase_s` | 2.7s | **4s+** | full results, METRICS |
 
 These are **raw measures**, so they are always comparable — no provenance gate
 needed (CLAUDE.md rule 3 applies to `/10` scores only). Watch the raw numbers
 monthly; let the score take care of itself.
+
+**Entry accuracy now prints in every full report**, under its own heading, with
+your percentile against the 50 professional references beside it:
+
+```
+ENTRY ACCURACY  (diagnostic — NOT part of the score)
+Clean entries: 23.8%  — matches or beats 16.0% of 50 pro references (pro median 33.2%)
+The misses: scooped into 48.5% from a median -109.2c (pro median 41.55%) · overshot 27.7% (pro median 24.0%)
+```
+
+**Watch the percentile.** It is the honest headline for this gap: 16% means 42 of
+the 50 professional references start their notes more cleanly than that take did.
+It is not a `/10` and never will be — an `onset_accuracy` score component was
+built and rejected for making agreement with your ear *worse*
+(`docs/handoffs/V6_ONSET_COMPONENT_REJECTED.md`). This is the number that moves
+when block 2 works.
 
 > **Do not expect the overall `/10` to move much even if all four improve.**
 > `phrase_control` and `breath_support` carry 0.10 each, and onsets are not

@@ -42,7 +42,8 @@ import json, glob, os, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "voxanalysis/vox-analysis/engine"))
 from analyse_song import (  # noqa: E402
-    compute_technical_score, load_calibration, DEFAULT_CALIBRATION_PATH)
+    compute_technical_score, compute_entry_accuracy, load_calibration,
+    DEFAULT_CALIBRATION_PATH)
 
 ARCHIVE = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
 DRY = "--dry-run" in sys.argv
@@ -55,40 +56,52 @@ def main() -> int:
               "Uncalibrated anchors read ~2-3 points too harsh.")
         return 1
 
-    changed, unchanged, skipped = [], 0, []
+    changed, unchanged, skipped, backfilled = [], 0, [], 0
     for path in sorted(glob.glob(os.path.join(ARCHIVE, "*_analysis.json"))):
         name = os.path.basename(path)
         with open(path) as fh:
             d = json.load(fh)
         old = d.get("technical_score") or {}
 
+        # ENTRY ACCURACY is a diagnostic computed outside the score, so it is
+        # backfilled here for takes analysed before it existed. It changes no
+        # number; it surfaces onset measurements the engine already stored.
+        new_ea = compute_entry_accuracy(d, cal)
+        dirty = json.dumps(new_ea, sort_keys=True) != json.dumps(
+            d.get("entry_accuracy"), sort_keys=True)
+        if dirty:
+            backfilled += 1
+            d["entry_accuracy"] = new_ea
+
         # A retired-legacy stub carries no numbers by design. Re-scoring it here
-        # would resurrect a score the retire step deliberately removed, so it is
-        # left alone; rescore_all.py reports it as retired.
+        # would resurrect a score the retire step deliberately removed, so its
+        # SCORE is left alone; rescore_all.py reports it as retired. The
+        # diagnostic above still applies — it is not a score.
         if old.get("status") == "retired_legacy_score":
             skipped.append(name)
-            continue
+        else:
+            new = compute_technical_score(d, cal)
+            if not new:
+                skipped.append(name)
+            else:
+                stored_file = (old.get("calibration") or {}).get("file")
+                if stored_file and isinstance(new.get("calibration"), dict):
+                    new["calibration"]["file"] = stored_file
+                if json.dumps(new, sort_keys=True) == json.dumps(old, sort_keys=True):
+                    unchanged += 1
+                else:
+                    changed.append(
+                        (name, old.get("overall_score_0_to_10"),
+                         new.get("overall_score_0_to_10"),
+                         (old.get("identity") or {}).get("calibration_fingerprint"),
+                         (new.get("identity") or {}).get("calibration_fingerprint")))
+                    d["technical_score"] = new
+                    dirty = True
 
-        new = compute_technical_score(d, cal)
-        if not new:
-            skipped.append(name)
-            continue
-
-        stored_file = (old.get("calibration") or {}).get("file")
-        if stored_file and isinstance(new.get("calibration"), dict):
-            new["calibration"]["file"] = stored_file
-
-        if json.dumps(new, sort_keys=True) == json.dumps(old, sort_keys=True):
-            unchanged += 1
-            continue
-
-        changed.append((name,
-                        old.get("overall_score_0_to_10"),
-                        new.get("overall_score_0_to_10"),
-                        (old.get("identity") or {}).get("calibration_fingerprint"),
-                        (new.get("identity") or {}).get("calibration_fingerprint")))
-        if not DRY:
-            d["technical_score"] = new
+        # Written once, at the end: a take whose score is unchanged can still
+        # need the diagnostic backfilled, and an early `continue` on the score
+        # comparison would silently drop it.
+        if dirty and not DRY:
             with open(path, "w") as fh:
                 json.dump(d, fh, indent=2, ensure_ascii=False)
                 fh.write("\n")
@@ -96,6 +109,9 @@ def main() -> int:
     verb = "would be re-scored" if DRY else "re-scored"
     print(f"{len(changed)} {verb}, {unchanged} already current, "
           f"{len(skipped)} skipped (retired or unscoreable)")
+    if backfilled:
+        print(f"{backfilled} entry-accuracy diagnostic(s) "
+              f"{'would be ' if DRY else ''}written (not a score, changes no number)")
     moved = [c for c in changed if c[1] is not None and c[2] is not None
              and abs(c[2] - c[1]) >= 0.05]
     if moved:

@@ -75,6 +75,27 @@ Every one of 182 archived scores changes; both singer PDFs regenerate; v5 and
 v6 scores become permanently non-comparable under rule 3. Not worth paying for
 no measured improvement.
 
+## What was done instead (3 Aug 2026) — the ENTRY ACCURACY diagnostic
+
+Aaron asked for the onset measurement to be **reported next to the score without
+being folded into it**. That is a different request from v6 and it was built:
+
+- `compute_entry_accuracy()` in the engine — clean / scooped / overshot, each
+  with a **percentile against the 50-reference pack**, in the same "matches or
+  beats X% of N pro references" language the components already use.
+- It emits **no `/10`**, by design. A second ten-point number beside the real one
+  is precisely the failure CLAUDE.md rule 1 exists to prevent. A percentile is a
+  number that goes up as he improves and cannot be mistaken for the score.
+- It lives **outside `compute_technical_score`**, so `rubric_fingerprint` did not
+  move and no existing score became non-comparable.
+- `onsets_pct_clean` and `onsets_pct_overshot` were added to the calibration
+  pack. **Every pre-existing anchor came out byte-identical again, and all 182
+  archived scores and every component were verified unchanged** — only
+  `calibration_fingerprint` moved (fb035034bebd → 1d3e2991f144), which the
+  in-place re-score and the preflight gate handle.
+
+So the rejection stands and the measurement is now visible. Those are compatible.
+
 ## What remains true and useful
 
 **Onset accuracy is still a real, measured deficit and a good coaching target —

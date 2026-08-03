@@ -8097,7 +8097,7 @@
       "rubric_fingerprint": "7cbd02df8f62",
       "calibrated": true,
       "calibration_references": 50,
-      "calibration_fingerprint": "fb035034bebd",
+      "calibration_fingerprint": "1d3e2991f144",
       "stem_model": "RoFormer",
       "take_fingerprint": "bd0a17800eb3"
     },
@@ -8277,5 +8277,25 @@
     "note": "Primary drill = highest-severity measured limiter. Candi may choose among the category's listed exercises using drill history, or justify a deviation in prose."
   },
   "archetype": "Hybrid",
-  "diagnostic_flags": []
+  "diagnostic_flags": [],
+  "entry_accuracy": {
+    "is_score": false,
+    "not_a_score_note": "ENTRY ACCURACY is a diagnostic, not a score. It is NOT part of the overall or the capture-fair number and must never be quoted as a /10 or averaged with one. An onset_accuracy score component was built, tested and rejected in Aug 2026 for making agreement with the singer's ear worse.",
+    "method": "first 0.25 s of each sustained note vs its settled centre",
+    "n_onsets": 113,
+    "pct_clean": 36.3,
+    "pct_scooped": 42.5,
+    "pct_overshot": 21.2,
+    "median_scoop_depth_cents": -82.1,
+    "reliability": "reduced",
+    "reliability_reason": "degraded capture (HNR 11.2 dB, jitter 1.1555%) — the onset measurement is plausible and is reported, but a rough room makes note starts harder to detect. Read it as indicative.",
+    "percentile_vs_pro_pack": 64.0,
+    "pro_median_pct_clean": 33.2,
+    "n_references": 50,
+    "basis": "36.3% of entries land clean — matches or beats 64.0% of 50 pro references (pro median 33.2%)",
+    "scooped_percentile_vs_pro_pack": 50.0,
+    "pro_median_pct_scooped": 41.55,
+    "overshot_percentile_vs_pro_pack": 70.0,
+    "pro_median_pct_overshot": 24.0
+  }
 }

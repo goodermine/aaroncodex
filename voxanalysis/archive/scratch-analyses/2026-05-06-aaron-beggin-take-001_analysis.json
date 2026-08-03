@@ -6610,7 +6610,7 @@
       "rubric_fingerprint": "7cbd02df8f62",
       "calibrated": true,
       "calibration_references": 50,
-      "calibration_fingerprint": "fb035034bebd",
+      "calibration_fingerprint": "1d3e2991f144",
       "stem_model": "RoFormer",
       "take_fingerprint": "f44d51ee57d0"
     },
@@ -6844,5 +6844,18 @@
   "take_context": {
     "intent": "learning",
     "note": "learning era — retro-tagged by Aaron, 29 Jul 2026 (pre-June catch-up phase)"
+  },
+  "entry_accuracy": {
+    "is_score": false,
+    "not_a_score_note": "ENTRY ACCURACY is a diagnostic, not a score. It is NOT part of the overall or the capture-fair number and must never be quoted as a /10 or averaged with one. An onset_accuracy score component was built, tested and rejected in Aug 2026 for making agreement with the singer's ear worse.",
+    "method": "first 0.25 s of each sustained note vs its settled centre",
+    "n_onsets": 79,
+    "pct_clean": 81.0,
+    "pct_scooped": 3.8,
+    "pct_overshot": 15.2,
+    "median_scoop_depth_cents": -31.9,
+    "reliability": "suspect",
+    "reliability_reason": "HNR 8.59 dB / jitter 2.8454% is a degraded signal, yet the onsets (81.0% clean) and held-note drift (4.9c) beat 90% of the professional pack. A voice cannot sound that rough and start notes that perfectly. This is the signature of a pitch tracker locked onto backing instruments, which are perfectly in tune and start instantly — the measurement describes the band, not the singer. Re-separate.",
+    "basis": "81.0% of entries land clean — WITHHELD: HNR 8.59 dB / jitter 2.8454% is a degraded signal, yet the onsets (81.0% clean) and held-note drift (4.9c) beat 90% of the professional pack. A voice cannot sound that rough and start notes that perfectly. This is the signature of a pitch tracker locked onto backing instruments, which are perfectly in tune and start instantly — the measurement describes the band, not the singer. Re-separate."
   }
 }

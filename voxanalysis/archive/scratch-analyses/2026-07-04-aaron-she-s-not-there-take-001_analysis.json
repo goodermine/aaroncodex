@@ -7086,7 +7086,7 @@
       "rubric_fingerprint": "7cbd02df8f62",
       "calibrated": true,
       "calibration_references": 50,
-      "calibration_fingerprint": "fb035034bebd",
+      "calibration_fingerprint": "1d3e2991f144",
       "stem_model": "RoFormer",
       "take_fingerprint": "20f91fc86fd8"
     },
@@ -7398,5 +7398,18 @@
       "likely_cause": "Depressed larynx or retracted tongue root.",
       "intervention": "Bratty Nay / NG Siren"
     }
-  ]
+  ],
+  "entry_accuracy": {
+    "is_score": false,
+    "not_a_score_note": "ENTRY ACCURACY is a diagnostic, not a score. It is NOT part of the overall or the capture-fair number and must never be quoted as a /10 or averaged with one. An onset_accuracy score component was built, tested and rejected in Aug 2026 for making agreement with the singer's ear worse.",
+    "method": "first 0.25 s of each sustained note vs its settled centre",
+    "n_onsets": 112,
+    "pct_clean": 70.5,
+    "pct_scooped": 8.0,
+    "pct_overshot": 21.4,
+    "median_scoop_depth_cents": -50.0,
+    "reliability": "suspect",
+    "reliability_reason": "HNR 9.38 dB / jitter 3.4615% is a degraded signal, yet the onsets (70.5% clean) and held-note drift (6.5c) beat 90% of the professional pack. A voice cannot sound that rough and start notes that perfectly. This is the signature of a pitch tracker locked onto backing instruments, which are perfectly in tune and start instantly — the measurement describes the band, not the singer. Re-separate.",
+    "basis": "70.5% of entries land clean — WITHHELD: HNR 9.38 dB / jitter 3.4615% is a degraded signal, yet the onsets (70.5% clean) and held-note drift (6.5c) beat 90% of the professional pack. A voice cannot sound that rough and start notes that perfectly. This is the signature of a pitch tracker locked onto backing instruments, which are perfectly in tune and start instantly — the measurement describes the band, not the singer. Re-separate."
+  }
 }
