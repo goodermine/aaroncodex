@@ -1,4 +1,4 @@
-# How to read a VOXAI score — four measured limitations
+# How to read a VOXAI score — five measured limitations
 
 Findings from a deliberate validity investigation on 1–2 Aug 2026. Aaron
 supplied historical takes he *knew* contained severe faults, to test whether
@@ -114,6 +114,47 @@ It is a limitation on *reading*, exactly like the other three.
 **Practice rule:** when `pitch_stability` reads 0.0, the score has stopped
 measuring. Quote `intonation.median_intra_note_drift_cents` beside it — that
 number keeps going, and it is what the ear is tracking.
+
+## 5. ENTRY ACCURACY is measured in the region separation damages most
+
+Peer-reviewed voice-science research on onset (folded into the library as
+`01-vocal-science-technique/vocal-onset-how-notes-begin.md`, 40+ citations)
+carries a finding aimed squarely at how the engine measures onsets:
+
+> Voicing detection and F0 estimation degrade as SNR falls, and **the damage
+> concentrates in the quiet onset region — exactly where scoop/overshoot lives —
+> so automated scoop statistics from stem-separated audio can be artefacts, not
+> singing.** (Dai & Dixon; Mauch & Dixon; separation-SNR literature.)
+
+The engine measures `onsets.pct_clean/scooped/overshot` from **RoFormer-separated
+vocal stems** — precisely the condition the research flags. The tracker is least
+reliable in the first ~20–60 ms of a note, octave errors cluster at note starts,
+and separation bleed is loudest where the note is quietest. So an absolute
+onset number ("23.7% clean") carries more measurement noise than a steady-state
+number like deviation, which is read from the settled middle of the note.
+
+**What protects the finding, and what does not.**
+
+- **The percentile is more trustworthy than the raw percent.** Aaron's 50
+  professional references run through the *same* RoFormer pipeline, so whatever
+  separation does to onset detection, it does to both sides. "16th percentile
+  against the pack" is a same-pipeline comparison and largely survives; "23.7%
+  clean" as an absolute is softer. This is the same logic as capture-fair —
+  compare like measured against like.
+- **The contamination gate already removes the worst cases** (limitation 3): a
+  degraded stem with superhuman onset numbers is withheld, and 7 of Aaron's takes
+  are. But the gate catches gross band-lock, not the subtler onset-region noise on
+  an otherwise clean separation.
+- **The honest gold standard, per the research, is a dry clean solo vocal** —
+  recorded direct, not separated from a backing. Aaron's supply-your-own-backing
+  path already produces this for home takes; those onset numbers are the ones to
+  trust most, and a live-room stem the least.
+
+**Practice rule:** quote the onset **percentile**, not the bare percent, and note
+when a take was stem-separated. For a definitive onset read — the one that would
+justify a coaching pivot — use a dry solo recording, exactly as the onset
+document's Stage 0 says. The engine's onset numbers are a good weekly tracking
+signal on consistent captures; they are not a lab measurement.
 
 ## What the validity test did NOT establish
 

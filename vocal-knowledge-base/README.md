@@ -3,7 +3,7 @@
 A structured reference library on singing, vocal technique and vocal pedagogy.
 Researched, synthesised and written by **Aaron Ellis** (artist name: Rustwood).
 
-**76 documents · ~527,000 words** of knowledge, across 8 categories.
+**77 documents · ~531,000 words** of knowledge, across 8 categories.
 
 **Licence: all rights reserved.** See `LICENSE`.
 
@@ -13,7 +13,7 @@ Researched, synthesised and written by **Aaron Ellis** (artist name: Rustwood).
 
 | Folder | Contents | Docs |
 |---|---|---|
-| `01-vocal-science-technique/` | Core technique and vocal science — pedagogy, bel canto, breath, health, diction | 21 |
+| `01-vocal-science-technique/` | Core technique and vocal science — pedagogy, bel canto, breath, health, diction | 22 |
 | `02-course-book/` | Three long-form works: one training course, two complete books. See folder README | 18 |
 | `03-technique-deep-dives/` | Single-topic studies — registers, belting, vibrato, agility, passaggio, practice design | 13 |
 | `04-artist-analyses/` | Technique breakdowns of specific vocalists | 7 |
