@@ -3,7 +3,7 @@
 A structured reference library on singing, vocal technique and vocal pedagogy.
 Researched, synthesised and written by **Aaron Ellis** (artist name: Rustwood).
 
-**80 documents · ~535,000 words** of knowledge, across eight categories.
+**80 documents · ~537,000 words** of knowledge, across eight categories.
 
 **Licence: all rights reserved.** See `LICENSE`.
 

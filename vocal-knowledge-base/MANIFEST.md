@@ -2,10 +2,10 @@
 
 Generated 2026-07-26
 
-**Active knowledge base: 80 documents · 535,667 words**  
+**Active knowledge base: 80 documents · 536,819 words**  
 **Sources + archive: 23 documents · 232,404 words** (labelled `exclude_from_training`)
 ## 01-vocal-science-technique
-*Core technique and vocal science* — 21 documents, 166,511 words
+*Core technique and vocal science* — 21 documents, 165,467 words
 
 - `01-vocal-science-technique/accent-splat-breathing-for-singing.md` — 7,730 words · *pedagogy, fatigue, breath-support, career, classical, dynamics*
 - `01-vocal-science-technique/advanced-singing-technique-report.md` — 7,714 words · *vibrato, belting, twang, classical, range-extension, agility*
@@ -91,9 +91,9 @@ Generated 2026-07-26
 - `05-song-guides/song-selection-vocal-guide.md` — 10,234 words · *classical, belting, contemporary, grit, recording, agility*
 
 ## 06-voxai-system
-*VOXAI coaching system and singer profile* — 8 documents, 30,490 words
+*VOXAI coaching system and singer profile* — 8 documents, 31,908 words
 
-- `06-voxai-system/aaron-daily-drill-programme.md` — 2,247 words · *practice-design, sovt, onsets, breath-support, passaggio, range-extension*
+- `06-voxai-system/aaron-daily-drill-programme.md` — 3,665 words · *practice-design, sovt, onsets, breath-support, passaggio, range-extension*
 - `06-voxai-system/aaron-vocal-blueprint-v2.md` — 1,701 words · *breath-support, pitch-accuracy, passaggio, fatigue, practice-design, contemporary*
 - `06-voxai-system/complete-implementation-handoff.md` — 7,739 words · *recording, cool-down, grit, agility, pitch-accuracy, diction*
 - `06-voxai-system/singing-study-guide.md` — 2,958 words · *practice-design, passaggio, terminology, career, grit, warm-up*

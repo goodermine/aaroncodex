@@ -76,18 +76,37 @@ the adaptation lands.
 
 | # | Block | Min | Moves this number |
 |---|---|---|---|
-| 0 | SOVTE wake-up | 3 | (prepares everything, costs nothing) |
-| 1 | Farinelli breath — silent | 3 | sag 51.5% → under 35% |
-| 2 | **Onset planting** | 5 | clean 23.7% → 33%+ |
-| 3 | Sustain → Messa di voce | 4 | drift 39.8c → under 25c |
-| 4 | Passaggio & range | 3 | working top; M2 in songs |
-| 5 | Song application | 2 | phrase 2.7s → 4s+ |
+| 0 | SOVT wake-up | 3 | (prepares everything, costs nothing) |
+| 1 | **Onset planting** | 5 | clean 23.7% → 33%+ |
+| 2 | Sustain → messa di voce | 3 | drift 39.8c → under 25c |
+| 3 | Passaggio, **vowels** & range | 4 | working top; M2 in songs; strain at F4 |
+| 4 | **Twang** | 2 | carrying power without volume |
+| 5 | Song application | 1 | phrase 2.7s → 4s+ |
+| 6 | **Cool-down** | 2 | tomorrow's freshness |
 
-**15-minute version:** blocks 0, 1, 2 and 3 only. Never cut block 0.
+**15-minute version:** blocks 0, 1, 2 and 6. Never cut block 0, never cut the
+cool-down.
+
+### The Farinelli breath comes OFF the clock — that is a promotion
+
+It used to hold a 3-minute slot here. It is now the one thing you do **outside**
+the twenty minutes, several times a day: driving, on the couch, before sleep,
+waiting for the kettle.
+
+**It is completely silent, so it costs your folds nothing** — which means
+rationing it to one slot was the wrong call. Dargin & Searl's finding on SOVT
+dosing (short, repeated bouts several times daily beat one long session)
+generalises to the whole "frequency over duration" principle, and a silent
+exercise has no reason to compete for singing minutes.
+
+Aim for **three or four short goes a day.** Inhale 4 — suspend 4 — exhale 4, six
+rounds, adding a count to the easiest phase each week; plus one timed hiss.
+Full instructions in the block below — it is still the sag fix, it just stopped
+paying rent.
 
 ---
 
-### Block 0 — SOVTE wake-up (3 min)
+### Block 0 — SOVT wake-up (3 min)
 
 Always first. Always. Semi-occluded work gets the folds vibrating at a fraction
 of the collision force, so it prepares the instrument without spending it.
@@ -101,9 +120,10 @@ every other block works better after it.
 
 ---
 
-### Block 1 — Farinelli breath (3 min, silent)
+### The Farinelli breath — off the clock, several times a day
 
-Costs your folds nothing, so it is safe on a recovery day and safe when sick.
+Silent, so it is safe on a recovery day, safe when sick, and safe anywhere.
+This one is not part of the twenty minutes — see above.
 
 - **Inhale 4 — suspend 4 — exhale 4.** Six rounds. Add one count to the easiest
   phase each week; stop climbing at about 10–12.
@@ -125,12 +145,12 @@ antidote.
 
 ---
 
-### Block 2 — Onset planting (5 min) — the biggest gap
+### Block 1 — Onset planting (5 min) — the biggest gap
 
 The longest block, because it is the largest measured deficit and the one that
 most changes how you sound to a listener.
 
-**2a. Three-onset contrast (2 min).** One comfortable pitch, say D4. Sing "ah"
+**1a. Three-onset contrast (2 min).** One comfortable pitch, say D4. Sing "ah"
 three ways and *feel* the difference:
 
 - **Breathy** — "haaah", air starts before tone.
@@ -141,7 +161,7 @@ Five rounds. You cannot fix an onset you cannot feel, and this is the drill that
 builds the sensation. Balanced is the target; the other two are there so you can
 tell what balanced *isn't*.
 
-**2b. Silent-target planting (2 min).** Play a note. **Stop the sound.** Hear it
+**1b. Silent-target planting (2 min).** Play a note. **Stop the sound.** Hear it
 in your head. Breathe. Land it — no slide, straight onto the centre. Hold two
 seconds. Repeat across ten different pitches.
 
@@ -151,7 +171,7 @@ sing, so you have to have it in your head first. Scooping is what a voice does
 when it is *searching* for the note. Take away the search and you take away the
 scoop.
 
-**2c. Deliberate contrast (1 min).** Take one phrase from a song you know. Sing
+**1c. Deliberate contrast (1 min).** Take one phrase from a song you know. Sing
 it **scooping on purpose** — exaggerate it. Then sing it clean. Alternate three
 times.
 
@@ -177,9 +197,9 @@ because they are your normal; making them deliberate makes them audible.
 
 ---
 
-### Block 3 — Sustain, then Messa di voce (4 min)
+### Block 2 — Sustain, then messa di voce (3 min)
 
-**3a. Straight tone against a drone (2 min).** Play a drone — tuner app, keyboard,
+**2a. Straight tone against a drone (2 min).** Play a drone — tuner app, keyboard,
 anything. Sustain against it. **Straight, no vibrato, no swell, 8–10 seconds.**
 Five notes.
 
@@ -188,28 +208,47 @@ own, and instantly obvious against a reference pitch. This is the most direct
 attack on the 39.8-cent number there is, and it is the number the blind test
 proved your ear tracks.
 
-**3b. Messa di voce (2 min).** Same pitch. Soft → full → soft, all on one breath.
-Three notes only. Quality over quantity.
+**2b. Messa di voce (1 min).** Same pitch. Soft → full → soft, all on one breath.
+**Two notes only.** Quality over quantity — this is the hardest thing in the
+programme and it is better done twice properly than five times badly.
 
-> **Steady first, shape second.** If the straight tone in 3a is not solid, do not
+> **Steady first, shape second.** If the straight tone in 2a is not solid, do not
 > do 3b today — you would be practising drift with volume added on top.
 > Pushing the crescendo is the trap, and under load your measured pattern across
 > two independent systems is to default to power. **The swell has to be earned.**
 
 ---
 
-### Block 4 — Passaggio & range (3 min)
+### Block 3 — Passaggio, vowels & range (4 min)
 
 You live on your passaggio, so this is maintenance, not extras.
 
 1. **Straw/tube glides through C♯4–F4** — slowly, repeatedly, listening for any
    audible gear change. The semi-occlusion makes the transition almost
    frictionless, which is exactly why it is the best passaggio tool there is.
-2. **"ng" slides**, octave and a half, low to high and back. Nasal and
-   low-impact — this is how you visit the top of your range without spending it.
-3. **Descending 5-tone from above the passaggio** on a light vowel ("oo" or
+2. **Descending 5-tone from above the passaggio** on a light vowel ("oo" or
    "ee"), coming *down* through C♯4–F4. Descending brings M2 down and blends it,
    which is the connection you have been building all year.
+3. **Vowel modification (aggiustamento) — 90 seconds.** Sing the same word up a
+   scale through E4 and above, letting the vowel migrate as the pitch rises:
+
+   | Vowel | As you climb, move it toward | Rough cue |
+   |---|---|---|
+   | "ee" (/i/) | more open | "ee" → "ih" |
+   | "oo" (/u/) | more open | "oo" → "uh" |
+   | "ah" (/a/) | rounder | "ah" → "aw" |
+
+   **The tell is unmistakable: the note suddenly rings and gets easier.** If you
+   are muscling a note at F4, the vowel is the first thing to change — before the
+   volume, before the support.
+
+> **Why this block grew.** The elite-coaching synthesis
+> (`01-vocal-science-technique/inside-the-elite-contemporary-vocal-lesson.md`)
+> lists vowel modification as *the* remediation for "strain or choke on high
+> notes," with strong acoustic backing — it keeps tract resonance aligned with a
+> strong harmonic. The first version of this programme gave you glides and
+> descending scales and **no vowel work at all**, which left out the main tool
+> for the exact zone you spend most of your singing life in.
 
 > **Range grows from coordination, not force.** Extend at the *top of a glide*,
 > never on a held note, and by a semitone at a time. If it squeezes, you have
@@ -218,7 +257,29 @@ You live on your passaggio, so this is maintenance, not extras.
 
 ---
 
-### Block 5 — Song application (2 min)
+### Block 4 — Twang (2 min) — your alternative to volume
+
+**"ng" and "nay."** Slide on "ng" (the end of *sing*) across the mid-range, then
+open it into a bratty, slightly nasal "nay-nay-nay" on a 5-tone scale. Keep it
+**bright and buzzy, never loud.** The tell is a focused ring you can feel in the
+front of your face.
+
+This block exists because of one line in the coaching synthesis: *thin, no
+carrying power → twang → bright, buzzy, focused ring.* Twang narrows the
+epilaryngeal tube and adds **cut without effort** — carrying power that costs no
+extra air and no extra pressure.
+
+> **Read this the night before a competition round.** Your measured failure mode
+> under pressure, confirmed by two independent systems and by your own diagnosis
+> of the semi-final you lost, is that you reach for **power**. Twang is the
+> technical thing to reach for instead. It is louder where it counts — in the
+> frequencies a room actually hears — without being louder at the folds.
+>
+> "One gear in reserve" tells you what *not* to do. This is the thing to do.
+
+---
+
+### Block 5 — Song application (1 min)
 
 One phrase. Not a whole song.
 
@@ -233,23 +294,79 @@ onsets, or supported ending, or straight sustain. Then the phrase-length ladder:
 
 ---
 
-## Weekly rotation
+### Block 6 — Cool-down (2 min)
 
-Same 20 minutes, one block gets a double share each day so nothing goes stale:
+Gentle SOVT — hum or straw, quiet — then **descending glides only**, from
+comfortable down to the bottom, five or six passes. Nothing loud, nothing high.
+
+Every elite lesson blueprint ends here and the first version of this programme
+simply stopped. Two minutes returns the voice to neutral and reduces the fatigue
+you carry into tomorrow. **Do it after gigs too** — especially after gigs.
+
+---
+
+## Two phases, and the second one matters more than it looks
+
+The blocks above are **blocked practice** — one coordination, repeated. That is
+the right way to *acquire* a skill and the wrong way to *keep* it under pressure.
+Motor-learning research is consistent and slightly counter-intuitive here:
+**random/variable practice produces better retention and transfer, even though
+blocked practice looks better while you are doing it.**
+
+That distinction decides your December.
+
+### Phase 1 — blocked (now → mid-September)
+
+Run the blocks in order, as written. One block gets a double share each day:
 
 | Day | Heavy block |
 |---|---|
-| Mon | Onsets (2) |
-| Tue | Sustain / messa di voce (3) |
-| Wed | Breath (1) — light voice day |
-| Thu | Onsets (2) |
-| Fri | Passaggio & range (4) |
+| Mon | Onsets (1) |
+| Tue | Sustain / messa di voce (2) |
+| Wed | Light voice day — SOVT, twang, cool-down only |
+| Thu | Onsets (1) |
+| Fri | Passaggio & vowels (3) |
 | Sat | Song application (5), or a gig |
 | Sun | **Off, or recovery version** |
 
-**Recovery version** (post-gig, tired, mildly irritated): block 0 and block 1
-only. SOVTE and silent breath work. That is 6 minutes, it costs the folds almost
-nothing, and it keeps the streak without the risk.
+### Phase 2 — variable (mid-September → the competition)
+
+Same minutes, same drills, **deliberately disordered**:
+
+- **Shuffle the order.** Do not run 0→6. Mix the blocks so you never know what is
+  next — that is the whole point.
+- **Interleave instead of blocking.** Rather than five straight minutes of
+  onsets, do onsets → sustain → onsets → passaggio, a minute at a time.
+- **Vary the context.** Standing. Moving. Holding a mic. At performance volume.
+  In shoes you would gig in. The coordination has to survive conditions, not just
+  repetition.
+- **Grow song application.** It becomes the biggest block, run under performance
+  conditions with the backing track.
+
+**Phase 2 will feel worse than Phase 1. That is the expected result, not a
+problem** — and if you do not know that in advance you will assume you have gone
+backwards and revert to the version that felt better.
+
+### Mic technique — Phase 2, and it is not optional
+
+You have already lost one take to going too loud in a hot room. Concrete
+distances, from Shure's engineering guidance:
+
+| Line type | Distance |
+|---|---|
+| Quiet, intimate | **1 inch or less** |
+| Normal | 1.5–3 inches |
+| **Belting / money notes** | **6 inches to arm's length** |
+
+Turn slightly **off-axis** on plosives and on your loudest high notes. Working
+the mic is the difference between a room hearing dynamics and a room hearing
+distortion — and it lets you sing the big note at a sane level.
+
+---
+
+**Recovery version** (post-gig, tired, mildly irritated): block 0, the Farinelli
+breath work, and block 6. SOVT in, silent breath, cool-down out. Roughly six
+minutes, almost no cost to the folds, and it keeps the streak without the risk.
 
 **Deload every fourth week:** halve everything. You already think in loading and
 deload terms for the ribs — the voice works the same way, and adaptation lands
@@ -290,6 +407,11 @@ These are **raw measures**, so they are always comparable — no provenance gate
 needed (CLAUDE.md rule 3 applies to `/10` scores only). Watch the raw numbers
 monthly; let the score take care of itself.
 
+> **The benchmark that should change the plan:** no movement on a coordination
+> after **three to four months** of consistent work means the approach is wrong,
+> not that you need more of it. Change the drill or get a second opinion. That is
+> the elite-coaching standard, and it is a much better rule than grinding.
+
 **Entry accuracy now prints in every full report**, under its own heading, with
 your percentile against the 50 professional references beside it:
 
@@ -313,3 +435,23 @@ when block 2 works.
 > **The point of this programme is to sound better to a room, not to move a
 > number.** The blind A/B proved your ear tracks these things even when the
 > score does not.
+
+---
+
+## Where this came from
+
+Every gap targeted here is a measured number from your own archive. The *drills*
+chosen to close them come from
+`01-vocal-science-technique/inside-the-elite-contemporary-vocal-lesson.md` — the
+synthesis of how elite contemporary coaches actually run a lesson.
+
+Four things in the first version of this programme were confirmed independently
+by that synthesis: sirens against a drone for drift, staccato and silent-h onset
+contrast, approaching the passaggio from above, and messa di voce for dynamic
+control. Elite coaches use exactly those drills for exactly those faults.
+
+Four things were **missing** and were added in this revision: **vowel
+modification** (the main remediation for strain in the zone you live in),
+**twang** (carrying power without volume), a **cool-down**, and the **blocked →
+variable progression** that decides whether any of it survives a competition
+stage.
