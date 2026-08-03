@@ -200,19 +200,32 @@ A(KeepTogether([
 
 A(KeepTogether([
     P("Block 1 — Onset planting  ·  5 min  ·  the biggest gap", "h3"),
-    P("<b>1a. Three-onset contrast (2 min).</b> One comfortable pitch, say D4. Sing "
-      "“ah” three ways and <i>feel</i> the difference — breathy (“haaah”, air first), "
-      "hard (a small glottal click), and balanced (air and tone together, no h, no "
-      "click). Five rounds. You cannot fix an onset you cannot feel.", "p"),
-    P("<b>1b. Silent-target planting (2 min).</b> Play a note. <b>Stop the sound.</b> "
-      "Hear it in your head. Breathe. Land it — no slide, straight onto the centre. "
-      "Hold two seconds. Ten different pitches.", "p"),
-    P("<b>1c. Deliberate contrast (1 min).</b> One phrase, sung scooping on purpose, "
-      "then clean. Alternate three times. Contrast is how ears learn — you cannot "
-      "currently hear your own scoops because they are your normal.", "p"),
-    callout("<b>See it, land it, stay on it.</b> Scooping is what a voice does when it "
-            "is <i>searching</i> for the note. Take away the search and you take away "
-            "the scoop."),
+    callout("<b>Your scoops and your overshoots are opposite faults.</b> A "
+            "<b>scoop</b> (start flat, slide up — 47.9%) is your ear <i>searching</i> "
+            "for the note: know it before you sing. An <b>overshoot</b> (start sharp, "
+            "settle down — 29.3%, mostly after upward leaps) is your motor system "
+            "<i>over-throwing</i> the interval: aim a hair under. Same gap, opposite "
+            "fixes — which is why this block splits."),
+    P("<b>1a. Audiation — pre-hear the note (1.5 min). The root fix for scoops.</b> "
+      "Play a note. <b>Stop the sound.</b> <i>Hear</i> it in your head for one full "
+      "beat — actually hear it, don't just name it — then sing, landing straight on "
+      "the centre. No slide. Hold two seconds. Ten pitches. If the note is already "
+      "ringing in your head, there is nothing to search for.", "p"),
+    P("<b>1b. The scoop fix — staccato “land-it” + interval pre-tune (2 min).</b> "
+      "Short dead-on staccato attacks straight onto a target — “ha, ha, ha,” "
+      "balanced, no slide up into it. Then two-note: play a lower note, <b>silently "
+      "hear the target above it</b>, attack it directly, no glide. "
+      "Cue: <b>“arrive, don't reach.”</b>", "p"),
+    P("<b>1c. The overshoot fix — aim-short after leaps (1.5 min).</b> Take an "
+      "upward leap from a real song. Sing the jump but deliberately aim a hair "
+      "<i>under</i> the top note, then let it settle up — slow, not thrown. Drill "
+      "that interval on its own a few times. Cue: <b>“place it, don't throw it.”</b>", "p"),
+    callout("<b>Keep every attack balanced — this is the health rule.</b> If you "
+            "catch yourself <i>pressing</i> to nail a hard entry (a squeeze or push "
+            "before the note), stop and reset with a straw or lip-trill onset. "
+            "Pressing hits the pitch faster — that is the trap — but habitual hard "
+            "onset is a nodule/strain risk. Air and tone arrive together, no click, "
+            "no push.", WARN, WARNE),
 ]))
 
 A(KeepTogether([
@@ -377,6 +390,15 @@ A(KeepTogether([
 ], [46 * mm, 34 * mm, 32 * mm, 56 * mm], align_right=(1, 2))]))
 A(Spacer(1, 6))
 A(callout(
+    "<b>For the onset number, record a DRY home take.</b> Supply your own backing so "
+    "the engine reads your isolated dry vocal, not a stem pulled from a mix. Pitch "
+    "tracking is least reliable in the first ~60 ms of a note — exactly where scoop "
+    "and overshoot live — so onset numbers off a separated live-room stem carry real "
+    "noise. The percentile is partly protected (the 50 references run the same "
+    "pipeline), but a dry solo take is the honest read. Live-venue takes are for "
+    "everything else, not for this number."))
+A(Spacer(1, 6))
+A(callout(
     "<b>Do not expect the overall /10 to move much, even if all four improve.</b> "
     "Phrase control and breath support carry 0.10 each, and onsets are not scored at "
     "all. The point of this programme is to sound better to a room, not to move a "
@@ -387,10 +409,12 @@ A(callout(
     "not that you need more of it. Change the drill or get a second opinion."))
 
 A(Spacer(1, 8))
-A(P("Sources — the gaps targeted here are measured from your own archive (81 active "
-    "takes, rubric v5, calibration 1d3e2991f144). The drills chosen to close them come "
-    "from “Inside the Elite Contemporary Vocal Lesson” in the vocal knowledge base. "
-    "No number in this document was rounded toward the flattering side.", "small"))
+A(P("Sources — the gaps are measured from your own archive (81 active takes, rubric "
+    "v5, calibration 1d3e2991f144). Drills come from “Inside the Elite Contemporary "
+    "Vocal Lesson” and “Vocal Onset: How Notes Begin” in the vocal knowledge base — "
+    "the onset split (scoop vs overshoot) is from the latter, a 40-citation "
+    "evidence-graded synthesis. No number here was rounded toward the flattering "
+    "side.", "small"))
 
 doc = BaseDocTemplate(OUT, pagesize=A4,
                       leftMargin=21 * mm, rightMargin=21 * mm,

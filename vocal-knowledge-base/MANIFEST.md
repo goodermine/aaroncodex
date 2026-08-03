@@ -151,11 +151,11 @@
 - `archive/document-your-singing-journey.md` — 215,480 words · *—*
 
 ## private
-*Singer profiles and measured bodies — never published* — 4 documents, 6,485 words
+*Singer profiles and measured bodies — never published* — 4 documents, 6,935 words
 
 > Excluded from the published library.
 
-- `private/aaron-daily-drill-programme.md` — 3,670 words · *practice-design, sovt, breath-support, passaggio, range-extension, pitch-accuracy*  **[private]**
+- `private/aaron-daily-drill-programme.md` — 4,120 words · *practice-design, sovt, breath-support, passaggio, range-extension, pitch-accuracy*  **[private]**
 - `private/aaron-vocal-blueprint-v1.md` — 417 words · *breath-support, pitch-accuracy, passaggio, practice-design*  **[private]**
 - `private/aaron-vocal-blueprint-v2.md` — 1,708 words · *breath-support, pitch-accuracy, passaggio, fatigue, practice-design, contemporary*  **[private]**
 - `private/voxai-master-vocal-profile-aaron.md` — 690 words · *contemporary, vibrato, formant-tuning, pitch-accuracy, vowels, expression*  **[private]**

@@ -150,52 +150,68 @@ antidote.
 ### Block 1 — Onset planting (5 min) — the biggest gap
 
 The longest block, because it is the largest measured deficit and the one that
-most changes how you sound to a listener.
+most changes how you sound to a listener. It was rebuilt around the onset
+research (`01-vocal-science-technique/vocal-onset-how-notes-begin.md`), which
+established the thing the first version missed: **your two errors need opposite
+corrections.** So this block has a shared root drill, then splits.
 
-**1a. Three-onset contrast (2 min).** One comfortable pitch, say D4. Sing "ah"
-three ways and *feel* the difference:
-
-- **Breathy** — "haaah", air starts before tone.
-- **Hard** — a little glottal click before the tone.
-- **Balanced** — air and tone arrive together, no h, no click.
-
-Five rounds. You cannot fix an onset you cannot feel, and this is the drill that
-builds the sensation. Balanced is the target; the other two are there so you can
-tell what balanced *isn't*.
-
-**1b. Silent-target planting (2 min).** Play a note. **Stop the sound.** Hear it
-in your head. Breathe. Land it — no slide, straight onto the centre. Hold two
-seconds. Repeat across ten different pitches.
-
-Your existing cue is the right one: **see it, land it, stay on it.** This drill
-is that cue with the training wheels on, because the note is gone before you
-sing, so you have to have it in your head first. Scooping is what a voice does
-when it is *searching* for the note. Take away the search and you take away the
-scoop.
-
-**1c. Deliberate contrast (1 min).** Take one phrase from a song you know. Sing
-it **scooping on purpose** — exaggerate it. Then sing it clean. Alternate three
-times.
-
-Contrast is how ears learn. You currently cannot reliably hear your own scoops
-because they are your normal; making them deliberate makes them audible.
-
-> **Scooping is not always wrong**, and your scoop *rate* is not the problem.
-> The 50-reference pack medians 41.6% scooped; you sit at 47.9%. That is close to normal.
+> **Your scoops and your overshoots are different faults.** The research is
+> clear on the mechanism:
+> - A **scoop** (you start flat and slide up — 47.9% of entries, from −98.8c) is
+>   your ear *searching* for the note. You under-specify the target, start low,
+>   and ride up until feedback confirms it. Fix: know the pitch before you sing.
+> - An **overshoot** (you start sharp and settle down — 29.3%, mostly after
+>   upward leaps) is your motor system *over-throwing* the interval. Fix: aim a
+>   hair under and let it settle.
 >
-> **The problem is that you also overshoot.** You come in above the note 29.3%
-> of the time against a pack median of 24.0%. Scooped 47.9% plus overshot 29.3%
-> leaves only **23.7% clean**, against a pack median of 33.2%. You miss the
-> centre in *both directions*, which is why the clean-entry gap (−9 points) is
-> so much wider than the scooping gap (−3 points).
->
-> For contrast, Farnham on Pressure Down — the song you drill most — lands
-> **57.1% clean and scoops only 14.3%**, and when he does scoop it is from
-> −82.5c, barely shallower than your −98.8c. **He is not scooping less deeply
-> than you. He is scooping three times less often, and by choice.**
->
-> Get the clean entry as your default. Then put the scoop back where you *want*
-> it, which is what makes it style instead of habit.
+> Same clean-entry gap, opposite causes. The first version of this block trained
+> them as one thing, which is why it split.
+
+**1a. Audiation — pre-hear the note (1.5 min). The root fix for scooping.** Play a
+note. **Stop the sound.** Hear it in your head for one full beat — actually
+*hear* it, don't just think its name — then start singing, landing straight on
+the centre. No slide. Hold two seconds. Ten different pitches.
+
+This is the single most evidence-backed thing in the block. Scooping is a search;
+if the pitch is already ringing in your head before you make a sound, there is
+nothing to search for. The strongest predictor of a singer's pitch accuracy is
+how well they can *hear a note internally* before producing it — so this is not a
+warm-up, it is the mechanism.
+
+**1b. The scoop fix — staccato "land-it" + interval pre-tune (2 min).**
+- Short, dead-on staccato attacks straight onto a target pitch — "ha, ha, ha,"
+  balanced, no slide up into it. Ten on one pitch, then move.
+- Then two-note pre-tune: play a lower note, **silently hear the target above
+  it**, and attack the target directly — no glide between them.
+
+Cue: **"arrive, don't reach."** You are not reaching up to find the note; you
+have already heard it, and you arrive on it.
+
+**1c. The overshoot fix — aim-short after leaps (1.5 min).** Take an upward leap
+you use in a real song (a 4th, 5th, or bigger). Sing the jump but deliberately
+**aim a hair *under* the top note**, then let it settle up into place — slow and
+decelerating, not thrown. Then practise that exact interval on its own a few
+times to recalibrate the jump.
+
+Cue: **"place it, don't throw it."** Overshoot is throwing the interval too hard;
+this teaches your motor system the real size of the jump.
+
+> **Keep every attack balanced — this is the health rule.** If you catch yourself
+> *pressing* to nail a hard entry (a little glottal squeeze or push before the
+> note), stop and reset with an SOVT onset (straw or lip trill). Pressing does hit
+> the pitch faster, which is the trap — it trades a pitch problem for a
+> phonotrauma risk. Air and tone should arrive together, no click, no push. The
+> onset document's health section is blunt about habitual hard onset: it is a
+> nodule/MTD risk marker.
+
+> **Why not just "scoop less"?** Your scoop *rate* (47.9%) is near the pro median
+> (41.6%). The gap is that you *also* overshoot (29.3% vs 24.0%), so you miss the
+> centre in *both* directions and only 23.7% of entries start clean, against a pro
+> median of 33.2%. Farnham on Pressure Down lands **57.1% clean and scoops only
+> 14.3%** — from −82.5c, barely shallower than your −98.8c. **He does not scoop
+> less deeply. He scoops three times less often, and by choice.** Get the clean
+> entry as your default; then put the scoop back where you *want* it, which is
+> what makes it style instead of habit.
 
 ---
 
@@ -423,12 +439,22 @@ Clean entries: 23.8%  — matches or beats 16.0% of 50 pro references (pro media
 The misses: scooped into 48.5% from a median -109.2c (pro median 41.55%) · overshot 27.7% (pro median 24.0%)
 ```
 
-**Watch the percentile.** It is the honest headline for this gap: 16% means 42 of
-the 50 professional references start their notes more cleanly than that take did.
-It is not a `/10` and never will be — an `onset_accuracy` score component was
-built and rejected for making agreement with your ear *worse*
+**Watch the percentile, not the bare percent.** 16% means 42 of the 50
+professional references start their notes more cleanly than that take did. It is
+not a `/10` and never will be — an `onset_accuracy` score component was built and
+rejected for making agreement with your ear *worse*
 (`docs/handoffs/V6_ONSET_COMPONENT_REJECTED.md`). This is the number that moves
-when block 2 works.
+when Block 1 works.
+
+> **For the onset number specifically, record a DRY home take** — supply your own
+> backing so the engine scores your isolated dry vocal, not a stem pulled out of a
+> mix. The onset research showed pitch tracking is least reliable in the quiet
+> first ~60 ms of a note — exactly where scoop and overshoot live — so onset
+> numbers off a separated live-room stem carry real measurement noise
+> (`SCORE_READING_LIMITATIONS.md`, limitation 5). The percentile is partly
+> protected because the 50 references run the same pipeline, but a dry solo
+> recording is the honest way to read your onset. Use a home take, same song,
+> monthly — the live venue takes are for everything else, not for this number.
 
 > **Do not expect the overall `/10` to move much even if all four improve.**
 > `phrase_control` and `breath_support` carry 0.10 each, and onsets are not
@@ -452,8 +478,18 @@ by that synthesis: sirens against a drone for drift, staccato and silent-h onset
 contrast, approaching the passaggio from above, and messa di voce for dynamic
 control. Elite coaches use exactly those drills for exactly those faults.
 
-Four things were **missing** and were added in this revision: **vowel
+Four things were **missing** and were added in the second revision: **vowel
 modification** (the main remediation for strain in the zone you live in),
 **twang** (carrying power without volume), a **cool-down**, and the **blocked →
 variable progression** that decides whether any of it survives a competition
 stage.
+
+The third revision rebuilt **Block 1** around
+`01-vocal-science-technique/vocal-onset-how-notes-begin.md` — a 40-citation,
+evidence-graded synthesis of the onset science. It established what the earlier
+versions treated as one problem: **your scoops and your overshoots have opposite
+causes and need opposite fixes.** Scooping is a feedback *search* (fix: audiation
+— hear the note first; "arrive, don't reach"); overshooting is feedforward
+*over-scaling* (fix: aim-short after leaps; "place it, don't throw it"). The same
+research is why the tracking rule now says to read your onset number off a dry
+home take, not a separated live-room stem.
