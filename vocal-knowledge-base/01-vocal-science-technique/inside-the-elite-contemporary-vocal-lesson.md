@@ -261,6 +261,38 @@ which often repackage the same underlying science in proprietary vocabulary.
 These are not necessarily wrong — many are highly effective in practice — but
 they are not, for the most part, experimentally validated prescriptions.
 
+## Recommendations
+
+### For a coach building a session
+
+1. **Always start with a 2-minute diagnostic** — speaking voice plus one sung
+   phrase — and set one primary goal for the session. Change the plan if the
+   voice is tired or ill: switch to light SOVT and marking only.
+2. **Warm up functionally, SOVT-first (5–15 min):** straw/lip trill →
+   sirens/glides → onsets → light agility. Escalate to loud or belt work only
+   once air–fold balance is established.
+3. **Do the isolated technical work on the day's one or two targets *before*
+   touching the song**, so the coordination exists before it has to survive
+   lyrics and performance.
+4. **Fix the song with the diagnostic-and-fix loop:** isolate → diagnose the
+   root cause → apply the matched remediation → reintegrate. *Resist "just try
+   it again louder."*
+5. **Spend the last third on interpretation and performance conditions** —
+   dynamics, timing, mic, standing and moving.
+6. **Cool down and assign specific, short homework** tied to the day's goal, and
+   record the lesson.
+
+### For key and repertoire decisions
+
+Choose the key by **tessitura**, not by the original recording. Transpose
+freely. For covers, strip to the bare melody before rebuilding.
+
+### For singers' home practice
+
+Prioritise **daily 15–30-minute sessions** over long weekly ones. Warm up before
+every session. Record yourself. Take at least one full vocal rest day per week.
+Hydrate.
+
 ## Benchmarks that should change the plan
 
 - **Persistent pain, hoarseness or coughing → stop immediately;** refer to a
