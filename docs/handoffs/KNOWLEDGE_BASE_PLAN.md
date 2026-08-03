@@ -1,7 +1,7 @@
 # Vocal Knowledge Base — structure, maintenance, and the road to public
 
-**Status: DRAFT for Aaron to argue with. Nothing here is agreed.**
-Written 3 Aug 2026 from an audit of the library as it stands.
+**Status: DECIDED and PHASES 1–2 BUILT, 3 Aug 2026.**
+Aaron's decisions are recorded below in place. Phase 3 remains open.
 
 Scope set by Aaron: **fix structure and maintenance**, with **other singers /
 the public** as the eventual audience. This plan does *not* cover wiring the
@@ -69,6 +69,10 @@ Options:
 
 **Recommendation: (a) now, (b) later if the topic earns a chapter.**
 
+> **DECIDED — (a) exclude.** `08-external-reference/` stays in the repo for its
+> research value and never ships. Enforced twice: the folder is on the public
+> build's exclusion list, and the document carries `visibility: private`.
+
 ### Decision 2 — the personal/general split
 
 `06-voxai-system/` currently holds both the coaching system and **Aaron's own
@@ -91,6 +95,16 @@ Options:
 
 **Recommendation: (a).** It is the only option that stays reversible, and the
 split has to happen anyway the moment a second singer gets a profile.
+
+> **DECIDED — (a) split, and private for now.** Aaron's blueprint (v1 and v2),
+> his master vocal profile and his drill programme moved to
+> `vocal-knowledge-base/private/`. `06-voxai-system/` keeps the *method* — the
+> knowledge core, the study guide, the implementation handoff — which describes
+> how the system works rather than what one person's larynx does. Rilda, Leo and
+> Chris profiles go in the same place when they are written.
+>
+> "Private for now" is the point: publishing a worked example is still available
+> later, and this is the only version of the decision that can be reversed.
 
 ### The item to decide early, not late — provenance of claims
 
@@ -118,7 +132,7 @@ re-cite 533k words. Vocal health, belting, range extension and anything with a
 
 ---
 
-## Phase 1 — make the metadata self-maintaining
+## Phase 1 — make the metadata self-maintaining  ✅ BUILT
 
 The actual "structure and maintenance" ask. All mechanical, no decisions needed,
 and it stops the drift permanently.
@@ -138,7 +152,16 @@ and it stops the drift permanently.
 **This is the piece I would do first.** It is small, it is entirely reversible,
 and every later phase depends on the metadata being trustworthy.
 
-## Phase 2 — the public/private boundary
+> **BUILT.** `tools/kb_common.py` (shared discovery and front-matter parsing, so
+> the three tools can never disagree about what a document is),
+> `tools/kb_manifest.py` (generates MANIFEST.md and the README table; `--check`
+> fails when the committed copy is stale) and `tools/kb_validate.py`. Both run in
+> `test_score_contract.py`. `sources/` and `archive/` are held to a lighter
+> standard — they are extracted works-cited blocks, not documents, and 44
+> permanent meaningless failures would just teach everyone to ignore the
+> validator.
+
+## Phase 2 — the public/private boundary  ✅ BUILT
 
 Once Decision 2 is made:
 
@@ -150,6 +173,12 @@ Once Decision 2 is made:
    `visibility: public`, excluding `sources/`, `archive/`, `08-external-reference/`
    and anything `exclude_from_training`. Never publish the working tree directly —
    build from it, so a private document cannot ship by being forgotten.
+
+> **BUILT.** Current split: **76 public documents · 526,510 words**; 27 excluded
+> (21 sources, 4 private, 1 external, 1 archived). The two guards were tested by
+> flipping a public document to `visibility: private` — the validator failed with
+> *"marked private but sits in a published folder"* and the build excluded it.
+> Both then went green on restore.
 
 ## Phase 3 — publication readiness
 

@@ -82,3 +82,33 @@ def test_every_archived_score_is_on_the_pinned_calibration_pack():
         f"{len(stale)} archived score(s) anchored to a superseded calibration pack "
         f"(pinned {pinned}), e.g. {stale[:3]} — re-score with "
         "docs/score-metrics/rescore_archive_inplace.py")
+
+
+def test_knowledge_base_is_valid_and_its_manifest_is_current():
+    """The library stayed clean for 78 hand-maintained documents, then gained a
+    collaborator and broke five times in two days — a document with 8 tags
+    against a limit of 6, tags outside the controlled vocabulary, an invented
+    category, and MANIFEST word counts wrong on four separate occasions. None of
+    it failed anything. This is what fails now."""
+    import subprocess
+
+    for tool, args in (("kb_validate.py", []), ("kb_manifest.py", ["--check"])):
+        proc = subprocess.run(
+            [sys.executable, os.path.join(REPO, "tools", tool), *args],
+            capture_output=True, text=True)
+        assert proc.returncode == 0, f"{tool} failed:\n{proc.stdout}{proc.stderr}"
+
+
+def test_no_private_document_can_reach_the_public_build():
+    """The privacy boundary, asserted rather than assumed. Aaron's measured
+    profile, his blueprint and his drill programme are private by his decision
+    of 3 Aug 2026; another creator's transcript cannot ship in a library
+    licensed to him."""
+    import subprocess
+
+    proc = subprocess.run(
+        [sys.executable, os.path.join(REPO, "tools", "kb_build_public.py"), "--dry-run"],
+        capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "private/ is never published" in proc.stdout
+    assert "08-external-reference/ is never published" in proc.stdout

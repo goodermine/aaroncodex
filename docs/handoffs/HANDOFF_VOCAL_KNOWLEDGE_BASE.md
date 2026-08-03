@@ -26,7 +26,7 @@ Checked rather than assumed. The contract holds, with two defects found and fixe
 
 ### Fix 1 — the training filter silently dropped the most important document
 
-`06-voxai-system/aaron-vocal-blueprint-v2.md` carried **`status: current`**, not
+`private/aaron-vocal-blueprint-v2.md` (then in `06-voxai-system/`) carried **`status: current`**, not
 `active`. So the documented filter (`status: active`) excluded it — and that file
 is the one the README itself names as the entry point for *current coaching state*.
 Anything built by following the stated instructions would have been missing

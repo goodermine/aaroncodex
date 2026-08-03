@@ -7,6 +7,7 @@ words: 3988
 author: "Aaron Ellis"
 research_method: "AI-assisted deep research (Claude), reviewed by Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Inside the Elite Contemporary Vocal Lesson

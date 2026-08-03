@@ -10,6 +10,7 @@ source_format: pdf
 words: 2608
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # The Four-Machine Course

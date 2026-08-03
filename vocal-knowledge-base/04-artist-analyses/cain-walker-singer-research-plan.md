@@ -5,6 +5,7 @@ topics: [career, contemporary, grit, performance]
 words: 3964
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Cain Walker Singer Research Plan

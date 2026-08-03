@@ -5,6 +5,7 @@ topics: [diction, vowels, formant-tuning, passaggio, agility, tension]
 words: 3296
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 8: The Singer's Clarity: Mastering Diction and Articulation

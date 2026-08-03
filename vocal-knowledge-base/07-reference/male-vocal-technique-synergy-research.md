@@ -5,6 +5,7 @@ topics: [grit, twang, classical, vibrato, pedagogy, microphone]
 words: 8348
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Male Vocal Technique Synergy Research

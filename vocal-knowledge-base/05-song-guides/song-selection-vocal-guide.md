@@ -5,6 +5,7 @@ topics: [classical, belting, contemporary, grit, recording, agility]
 words: 10234
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Song Selection Vocal Guide

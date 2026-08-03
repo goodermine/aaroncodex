@@ -5,6 +5,7 @@ topics: [performance, recording, range-extension, microphone, classical]
 words: 5589
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 1: Your Journey to Singing Well Begins Here

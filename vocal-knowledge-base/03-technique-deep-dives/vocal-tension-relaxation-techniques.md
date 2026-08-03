@@ -5,6 +5,7 @@ topics: [tension, performance, posture, vibrato, breath-support, diction]
 words: 7459
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Tension Relaxation Techniques

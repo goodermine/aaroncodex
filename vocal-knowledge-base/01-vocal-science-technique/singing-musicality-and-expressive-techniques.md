@@ -5,6 +5,7 @@ topics: [expression, diction, dynamics, tone, vibrato, microphone]
 words: 7422
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Singing: Musicality and Expressive Techniques

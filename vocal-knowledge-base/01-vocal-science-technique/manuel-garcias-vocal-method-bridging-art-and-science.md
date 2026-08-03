@@ -5,6 +5,7 @@ topics: [bel-canto, tone, classical, terminology, pedagogy, passaggio]
 words: 16925
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Manuel Garcia's Vocal Method: Bridging Art and Science

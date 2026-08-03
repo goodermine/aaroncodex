@@ -1,8 +1,10 @@
 ---
 title: "Aaron — The 20-Minute Daily Drill Programme"
 category: singer-profile
+author: "Aaron Ellis"
 topics: [practice-design, sovt, breath-support, passaggio, range-extension, pitch-accuracy]
 status: active
+visibility: private
 built_from: 81 active Aaron takes (7 excluded by the contamination gate), June–August 2026, rubric v5 / calibration 1d3e2991f144
 ---
 

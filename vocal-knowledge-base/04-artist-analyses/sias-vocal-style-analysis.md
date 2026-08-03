@@ -5,6 +5,7 @@ topics: [career, belting, contemporary, mixed-voice, vibrato, grit]
 words: 3729
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Sia's Vocal Style Analysis

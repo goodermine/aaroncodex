@@ -5,6 +5,7 @@ topics: [posture, breath-support, agility, sovt, fatigue, tension]
 words: 795
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Posture and Breath Support for Singing

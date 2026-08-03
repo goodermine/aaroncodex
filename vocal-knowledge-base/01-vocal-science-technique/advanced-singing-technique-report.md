@@ -5,6 +5,7 @@ topics: [vibrato, belting, twang, classical, range-extension, agility]
 words: 7714
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Advanced Singing Technique Report

@@ -5,6 +5,7 @@ topics: [career, agility, practice-design, contemporary, performance, pedagogy]
 words: 3643
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Ed Sheeran's Vocal Mastery Path

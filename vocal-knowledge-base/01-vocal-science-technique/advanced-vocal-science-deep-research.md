@@ -5,6 +5,7 @@ topics: [motor-learning, grit, twang, performance, tone, pedagogy]
 words: 10798
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Advanced Vocal Science Deep Research

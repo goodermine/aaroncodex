@@ -5,6 +5,7 @@ topics: [pedagogy, belting, twang, classical, practice-design, motor-learning]
 words: 3892
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Pedagogy Curriculum Development

@@ -5,6 +5,7 @@ topics: [passaggio, bel-canto, pedagogy, classical, mixed-voice, formant-tuning]
 words: 8980
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Singing Passaggio Research Methods

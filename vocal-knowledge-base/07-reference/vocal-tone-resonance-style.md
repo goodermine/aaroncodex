@@ -5,6 +5,7 @@ topics: [tone, resonance, twang, belting, contemporary, classical]
 words: 10127
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Tone, Resonance, Style

@@ -5,6 +5,7 @@ topics: [practice-design, ear-training, warm-up, cool-down, pitch-accuracy, voca
 words: 3401
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Singing Practice Plan Development

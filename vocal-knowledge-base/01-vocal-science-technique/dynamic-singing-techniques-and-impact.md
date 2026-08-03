@@ -5,6 +5,7 @@ topics: [dynamics, classical, belting, contemporary, grit, vibrato]
 words: 6870
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Dynamic Singing: Techniques and Impact

@@ -5,6 +5,7 @@ topics: [registration, passaggio, mixed-voice, formant-tuning, anatomy, resonanc
 words: 7080
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Register Training and Blending

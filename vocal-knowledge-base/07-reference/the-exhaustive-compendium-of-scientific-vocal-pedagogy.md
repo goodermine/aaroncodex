@@ -5,6 +5,7 @@ topics: [vibrato, twang, pedagogy, agility, cool-down, belting]
 words: 3328
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # The Exhaustive Compendium of Scientific Vocal Pedagogy

@@ -5,6 +5,7 @@ topics: [vibrato, classical, contemporary, tone, microphone, pedagogy]
 words: 9537
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Vibrato: Mechanics and Control

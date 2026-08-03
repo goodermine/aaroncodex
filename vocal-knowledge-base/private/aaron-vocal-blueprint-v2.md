@@ -2,6 +2,7 @@
 title: "Aaron Ellis — Vocal Blueprint v2"
 created: 2026-07-26
 status: active
+visibility: private
 supersedes: aaron-vocal-blueprint-v1
 category: singer-profile
 topics: [breath-support, pitch-accuracy, passaggio, fatigue, practice-design, contemporary]

@@ -5,6 +5,7 @@ topics: [grit, career, performance, contemporary, vibrato, belting]
 words: 3858
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Benson Boone's Vocal Technique Analysis

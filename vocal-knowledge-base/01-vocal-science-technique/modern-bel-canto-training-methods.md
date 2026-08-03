@@ -5,6 +5,7 @@ topics: [bel-canto, classical, pedagogy, agility, range-extension, contemporary]
 words: 5217
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Modern Bel Canto Training Methods

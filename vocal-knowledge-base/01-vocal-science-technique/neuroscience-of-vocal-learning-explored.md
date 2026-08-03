@@ -5,6 +5,7 @@ topics: [motor-learning]
 words: 12071
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Neuroscience of Vocal Learning Explored

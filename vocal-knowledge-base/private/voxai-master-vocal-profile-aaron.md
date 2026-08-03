@@ -5,6 +5,7 @@ topics: [contemporary, vibrato, formant-tuning, pitch-accuracy, vowels, expressi
 words: 663
 author: "Aaron Ellis"
 status: active
+visibility: private
 ---
 
 # VOXAI Master Vocal Profile — Aaron

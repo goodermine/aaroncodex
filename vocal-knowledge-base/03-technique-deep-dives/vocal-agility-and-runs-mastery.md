@@ -5,6 +5,7 @@ topics: [agility, ear-training, classical, pitch-accuracy, practice-design, cool
 words: 6302
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Agility and Runs Mastery

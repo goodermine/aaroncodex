@@ -5,6 +5,7 @@ topics: [pitch-accuracy, performance, ear-training, motor-learning, practice-des
 words: 11664
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Pitch Problems: Causes and Solutions

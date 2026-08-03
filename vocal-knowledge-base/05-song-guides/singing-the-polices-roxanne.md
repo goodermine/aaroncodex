@@ -5,6 +5,7 @@ topics: [microphone, grit, vibrato, mixed-voice, performance, contemporary]
 words: 5320
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Singing The Police's "Roxanne"
