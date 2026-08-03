@@ -3,7 +3,7 @@
 A structured reference library on singing, vocal technique and vocal pedagogy.
 Researched, synthesised and written by **Aaron Ellis** (artist name: Rustwood).
 
-**78 documents · ~528,000 words** of knowledge, across seven categories.
+**80 documents · ~535,000 words** of knowledge, across eight categories.
 
 **Licence: all rights reserved.** See `LICENSE`.
 
@@ -13,13 +13,14 @@ Researched, synthesised and written by **Aaron Ellis** (artist name: Rustwood).
 
 | Folder | Contents | Docs |
 |---|---|---|
-| `01-vocal-science-technique/` | Core technique and vocal science — pedagogy, bel canto, breath, health, diction | 20 |
+| `01-vocal-science-technique/` | Core technique and vocal science — pedagogy, bel canto, breath, health, diction | 21 |
 | `02-course-book/` | Three long-form works: one training course, two complete books. See folder README | 18 |
 | `03-technique-deep-dives/` | Single-topic studies — registers, belting, vibrato, agility, passaggio, practice design | 13 |
 | `04-artist-analyses/` | Technique breakdowns of specific vocalists | 7 |
 | `05-song-guides/` | Song-by-song sing-through guides and song selection | 7 |
-| `06-voxai-system/` | The VOXAI coaching system, plus Aaron's current vocal blueprint | 8 |
+| `06-voxai-system/` | The VOXAI coaching system, plus Aaron's current vocal blueprint and drill programme | 8 |
 | `07-reference/` | Glossary, ear training, tone/resonance reference | 5 |
+| `08-external-reference/` | Material by other creators, attributed and excluded from training | 1 |
 | `sources/` | Reference lists extracted from the research documents — audit trail only | 21 |
 | `archive/` | Superseded documents, retained not deleted | 2 |
 

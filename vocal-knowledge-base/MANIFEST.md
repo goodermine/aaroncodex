@@ -2,10 +2,10 @@
 
 Generated 2026-07-26
 
-**Active knowledge base: 78 documents · 528,131 words**  
+**Active knowledge base: 80 documents · 535,667 words**  
 **Sources + archive: 23 documents · 232,404 words** (labelled `exclude_from_training`)
 ## 01-vocal-science-technique
-*Core technique and vocal science* — 20 documents, 162,832 words
+*Core technique and vocal science* — 21 documents, 166,511 words
 
 - `01-vocal-science-technique/accent-splat-breathing-for-singing.md` — 7,730 words · *pedagogy, fatigue, breath-support, career, classical, dynamics*
 - `01-vocal-science-technique/advanced-singing-technique-report.md` — 7,714 words · *vibrato, belting, twang, classical, range-extension, agility*
@@ -15,6 +15,7 @@ Generated 2026-07-26
 - `01-vocal-science-technique/diction-and-articulation-for-singers.md` — 7,682 words · *diction, classical, agility, vowels, tension, warm-up*
 - `01-vocal-science-technique/dynamic-singing-techniques-and-impact.md` — 6,870 words · *dynamics, classical, belting, contemporary, grit, vibrato*
 - `01-vocal-science-technique/garcias-vocal-method-synthesis.md` — 6,432 words · *bel-canto, classical, pedagogy, passaggio, terminology, career*
+- `01-vocal-science-technique/inside-the-elite-contemporary-vocal-lesson.md` — 3,988 words · *pedagogy, practice-design, sovt, registration, formant-tuning, mixed-voice*
 - `01-vocal-science-technique/manuel-garcias-vocal-method-bridging-art-and-science.md` — 16,925 words · *bel-canto, tone, classical, terminology, pedagogy, passaggio*
 - `01-vocal-science-technique/modern-bel-canto-training-methods.md` — 5,217 words · *bel-canto, classical, pedagogy, agility, range-extension, contemporary*
 - `01-vocal-science-technique/neuroscience-of-vocal-learning-explored.md` — 12,071 words · *motor-learning*
