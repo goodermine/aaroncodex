@@ -94,7 +94,7 @@ full F0 contour, so the data is sitting there.
   also just delightful, which keeps practice happening.
 - **Size:** days; the risk is UI busy-ness — prototype on one song first.
 
-## D7 — Session bootstrap for engine + PDF deps · `status: proposed` *(2026-08-04)*
+## D7 — Session bootstrap for engine + PDF deps · `status: parked` *(2026-08-04)*
 
 A `tools/setup.sh` (or a SessionStart hook — the `session-start-hook` skill
 exists) that installs the engine and document deps a fresh container lacks:
@@ -111,7 +111,7 @@ notes that `poppler-utils` is absent so page-render falls back to pypdfium2.
   like a broken engine but is just a missing dep.
 - **Size:** hours.
 
-## D8 — Guide-freshness check for the songbook library · `status: proposed` *(2026-08-04)*
+## D8 — Guide-freshness check for the songbook library · `status: parked` *(2026-08-04)*
 
 A small linter: for each `songbook/guides/<artist>/<song>.md`, find the latest
 archived take of that song and flag when a newer take supersedes the one the
@@ -127,7 +127,7 @@ stale as takes accumulate.
 - **Size:** ~a day (archive JSONs already carry song + date; the guides name
   their source takes in a Sources line).
 
-## D9 — Auto "listening version" of any coaching doc · `status: proposed` *(2026-08-04)*
+## D9 — Auto "listening version" of any coaching doc · `status: parked` *(2026-08-04)*
 
 A generator that turns any handoff/brief into a **narration-optimised PDF** for
 ElevenLabs Reader: flowing second-person prose, no tables/bullets, note names
@@ -142,7 +142,7 @@ listen (~3,000 words). Pairs with the existing `kb_to_pdf.py` reading renderer.
   actually consumes lying down, not a one-off.
 - **Size:** ~a day (a TTS-sanitiser pass over the PDF pipeline).
 
-## D10 — With/without-earplugs A/B one-pager · `status: proposed` *(2026-08-04)*
+## D10 — With/without-earplugs A/B one-pager · `status: parked` *(2026-08-04)*
 
 A one-pager that takes two takes of the same song and lays their onset /
 scoop / drift measures and the D4 onset maps side by side — turning a
