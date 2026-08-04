@@ -7,7 +7,7 @@ permanent and never reused.
 
 ---
 
-## D1 — Onset trainer in the pitch monitor · `status: proposed`
+## D1 — Onset trainer in the pitch monitor · `status: building` *(approved 2026-08-04)*
 
 A drill mode at `/monitor`: it plays a target note, goes silent for one beat
 (the audiation moment), then listens — and verdicts the entry **clean / scoop /
@@ -21,7 +21,7 @@ Block 1 of the drill programme, turned into a game with instant truth.
 - **Size:** a few days (monitor already tracks pitch live; needs note targets,
   a 250 ms classifier, and UI).
 
-## D2 — Guided drill-session player · `status: proposed`
+## D2 — Guided drill-session player · `status: parked` *(2026-08-04)*
 
 A "practice mode" page that runs the 20 minutes for you: block timers,
 on-screen step-by-step instructions (the beginner walkthrough, not the card),
@@ -35,7 +35,7 @@ automatically — the variable-practice progression enforced by the tool.
   variable transition that decides December.
 - **Size:** a few days on the existing VOX Suite kit.
 
-## D3 — Progress dashboard: the four numbers · `status: proposed`
+## D3 — Progress dashboard: the four numbers · `status: parked` *(2026-08-04)*
 
 One page plotting the four tracked measures — clean entries %, phrase-ending
 sag %, intra-note drift, median phrase length — per month from dry home takes,
@@ -47,7 +47,7 @@ respected. Data already exists in every archive JSON and the rescore tables.
 - **Moves:** makes the monthly check a glance instead of an analysis session.
 - **Size:** ~a day (all data present; chart kit exists).
 
-## D4 — Onset map in every full report · `status: proposed`
+## D4 — Onset map in every full report · `status: built` *(2026-08-04)*
 
 Wire `tools/onset_map.py` into the report pipeline: whenever a take's song has
 a scored reference in the archive, the full results include the two-panel
@@ -55,11 +55,14 @@ a scored reference in the archive, the full results include the two-panel
 
 - **Seed:** Aaron asked "can I see Farnham's pitch graph and mine overlaid" —
   built and run by hand today; nothing regenerates it for future takes.
+- **Built:** tools/onset_map.py refactored importable (find_reference +
+  render_onset_map); tools/show_results.py renders the figure automatically and
+  instructs sending it with the results; ANALYSIS_RUNBOOK updated; 5 tests.
 - **Moves:** every future take shows the scoop pattern shrinking (or not) at a
   glance.
 - **Size:** hours.
 
-## D5 — Song-fit picker from the songbook catalogue · `status: proposed`
+## D5 — Song-fit picker from the songbook catalogue · `status: parked` *(2026-08-04 — Aaron: "a good option later")*
 
 Rank the ~68k-song karaoke catalogue by fit to Aaron's measured voice:
 tessitura overlap with A3–A4, time spent in the C♯4–F4 passaggio, and a
@@ -73,7 +76,7 @@ the *Satisfaction* profile) for walk-in-and-sing situations.
   references/takes in the archive. Scope carefully before building.
 - **Size:** days, plus the data question.
 
-## D6 — "Ghost duet" mode · `status: proposed` · **wildcard**
+## D6 — "Ghost duet" mode · `status: parked` *(2026-08-04)* · **wildcard**
 
 Sing Pressure Down while the monitor scrolls **Farnham's actual stored pitch
 contour** ahead of you like a driving line — you sing *into* his trace, seeing

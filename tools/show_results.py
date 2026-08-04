@@ -63,10 +63,35 @@ def render(path: str) -> str:
     raise RuntimeError("render_full_results_text: no known signature matched")
 
 
+def onset_map_for(path: str) -> str | None:
+    """Render the onset map when this take's song has a scored reference
+    (dream idea D4). The figure is part of the deliverable, like the text —
+    failure to draw it must never block the report, so any error degrades to
+    None and the report ships without it."""
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from onset_map import find_reference, pretty_label, render_onset_map, song_slug
+        ref = find_reference(path)
+        if not ref:
+            return None
+        take_name = os.path.basename(path).replace("_analysis.json", "")
+        out = os.path.join(ROOT, f"Onset-Map-{take_name}.png")
+        song = song_slug(path).replace("-", " ").title()
+        return render_onset_map(ref, path, out,
+                                ref_label=pretty_label(ref) + " — the reference",
+                                take_label=pretty_label(path),
+                                song=song)
+    except Exception as exc:  # noqa: BLE001
+        print(f"(onset map skipped: {type(exc).__name__}: {exc})", file=sys.stderr)
+        return None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("take", help="analysis JSON path, or a substring of the take name")
+    ap.add_argument("--no-map", action="store_true",
+                    help="skip the onset-map figure")
     a = ap.parse_args()
     path = resolve(a.take)
     if not path:
@@ -89,6 +114,12 @@ def main() -> int:
                 print(f"    {k:22} {v.get('score')}")
         return 2
     print(text)
+    if not a.no_map:
+        fig = onset_map_for(path)
+        if fig:
+            print(f"\nONSET MAP: {os.path.relpath(fig, ROOT)}  — how each note starts, "
+                  "you vs the reference. Send it WITH the results; it is part of the "
+                  "deliverable, not an extra.")
     return 0
 
 

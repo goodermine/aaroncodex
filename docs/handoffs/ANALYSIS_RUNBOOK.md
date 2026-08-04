@@ -71,6 +71,12 @@ the headline `/10` led per rule 5 — **overall** for a clean/studio capture,
 **capture-fair** for live/room/phone — with confidence and the "10 = a typical
 pro" anchor.
 
+**If the song has a scored reference in the archive**, the same command now also
+renders `Onset-Map-<take>.png` — the "how each note starts" figure, singer vs
+reference — and tells you so on the last line. **Send the image with the
+results; it is part of the deliverable.** (It is a diagnostic visualisation,
+never a score. No reference for the song → no figure, and nothing is owed.)
+
 A commit hash, branch name, "preflight passed" and "worktree clean" are
 confirmations of the plumbing. **They are NOT the deliverable and never stand in
 for it.** If `show_results.py` cannot render for any reason, say so and give the
