@@ -27,5 +27,6 @@ Rules (mirrored in the skill):
 - `006-brisbane-venues-timezone.md` — Brisbane/Redcliffe, AEST (UTC+10); venue list incl. Sunday open mic
 - `007-water-jar-rig.md` — the home-built water-jar SOVT rig specs
 - `008-headphone-discomfort.md` — sings worse with closed headphones at the stand; records without
+- `009-loop-earplugs.md` — Loop Experience 2 earplugs: 17 dB SNR, hearing protection + self-monitoring test
 
 *(approved from the /dream run of 2026-08-04 — `apply all`)*
