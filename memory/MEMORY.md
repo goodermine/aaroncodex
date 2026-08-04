@@ -28,5 +28,11 @@ Rules (mirrored in the skill):
 - `007-water-jar-rig.md` — the home-built water-jar SOVT rig specs
 - `008-headphone-discomfort.md` — sings worse with closed headphones at the stand; records without
 - `009-loop-earplugs.md` — Loop Experience 2 earplugs: 17 dB SNR, hearing protection + self-monitoring test
+- `010-ken-tamplin-warmup.md` — standard warmup is Ken Tamplin's 30-minute routine
+- `011-reasons-is-farnham.md` — "Reasons" is John Farnham, not Earth Wind & Fire
+- `012-pitch-matching-struggle.md` — struggles with conscious pitch matching; in-tune happens when not actively trying
+- `013-earplugs-hurt-pitch.md` — A/B result: earplugs IN worsened pitch accuracy (20c vs 10c median)
+- `014-no-throat-strain.md` — no strain after consecutive songs from cold; good vocal health baseline
+- `015-archetype-pitch-slider.md` — engine types Aaron as "Pitch Slider"; entry accuracy 0th–34th percentile vs pros
 
-*(approved from the /dream run of 2026-08-04 — `apply all`)*
+*(approved from /dream runs of 2026-08-04)*
