@@ -166,3 +166,13 @@ report "complete" with nothing the singer can read.
 
 Tests: `voxanalysis/vox-analysis` (pytest) and `voxsuite` (pytest). Run the
 scoring tests after touching the rubric: `engine/tests/test_scoring.py`.
+
+---
+
+## Memory
+
+Read `memory/MEMORY.md` (durable facts/preferences/corrections from past
+sessions) at the start of any session, alongside these rules. The `/dream`
+routine (`.claude/skills/dream/SKILL.md`) reviews recent transcripts nightly and
+PROPOSES memory updates — nothing is added, changed or retired without Aaron's
+approval.
