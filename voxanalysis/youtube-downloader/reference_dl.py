@@ -1,4 +1,4 @@
-"""Shared download logic for VOX reference tracks.
+"""VYT Downloader - shared download logic for VOX reference tracks.
 
 Used by both the web page (app.py) and the agent-facing CLI
 (youtube-downloader/fetch_reference.py). Accepts either a YouTube URL or a free-text
@@ -112,6 +112,48 @@ def _summary(meta: dict) -> dict:
         "thumbnail": meta.get("thumbnail"),
         "webpage_url": meta.get("webpage_url") or meta.get("url"),
     }
+
+
+def search(query: str, limit: int = 8) -> list[dict]:
+    """Search YouTube and return several results to choose from.
+
+    Uses a flat search (no per-video page fetch) so it stays fast even
+    for 8+ results. Each result carries enough for a picker UI: id,
+    title, uploader, duration, thumbnail, webpage_url.
+    """
+    query = query.strip()
+    if not query:
+        raise ReferenceError("Empty search.")
+    limit = max(1, min(int(limit), 20))
+
+    flat_opts = {**_INFO_OPTS, "extract_flat": "in_playlist"}
+    try:
+        with yt_dlp.YoutubeDL(flat_opts) as ydl:
+            meta = ydl.extract_info(f"ytsearch{limit}:{query}", download=False)
+    except yt_dlp.utils.DownloadError as exc:
+        raise ReferenceError(f"Search failed: {exc}") from exc
+
+    results = []
+    for entry in meta.get("entries") or []:
+        url = entry.get("url") or entry.get("webpage_url")
+        if not url:
+            continue
+        duration = int(entry.get("duration") or 0)
+        thumbnails = entry.get("thumbnails") or []
+        results.append(
+            {
+                "id": entry.get("id"),
+                "title": entry.get("title"),
+                "uploader": entry.get("uploader") or entry.get("channel"),
+                "duration_seconds": duration,
+                "duration": f"{duration // 60}:{duration % 60:02d}" if duration else "",
+                "thumbnail": thumbnails[-1].get("url") if thumbnails else None,
+                "webpage_url": url,
+            }
+        )
+    if not results:
+        raise ReferenceError("No YouTube results for that search.")
+    return results
 
 
 def fetch_info(target: str) -> dict:

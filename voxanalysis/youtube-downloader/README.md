@@ -1,4 +1,4 @@
-# VOX Reference Downloader
+# VYT Downloader (VOX YouTube Downloader)
 
 Tools for grabbing original/reference songs from YouTube so they can be
 compared against a singer's take in the VOXAI pipeline. Two front doors,
@@ -6,9 +6,10 @@ one shared engine (`reference_dl.py`):
 
 1. **Agent CLI** (`fetch_reference.py`) — what Candi/the agent
    runs so the user never downloads anything manually.
-2. **Web page** (`app.py`) — a yt5s-style page for humans: paste a link
-   or type a song name, press **Start**, switch between **MP3** and
-   **MP4**, and hit a download button.
+2. **Web page** (`app.py`) — a yt5s-style page for humans: search an
+   artist, song, or topic (or paste a link), press **Start**, pick from
+   the list of results, switch between **MP3** and **MP4**, and hit a
+   download button.
 
 Every download is served to your browser **and** kept in the reference
 library so the analysis pipeline can reach it:
@@ -47,6 +48,7 @@ analysis backend converts everything to mono 44.1 kHz WAV anyway.
 | Endpoint        | Purpose                                        |
 | --------------- | ---------------------------------------------- |
 | `GET /`         | The downloader page                            |
+| `GET /api/search` | Multiple search results to pick from (`?q=&limit=`) |
 | `GET /api/info` | Video metadata + available qualities (`?url=`) |
 | `GET /api/download` | Fetch a file (`?url=&fmt=mp3|mp4&quality=`) |
 | `GET /api/library`  | List files currently in the reference library |
@@ -63,8 +65,9 @@ python3 youtube-downloader/fetch_reference.py "Maneskin Beggin official audio"
 Prints a JSON manifest with the downloaded file's path (`"status":
 "ready"`, `"path": ...`). If the same video was fetched before, the
 library copy is reused (`"cached": true`). `--info-only` resolves
-metadata without downloading; `--fmt mp4` and `--quality` are available
-too.
+metadata without downloading; `--list N` prints the top N search results
+so a specific one can be chosen by URL; `--fmt mp4` and `--quality` are
+available too.
 
 Or in one step during take analysis — `candi_phase1.py prepare` can fetch
 the original alongside the singer's take:
