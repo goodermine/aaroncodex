@@ -5,6 +5,7 @@ topics: [grit, belting, dynamics, mixed-voice, microphone, expression]
 words: 7177
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Capaldi's "Someone You Loved" Singing

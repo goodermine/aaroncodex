@@ -5,6 +5,7 @@ topics: [agility, range-extension, passaggio, sovt, mixed-voice, grit]
 words: 2832
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 9: Unlocking Your Vocal Range and Flexibility

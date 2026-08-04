@@ -5,6 +5,7 @@ topics: [belting, dynamics]
 words: 668
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # "My Way" - The Champion Sing-Through Guide

@@ -5,6 +5,7 @@ topics: [passaggio, registration, classical, pedagogy, mixed-voice, anatomy]
 words: 6170
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Smooth Vocal Register Transitions

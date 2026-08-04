@@ -5,6 +5,7 @@ topics: [diction, classical, agility, vowels, tension, warm-up]
 words: 7682
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Diction and Articulation for Singers

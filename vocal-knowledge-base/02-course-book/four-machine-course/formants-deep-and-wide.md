@@ -10,6 +10,7 @@ source_format: pdf
 words: 2697
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Formants — Deep & Wide

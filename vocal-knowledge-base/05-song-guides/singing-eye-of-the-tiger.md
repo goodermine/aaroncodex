@@ -5,6 +5,7 @@ topics: [grit, contemporary, practice-design, mixed-voice, warm-up, diction]
 words: 7765
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Singing "Eye of the Tiger"

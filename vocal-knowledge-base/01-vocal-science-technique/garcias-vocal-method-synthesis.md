@@ -5,6 +5,7 @@ topics: [bel-canto, classical, pedagogy, passaggio, terminology, career]
 words: 6432
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Garcia's Vocal Method: Synthesis

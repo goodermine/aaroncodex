@@ -5,6 +5,7 @@ topics: [vocal-health, grit, cool-down, fatigue, warm-up, anatomy]
 words: 8987
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Health for Singers

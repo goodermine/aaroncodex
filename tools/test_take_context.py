@@ -4,7 +4,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from take_context import read_context, leads_capture_fair, is_performance, is_learning
+from take_context import (read_context, leads_capture_fair, is_performance,
+                          is_learning, is_superseded)
 
 
 def test_absent_or_malformed_defaults_to_performance():
@@ -12,8 +13,19 @@ def test_absent_or_malformed_defaults_to_performance():
                 {"take_context": {"intent": "bogus", "capture": "moon"}}):
         c = read_context(bad)
         assert c == {"intent": "performance", "capture": None,
-                     "milestone": None, "note": None}
+                     "milestone": None, "note": None, "superseded": False}
         assert is_performance(bad) and not is_learning(bad)
+        assert not is_superseded(bad)
+
+
+def test_superseded_is_strict_boolean():
+    # only an explicit True retires a take; a stray truthy value must not
+    assert is_superseded({"take_context": {"superseded": True}}) is True
+    for not_true in (1, "yes", "true", {}, [1]):
+        assert is_superseded({"take_context": {"superseded": not_true}}) is False
+    # retiring a take never changes its intent/capture/score grouping
+    c = read_context({"take_context": {"intent": "performance", "superseded": True}})
+    assert c["intent"] == "performance" and c["superseded"] is True
 
 
 def test_valid_context_is_read():
@@ -42,5 +54,5 @@ def test_context_never_exposes_a_score_field():
     # guard: the reader returns only grouping/context keys, never a number
     c = read_context({"take_context": {"intent": "learning", "score": 9.9,
                                        "overall": 1.0}})
-    assert set(c) == {"intent", "capture", "milestone", "note"}
+    assert set(c) == {"intent", "capture", "milestone", "note", "superseded"}
     assert 9.9 not in c.values() and 1.0 not in c.values()

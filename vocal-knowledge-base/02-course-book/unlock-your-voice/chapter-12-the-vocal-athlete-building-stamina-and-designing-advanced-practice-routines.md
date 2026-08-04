@@ -5,6 +5,7 @@ topics: [practice-design, fatigue, dynamics, agility, passaggio, ear-training]
 words: 4481
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 12: The Vocal Athlete: Building Stamina & Designing Advanced Practice Routines

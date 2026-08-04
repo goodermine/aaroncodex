@@ -5,6 +5,7 @@ topics: [passaggio, registration, formant-tuning, bel-canto, classical, mixed-vo
 words: 3168
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 11: The Art of Connection: Mastering Advanced Vocal Control & Register Transitions

@@ -8,6 +8,7 @@ part: "Part 3: Refining Your Artistry & Sustaining Progress"
 words: 2918
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 13: Finding Your Unique Voice and Style

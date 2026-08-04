@@ -5,6 +5,7 @@ topics: [career, classical, vibrato, range-extension, performance, microphone]
 words: 71191
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Singing Fundamentals – From Beginner to Advanced

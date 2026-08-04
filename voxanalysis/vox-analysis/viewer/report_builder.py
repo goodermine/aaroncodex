@@ -345,6 +345,11 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
         # Declarative take context (intent/capture/note) — metadata stamped at
         # upload, never a score input. Lets renderers say which number to quote.
         "take_context": raw.get("take_context"),
+        # ENTRY ACCURACY — a measured diagnostic that is deliberately NOT a
+        # score and lives OUTSIDE "score" below so nothing can average it into
+        # one. Onsets are the largest measured gap for this singer and were the
+        # one thing the engine measured and never reported.
+        "entry_accuracy": raw.get("entry_accuracy"),
         "score": {
             "overall": _number(overall, 1),
             "capture_fair": _number(score.get("capture_fair_score_0_to_10"), 1),
@@ -549,6 +554,42 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
         val = c.get("score")
         basis = c.get("basis")
         line(f"- {label}: {val if val is not None else '—'}" + (f"  [{basis}]" if basis else ""))
+
+    # ---- entry accuracy (diagnostic — never a /10, never in the overall) ----
+    ea = report.get("entry_accuracy") or {}
+    if ea.get("pct_clean") is not None:
+        line("")
+        line("ENTRY ACCURACY  (diagnostic — NOT part of the score)")
+        pct = ea.get("percentile_vs_pro_pack")
+        nref = ea.get("n_references")
+        if ea.get("reliability") == "suspect":
+            line(f"Clean entries: {ea['pct_clean']}%  — ! NOT TRUSTWORTHY")
+            line(f"  {ea.get('reliability_reason')}")
+        elif pct is not None:
+            if ea.get("reliability") == "reduced":
+                line(f"! {ea.get('reliability_reason')}")
+            line(f"Clean entries: {ea['pct_clean']}%  — matches or beats {pct}% of "
+                 f"{nref} pro references (pro median {ea.get('pro_median_pct_clean')}%)")
+        else:
+            line(f"Clean entries: {ea['pct_clean']}%  (no professional anchor loaded)")
+        miss = []
+        if ea.get("pct_scooped") is not None:
+            bit = f"scooped into {ea['pct_scooped']}%"
+            if ea.get("median_scoop_depth_cents") is not None:
+                bit += f" from a median {ea['median_scoop_depth_cents']}c"
+            if ea.get("pro_median_pct_scooped") is not None:
+                bit += f" (pro median {ea['pro_median_pct_scooped']}%)"
+            miss.append(bit)
+        if ea.get("pct_overshot") is not None:
+            bit = f"overshot {ea['pct_overshot']}%"
+            if ea.get("pro_median_pct_overshot") is not None:
+                bit += f" (pro median {ea['pro_median_pct_overshot']}%)"
+            miss.append(bit)
+        if miss:
+            line("The misses: " + " · ".join(miss))
+        line(f"Measured over {ea.get('n_onsets')} note entries. This is a raw measure, "
+             "always comparable across takes — it is not a /10 and is not averaged "
+             "into the score above.")
 
     rmin, rmax = result.get("robust_min_note"), result.get("robust_max_note")
     if rmin or rmax:

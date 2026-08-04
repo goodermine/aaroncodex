@@ -60,10 +60,21 @@ METRIC_PATHS = {
     # phrase. Unlike voice_quality and dynamics this is not capture-sensitive —
     # sag is air running out, not the room — so it is scored inside capture-fair.
     "breath_pct_sagging_endings": (("breath", "pct_sagging_endings"), False),
-    # Onsets: how notes are started. Scooping is measured and, like sag, unused
-    # by the score. Anchored here so a component can be added without a second
-    # calibration pass.
+    # Onsets: how notes are started. NONE of these feed the score — an
+    # onset_accuracy component was built, calibrated and regression-tested in
+    # Aug 2026 and REJECTED because it made agreement with the singer's ear
+    # worse (see docs/handoffs/V6_ONSET_COMPONENT_REJECTED.md). They are
+    # anchored here so the ENTRY ACCURACY diagnostic can quote a professional
+    # percentile, and so a future component would not need a second pass.
+    #
+    # pct_clean is the one that matters and pct_scooped is the one that misleads.
+    # Scooping alone reads as near-normal for a singer who is also overshooting:
+    # Aaron sits at 47.9% scooped against a pack median of 41.6% (a 6-point gap)
+    # while landing only 23.7% clean against 33.2% (a 10-point gap), because he
+    # misses the centre in BOTH directions. Only pct_clean sees both failures.
     "onsets_pct_scooped": (("onsets", "pct_scooped"), False),
+    "onsets_pct_clean": (("onsets", "pct_clean"), False),
+    "onsets_pct_overshot": (("onsets", "pct_overshot"), False),
     "onsets_median_scoop_depth_cents": (("onsets", "median_scoop_depth_cents"), False),
 }
 
@@ -74,6 +85,8 @@ METRIC_PATHS = {
 METRIC_GUARDS = {
     "breath_pct_sagging_endings": (("breath", "n_phrases_measured"), 8),
     "onsets_pct_scooped": (("onsets", "n_onsets"), 12),
+    "onsets_pct_clean": (("onsets", "n_onsets"), 12),
+    "onsets_pct_overshot": (("onsets", "n_onsets"), 12),
     "onsets_median_scoop_depth_cents": (("onsets", "n_onsets"), 12),
 }
 

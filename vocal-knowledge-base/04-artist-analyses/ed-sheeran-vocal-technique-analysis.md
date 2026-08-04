@@ -5,6 +5,7 @@ topics: [grit, vibrato, belting, performance, contemporary, mixed-voice]
 words: 10043
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Ed Sheeran Vocal Technique Analysis

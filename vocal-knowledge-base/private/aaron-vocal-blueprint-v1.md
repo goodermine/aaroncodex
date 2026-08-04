@@ -1,9 +1,11 @@
 ---
 title: "Aaron Vocal Blueprint v1"
 category: superseded
+topics: [breath-support, pitch-accuracy, passaggio, practice-design]
 words: 392
 author: "Aaron Ellis"
 status: superseded
+visibility: private
 exclude_from_training: true
 ---
 

@@ -30,14 +30,18 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ARCHIVE = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
-SINGERS = ("aaron-g", "aaron", "rilda", "chris", "leo")
+# Longest name FIRST — the regex alternation is ordered, so "aaron" placed
+# before "aaron-and-rilda" would swallow the duet into Aaron's solo stats. A
+# duet is its own singer, not either half of it: one stem carries two voices,
+# so every per-voice measurement in it describes neither of them cleanly.
+SINGERS = ("aaron-and-rilda", "aaron-g", "aaron", "rilda", "chris", "leo")
 
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 from take_context import read_context, leads_capture_fair  # noqa: E402
 
 
 def _singer(name: str) -> str | None:
-    m = re.match(r"20\d\d-\d\d-\d\d-(aaron-g|aaron|rilda|chris|leo)-", name)
+    m = re.match(r"20\d\d-\d\d-\d\d-(" + "|".join(SINGERS) + r")-", name)
     return m.group(1) if m else None
 
 
@@ -69,6 +73,7 @@ def _lead(ts: dict, analysis: dict):
 
 def collect(singer_filter: str | None):
     rows = []
+    superseded_count = {}
     for p in sorted(glob.glob(os.path.join(ARCHIVE, "*_analysis.json"))):
         name = os.path.basename(p).replace("_analysis.json", "")
         singer = _singer(name)
@@ -78,17 +83,21 @@ def collect(singer_filter: str | None):
             d = json.load(open(p))
         except (OSError, json.JSONDecodeError):
             continue
+        ctx = read_context(d)
+        # Retired duplicates are kept on disk but never ranked or averaged.
+        if ctx["superseded"]:
+            superseded_count[singer] = superseded_count.get(singer, 0) + 1
+            continue
         ts = d.get("technical_score", {})
         lead, which, ov, cf = _lead(ts, d)
         if lead is None:
             continue
-        ctx = read_context(d)
         rows.append({
             "singer": singer, "song": _song(name, singer), "name": name,
             "lead": lead, "which": which, "overall": ov, "capture_fair": cf,
             "intent": ctx["intent"], "milestone": ctx["milestone"], "note": ctx["note"],
         })
-    return rows
+    return rows, superseded_count
 
 
 def _print_block(title: str, rows: list, best_of: bool):
@@ -118,7 +127,7 @@ def main() -> int:
     ap.add_argument("singer", nargs="?", help="aaron / aaron-g / rilda / chris / leo")
     ap.add_argument("--best-of", action="store_true", help="one row per song (its best take)")
     a = ap.parse_args()
-    rows = collect(a.singer)
+    rows, superseded = collect(a.singer)
     if not rows:
         print("no takes found")
         return 1
@@ -132,6 +141,9 @@ def main() -> int:
         _print_block("Performance", perf, a.best_of)
         if learn:
             _print_block("Learning / warm-up (not ranked against performance)", learn, False)
+        retired = superseded.get(singer, 0)
+        if retired:
+            print(f"\n  ({retired} retired duplicate take(s) kept on disk but not ranked)")
     return 0
 
 

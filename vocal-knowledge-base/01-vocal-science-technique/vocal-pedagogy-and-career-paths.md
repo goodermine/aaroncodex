@@ -5,6 +5,7 @@ topics: [career, pedagogy, ear-training, performance, recording, posture]
 words: 9025
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Pedagogy and Career Paths

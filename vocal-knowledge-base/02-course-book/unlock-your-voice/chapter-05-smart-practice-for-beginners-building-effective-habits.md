@@ -8,6 +8,7 @@ part: "Part 1: Building Your Foundation"
 words: 2155
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 5: Smart Practice for Beginners: Building Effective Habits

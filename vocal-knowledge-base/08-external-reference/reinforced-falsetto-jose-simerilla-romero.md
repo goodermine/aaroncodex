@@ -5,6 +5,7 @@ topics: [registration, passaggio, mixed-voice, breath-support, warm-up, sovt]
 words: 4627
 author: "Jose Simerilla Romero"
 status: active
+visibility: private
 exclude_from_training: true
 source_type: external-video-transcript
 source_creator: "Jose Simerilla Romero"

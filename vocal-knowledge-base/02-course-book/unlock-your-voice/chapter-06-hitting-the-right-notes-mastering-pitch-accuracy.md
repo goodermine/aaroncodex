@@ -5,6 +5,7 @@ topics: [pitch-accuracy, ear-training, microphone, recording, vibrato, performan
 words: 2887
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 6: Hitting the Right Notes: Mastering Pitch Accuracy

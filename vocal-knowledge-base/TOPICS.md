@@ -17,7 +17,7 @@ Maximum six tags per document.
 `resonance` · `formant-tuning` · `twang` · `vowels` · `tone`
 
 **Skills**
-`belting` · `vibrato` · `agility` · `range-extension` · `pitch-accuracy` · `ear-training` · `diction` · `dynamics` · `expression`
+`belting` · `vibrato` · `agility` · `range-extension` · `pitch-accuracy` · `onset` · `ear-training` · `diction` · `dynamics` · `expression`
 
 **Health and maintenance**
 `vocal-health` · `warm-up` · `cool-down` · `fatigue` · `sovt`

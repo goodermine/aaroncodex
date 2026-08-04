@@ -4,6 +4,7 @@ category: sources
 words: 815
 author: "Aaron Ellis"
 status: sources
+visibility: public
 exclude_from_training: true
 ---
 

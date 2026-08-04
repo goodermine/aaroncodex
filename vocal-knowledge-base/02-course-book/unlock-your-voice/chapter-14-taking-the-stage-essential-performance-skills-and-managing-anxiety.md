@@ -8,6 +8,7 @@ part: "Part 3: Refining Your Artistry & Sustaining Progress"
 words: 2698
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 14: Taking the Stage: Essential Performance Skills and Managing Anxiety

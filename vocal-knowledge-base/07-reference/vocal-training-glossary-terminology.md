@@ -5,6 +5,7 @@ topics: [terminology, twang, classical, bel-canto, vibrato, belting]
 words: 12331
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Training Glossary Terminology

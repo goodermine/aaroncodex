@@ -5,6 +5,7 @@ topics: [anatomy, motor-learning, diction, performance, tension, terminology]
 words: 6391
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 3: Vocal Anatomy and Physiology

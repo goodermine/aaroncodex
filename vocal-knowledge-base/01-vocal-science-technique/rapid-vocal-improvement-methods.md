@@ -5,6 +5,7 @@ topics: [range-extension, ear-training, warm-up, pitch-accuracy, practice-design
 words: 4042
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Rapid Vocal Improvement Methods

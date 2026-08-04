@@ -5,6 +5,7 @@ topics: [cool-down, belting, vocal-health, sovt, classical, anatomy]
 words: 3756
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Effective Vocal Cool-Down Routine For Singers
