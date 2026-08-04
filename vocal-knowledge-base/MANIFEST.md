@@ -2,7 +2,7 @@
 
 Generated 2026-07-26
 
-**Active knowledge base: 77 documents · 525,884 words**  
+**Active knowledge base: 78 documents · 528,347 words**  
 **Sources + archive: 23 documents · 232,404 words** (labelled `exclude_from_training`)
 ## 01-vocal-science-technique
 *Core technique and vocal science* — 20 documents, 162,832 words
@@ -90,8 +90,9 @@ Generated 2026-07-26
 - `05-song-guides/song-selection-vocal-guide.md` — 10,234 words · *classical, belting, contemporary, grit, recording, agility*
 
 ## 06-voxai-system
-*VOXAI coaching system and singer profile* — 7 documents, 28,243 words
+*VOXAI coaching system and singer profile* — 8 documents, 30,706 words
 
+- `06-voxai-system/aaron-daily-drill-programme.md` — 2,463 words · *practice-design, sovt, onsets, breath, passaggio, range, messa-di-voce, farinelli*
 - `06-voxai-system/aaron-vocal-blueprint-v2.md` — 1,701 words · *breath-support, pitch-accuracy, passaggio, fatigue, practice-design, contemporary*
 - `06-voxai-system/complete-implementation-handoff.md` — 7,739 words · *recording, cool-down, grit, agility, pitch-accuracy, diction*
 - `06-voxai-system/singing-study-guide.md` — 2,958 words · *practice-design, passaggio, terminology, career, grit, warm-up*
