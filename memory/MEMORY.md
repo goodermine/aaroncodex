@@ -19,14 +19,5 @@ Rules (mirrored in the skill):
 
 ## Facts
 
-- `001-zoom-h8-no-capsule.md` — H8 has no capsule mic; never recommend it as a recorder as-is
-- `002-completeness-over-stability.md` — fold new research into coaching docs; full rewrites licensed
-- `003-first-timer-drills.md` — first structured drills ever: step-by-step + a "doing it right" check
-- `004-phone-is-the-recorder.md` — phone records live takes; conflicts with lyrics → Rilda's phone + cue card
-- `005-deliverables-as-pdfs.md` — substantial docs delivered as house-styled PDFs in conversation
-- `006-brisbane-venues-timezone.md` — Brisbane/Redcliffe, AEST (UTC+10); venue list incl. Sunday open mic
-- `007-water-jar-rig.md` — the home-built water-jar SOVT rig specs
-- `008-headphone-discomfort.md` — sings worse with closed headphones at the stand; records without
-- `009-loop-earplugs.md` — owns Loop Experience 2 (17 dB SNR); karaoke hearing protection, testing as a self-monitoring aid
-
-*(001–008 approved from the /dream run of 2026-08-04 — `apply all`; 009 applied 2026-08-04)*
+*(none yet — the first /dream run's proposals are awaiting approval in
+`memory/dream-report.md`)*
