@@ -7,7 +7,7 @@ permanent and never reused.
 
 ---
 
-## D1 — Onset trainer in the pitch monitor · `status: building` *(approved 2026-08-04)*
+## D1 — Onset trainer in the pitch monitor · `status: built` *(2026-08-04)*
 
 A drill mode at `/monitor`: it plays a target note, goes silent for one beat
 (the audiation moment), then listens — and verdicts the entry **clean / scoop /
@@ -20,6 +20,10 @@ Block 1 of the drill programme, turned into a game with instant truth.
 - **Moves:** clean entries 23.7% → 33% target — the #1 measured gap.
 - **Size:** a few days (monitor already tracks pitch live; needs note targets,
   a 250 ms classifier, and UI).
+- **Built:** TRAIN mode in pitchmonitor/index.html — play→hear→sing state
+  machine, raw-pitch 250 ms classifier (thresholds shared with ENTRY ACCURACY),
+  target line + clean-zone band on the grid, streak/clean-% tally, range +
+  volume settings; headless smoke check in pitchmonitor/tests/.
 
 ## D2 — Guided drill-session player · `status: parked` *(2026-08-04)*
 
