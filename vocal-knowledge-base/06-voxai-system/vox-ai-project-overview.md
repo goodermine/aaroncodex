@@ -5,6 +5,7 @@ topics: [recording, warm-up, pitch-accuracy, tone]
 words: 592
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # VOX AI Project Overview

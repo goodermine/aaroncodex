@@ -8,6 +8,7 @@ part: "Part 2: Expanding Your Abilities"
 words: 2359
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 10: Rhythm and Musicality: Finding the Heartbeat of Your Songs

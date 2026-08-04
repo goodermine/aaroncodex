@@ -5,6 +5,7 @@ topics: [bel-canto, classical, pedagogy, agility, passaggio, career]
 words: 10668
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Bel Canto Singing Techniques Analysis

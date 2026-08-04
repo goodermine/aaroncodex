@@ -5,6 +5,7 @@ topics: [mixed-voice, registration, passaggio, warm-up, twang, range-extension]
 words: 3079
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Mixed Voice Development Exercises

@@ -5,6 +5,7 @@ topics: [ear-training, pitch-accuracy, performance, warm-up, practice-design, mo
 words: 6162
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Ear Training for Singers

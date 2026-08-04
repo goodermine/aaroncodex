@@ -5,6 +5,7 @@ topics: [career, microphone, agility, recording, performance, practice-design]
 words: 4406
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Ed Sheeran's Vocal Development Deep Dive

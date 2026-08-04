@@ -13,6 +13,8 @@ from __future__ import annotations
 import os
 import re
 import sys
+from pathlib import Path
+from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import analyse_song as A  # noqa: E402
@@ -46,6 +48,15 @@ def test_the_pinned_model_resolves_to_the_pinned_marker():
     assert produced == A.PINNED_SEPARATOR
 
 
+def test_model_tag_parser_accepts_real_lowercase_roformer_label():
+    assert A._extract_model_tag(
+        "/tmp/take_(vocals)_vocals_mel_band_roformer.flac"
+    ) == "vocals_mel_band_roformer"
+    assert A._extract_model_tag(
+        "/tmp/take_(Vocals)_UVR_MDXNET_Main.flac"
+    ) == "UVR_MDXNET_Main"
+
+
 def test_the_three_separators_actually_present_are_told_apart():
     """The archive turned out to hold three, not two — UVR_MDXNET_Main,
     UVR-MDX-NET and RoFormer. Collapsing any pair would hide a real mismatch."""
@@ -63,3 +74,31 @@ def test_an_unseparated_analysis_reports_no_model_rather_than_guessing():
     assert A._stem_model({"analysis_input_file": "raw_take.wav"}) is None
     assert A._stem_model({"analysis_input_file": "raw.wav",
                           "stem_separation": {"enabled": True}}) == "unknown_separator"
+
+
+def test_lowercase_roformer_outputs_select_vocals_and_other_correctly(
+        tmp_path, monkeypatch):
+    """audio-separator emits lowercase parenthesised labels. The loose
+    ``*vocals*`` fallback must never sort ``_(other)_`` ahead of the true vocal
+    stem merely because the model tag itself contains the word ``vocals``."""
+    script = tmp_path / "batch_stems.sh"
+    script.write_text("#!/bin/sh\n")
+    input_path = tmp_path / "take.wav"
+    input_path.touch()
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(A, "resolve_repo_path", lambda _path: str(script))
+
+    def fake_run(cmd, capture_output, text):
+        output_dir = Path(cmd[cmd.index("--output") + 1])
+        (output_dir / "take_(other)_vocals_mel_band_roformer.flac").touch()
+        (output_dir / "take_(vocals)_vocals_mel_band_roformer.flac").touch()
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(A.subprocess, "run", fake_run)
+    result = A.run_stem_separation(str(input_path), script_path=str(script))
+
+    assert Path(result["vocals_path"]).name == (
+        "take_(vocals)_vocals_mel_band_roformer.flac")
+    assert Path(result["instrumental_path"]).name == (
+        "take_(other)_vocals_mel_band_roformer.flac")

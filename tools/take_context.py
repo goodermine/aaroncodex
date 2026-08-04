@@ -34,7 +34,8 @@ from __future__ import annotations
 INTENTS = ("performance", "learning", "warmup")
 CAPTURES = ("studio", "home", "live")   # studio/home -> overall; live -> capture-fair
 MILESTONES = ("first_live_take",)
-DEFAULT = {"intent": "performance", "capture": None, "milestone": None, "note": None}
+DEFAULT = {"intent": "performance", "capture": None, "milestone": None,
+           "note": None, "superseded": False}
 
 
 def read_context(analysis: dict) -> dict:
@@ -59,7 +60,13 @@ def read_context(analysis: dict) -> dict:
     note = tc.get("note")
     if not isinstance(note, str) or not note.strip():
         note = None
-    return {"intent": intent, "capture": capture, "milestone": milestone, "note": note}
+    # `superseded` retires an over-recorded take from ranking WITHOUT deleting it
+    # or its score: the file and the score stay exactly as measured (rule 1), the
+    # take just drops out of the leaderboard/average. Strict `is True` so a stray
+    # truthy value (a string, a 1) can never silently retire a real take.
+    superseded = tc.get("superseded") is True
+    return {"intent": intent, "capture": capture, "milestone": milestone,
+            "note": note, "superseded": superseded}
 
 
 def leads_capture_fair(analysis: dict) -> bool | None:
@@ -80,3 +87,9 @@ def is_performance(analysis: dict) -> bool:
 
 def is_learning(analysis: dict) -> bool:
     return read_context(analysis)["intent"] in ("learning", "warmup")
+
+
+def is_superseded(analysis: dict) -> bool:
+    """True for a take retired from ranking (an over-recorded duplicate curated
+    out of the leaderboard). The file and its measured score are untouched."""
+    return read_context(analysis)["superseded"]

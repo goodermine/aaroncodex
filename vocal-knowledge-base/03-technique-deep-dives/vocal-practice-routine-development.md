@@ -5,6 +5,7 @@ topics: [practice-design, cool-down, warm-up, sovt, pedagogy, diction]
 words: 5967
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Practice Routine Development

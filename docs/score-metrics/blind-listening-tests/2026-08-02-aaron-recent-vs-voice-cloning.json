@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "record_type": "human_blind_listening_test",
+  "test_id": "20260802T144411-57a66aee31ff6bdb",
+  "listener": "Aaron Ellis",
+  "created_at": "2026-08-02T14:44:11+10:00",
+  "scored_at": "2026-08-02T18:37:54+10:00",
+  "mapping_released_after_all_scores": true,
+  "score_provenance": {
+    "source": "listener self-rating after one blind pass",
+    "scale": "0-10",
+    "is_voxai_score": false,
+    "normalisation_note": "The submitted values '8:2' and '6:2' were interpreted as 8.2 and 6.2."
+  },
+  "test_design": {
+    "clip_count": 12,
+    "order": "cryptographically randomised",
+    "source_audio": "vocals only",
+    "duration_seconds": 28.0,
+    "selection": "verse-into-chorus section after skipping at least the first 15 seconds of vocal",
+    "target_integrated_lufs": -20.5,
+    "format": {
+      "container": "wav",
+      "codec": "pcm_s16le",
+      "sample_rate_hz": 44100,
+      "bit_depth": 16,
+      "channels": 1,
+      "metadata": "stripped"
+    },
+    "audio_committed": false
+  },
+  "sets": {
+    "A": {
+      "label": "2026 recent RoFormer vocal stems",
+      "count": 6
+    },
+    "B": {
+      "label": "2024 voice-cloning dry vocals",
+      "count": 6
+    }
+  },
+  "clips": [
+    {
+      "clip": "01",
+      "set": "A",
+      "source_id": "A1",
+      "title": "The Heat Is On",
+      "recording_date": "2026-07-16",
+      "take": "earliest distinct take / take-001",
+      "source_start_seconds": 43.0,
+      "listener_score": 8.2
+    },
+    {
+      "clip": "02",
+      "set": "B",
+      "source_id": "B4",
+      "title": "Stand by Me",
+      "recording_date": "2024-09-23",
+      "take": "voice-cloning dry vocal",
+      "source_start_seconds": 16.0,
+      "listener_score": 6.2
+    },
+    {
+      "clip": "03",
+      "set": "A",
+      "source_id": "A6",
+      "title": "Pressure Down",
+      "recording_date": "2026-07-24",
+      "take": "take-001",
+      "source_start_seconds": 65.0,
+      "listener_score": 8.8
+    },
+    {
+      "clip": "04",
+      "set": "A",
+      "source_id": "A4",
+      "title": "Let's Stay Together",
+      "recording_date": "2026-07-08",
+      "take": "first distinct source / take-001",
+      "source_start_seconds": 74.0,
+      "listener_score": 6.7
+    },
+    {
+      "clip": "05",
+      "set": "B",
+      "source_id": "B5",
+      "title": "The Letter",
+      "recording_date": "2024-09-23",
+      "take": "voice-cloning dry vocal",
+      "source_start_seconds": 16.0,
+      "listener_score": 6.8
+    },
+    {
+      "clip": "06",
+      "set": "A",
+      "source_id": "A5",
+      "title": "Vienna",
+      "recording_date": "2026-07-11",
+      "take": "Aaron G sole take",
+      "source_start_seconds": 39.0,
+      "listener_score": 8.2
+    },
+    {
+      "clip": "07",
+      "set": "B",
+      "source_id": "B6",
+      "title": "Mustang Sally",
+      "recording_date": "2024-09-23",
+      "take": "voice-cloning dry vocal",
+      "source_start_seconds": 55.0,
+      "listener_score": 6.5
+    },
+    {
+      "clip": "08",
+      "set": "B",
+      "source_id": "B3",
+      "title": "Bad Things",
+      "recording_date": "2024-09-23",
+      "take": "voice-cloning dry vocal",
+      "source_start_seconds": 44.0,
+      "listener_score": 6.1
+    },
+    {
+      "clip": "09",
+      "set": "A",
+      "source_id": "A3",
+      "title": "Do Wah Diddy Diddy",
+      "recording_date": "2026-07-08",
+      "take": "first distinct source / take-001",
+      "source_start_seconds": 23.0,
+      "listener_score": 8.0
+    },
+    {
+      "clip": "10",
+      "set": "B",
+      "source_id": "B1",
+      "title": "I'm a Believer",
+      "recording_date": "2024-09-23",
+      "take": "voice-cloning dry vocal",
+      "source_start_seconds": 16.0,
+      "listener_score": 6.9
+    },
+    {
+      "clip": "11",
+      "set": "B",
+      "source_id": "B2",
+      "title": "You Spin Me Round",
+      "recording_date": "2024-09-23",
+      "take": "voice-cloning dry vocal",
+      "source_start_seconds": 20.0,
+      "listener_score": 6.1
+    },
+    {
+      "clip": "12",
+      "set": "A",
+      "source_id": "A2",
+      "title": "The Letter",
+      "recording_date": "2026-07-09",
+      "take": "home take-001",
+      "source_start_seconds": 40.0,
+      "listener_score": 7.7
+    }
+  ],
+  "summary": {
+    "set_a_mean": 7.933333333333334,
+    "set_b_mean": 6.433333333333334,
+    "set_a_minus_set_b": 1.5,
+    "highest_score": {
+      "clip": "03",
+      "title": "Pressure Down",
+      "score": 8.8
+    }
+  }
+}

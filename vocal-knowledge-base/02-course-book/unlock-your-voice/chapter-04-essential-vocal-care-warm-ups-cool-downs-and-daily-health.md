@@ -5,6 +5,7 @@ topics: [cool-down, warm-up, grit, vocal-health, fatigue, agility]
 words: 2510
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 4: Essential Vocal Care: Warm-Ups, Cool-Downs, and Daily Health

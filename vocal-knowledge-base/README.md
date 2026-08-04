@@ -3,7 +3,7 @@
 A structured reference library on singing, vocal technique and vocal pedagogy.
 Researched, synthesised and written by **Aaron Ellis** (artist name: Rustwood).
 
-**78 documents · ~528,000 words** of knowledge, across seven categories.
+**77 documents · ~531,000 words** of knowledge, across 8 categories.
 
 **Licence: all rights reserved.** See `LICENSE`.
 
@@ -13,15 +13,17 @@ Researched, synthesised and written by **Aaron Ellis** (artist name: Rustwood).
 
 | Folder | Contents | Docs |
 |---|---|---|
-| `01-vocal-science-technique/` | Core technique and vocal science — pedagogy, bel canto, breath, health, diction | 20 |
+| `01-vocal-science-technique/` | Core technique and vocal science — pedagogy, bel canto, breath, health, diction | 22 |
 | `02-course-book/` | Three long-form works: one training course, two complete books. See folder README | 18 |
 | `03-technique-deep-dives/` | Single-topic studies — registers, belting, vibrato, agility, passaggio, practice design | 13 |
 | `04-artist-analyses/` | Technique breakdowns of specific vocalists | 7 |
 | `05-song-guides/` | Song-by-song sing-through guides and song selection | 7 |
-| `06-voxai-system/` | The VOXAI coaching system, plus Aaron's current vocal blueprint | 8 |
+| `06-voxai-system/` | The VOXAI coaching system — the method, not any one singer | 5 |
 | `07-reference/` | Glossary, ear training, tone/resonance reference | 5 |
+| `08-external-reference/` | Material by other creators — attributed, never published | 1 |
 | `sources/` | Reference lists extracted from the research documents — audit trail only | 21 |
-| `archive/` | Superseded documents, retained not deleted | 2 |
+| `archive/` | Superseded documents, retained not deleted | 1 |
+| `private/` | Singer profiles and measured bodies — never published | 4 |
 
 ---
 
@@ -31,7 +33,7 @@ Researched, synthesised and written by **Aaron Ellis** (artist name: Rustwood).
   most directly practical material in the library. Four weeks, one system per week.
 - **Diagnosing a specific problem?** The diagnostic table in the Four-Machine Course maps a
   failing note to the machine causing it. Then `03-technique-deep-dives/` by symptom.
-- **Current coaching state?** `06-voxai-system/aaron-vocal-blueprint-v2.md` — active target
+- **Current coaching state?** `private/aaron-vocal-blueprint-v2.md` — active target
   is phrase-ending airflow stamina.
 - **Reading front-to-back?** `02-course-book/singing-fundamentals-compiled/` is the fullest
   single work at 21 chapters.

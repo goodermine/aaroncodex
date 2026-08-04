@@ -1,0 +1,858 @@
+<title>Pitch Trainer</title>
+<style>
+  @font-face {
+    font-family: 'Trainer';
+    src: local('SF Mono'), local('Menlo'), local('Consolas'), local('DejaVu Sans Mono');
+  }
+
+  :root {
+    --bg: #1a1a1e;
+    --surface: #232328;
+    --surface-2: #2c2c32;
+    --ink: #e8e6e1;
+    --dim: #8a8880;
+    --amber: #e8a940;
+    --amber-dim: #b8872e;
+    --green: #4aba6a;
+    --green-dim: rgba(74, 186, 106, 0.12);
+    --red: #d4605a;
+    --red-dim: rgba(212, 96, 90, 0.12);
+    --blue: #5a8ed4;
+    --blue-dim: rgba(90, 142, 212, 0.12);
+    --mono: 'SF Mono', 'Menlo', 'Consolas', 'DejaVu Sans Mono', ui-monospace, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --radius: 10px;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f4f3f0;
+      --surface: #eae8e4;
+      --surface-2: #dddbd6;
+      --ink: #2a2a2e;
+      --dim: #7a786f;
+      --amber: #c47e1a;
+      --amber-dim: #9a6414;
+      --green: #2e8a4a;
+      --green-dim: rgba(46, 138, 74, 0.10);
+      --red: #b84040;
+      --red-dim: rgba(184, 64, 64, 0.10);
+      --blue: #3a6eb4;
+      --blue-dim: rgba(58, 110, 180, 0.10);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1a1a1e;
+    --surface: #232328;
+    --surface-2: #2c2c32;
+    --ink: #e8e6e1;
+    --dim: #8a8880;
+    --amber: #e8a940;
+    --amber-dim: #b8872e;
+    --green: #4aba6a;
+    --green-dim: rgba(74, 186, 106, 0.12);
+    --red: #d4605a;
+    --red-dim: rgba(212, 96, 90, 0.12);
+    --blue: #5a8ed4;
+    --blue-dim: rgba(90, 142, 212, 0.12);
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f3f0;
+    --surface: #eae8e4;
+    --surface-2: #dddbd6;
+    --ink: #2a2a2e;
+    --dim: #7a786f;
+    --amber: #c47e1a;
+    --amber-dim: #9a6414;
+    --green: #2e8a4a;
+    --green-dim: rgba(46, 138, 74, 0.10);
+    --red: #b84040;
+    --red-dim: rgba(184, 64, 64, 0.10);
+    --blue: #3a6eb4;
+    --blue-dim: rgba(58, 110, 180, 0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 420px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding-top: 8px;
+  }
+  .header h1 {
+    font: 600 14px/1 var(--mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  /* Start button */
+  .start-btn {
+    appearance: none;
+    border: 2px solid var(--amber);
+    background: transparent;
+    color: var(--amber);
+    font: 600 14px/1 var(--mono);
+    letter-spacing: 0.1em;
+    padding: 14px 32px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    text-transform: uppercase;
+  }
+  .start-btn:hover { background: var(--amber); color: var(--bg); }
+  .start-btn.active { background: var(--amber); color: var(--bg); }
+  .start-btn:active { transform: scale(0.97); }
+
+  /* Phase display */
+  .phase-area {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+  .phase-area.show { display: flex; }
+
+  .phase-label {
+    font: 600 13px/1 var(--mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dim);
+    min-height: 18px;
+  }
+  .phase-label.listen { color: var(--amber); }
+  .phase-label.hear { color: var(--amber-dim); }
+  .phase-label.sing { color: var(--ink); }
+
+  /* Target note */
+  .target-note {
+    font: 700 64px/1 var(--sans);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-align: center;
+    min-height: 72px;
+  }
+  .target-note .oct {
+    font-size: 0.4em;
+    color: var(--dim);
+    vertical-align: baseline;
+    margin-left: 2px;
+  }
+
+  /* Pitch meter — the main visual */
+  .meter-wrap {
+    width: 100%;
+    position: relative;
+    height: 200px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .meter-wrap canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Your pitch readout */
+  .your-pitch {
+    font: 600 18px/1 var(--mono);
+    color: var(--dim);
+    text-align: center;
+    min-height: 24px;
+    letter-spacing: 0.03em;
+  }
+  .your-pitch .cents {
+    font-size: 14px;
+  }
+
+  /* Verdict */
+  .verdict-area {
+    width: 100%;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: background 0.2s;
+  }
+  .verdict-area.clean { background: var(--green-dim); }
+  .verdict-area.scoop { background: var(--red-dim); }
+  .verdict-area.overshoot { background: var(--blue-dim); }
+
+  .verdict-word {
+    font: 700 22px/1 var(--sans);
+    letter-spacing: 0.04em;
+    min-height: 28px;
+  }
+  .verdict-word.clean { color: var(--green); }
+  .verdict-word.scoop { color: var(--red); }
+  .verdict-word.overshoot { color: var(--blue); }
+  .verdict-word.miss { color: var(--dim); }
+
+  .verdict-detail {
+    font: 400 13px/1.4 var(--sans);
+    color: var(--dim);
+    text-align: center;
+    max-width: 300px;
+  }
+
+  /* Stats row */
+  .stats {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    width: 100%;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    flex: 1;
+    max-width: 140px;
+  }
+  .stat-val {
+    font: 700 28px/1 var(--mono);
+    color: var(--ink);
+  }
+  .stat-label {
+    font: 500 10px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  /* Dot history */
+  .dots {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-height: 14px;
+  }
+  .dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: block;
+  }
+  .dots i.c { background: var(--green); }
+  .dots i.s { background: var(--red); }
+  .dots i.o { background: var(--blue); }
+
+  /* Range selectors */
+  .range-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  .range-row label {
+    font: 500 11px/1 var(--mono);
+    letter-spacing: 0.08em;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+  .range-row select {
+    appearance: none;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--surface-2);
+    font: 500 13px/1 var(--mono);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  /* Tip */
+  .tip {
+    font: 400 13px/1.5 var(--sans);
+    color: var(--dim);
+    text-align: center;
+    max-width: 340px;
+    line-height: 1.5;
+  }
+  .tip b { color: var(--ink); font-weight: 600; }
+
+  /* Mode toggle */
+  .mode-row {
+    display: flex;
+    gap: 2px;
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 2px;
+  }
+  .mode-btn {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: var(--dim);
+    font: 600 11px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .mode-btn.active {
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+</style>
+
+<div class="app">
+  <div class="header">
+    <h1>Pitch Trainer</h1>
+  </div>
+
+  <div class="mode-row">
+    <button class="mode-btn active" id="modeTrainer">Trainer</button>
+    <button class="mode-btn" id="modeFree">Free pitch</button>
+  </div>
+
+  <button class="start-btn" id="startBtn">Start microphone</button>
+
+  <div class="phase-area" id="phaseArea">
+    <div class="phase-label" id="phaseLabel">—</div>
+    <div class="target-note" id="targetNote">—</div>
+    <div class="meter-wrap"><canvas id="meter"></canvas></div>
+    <div class="your-pitch" id="yourPitch">—</div>
+
+    <div class="verdict-area" id="verdictArea">
+      <div class="verdict-word" id="verdictWord"></div>
+      <div class="verdict-detail" id="verdictDetail"></div>
+    </div>
+
+    <div class="dots" id="dots"></div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-val" id="statStreak">0</div>
+        <div class="stat-label">Streak</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statClean">0%</div>
+        <div class="stat-label">Clean</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statTotal">0</div>
+        <div class="stat-label">Reps</div>
+      </div>
+    </div>
+
+    <div class="range-row">
+      <label>Low</label>
+      <select id="selLo"></select>
+      <label>High</label>
+      <select id="selHi"></select>
+    </div>
+
+    <div class="tip" id="tip">
+      <b>Tip:</b> Listen to the tone, hear it in your head during the silence,
+      then match it. Don't slide — <b>arrive</b>.
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ---- Note names ----
+  var NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  function noteName(midi) {
+    var n = Math.round(midi);
+    return { name: NOTES[((n % 12) + 12) % 12], oct: Math.floor(n / 12) - 1 };
+  }
+  function midiToHz(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function hzToMidi(hz) { return 69 + 12 * Math.log2(hz / 440); }
+
+  // ---- Populate selects ----
+  var selLo = document.getElementById('selLo');
+  var selHi = document.getElementById('selHi');
+  for (var m = 36; m <= 84; m++) {
+    var nn = noteName(m);
+    var txt = nn.name + nn.oct;
+    var oLo = document.createElement('option');
+    oLo.value = m; oLo.textContent = txt;
+    var oHi = oLo.cloneNode(true);
+    selLo.appendChild(oLo);
+    selHi.appendChild(oHi);
+  }
+  selLo.value = '57'; // A3
+  selHi.value = '65'; // F4
+
+  // ---- Audio state ----
+  var ac = null, analyser = null, buf = null, stream = null, running = false;
+  var SR = 44100;
+
+  // ---- Trainer constants (match the engine's thresholds) ----
+  var TR_CLEAN_C = 35;
+  var TR_PLAY_MS = 1200;
+  var TR_HEAR_MS = 1500;
+  var TR_SING_MS = 4000;
+  var TR_ENTRY_MS = 250;
+  var TR_SETTLE_LO = 400;
+  var TR_SETTLE_HI = 900;
+  var TR_VERDICT_MS = 2200;
+
+  // ---- Trainer state ----
+  var TR = {
+    active: false, targetM: null, phase: 'idle', phaseT0: 0,
+    samples: [], entryT: null, verdicted: false,
+    streak: 0, hist: [], osc: null, oscGain: null
+  };
+
+  var mode = 'trainer'; // or 'free'
+  var smoothM = null;
+  var rawM = null;
+  var animId = null;
+
+  // ---- YIN pitch detection ----
+  var YIN_THRESH = 0.15;
+  function detect() {
+    analyser.getFloatTimeDomainData(buf);
+    var SIZE = Math.min(2048, buf.length), i, rms = 0;
+    for (i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
+    rms = Math.sqrt(rms / SIZE);
+    if (rms < 0.02) return -1;
+    var maxLag = Math.min(Math.floor(SR / 50), SIZE >> 1);
+    var minLag = Math.floor(SR / 1600), W = SIZE - maxLag;
+    var d = new Float32Array(maxLag + 1), tau;
+    for (tau = minLag; tau <= maxLag; tau++) {
+      var s = 0;
+      for (i = 0; i < W; i++) { var x = buf[i] - buf[i + tau]; s += x * x; }
+      d[tau] = s;
+    }
+    var dp = new Float32Array(maxLag + 1), run = 0; dp[0] = 1;
+    for (tau = 1; tau <= maxLag; tau++) {
+      if (tau < minLag) { dp[tau] = 1; continue; }
+      run += d[tau];
+      dp[tau] = run ? d[tau] * tau / run : 1;
+    }
+    var found = -1;
+    for (tau = minLag; tau <= maxLag; tau++) {
+      if (dp[tau] < YIN_THRESH) {
+        while (tau + 1 <= maxLag && dp[tau + 1] < dp[tau]) tau++;
+        found = tau; break;
+      }
+    }
+    if (found < 0) {
+      var mn = 1e9;
+      for (tau = minLag; tau <= maxLag; tau++) if (dp[tau] < mn) { mn = dp[tau]; found = tau; }
+      if (mn > 0.3) return -1;
+    }
+    var t = found, y1 = dp[t - 1] || dp[t], y2 = dp[t], y3 = dp[t + 1] || dp[t];
+    var a = (y1 + y3 - 2 * y2) / 2, b = (y3 - y1) / 2, tt = t;
+    if (a) tt = t - b / (2 * a);
+    var f = SR / tt;
+    return (f < 50 || f > 1600) ? -1 : f;
+  }
+
+  // ---- Tone generation ----
+  function toneStart(midi) {
+    if (!ac) return;
+    var o = ac.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = midiToHz(midi);
+    var g = ac.createGain();
+    g.gain.setValueAtTime(0, ac.currentTime);
+    g.gain.linearRampToValueAtTime(0.3, ac.currentTime + 0.05);
+    o.connect(g); g.connect(ac.destination); o.start();
+    TR.osc = o; TR.oscGain = g;
+  }
+  function toneStop() {
+    if (!TR.osc) return;
+    try {
+      var g = TR.oscGain, o = TR.osc;
+      g.gain.setTargetAtTime(0, ac.currentTime, 0.03);
+      setTimeout(function() { try { o.stop(); o.disconnect(); g.disconnect(); } catch(e) {} }, 120);
+    } catch(e) {}
+    TR.osc = null; TR.oscGain = null;
+  }
+
+  // ---- Trainer logic ----
+  function pickTarget() {
+    var lo = Math.min(parseInt(selLo.value), parseInt(selHi.value));
+    var hi = Math.max(parseInt(selLo.value), parseInt(selHi.value));
+    var m;
+    do { m = lo + Math.floor(Math.random() * (hi - lo + 1)); } while (m === TR.targetM && hi > lo);
+    return m;
+  }
+
+  function setPhase(p) {
+    TR.phase = p; TR.phaseT0 = performance.now();
+    var el = document.getElementById('phaseLabel');
+    el.className = 'phase-label';
+    if (p === 'play') { el.textContent = 'LISTEN'; el.classList.add('listen'); }
+    else if (p === 'hear') { el.textContent = 'HEAR IT IN YOUR HEAD'; el.classList.add('hear'); }
+    else if (p === 'sing') { el.textContent = 'SING'; el.classList.add('sing'); }
+    else if (p === 'verdict') { el.textContent = ''; }
+    else { el.textContent = ''; }
+  }
+
+  function startRep() {
+    TR.targetM = pickTarget(); TR.samples = []; TR.entryT = null; TR.verdicted = false;
+    var nn = noteName(TR.targetM);
+    document.getElementById('targetNote').innerHTML = nn.name + '<span class="oct">' + nn.oct + '</span>';
+    document.getElementById('verdictWord').textContent = '';
+    document.getElementById('verdictWord').className = 'verdict-word';
+    document.getElementById('verdictDetail').textContent = 'listen...';
+    document.getElementById('verdictArea').className = 'verdict-area';
+    setPhase('play'); toneStart(TR.targetM);
+  }
+
+  function showVerdict(kind, detail) {
+    TR.verdicted = true;
+    var names = { clean: 'CLEAN', scoop: 'SCOOP', overshoot: 'OVERSHOOT', miss: 'MISS' };
+    var vw = document.getElementById('verdictWord');
+    vw.textContent = names[kind] || '';
+    vw.className = 'verdict-word ' + kind;
+    document.getElementById('verdictDetail').textContent = detail || '';
+    document.getElementById('verdictArea').className = 'verdict-area ' + (kind === 'miss' ? '' : kind);
+    if (kind === 'clean') TR.streak++; else if (kind !== 'miss') TR.streak = 0;
+    if (kind !== 'miss') { TR.hist.push(kind); if (TR.hist.length > 20) TR.hist.shift(); }
+    var cl = TR.hist.filter(function(k) { return k === 'clean'; }).length;
+    document.getElementById('statStreak').textContent = TR.streak;
+    document.getElementById('statClean').textContent = TR.hist.length ? Math.round(100 * cl / TR.hist.length) + '%' : '0%';
+    document.getElementById('statTotal').textContent = TR.hist.length;
+    var dots = document.getElementById('dots'); dots.innerHTML = '';
+    TR.hist.forEach(function(k) {
+      var d = document.createElement('i');
+      d.className = k === 'clean' ? 'c' : (k === 'scoop' ? 's' : 'o');
+      dots.appendChild(d);
+    });
+    setPhase('verdict');
+  }
+
+  function classify() {
+    var entry = [], settled = [];
+    TR.samples.forEach(function(s) {
+      if (s.t <= TR_ENTRY_MS) entry.push(s.c);
+      if (s.t >= TR_SETTLE_LO && s.t <= TR_SETTLE_HI) settled.push(s.c);
+    });
+    if (entry.length < 3) { showVerdict('miss', 'too little voice caught — sing sooner and hold it'); return; }
+    var mean = entry.reduce(function(a, b) { return a + b; }, 0) / entry.length;
+    var med = null;
+    if (settled.length) { settled.sort(function(a, b) { return a - b; }); med = settled[settled.length >> 1]; }
+    if (med != null && Math.abs(med) > 60) {
+      var off = Math.round(med);
+      showVerdict('miss', 'landed ' + (off > 0 ? '+' : '') + off + 'c off — different note');
+      return;
+    }
+    if (mean < -TR_CLEAN_C) showVerdict('scoop', 'slid up from ' + Math.round(mean) + 'c — arrive, don’t reach');
+    else if (mean > TR_CLEAN_C) showVerdict('overshoot', 'dropped from +' + Math.round(mean) + 'c — place it, don’t throw it');
+    else showVerdict('clean', 'started ' + (mean >= 0 ? '+' : '') + Math.round(mean) + 'c from centre');
+  }
+
+  function trainerTick(now) {
+    if (!TR.active || mode !== 'trainer') return;
+    var dt = now - TR.phaseT0;
+    if (TR.phase === 'play') {
+      if (dt >= TR_PLAY_MS) { toneStop(); setPhase('hear'); }
+    } else if (TR.phase === 'hear') {
+      if (dt >= TR_HEAR_MS) setPhase('sing');
+    } else if (TR.phase === 'sing') {
+      if (rawM != null && isFinite(rawM)) {
+        if (TR.entryT == null) TR.entryT = now;
+        TR.samples.push({ t: now - TR.entryT, c: (rawM - TR.targetM) * 100 });
+      }
+      var done = (TR.entryT != null && now - TR.entryT >= TR_SETTLE_HI + 150) || dt >= TR_SING_MS;
+      if (done && !TR.verdicted) classify();
+    } else if (TR.phase === 'verdict') {
+      if (dt >= TR_VERDICT_MS) startRep();
+    }
+  }
+
+  // ---- Meter drawing ----
+  var canvas = document.getElementById('meter');
+  var ctx = canvas.getContext('2d');
+  var meterW, meterH;
+
+  function sizeMeter() {
+    var r = canvas.parentElement.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = r.width * dpr;
+    canvas.height = r.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    meterW = r.width;
+    meterH = r.height;
+  }
+
+  function getCSS(prop) {
+    return getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
+  }
+
+  function drawMeter() {
+    if (!meterW) return;
+    var bg = getCSS('--surface');
+    var line = getCSS('--surface-2');
+    var dim = getCSS('--dim');
+    var amber = getCSS('--amber');
+    var green = getCSS('--green');
+    var red = getCSS('--red');
+    var blue = getCSS('--blue');
+    var ink = getCSS('--ink');
+
+    ctx.clearRect(0, 0, meterW, meterH);
+
+    var cx = meterW / 2;
+    var cy = meterH / 2;
+    var rangeC = 300; // cents range visible
+    var pxPerCent = meterH / rangeC;
+
+    // Clean zone band
+    var cleanTop = cy - TR_CLEAN_C * pxPerCent;
+    var cleanBot = cy + TR_CLEAN_C * pxPerCent;
+    ctx.fillStyle = getCSS('--green-dim');
+    ctx.fillRect(0, cleanTop, meterW, cleanBot - cleanTop);
+
+    // Centre line (target)
+    ctx.strokeStyle = amber;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(meterW, cy); ctx.stroke();
+
+    // Threshold lines
+    ctx.strokeStyle = dim;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(0, cleanTop); ctx.lineTo(meterW, cleanTop); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, cleanBot); ctx.lineTo(meterW, cleanBot); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Labels
+    ctx.font = '500 10px ' + getCSS('--mono');
+    ctx.fillStyle = dim;
+    ctx.textAlign = 'right';
+    ctx.fillText('TARGET', meterW - 8, cy - 6);
+    ctx.fillStyle = green;
+    ctx.fillText('+' + TR_CLEAN_C + 'c', meterW - 8, cleanTop - 4);
+    ctx.fillText('−' + TR_CLEAN_C + 'c', meterW - 8, cleanBot + 12);
+
+    // Semitone markers
+    ctx.fillStyle = dim;
+    ctx.globalAlpha = 0.3;
+    for (var sc = 100; sc <= rangeC; sc += 100) {
+      var yUp = cy - sc * pxPerCent;
+      var yDn = cy + sc * pxPerCent;
+      ctx.fillRect(0, yUp, meterW, 1);
+      ctx.fillRect(0, yDn, meterW, 1);
+    }
+    ctx.globalAlpha = 1;
+
+    // Voice indicator
+    if (rawM != null && isFinite(rawM) && TR.targetM != null) {
+      var cents = (rawM - TR.targetM) * 100;
+      cents = Math.max(-rangeC / 2, Math.min(rangeC / 2, cents));
+      var voiceY = cy - cents * pxPerCent;
+
+      var col = Math.abs(cents) <= TR_CLEAN_C ? green : (cents < 0 ? red : blue);
+
+      // Glow
+      var grad = ctx.createRadialGradient(cx, voiceY, 0, cx, voiceY, 40);
+      grad.addColorStop(0, col);
+      grad.addColorStop(1, 'transparent');
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = grad;
+      ctx.fillRect(cx - 40, voiceY - 40, 80, 80);
+      ctx.globalAlpha = 1;
+
+      // Voice line
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(20, voiceY); ctx.lineTo(meterW - 20, voiceY); ctx.stroke();
+
+      // Diamond marker
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(cx, voiceY - 8);
+      ctx.lineTo(cx + 6, voiceY);
+      ctx.lineTo(cx, voiceY + 8);
+      ctx.lineTo(cx - 6, voiceY);
+      ctx.closePath();
+      ctx.fill();
+
+      // Direction arrow when far off
+      if (Math.abs(cents) > TR_CLEAN_C) {
+        ctx.fillStyle = col;
+        ctx.font = '600 11px ' + getCSS('--mono');
+        ctx.textAlign = 'left';
+        var dir = cents < 0 ? '↑ go up' : '↓ go down';
+        ctx.fillText(dir, 10, voiceY + (cents < 0 ? -12 : 18));
+      }
+    } else if (rawM != null && isFinite(rawM) && mode === 'free') {
+      // Free mode: just show the note
+      var voiceY2 = cy;
+      ctx.strokeStyle = amber;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(20, voiceY2); ctx.lineTo(meterW - 20, voiceY2); ctx.stroke();
+    }
+  }
+
+  // ---- Free pitch mode ----
+  function updateFreePitch() {
+    var tn = document.getElementById('targetNote');
+    var yp = document.getElementById('yourPitch');
+    if (rawM == null || !isFinite(rawM)) {
+      tn.innerHTML = '—';
+      yp.textContent = '—';
+      return;
+    }
+    var nn = noteName(rawM);
+    var cents = Math.round((rawM - Math.round(rawM)) * 100);
+    tn.innerHTML = nn.name + '<span class="oct">' + nn.oct + '</span>';
+    yp.innerHTML = (cents >= 0 ? '+' : '') + cents + ' <span class="cents">cents</span>';
+  }
+
+  // ---- Main loop ----
+  function loop() {
+    animId = requestAnimationFrame(loop);
+    if (!running) return;
+
+    var hz = detect();
+    if (hz > 0) {
+      var m = hzToMidi(hz);
+      var k = 0.4;
+      smoothM = (smoothM == null) ? m : smoothM + (m - smoothM) * k;
+      rawM = m;
+    } else {
+      rawM = null;
+      smoothM = null;
+    }
+
+    var now = performance.now();
+
+    if (mode === 'trainer') {
+      trainerTick(now);
+      // Update your-pitch display
+      var yp = document.getElementById('yourPitch');
+      if (rawM != null && TR.targetM != null) {
+        var c = Math.round((rawM - TR.targetM) * 100);
+        yp.textContent = (c >= 0 ? '+' : '') + c + ' cents';
+      } else {
+        yp.textContent = '—';
+      }
+    } else {
+      updateFreePitch();
+    }
+
+    drawMeter();
+  }
+
+  // ---- Start/stop ----
+  var startBtn = document.getElementById('startBtn');
+
+  startBtn.addEventListener('click', function() {
+    if (running) {
+      running = false;
+      toneStop();
+      TR.active = false;
+      try { if (stream) stream.getTracks().forEach(function(t) { t.stop(); }); } catch(e) {}
+      stream = null;
+      startBtn.textContent = 'START MICROPHONE';
+      startBtn.classList.remove('active');
+      document.getElementById('phaseArea').classList.remove('show');
+      return;
+    }
+
+    var constraints = { audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }, video: false };
+    navigator.mediaDevices.getUserMedia(constraints).then(function(s) {
+      stream = s;
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      SR = ac.sampleRate;
+      analyser = ac.createAnalyser();
+      analyser.fftSize = 4096;
+      analyser.smoothingTimeConstant = 0;
+      buf = new Float32Array(analyser.fftSize);
+      var src = ac.createMediaStreamSource(stream);
+      src.connect(analyser);
+      running = true;
+      startBtn.textContent = 'STOP';
+      startBtn.classList.add('active');
+      document.getElementById('phaseArea').classList.add('show');
+      sizeMeter();
+
+      if (mode === 'trainer') {
+        TR.active = true;
+        TR.streak = 0;
+        TR.hist = [];
+        startRep();
+      }
+    }).catch(function(err) {
+      startBtn.textContent = 'MIC BLOCKED — TAP TO RETRY';
+    });
+  });
+
+  // ---- Mode toggle ----
+  document.getElementById('modeTrainer').addEventListener('click', function() {
+    mode = 'trainer';
+    this.classList.add('active');
+    document.getElementById('modeFree').classList.remove('active');
+    document.getElementById('tip').style.display = '';
+    if (running) {
+      TR.active = true; TR.streak = 0; TR.hist = [];
+      document.getElementById('verdictWord').textContent = '';
+      document.getElementById('verdictDetail').textContent = '';
+      document.getElementById('verdictArea').className = 'verdict-area';
+      document.getElementById('dots').innerHTML = '';
+      document.getElementById('statStreak').textContent = '0';
+      document.getElementById('statClean').textContent = '0%';
+      document.getElementById('statTotal').textContent = '0';
+      startRep();
+    }
+  });
+
+  document.getElementById('modeFree').addEventListener('click', function() {
+    mode = 'free';
+    this.classList.add('active');
+    document.getElementById('modeTrainer').classList.remove('active');
+    TR.active = false; toneStop();
+    document.getElementById('phaseLabel').textContent = '';
+    document.getElementById('tip').style.display = 'none';
+    document.getElementById('verdictWord').textContent = '';
+    document.getElementById('verdictDetail').textContent = 'sing any note — see where it lands';
+    document.getElementById('verdictArea').className = 'verdict-area';
+    TR.targetM = null;
+  });
+
+  // ---- Init ----
+  window.addEventListener('resize', sizeMeter);
+  sizeMeter();
+  loop();
+
+})();
+</script>

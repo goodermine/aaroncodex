@@ -5,6 +5,7 @@ topics: [twang, belting, microphone, warm-up, range-extension, agility]
 words: 6255
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Coaching Research Expansion

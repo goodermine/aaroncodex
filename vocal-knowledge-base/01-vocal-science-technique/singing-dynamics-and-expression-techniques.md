@@ -5,6 +5,7 @@ topics: [expression, dynamics, vibrato, tone, diction, classical]
 words: 5986
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Singing Dynamics and Expression Techniques

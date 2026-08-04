@@ -5,6 +5,7 @@ topics: [motor-learning, practice-design, performance, vibrato, tone, expression
 words: 7687
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Born to Sing: Deconstructing Mastery

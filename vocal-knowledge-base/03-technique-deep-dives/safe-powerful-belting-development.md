@@ -5,6 +5,7 @@ topics: [belting, twang, classical, vibrato, passaggio, formant-tuning]
 words: 8059
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Safe, Powerful Belting Development

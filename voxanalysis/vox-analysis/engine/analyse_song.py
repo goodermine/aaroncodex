@@ -220,15 +220,21 @@ def run_stem_separation(input_path, script_path="tools/stems/batch_stems.sh"):
 
     vocals_path = find_first_stem_match(
         [
+            os.path.join(run_output_dir, "**", "*_(vocals)_*.flac"),
+            os.path.join(run_output_dir, "**", "*_(vocals)_*.wav"),
             os.path.join(run_output_dir, "**", "*_(Vocals)_*.flac"),
             os.path.join(run_output_dir, "**", "*_(Vocals)_*.wav"),
             os.path.join(run_output_dir, "**", "*.vocals.wav"),
             os.path.join(run_output_dir, "**", "*vocals*.wav"),
             os.path.join(run_output_dir, "**", "*vocals*.flac"),
         ],
-        exclude_substrings=("no_vocals", "instrumental"),
+        exclude_substrings=("no_vocals", "instrumental", "_(other)_"),
     )
     instrumental_path = find_first_stem_match([
+        os.path.join(run_output_dir, "**", "*_(other)_*.flac"),
+        os.path.join(run_output_dir, "**", "*_(other)_*.wav"),
+        os.path.join(run_output_dir, "**", "*_(instrumental)_*.flac"),
+        os.path.join(run_output_dir, "**", "*_(instrumental)_*.wav"),
         os.path.join(run_output_dir, "**", "*_(Instrumental)_*.flac"),
         os.path.join(run_output_dir, "**", "*_(Instrumental)_*.wav"),
         os.path.join(run_output_dir, "**", "*.instrumental.wav"),
@@ -280,8 +286,8 @@ def _extract_model_tag(vocals_path):
     if not vocals_path:
         return None
     stem = os.path.splitext(os.path.basename(vocals_path))[0]
-    marker = "_(Vocals)_"
-    idx = stem.find(marker)
+    marker = "_(vocals)_"
+    idx = stem.lower().find(marker)
     if idx != -1:
         return stem[idx + len(marker):] or None
     return None
@@ -2330,6 +2336,137 @@ def _linear_component(value, key, calibration, default_best, worst, unit, lower_
     return _scale(value, default_best, worst), formula, f"= {value}{unit}"
 
 
+MIN_ONSETS_FOR_DIAGNOSTIC = 12
+
+
+def compute_entry_accuracy(results, calibration=None):
+    """ENTRY ACCURACY — a diagnostic, deliberately NOT a score.
+
+    How cleanly notes are started: landing on the centre versus sliding up into
+    it (scooped) or arriving above and settling down (overshot). The engine has
+    always measured this and nothing has ever reported it next to the score.
+
+    **This returns no `/10` and never will.** Two reasons, in order of weight:
+
+    1. An `onset_accuracy` component was built in full, anchored honestly and
+       regression-tested in Aug 2026, and it made agreement with the singer's
+       by-ear judgement WORSE (r 0.777 -> 0.725, error 0.461 -> 0.500). It was
+       rejected. See docs/handoffs/V6_ONSET_COMPONENT_REJECTED.md before ever
+       proposing it again.
+    2. A second `/10` floating beside the real one is precisely the failure this
+       repo was built to prevent — two numbers, silently disagreeing, one of
+       them quoted by mistake. CLAUDE.md rule 1 exists because that happened.
+
+    So the readout is a **percentile against the professional pack**, in the same
+    "matches or beats X% of N pro references" language every component already
+    uses. It is a number that goes up as you improve, it is directly meaningful,
+    and it cannot be mistaken for the score.
+
+    Returns None when there is no onset data or too few onsets to be meaningful.
+    """
+    onsets = (results or {}).get("onsets") or {}
+    n = onsets.get("n_onsets")
+    clean = onsets.get("pct_clean")
+    if clean is None or not isinstance(n, (int, float)) or n < MIN_ONSETS_FOR_DIAGNOSTIC:
+        return None
+
+    out = {
+        "is_score": False,
+        "not_a_score_note": (
+            "ENTRY ACCURACY is a diagnostic, not a score. It is NOT part of the "
+            "overall or the capture-fair number and must never be quoted as a "
+            "/10 or averaged with one. An onset_accuracy score component was "
+            "built, tested and rejected in Aug 2026 for making agreement with "
+            "the singer's ear worse."
+        ),
+        "method": onsets.get("method"),
+        "n_onsets": int(n),
+        "pct_clean": clean,
+        "pct_scooped": onsets.get("pct_scooped"),
+        "pct_overshot": onsets.get("pct_overshot"),
+        "median_scoop_depth_cents": onsets.get("median_scoop_depth_cents"),
+    }
+
+    # THE VALIDITY GATE (docs/handoffs/SCORE_READING_LIMITATIONS.md, limitation 3).
+    # This diagnostic is the one most easily fooled by a contaminated stem, and
+    # it fails in the FLATTERING direction, which is the dangerous one. Backing
+    # instruments start notes instantly and perfectly, so a pitch tracker locked
+    # onto the band reports a superb clean rate: three of Aaron's early takes read
+    # 79.6-91.5% clean — 100th percentile, better than every professional — on
+    # HNR 6.5-8.0 dB with 1.8-10.1c of drift. A human cannot do that. Publishing
+    # "you beat all 50 professionals" off a broken stem would discredit the whole
+    # readout, so the percentile is withheld and the measurement is labelled.
+    # The gate is CONJUNCTIVE, and that is the whole point: bad signal ALONE is
+    # a loud room, not contamination. Aaron's best take on file — Kung Fu
+    # Fighting at the Prince of Wales, 9.4 capture-fair — reads HNR 12.8 dB with
+    # 33.2c of drift and 26.2% clean entries. Harsh capture, entirely human
+    # numbers. Flagging that take untrustworthy would be a false alarm on his
+    # best performance. Contamination is bad signal WITH superhuman pitch
+    # behaviour, and "superhuman" is defined against the pack, not a magic number.
+    vq = (results or {}).get("voice_quality") or {}
+    hnr = vq.get("hnr_db_median")
+    jitter = vq.get("jitter_local_percent_median")
+    bad_signal = (hnr is not None and hnr < 13) or (jitter is not None and jitter > 2.0)
+
+    clean_stats = _calib_metric(calibration, "onsets_pct_clean")
+    drift_stats = _calib_metric(calibration, "intonation_median_intra_note_drift_cents")
+    drift = ((results or {}).get("intonation") or {}).get("median_intra_note_drift_cents")
+    too_good = False
+    if clean_stats:
+        too_good |= (_reference_percentile(clean, clean_stats, lower_is_better=False) or 0) >= 90
+    if drift_stats and drift is not None:
+        too_good |= (_reference_percentile(drift, drift_stats, lower_is_better=True) or 0) >= 90
+
+    if bad_signal and too_good:
+        out["reliability"] = "suspect"
+        out["reliability_reason"] = (
+            f"HNR {hnr} dB / jitter {jitter}% is a degraded signal, yet the onsets "
+            f"({clean}% clean) and held-note drift ({drift}c) beat 90% of the "
+            "professional pack. A voice cannot sound that rough and start notes "
+            "that perfectly. This is the signature of a pitch tracker locked onto "
+            "backing instruments, which are perfectly in tune and start instantly "
+            "— the measurement describes the band, not the singer. Re-separate."
+        )
+        out["basis"] = (f"{clean}% of entries land clean — WITHHELD: "
+                        f"{out['reliability_reason']}")
+        return out
+    out["reliability"] = "reduced" if bad_signal else "high"
+    if bad_signal:
+        out["reliability_reason"] = (
+            f"degraded capture (HNR {hnr} dB, jitter {jitter}%) — the onset "
+            "measurement is plausible and is reported, but a rough room makes "
+            "note starts harder to detect. Read it as indicative."
+        )
+
+    stats = _calib_metric(calibration, "onsets_pct_clean")
+    if stats:
+        out["percentile_vs_pro_pack"] = _reference_percentile(clean, stats, lower_is_better=False)
+        out["pro_median_pct_clean"] = stats["p50"]
+        out["n_references"] = stats["n"]
+        out["basis"] = (f"{clean}% of entries land clean — matches or beats "
+                        f"{out['percentile_vs_pro_pack']}% of {stats['n']} pro "
+                        f"references (pro median {stats['p50']}%)")
+    else:
+        out["basis"] = f"{clean}% of entries land clean (no professional anchor loaded)"
+
+    # Scooping alone is the misleading half and is reported WITH its counterpart
+    # for exactly that reason: a singer can sit at the pack's scoop median and
+    # still land far fewer clean entries than the pack, because the rest of the
+    # misses went the other way. Reporting one without the other invites the
+    # wrong conclusion.
+    sc = _calib_metric(calibration, "onsets_pct_scooped")
+    if sc and out["pct_scooped"] is not None:
+        out["scooped_percentile_vs_pro_pack"] = _reference_percentile(
+            out["pct_scooped"], sc, lower_is_better=True)
+        out["pro_median_pct_scooped"] = sc["p50"]
+    ov = _calib_metric(calibration, "onsets_pct_overshot")
+    if ov and out["pct_overshot"] is not None:
+        out["overshot_percentile_vs_pro_pack"] = _reference_percentile(
+            out["pct_overshot"], ov, lower_is_better=True)
+        out["pro_median_pct_overshot"] = ov["p50"]
+    return out
+
+
 def compute_technical_score(results, calibration=None):
     """
     DETERMINISTIC TECHNICAL SCORE — RUBRIC v5
@@ -3937,6 +4074,18 @@ def main():
     if "overall_score_0_to_10" in results["technical_score"]:
         print(f"  Technical score: {results['technical_score']['overall_score_0_to_10']}/10 "
               f"(confidence: {results['technical_score']['confidence']})")
+
+    # ENTRY ACCURACY — a diagnostic, NOT a score, and deliberately stored OUTSIDE
+    # technical_score. Keeping it out means compute_technical_score's source is
+    # untouched, so rubric_fingerprint does not move and no existing score
+    # becomes non-comparable over a readout that changes no number.
+    results["entry_accuracy"] = compute_entry_accuracy(results, calibration=calibration)
+    ea = results["entry_accuracy"]
+    if ea:
+        print(f"  Entry accuracy (diagnostic, not scored): {ea['pct_clean']}% clean"
+              + (f" — beats {ea['percentile_vs_pro_pack']}% of "
+                 f"{ea['n_references']} pro references"
+                 if ea.get("percentile_vs_pro_pack") is not None else ""))
 
     # Stage 4b: Deterministic prescriptions from the exercise library
     print("\nRunning prescription engine...")

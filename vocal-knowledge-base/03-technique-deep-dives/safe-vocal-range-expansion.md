@@ -5,6 +5,7 @@ topics: [range-extension, passaggio, posture, vocal-health, warm-up, microphone]
 words: 8414
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Safe Vocal Range Expansion

@@ -105,6 +105,48 @@ def main() -> int:
         return 1
     print(f"{OK}  no legacy scores left in the archive")
 
+    # 3b. one calibration pack across every stored score.
+    #
+    # is_legacy_score() checks the contract and the rubric, and an analysis
+    # scored against an OLDER calibration pack passes both — so check 3 above
+    # waves it through. score_conflict() does not: it refuses to compare two
+    # scores anchored to different packs. That contradiction sat in this archive
+    # unnoticed — 113 of 182 analyses stored pack 0da01ef1e30f while the pinned
+    # contract said fb035034bebd, so preflight said "safe to publish" for a
+    # leaderboard, an average and a cross-era comparison that score_conflict()
+    # would have refused take by take. The two packs disagreed by up to 0.5 on
+    # the overall. Per take that is small; across a comparison it is the whole
+    # effect. Anything reading a STORED score (tools/ranked_takes.py,
+    # tools/show_results.py, the singer PDFs) is exposed, because only
+    # rescore_all.py recomputes and it writes tables, not the archive.
+    packs = {}
+    for path in sorted(glob.glob(os.path.join(ARCHIVE, "*_analysis.json"))):
+        try:
+            with open(path) as fh:
+                score = (json.load(fh) or {}).get("technical_score")
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(score, dict) or score.get("status") == "retired_legacy_score":
+            continue
+        fp = (score.get("identity") or {}).get("calibration_fingerprint")
+        packs.setdefault(fp, []).append(os.path.basename(path))
+
+    stale_packs = {fp: files for fp, files in packs.items()
+                   if fp != ident["calibration_fingerprint"]}
+    if stale_packs:
+        n = sum(len(f) for f in stale_packs.values())
+        print(f"{FAIL}  {n} archived score(s) are anchored to a superseded "
+              f"calibration pack — score_conflict() refuses to compare them:")
+        for fp, files in sorted(stale_packs.items(), key=lambda kv: -len(kv[1])):
+            print(f"        - {fp}: {len(files)} analyses")
+        print(f"        - {ident['calibration_fingerprint']}: "
+              f"{len(packs.get(ident['calibration_fingerprint'], []))} analyses  <- pinned")
+        print("\n      DO NOT publish a leaderboard, an average or any comparison.")
+        print("      Fix: python3 docs/score-metrics/rescore_archive_inplace.py")
+        print("           python3 docs/score-metrics/rescore_all.py")
+        return 1
+    print(f"{OK}  one calibration pack throughout: {ident['calibration_fingerprint']}")
+
     # 4. one separation model across everything that gets compared.
     #
     # Separation is upstream of every measurement, and mixing models is invisible

@@ -5,6 +5,7 @@ topics: [recording, cool-down, grit, agility, pitch-accuracy, diction]
 words: 7739
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Complete Implementation Handoff

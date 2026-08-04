@@ -5,6 +5,7 @@ topics: [pedagogy, fatigue, breath-support, career, classical, dynamics]
 words: 7730
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Accent SPLAT Breathing for Singing

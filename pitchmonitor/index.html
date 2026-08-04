@@ -64,6 +64,26 @@
   @keyframes rpulse{50%{opacity:.35}}
   .menu{position:absolute;right:16px;bottom:calc(env(safe-area-inset-bottom) + 24px)}
 
+  /* ---- onset trainer strip ---- */
+  .trainer{position:relative;flex:0 0 auto;display:none;z-index:2;
+    padding:6px 12px 8px;border-bottom:1px solid var(--vox-line)}
+  .trainer.show{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+  .trainer .phase{font:600 11px/1.3 var(--mono);letter-spacing:.14em;color:var(--dim);min-width:86px}
+  .trainer .phase b{display:block;font-size:15px;color:var(--ink);letter-spacing:.02em;margin-top:2px}
+  .trainer .verdict{text-align:center;font:700 20px/1 var(--sans);letter-spacing:.04em;min-height:24px}
+  .trainer .verdict small{display:block;font:600 10px/1.4 var(--mono);letter-spacing:.1em;color:var(--dim);margin-top:3px}
+  .trainer .verdict.clean{color:var(--vox-good)}
+  .trainer .verdict.scoop{color:var(--accent)}
+  .trainer .verdict.overshoot{color:var(--vox-warn,#b45309)}
+  .trainer .verdict.miss{color:var(--dim)}
+  .trainer .tally{font:600 11px/1.5 var(--mono);color:var(--dim);text-align:right}
+  .trainer .tally b{color:var(--ink);font-size:14px}
+  .trainer .dots{display:flex;gap:3px;justify-content:flex-end;margin-top:3px}
+  .trainer .dots i{width:8px;height:8px;border-radius:50%;background:var(--vox-line-2)}
+  .trainer .dots i.c{background:var(--vox-good)}
+  .trainer .dots i.s{background:var(--accent)}
+  .trainer .dots i.o{background:var(--vox-warn,#b45309)}
+
   /* ---- gesture / permission overlay ---- */
   .gate{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:var(--vox-scrim);
     text-align:center;padding:28px}
@@ -107,12 +127,22 @@
     <span class="scaleTag" id="scaleTag">C Major</span>
     <div class="bigNote" id="bigNote">—</div>
     <div class="hold" style="display:flex;gap:8px">
+      <button class="btn" id="trainBtn" type="button">TRAIN</button>
       <button class="btn" id="viewBtn" type="button">SPEC</button>
       <button class="btn" id="holdBtn" type="button">HOLD</button>
     </div>
   </div>
 
   <div class="tuner show" id="tunerWrap"><canvas id="tunerCanvas"></canvas></div>
+
+  <!-- onset trainer (dream idea D1): play target → hear it silently → sing.
+       Verdicts the ENTRY — clean / scoop / overshoot — from the first 250 ms. -->
+  <div class="trainer" id="trainer">
+    <div class="phase" id="trPhase">TRAINER<b>—</b></div>
+    <div class="verdict" id="trVerdict"><small>tap TRAIN to stop · target plays, goes silent one beat, then you sing</small></div>
+    <div class="tally" id="trTally"><span>streak <b id="trStreak">0</b> · clean <b id="trClean">0%</b></span>
+      <div class="dots" id="trDots"></div></div>
+  </div>
 
   <div class="stage" id="stage">
     <canvas id="grid"></canvas>
@@ -182,6 +212,15 @@
       <div class="row"><label class="chk"><input type="checkbox" id="cHarm" checked> Harmonic overlay in Spectrum view</label>
         <p class="hint">Spectrum view (top-right <b>SPEC</b>) shows a live scrolling spectrogram with your pitch and its harmonics marked, and the 2–4 kHz "ring" band highlighted.</p></div>
 
+      <div class="row"><label>Trainer — lowest target note</label>
+        <select id="selTrainLo"></select></div>
+      <div class="row"><label>Trainer — highest target note</label>
+        <select id="selTrainHi"></select>
+        <p class="hint">Targets are drawn at random between these. Default A3–F4 —
+          the working range; raise the top as clean entries become routine.</p></div>
+      <div class="row"><label>Trainer tone volume <span class="val" id="vTrainVol">50%</span></label>
+        <input type="range" id="sTrainVol" min="0.1" max="1" step="0.05"></div>
+
       <div class="row rowcolor"><label style="margin:0">Pitch line colour</label>
         <input type="color" id="cPitch"></div>
 
@@ -236,7 +275,7 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
   // ---------------------------------------------------------------- settings
   var DEFAULTS={thresh:2.0,hzoom:1.0,vzoom:1.0,smooth:3,cal:440,names:"latin",octave:"4",
     scale:"C Major",semis:true,labels:false,auto:true,hz:false,tuner:true,pitchColor:"",
-    view:"pitch",harmonics:true};
+    view:"pitch",harmonics:true,trainLo:57,trainHi:65,trainVol:0.5};
   var S=load();
   function load(){try{var s=JSON.parse(localStorage.getItem("pm.settings"));return Object.assign({},DEFAULTS,s||{});}catch(e){return Object.assign({},DEFAULTS);}}
   function save(){try{localStorage.setItem("pm.settings",JSON.stringify(S));}catch(e){}}
@@ -488,6 +527,7 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
       }
     }
     gx.textAlign="left";
+    drawTrainerTarget(vr,plotR);
     drawTrace(vr,plotR);
     // current-note playhead at the right edge of the plot
     if(smoothM!=null){var y=yForM(smoothM,vr);
@@ -533,6 +573,141 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
     }
   }
 
+  // ------------------------------------------------------------ onset trainer
+  // Dream idea D1. One rep: PLAY the target tone (1.2s) → HEAR — one silent
+  // beat to pre-hear it in your head (the audiation moment, the root fix for
+  // scooping) → SING — the entry is verdicted from the FIRST 250 ms of voiced
+  // pitch vs the target: clean (within ±35c), scoop (below, slid up), overshoot
+  // (above, settled down). Raw detector output is used, NOT the smoothed trace —
+  // smoothing would blur exactly the thing being measured. Thresholds match the
+  // engine's entry-accuracy diagnostic so the trainer and the reports speak the
+  // same language.
+  var TR={active:false,phase:"idle",targetM:null,phaseT0:0,osc:null,oscGain:null,
+    samples:[],entryT:null,verdicted:false,streak:0,hist:[]};
+  var TR_CLEAN_C=35, TR_PLAY_MS=1200, TR_HEAR_MS=1000, TR_SING_MS=2600,
+      TR_VERDICT_MS=1300, TR_ENTRY_MS=250, TR_SETTLE_LO=400, TR_SETTLE_HI=900;
+
+  function trToneStart(m){
+    if(!ac)return;
+    trToneStop();
+    var o=ac.createOscillator(),g=ac.createGain();
+    o.type="sine";o.frequency.value=hzFromMidi(m);
+    g.gain.setValueAtTime(0,ac.currentTime);
+    g.gain.linearRampToValueAtTime(S.trainVol*0.6,ac.currentTime+0.05);
+    o.connect(g);g.connect(ac.destination);o.start();
+    TR.osc=o;TR.oscGain=g;
+  }
+  function trToneStop(){
+    if(!TR.osc)return;
+    try{
+      var g=TR.oscGain,o=TR.osc;
+      g.gain.setTargetAtTime(0,ac.currentTime,0.03);
+      setTimeout(function(){try{o.stop();o.disconnect();g.disconnect();}catch(e){}},120);
+    }catch(e){}
+    TR.osc=null;TR.oscGain=null;
+  }
+  function trPickTarget(){
+    var lo=Math.min(S.trainLo,S.trainHi),hi=Math.max(S.trainLo,S.trainHi),m;
+    do{m=lo+Math.floor(Math.random()*(hi-lo+1));}while(m===TR.targetM&&hi>lo);
+    return m;
+  }
+  function trSetPhase(p){
+    TR.phase=p;TR.phaseT0=performance.now();
+    var nn=TR.targetM!=null?noteName(TR.targetM):null;
+    var lbl=nn?(nn.name+nn.oct):"—";
+    var el=$("#trPhase");
+    if(p==="play")el.innerHTML="LISTEN<b>"+lbl+"</b>";
+    else if(p==="hear")el.innerHTML="HEAR IT<b>"+lbl+"</b>";
+    else if(p==="sing")el.innerHTML="SING<b>"+lbl+"</b>";
+    else el.innerHTML="TRAINER<b>—</b>";
+  }
+  function trStartRep(){
+    TR.targetM=trPickTarget();TR.samples=[];TR.entryT=null;TR.verdicted=false;
+    if(S.auto)viewCenter=TR.targetM;
+    $("#trVerdict").className="verdict";
+    $("#trVerdict").innerHTML="<small>listen…</small>";
+    trSetPhase("play");trToneStart(TR.targetM);
+  }
+  function trShowVerdict(kind,detail){
+    TR.verdicted=true;
+    var v=$("#trVerdict"),names={clean:"CLEAN",scoop:"SCOOP",overshoot:"OVERSHOOT",miss:"—"};
+    v.className="verdict "+kind;
+    v.innerHTML=names[kind]+(detail?"<small>"+detail+"</small>":"");
+    if(kind==="clean")TR.streak++;
+    else if(kind==="scoop"||kind==="overshoot")TR.streak=0;
+    if(kind!=="miss"){TR.hist.push(kind);if(TR.hist.length>10)TR.hist.shift();}
+    var cl=TR.hist.filter(function(k){return k==="clean";}).length;
+    $("#trStreak").textContent=String(TR.streak);
+    $("#trClean").textContent=TR.hist.length?Math.round(100*cl/TR.hist.length)+"%":"0%";
+    var dots=$("#trDots");dots.innerHTML="";
+    TR.hist.forEach(function(k){var i=document.createElement("i");
+      i.className=k==="clean"?"c":(k==="scoop"?"s":"o");dots.appendChild(i);});
+    trSetPhase("verdict");
+  }
+  function trClassify(){
+    // entry = mean cents-vs-target over the first 250 ms of voiced pitch;
+    // settled = median over 400–900 ms, to confirm the right note was sung at all.
+    var entry=[],settled=[];
+    TR.samples.forEach(function(s){
+      if(s.t<=TR_ENTRY_MS)entry.push(s.c);
+      if(s.t>=TR_SETTLE_LO&&s.t<=TR_SETTLE_HI)settled.push(s.c);
+    });
+    if(entry.length<3){trShowVerdict("miss","too little voice caught — sing sooner and hold it");return;}
+    var mean=entry.reduce(function(a,b){return a+b;},0)/entry.length;
+    var med=null;
+    if(settled.length){settled.sort(function(a,b){return a-b;});med=settled[settled.length>>1];}
+    if(med!=null&&Math.abs(med)>60){
+      var off=Math.round(med);
+      trShowVerdict("miss","landed "+(off>0?"+":"")+off+"c off the target — different note; try again");
+      return;
+    }
+    if(mean<-TR_CLEAN_C)trShowVerdict("scoop","slid up from "+Math.round(mean)+"c — arrive, don't reach");
+    else if(mean>TR_CLEAN_C)trShowVerdict("overshoot","dropped from +"+Math.round(mean)+"c — place it, don't throw it");
+    else trShowVerdict("clean","started "+(mean>=0?"+":"")+Math.round(mean)+"c from centre");
+  }
+  function trTick(now,rawM){
+    if(!TR.active)return;
+    var dt=now-TR.phaseT0;
+    if(TR.phase==="play"){
+      if(dt>=TR_PLAY_MS){trToneStop();trSetPhase("hear");}
+    }else if(TR.phase==="hear"){
+      if(dt>=TR_HEAR_MS)trSetPhase("sing");
+    }else if(TR.phase==="sing"){
+      if(rawM!=null&&isFinite(rawM)){
+        if(TR.entryT==null)TR.entryT=now;
+        TR.samples.push({t:now-TR.entryT,c:(rawM-TR.targetM)*100});
+      }
+      var done=(TR.entryT!=null&&now-TR.entryT>=TR_SETTLE_HI+150)||dt>=TR_SING_MS;
+      if(done&&!TR.verdicted)trClassify();
+    }else if(TR.phase==="verdict"){
+      if(dt>=TR_VERDICT_MS)trStartRep();
+    }
+  }
+  function trStart(){
+    if(!running){$("#trVerdict").innerHTML="<small>start the microphone first</small>";return;}
+    TR.active=true;TR.streak=0;TR.hist=[];$("#trainBtn").classList.add("on");
+    $("#trainer").classList.add("show");fit();trStartRep();
+  }
+  function trStop(){
+    TR.active=false;trToneStop();TR.targetM=null;
+    $("#trainBtn").classList.remove("on");$("#trainer").classList.remove("show");
+    trSetPhase("idle");fit();
+  }
+  $("#trainBtn").addEventListener("click",function(){TR.active?trStop():trStart();});
+
+  // target line + clean-zone band on the scrolling grid while training
+  function drawTrainerTarget(vr,plotR){
+    if(!TR.active||TR.targetM==null)return;
+    var y=yForM(TR.targetM,vr),half=(GH/(vr.hi-vr.lo))*(TR_CLEAN_C/100);
+    gx.fillStyle=TOK("--vox-good");gx.globalAlpha=.10;
+    gx.fillRect(PADL,y-half,plotR-PADL,half*2);gx.globalAlpha=1;
+    gx.strokeStyle=TOK("--vox-good");gx.lineWidth=2;gx.setLineDash([6,5]);
+    gx.beginPath();gx.moveTo(PADL,y+.5);gx.lineTo(plotR,y+.5);gx.stroke();gx.setLineDash([]);
+    var nn=noteName(TR.targetM);
+    gx.font="600 11px ui-monospace,monospace";gx.textAlign="left";gx.fillStyle=TOK("--vox-good");
+    gx.fillText("TARGET "+nn.name+nn.oct,PADL+6,y-8);
+  }
+
   function updateReadout(){
     var el=$("#bigNote");
     if(smoothM==null){el.innerHTML="—";return;}
@@ -550,8 +725,9 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
     var now=performance.now();
     if(running&&!heldFreeze&&!playing){
       var f=detect(), m=(f>0)?midiFromHz(f):null;
+      trTick(now,m);                       // trainer sees RAW pitch, pre-smoothing
       pushSample(now,m);
-      if(S.auto&&m!=null&&isFinite(m)){viewCenter+=(m-viewCenter)*0.08;}
+      if(S.auto&&m!=null&&isFinite(m)&&!TR.active){viewCenter+=(m-viewCenter)*0.08;}
     }
     if(playing)stepPlayback(now);
     if(S.view==="spectrum"){
@@ -633,7 +809,7 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
     if(on){sizeSpec();}}
   $("#viewBtn").addEventListener("click",function(){
     S.view=(S.view==="spectrum")?"pitch":"spectrum";save();applyView();});
-  $("#stopBtn").addEventListener("click",function(){stopRecording();stopPlayback();setHold(false);});
+  $("#stopBtn").addEventListener("click",function(){stopRecording();stopPlayback();setHold(false);if(TR.active)trStop();});
   $("#recBtn").addEventListener("click",function(){
     if(recording){stopRecording();}else{stopPlayback();startRecording();}
   });
@@ -665,6 +841,14 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
   bindChk("#cTuner","tuner",function(){applyTunerVis();});
   bindChk("#cHarm","harmonics");
   $("#cPitch").addEventListener("input",function(){S.pitchColor=this.value;save();});
+  bindRange("#sTrainVol","trainVol",{v:"#vTrainVol",f:function(v){return Math.round(v*100)+"%";}});
+  (function(){ // trainer target range pickers, C3..C5
+    function fill(sel){for(var m=48;m<=72;m++){var nn=noteName(m),o=document.createElement("option");
+      o.value=String(m);o.textContent=nn.name+nn.oct;sel.appendChild(o);}}
+    var lo=$("#selTrainLo"),hi=$("#selTrainHi");fill(lo);fill(hi);
+    lo.addEventListener("change",function(){S.trainLo=parseInt(lo.value,10);save();});
+    hi.addEventListener("change",function(){S.trainHi=parseInt(hi.value,10);save();});
+  })();
 
   // scale dropdown
   (function(){var sel=$("#selScale");Object.keys(SCALES).forEach(function(name){
@@ -686,6 +870,8 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
     if(!S.pitchColor)S.pitchColor=TOK("--vox-accent");
     $("#cHz").checked=S.hz;$("#cTuner").checked=S.tuner;$("#cPitch").value=S.pitchColor;
     $("#cHarm").checked=S.harmonics;
+    $("#selTrainLo").value=String(S.trainLo);$("#selTrainHi").value=String(S.trainHi);
+    $("#sTrainVol").value=S.trainVol;$("#vTrainVol").textContent=Math.round(S.trainVol*100)+"%";
     applyTunerVis();applyView();
   }
 

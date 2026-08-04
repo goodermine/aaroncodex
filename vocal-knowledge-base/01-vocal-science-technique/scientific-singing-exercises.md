@@ -5,6 +5,7 @@ topics: [agility, cool-down, twang, ear-training, motor-learning, sovt]
 words: 4203
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Scientific Singing Exercises

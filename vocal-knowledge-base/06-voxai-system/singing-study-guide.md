@@ -5,6 +5,7 @@ topics: [practice-design, passaggio, terminology, career, grit, warm-up]
 words: 2958
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Singing Study Guide

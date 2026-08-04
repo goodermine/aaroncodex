@@ -5,6 +5,7 @@ topics: [motor-learning, classical, practice-design, belting, performance, pedag
 words: 18215
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Vocal Mastery: Evidence-Based Innovation

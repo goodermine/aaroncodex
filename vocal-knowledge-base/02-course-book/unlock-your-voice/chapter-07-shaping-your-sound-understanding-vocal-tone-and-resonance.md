@@ -5,6 +5,7 @@ topics: [resonance, tone, formant-tuning, vowels, sovt, diction]
 words: 3233
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 7: Shaping Your Sound: Understanding Vocal Tone and Resonance

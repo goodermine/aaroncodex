@@ -5,6 +5,7 @@ topics: [grit, performance, contemporary, agility, twang, mixed-voice]
 words: 5332
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Teddy Swims vocal style analysis

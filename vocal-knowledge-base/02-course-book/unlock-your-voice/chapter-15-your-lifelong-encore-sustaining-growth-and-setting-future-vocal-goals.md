@@ -5,6 +5,7 @@ topics: [practice-design, passaggio, recording, motor-learning, cool-down, belti
 words: 2855
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 15: Your Lifelong Encore: Sustaining Growth & Setting Future Vocal Goals

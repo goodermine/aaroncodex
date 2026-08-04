@@ -5,6 +5,7 @@ topics: [belting, cool-down, vowels, warm-up, diction, sovt]
 words: 8195
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # VOXAI Knowledge Core

@@ -251,3 +251,112 @@ def test_scores_from_different_separators_are_not_comparable():
     assert not A.scores_comparable(a, b)
     # ...and the same separator on both sides still compares fine
     assert A.score_conflict(a, A.compute_technical_score(old, cal)) is None
+
+
+# ---------------------------------------------------------------------------
+# ENTRY ACCURACY — the diagnostic that must never become a score.
+# ---------------------------------------------------------------------------
+
+def _onset_take(pct_clean=24.2, pct_scooped=44.6, pct_overshot=29.2, n=130):
+    return {"onsets": {"n_onsets": n, "pct_clean": pct_clean,
+                       "pct_scooped": pct_scooped, "pct_overshot": pct_overshot,
+                       "median_scoop_depth_cents": -98.6,
+                       "method": "first 0.25 s of each sustained note vs its settled centre"}}
+
+
+def test_entry_accuracy_is_never_a_score():
+    """An onset_accuracy COMPONENT was built and rejected in Aug 2026 for making
+    agreement with the singer's ear worse. The diagnostic that replaced it must
+    carry no /10 and must never appear among the scored components, because a
+    second /10 beside the real one is the exact failure CLAUDE.md rule 1 exists
+    to prevent."""
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    ea = A.compute_entry_accuracy(_onset_take(), cal)
+    assert ea is not None
+    assert ea["is_score"] is False
+    for key, value in ea.items():
+        assert not (isinstance(value, (int, float)) and not isinstance(value, bool)
+                    and key.endswith("_0_to_10")), f"{key} looks like a score"
+    assert "onset_accuracy" not in A.ALL_COMPONENTS
+    assert "entry_accuracy" not in A.ALL_COMPONENTS
+
+
+def test_entry_accuracy_does_not_move_the_overall():
+    """It is computed outside compute_technical_score precisely so that adding
+    it changes no number and does not move rubric_fingerprint."""
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    take = _onset_take()
+    before = A.compute_technical_score(take, cal)
+    A.compute_entry_accuracy(take, cal)
+    after = A.compute_technical_score(take, cal)
+    assert json.dumps(before, sort_keys=True) == json.dumps(after, sort_keys=True)
+
+
+def test_entry_accuracy_reports_a_professional_percentile():
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    ea = A.compute_entry_accuracy(_onset_take(pct_clean=24.2), cal)
+    assert 0 <= ea["percentile_vs_pro_pack"] <= 100
+    assert ea["n_references"] == 50
+    assert ea["pro_median_pct_clean"] == 33.2
+    # Higher clean rate must never score worse against the pack.
+    better = A.compute_entry_accuracy(_onset_take(pct_clean=45.0), cal)
+    assert better["percentile_vs_pro_pack"] > ea["percentile_vs_pro_pack"]
+
+
+def test_entry_accuracy_withheld_when_there_are_too_few_onsets():
+    """A percentage over a handful of entries is noise, not a diagnostic."""
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    assert A.compute_entry_accuracy(_onset_take(n=4), cal) is None
+    assert A.compute_entry_accuracy({}, cal) is None
+    assert A.compute_entry_accuracy({"onsets": {"n_onsets": 200}}, cal) is None
+
+
+def test_entry_accuracy_survives_without_calibration():
+    ea = A.compute_entry_accuracy(_onset_take(), None)
+    assert ea["pct_clean"] == 24.2
+    assert "percentile_vs_pro_pack" not in ea
+
+
+def _contaminated():
+    """Degraded signal WITH superhuman pitch behaviour — a tracker locked onto
+    the backing band. Real example: You Sexy Thing 7 Jul 2026."""
+    t = _onset_take(pct_clean=91.5, pct_scooped=5.1, pct_overshot=3.4, n=59)
+    t["voice_quality"] = {"hnr_db_median": 8.0, "jitter_local_percent_median": 0.98}
+    t["intonation"] = {"median_intra_note_drift_cents": 1.8}
+    return t
+
+
+def _harsh_room():
+    """Aaron's BEST take on file — Kung Fu Fighting, Prince of Wales, 9.4
+    capture-fair. Rough room, entirely human numbers. Must not be withheld."""
+    t = _onset_take(pct_clean=26.2, n=140)
+    t["voice_quality"] = {"hnr_db_median": 12.8, "jitter_local_percent_median": 1.00}
+    t["intonation"] = {"median_intra_note_drift_cents": 33.2}
+    return t
+
+
+def test_contaminated_stem_has_its_entry_accuracy_withheld():
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    ea = A.compute_entry_accuracy(_contaminated(), cal)
+    assert ea["reliability"] == "suspect"
+    assert "percentile_vs_pro_pack" not in ea, (
+        "a contaminated stem must never publish a professional percentile — "
+        "it would read as beating every professional")
+
+
+def test_a_harsh_room_is_reported_not_withheld():
+    """The gate is conjunctive on purpose. Bad signal alone is a loud venue, and
+    withholding it would false-alarm on his best performance."""
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    ea = A.compute_entry_accuracy(_harsh_room(), cal)
+    assert ea["reliability"] == "reduced"
+    assert ea["percentile_vs_pro_pack"] is not None
+    assert "degraded capture" in ea["reliability_reason"]
+
+
+def test_a_clean_capture_is_flagged_high():
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    t = _onset_take()
+    t["voice_quality"] = {"hnr_db_median": 20.9, "jitter_local_percent_median": 0.60}
+    t["intonation"] = {"median_intra_note_drift_cents": 38.2}
+    assert A.compute_entry_accuracy(t, cal)["reliability"] == "high"

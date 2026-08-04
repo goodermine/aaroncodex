@@ -5,6 +5,7 @@ topics: [belting, vibrato, recording, grit, mixed-voice, career]
 words: 8319
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Living on a Prayer: Vocal Guide

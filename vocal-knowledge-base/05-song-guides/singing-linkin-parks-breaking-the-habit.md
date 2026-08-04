@@ -5,6 +5,7 @@ topics: [grit, twang, mixed-voice, cool-down, contemporary, belting]
 words: 2773
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Singing Linkin Park's "Breaking The Habit"

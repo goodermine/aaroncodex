@@ -5,6 +5,7 @@ topics: [posture, diction, ear-training, pitch-accuracy, vocal-health, fatigue]
 words: 2239
 author: "Aaron Ellis"
 status: active
+visibility: public
 ---
 
 # Chapter 2: The Core Pillars of Good Singing

@@ -47,3 +47,24 @@ mic the secure context it needs on a phone. (Override its location with the
 - Transpose for Bb / Eb / F instruments.
 - Full key picker (tonic + mode) rather than a fixed scale list.
 - PWA manifest + service worker so it installs to the home screen.
+
+## Onset trainer (TRAIN)
+
+Dream idea D1. Tap **TRAIN** (mic must be running): the monitor plays a target
+note, goes silent for one beat — *hear it in your head, that silence is the
+exercise* — then listens. The entry is verdicted from the **first 250 ms** of
+raw (unsmoothed) pitch against the target:
+
+- **CLEAN** — started within ±35 cents. Streak +1.
+- **SCOOP** — slid up from below («arrive, don't reach»). Streak resets.
+- **OVERSHOOT** — dropped from above («place it, don't throw it»). Streak resets.
+- **—** landed on a different note or too little voice: doesn't count either way.
+
+The target line + clean-zone band draw on the grid; the strip tracks streak and
+clean-% over the last ten. Targets randomise between the range set in Settings
+(default A3–F4 — the working range). Thresholds match the engine's ENTRY
+ACCURACY diagnostic, so the trainer and the reports speak the same language.
+
+Smoke check: `node tests/trainer_check.mjs` (start `python3 -m http.server 8123`
+in this folder first; uses Chrome's fake-mic flags, asserts the LISTEN→HEAR
+IT→SING machine runs and a verdict lands).
