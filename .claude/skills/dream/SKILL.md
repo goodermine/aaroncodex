@@ -1,12 +1,13 @@
 ---
 name: dream
-description: Nightly memory consolidation — review the last 24h of session transcripts against memory/MEMORY.md, propose additions/retirements as a numbered list with transcript evidence, auto-apply only trivial fixes. Use when the user types /dream, when a scheduled dream run fires, or with "apply N"/"apply all" arguments to enact previously proposed changes.
+description: Nightly dreaming pass, two phases — (1) memory consolidation: review the last 24h of transcripts against memory/MEMORY.md and propose additions/retirements with transcript evidence; (2) dream forward: generate improvement ideas for the system (UI, workflow, tooling, out-of-the-box) grounded in observed friction. Use when the user types /dream, when a scheduled run fires, or with arguments — "apply N"/"apply all" for memories, "build DN"/"park DN"/"dismiss DN" for ideas.
 ---
 
-# /dream — nightly memory consolidation
+# /dream — nightly consolidation AND forward dreaming
 
 Modeled on a dreaming pass: while Aaron sleeps, review what happened, decide
-what is worth remembering, and **propose — never decide** what enters memory.
+what is worth remembering, and **imagine what could be better** — then
+**propose, never decide**. Both phases produce proposals; Aaron approves.
 
 ## Ground rules (override everything below)
 
@@ -46,7 +47,34 @@ what is worth remembering, and **propose — never decide** what enters memory.
      proposals stay valid until applied or dismissed), commit, push. Do not
      apply anything beyond rule-1 fixes. Do not message anyone.
 
-## Applying (`/dream apply 1,3` · `/dream apply all` · `/dream dismiss 2`)
+## Phase 2 — Dream forward (REM mode)
+
+After the memory pass, generate **3–6 improvement ideas** for the whole system:
+VOX Suite UI, the pitch monitor, coaching workflow, capture, reports, the
+knowledge base, competition prep — anything. Rules:
+
+1. **Ground most ideas in observed friction.** Each idea names its *seed*: the
+   moment in a recent transcript (or repo state) that suggested it — a thing
+   Aaron did manually twice, a number nobody looks at, a drill with no tooling.
+   **One idea per night may be a pure out-of-the-box wildcard** with no seed;
+   label it `wildcard`.
+2. **Number ideas D1, D2, …** continuing from the ledger, so `build D7` is
+   unambiguous forever.
+3. **Write them into `memory/dream-ideas.md`** — the ideas ledger. Each idea:
+   one-paragraph pitch, its seed/evidence, rough size (hours/days), what
+   measured or felt thing it would improve, `status: proposed`.
+4. **Never build overnight.** Not even small ones. Statuses move only on
+   Aaron's word: `build DN` (I implement it next session-time), `park DN`
+   (keep, not now), `dismiss DN` (retired with a reason, never deleted).
+5. **Respect the engine's constitution.** Ideas may touch the UI, tooling,
+   drills, capture, reports. Ideas that would change *scoring* must say so
+   loudly and cite the v6 precedent (built, tested, rejected) — the bar is a
+   measured improvement, not a neat thought.
+6. Quality over quantity: a night with one good idea beats six fillers. Re-read
+   the parked list first; re-proposing a parked idea with new evidence is
+   better than inventing a duplicate.
+
+## Applying — memories (`/dream apply 1,3` · `apply all` · `dismiss 2`)
 
 - For each approved number: create `memory/NNN-short-slug.md` containing the
   fact, its evidence quote, the session date, and `status: active` — then add
@@ -55,6 +83,14 @@ what is worth remembering, and **propose — never decide** what enters memory.
   and annotate the index line.
 - Remove applied/dismissed items from `dream-report.md`, commit everything,
   push. Confirm in one short list what was applied and what was skipped.
+
+## Acting on ideas (`/dream build D2` · `park D3` · `dismiss D4`)
+
+- `build DN` — set `status: building` in the ledger, then implement it as
+  normal interactive work (plan → build → test → deliver), and mark `built`
+  with a pointer to the commit when done.
+- `park DN` / `dismiss DN` — update status (+ reason for dismissals). Parked
+  ideas are re-read every night and may be re-proposed with new evidence.
 
 ## Fact file format
 
