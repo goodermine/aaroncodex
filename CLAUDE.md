@@ -152,6 +152,22 @@ report "complete" with nothing the singer can read.
 > commit hash and a row of green checkmarks. The one thing the whole system
 > exists to produce, the result, was the one thing not delivered.
 
+## 9. Every verified analysis must be archived through a pull request
+
+After score preflight, stem-provenance verification, report validation and
+delivery to the singer:
+
+1. Copy the verified analysis JSON to
+   `voxanalysis/archive/scratch-analyses/`.
+2. Commit one song's analysis JSON per commit and push the branch immediately.
+3. Ensure a pull request to `main` exists before calling the archive work
+   complete. Update the open session PR when one exists; otherwise open a
+   dedicated PR.
+
+The PR is mandatory archive plumbing, not a substitute for delivering the
+analysis under rules 6 and 8. Do not commit source audio, separated stems or
+local coaching reports unless Aaron explicitly asks for them.
+
 ---
 
 ## Repo orientation
