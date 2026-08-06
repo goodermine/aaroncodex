@@ -6,15 +6,16 @@ Every archived take re-scored with **deterministic_rubric_v5** (calibration acti
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.4 · mean 7.81. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.4 · mean 7.82. Dynamics component spreads 5.6–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 189/190 takes.
+Full coverage: 190/191 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
 | aaron | 2025-05-aaron-creep-learning-take-001 | 156 | **7.4** | 6.8 | high | 10.0 | 0.0 | 10.0 | 7.9 | 7.12 | 8.82 | 5.59 |
 | aaron | 3am-take-001 | 153 | **8.9** | 8.4 | high | 10.0 | 2.31 | 9.96 | 9.88 | 9.48 | 10.0 | 10.0 |
 | aaron | lose-control-take-001 | 188 | **8.7** | 8.6 | high | 10.0 | 4.0 | 9.82 | 8.88 | 7.9 | 10.0 | 10.0 |
+| aaron | hang-on-sloopy-take-001 | 203 | **8.5** | 8.3 | high | 10.0 | 10.0 | 8.79 | 10.0 | 9.38 | 1.27 | 6.01 |
 | aaron | twist-and-shout-take-001 | 119 | **7.8** | 7.8 | high | 10.0 | 6.71 | 7.34 | 9.31 | 8.55 | 1.85 | 7.94 |
 | aaron | kryptonite-2yr-take-001 | 130 | **8.4** | 7.7 | medium | 10.0 | 5.56 | 10.0 | 8.85 | 9.93 | 10.0 | 1.25 |
 | aaron | lean-on-me-take-001 | 282 | **8.2** | 8.1 | medium | 10.0 | 7.09 | 9.2 | 8.75 | 7.11 | 6.79 | 5.04 |

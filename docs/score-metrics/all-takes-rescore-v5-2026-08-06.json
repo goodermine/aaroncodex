@@ -9,11 +9,11 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 190,
+      "n": 191,
       "overall": {
         "min": 5.4,
         "max": 9.4,
-        "mean": 7.81,
+        "mean": 7.82,
         "spread": 4.0
       },
       "capture_fair": {
@@ -25,7 +25,7 @@
       "dynamics": {
         "min": 5.6,
         "max": 10.0,
-        "mean": 8.82,
+        "mean": 8.83,
         "spread": 4.4
       }
     },
@@ -154,6 +154,45 @@
         "onsets_pct_clean": 18.6,
         "onsets_pct_scooped": 60.7,
         "onsets_pct_overshot": 20.7,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2020-01-01-aaron-hang-on-sloopy-take-001",
+      "singer": "aaron",
+      "song": "hang-on-sloopy-take-001",
+      "date": "2020-01-01",
+      "n_notes": 203,
+      "prior_score_status": "current",
+      "overall": 8.5,
+      "capture_fair": 8.3,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 10.0,
+        "voice_quality": 8.79,
+        "vibrato_control": 10.0,
+        "dynamics_expression": 9.38,
+        "phrase_control": 1.27,
+        "breath_support": 6.01
+      },
+      "raw": {
+        "median_abs_dev_cents": 10.0,
+        "median_intra_note_drift_cents": 4.8,
+        "pct_within_25c": 66.0,
+        "jitter_pct": 0.5821,
+        "shimmer_pct": 5.1248,
+        "hnr_db": 18.96,
+        "vibrato_pct_notes": 46.2,
+        "dyn_phrase_spread_db": 26.75,
+        "dyn_effective_range_db": 33.78,
+        "median_phrase_s": 0.92,
+        "onsets_pct_clean": 44.2,
+        "onsets_pct_scooped": 31.7,
+        "onsets_pct_overshot": 24.2,
         "entry_accuracy_reliability": "high"
       }
     },
