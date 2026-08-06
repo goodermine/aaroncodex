@@ -162,17 +162,17 @@ def _trend_word(first: float, last: float) -> str:
     return "improving" if delta > 0 else "slipping"
 
 
-def build(singer: str) -> dict:
-    contract = json.load(open(CONTRACT))
-    takes = collect(singer)
-    perf = [t for t in takes if t["intent"] == "performance"]
+def _song_blocks(takes: list[dict]) -> list[dict]:
+    """Group a list of takes into per-song blocks, one card per song.
 
-    # Per-song grouping — one card per song, chronological takes inside.
+    Shared by the performance and learning sections so both are grouped,
+    trended and sorted identically — only the input take list differs.
+    """
     songs: dict[str, list[dict]] = {}
-    for t in perf:
+    for t in takes:
         songs.setdefault(t["song"], []).append(t)
 
-    song_blocks = []
+    blocks = []
     for song, ts in songs.items():
         trendable = [t for t in ts if t["trendable"]]
         arche_seq = [(t["date"], t["archetype"]) for t in ts if t["archetype"]]
@@ -198,10 +198,24 @@ def build(singer: str) -> dict:
             block["trend"] = _trend_word(trendable[0]["lead"], trendable[-1]["lead"])
         else:
             block["trend"] = None  # not enough comparable scores to draw a line
-        song_blocks.append(block)
+        blocks.append(block)
 
     # Best song first, then by take count — most-worked songs surface.
-    song_blocks.sort(key=lambda b: (b["best_lead"] or -1, b["n_takes"]), reverse=True)
+    blocks.sort(key=lambda b: (b["best_lead"] or -1, b["n_takes"]), reverse=True)
+    return blocks
+
+
+def build(singer: str) -> dict:
+    contract = json.load(open(CONTRACT))
+    takes = collect(singer)
+    # Performance takes form the leaderboard; learning/warm-up takes are tracked
+    # separately (same grouping) so practice progress is visible without ever
+    # ranking a rehearsal head-to-head with a polished take.
+    perf = [t for t in takes if t["intent"] == "performance"]
+    learning = [t for t in takes if t["intent"] != "performance"]
+
+    song_blocks = _song_blocks(perf)
+    learning_blocks = _song_blocks(learning)
 
     best = max(perf, key=lambda t: t["lead"], default=None)
     leads = [t["lead"] for t in perf]
@@ -216,7 +230,8 @@ def build(singer: str) -> dict:
             "n_takes": len(takes),
             "n_performance": len(perf),
             "n_songs": len(song_blocks),
-            "n_learning": len(takes) - len(perf),
+            "n_learning": len(learning),
+            "n_learning_songs": len(learning_blocks),
             "mean_lead": round(sum(leads) / len(leads), 2) if leads else None,
             "best": best,
             "date_first": takes[0]["date"] if takes else None,
@@ -224,6 +239,7 @@ def build(singer: str) -> dict:
             "n_excluded_legacy": len(excluded),
         },
         "songs": song_blocks,
+        "learning": learning_blocks,
         "excluded_legacy": [
             {"name": t["name"], "date": t["date"], "song": t["song"]}
             for t in excluded

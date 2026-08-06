@@ -56,6 +56,18 @@ def test_build_reads_scores_without_recomputing():
     assert seen > 0
 
 
+def test_learning_takes_are_separated_from_performance():
+    """Learning/warm-up takes form their own group and never appear in the
+    performance leaderboard — the same take must not be in both."""
+    data = st.build("aaron")
+    perf_takes = {t["name"] for b in data["songs"] for t in b["takes"]}
+    learn_takes = {t["name"] for b in data["learning"] for t in b["takes"]}
+    assert learn_takes, "expected some learning takes"
+    assert perf_takes.isdisjoint(learn_takes)
+    assert data["summary"]["n_learning"] == len(learn_takes)
+    assert data["summary"]["n_learning_songs"] == len(data["learning"])
+
+
 def test_legacy_scores_are_excluded_from_trends():
     """A legacy-rubric take must never carry trendable=True."""
     data = st.build("aaron")

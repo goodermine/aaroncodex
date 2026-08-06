@@ -204,7 +204,7 @@ a {{ color:var(--accent); }}
   </section>
 
   <section>
-    <h2>Every song</h2>
+    <h2>Every song — performance takes</h2>
     <div class="tablewrap"><table id="tbl">
       <thead><tr>
         <th data-k="song">Song</th>
@@ -213,6 +213,22 @@ a {{ color:var(--accent); }}
         <th data-k="latest_lead" class="num">Latest</th>
         <th data-k="archetype_latest">Archetype</th>
         <th data-k="shifts" class="num">Shifts</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </section>
+
+  <section id="learning-section">
+    <h2>Learning &amp; warm-up takes</h2>
+    <p class="sub" style="margin:-6px 0 14px">Practice and rehearsal takes, scored the same way but kept off the leaderboard — never ranked head-to-head with a polished performance. Watch these climb as you re-record them.</p>
+    <div class="tablewrap"><table id="ltbl">
+      <thead><tr>
+        <th data-k="song">Song</th>
+        <th data-k="best_lead" class="num">Best</th>
+        <th data-k="n_takes" class="num">Takes</th>
+        <th data-k="latest_lead" class="num">Latest</th>
+        <th data-k="trend">Trend</th>
+        <th data-k="span">Recorded</th>
       </tr></thead>
       <tbody></tbody>
     </table></div>
@@ -362,6 +378,51 @@ function archClass(a){{ return a==='Hybrid'?'hybrid':(a==='Pitch Slider'?'slider
     th.addEventListener('click',()=>{{
       const k=th.dataset.k==='shifts'?'shifts':th.dataset.k;
       if (sortK===k) dir*=-1; else {{ sortK=k; dir=(k==='song')?1:-1; }}
+      draw();
+    }});
+  }});
+  draw();
+}})();
+
+// ---- Learning & warm-up table (sortable) ----
+(function(){{
+  const blocks=DATA.learning||[];
+  const sec=document.getElementById('learning-section');
+  if (!blocks.length) {{ if (sec) sec.style.display='none'; return; }}
+  const rows=blocks.map(b=>{{
+    const ts=b.takes.slice().sort((a,c)=>dnum(a.date)-dnum(c.date));
+    const span = ts.length>1 ? `${{ts[0].date}} → ${{ts[ts.length-1].date}}` : ts[0].date;
+    return {{
+      song:b.song, best_lead:b.best_lead, n_takes:b.n_takes,
+      latest_lead:b.latest.lead, latest_which:b.latest.which,
+      trend:b.trend||'', span, _spanKey:ts[0].date
+    }};
+  }});
+  const tb=document.querySelector('#ltbl tbody');
+  let sortK='best_lead', dir=-1;
+  const trendColor=t=> t==='improving'?'var(--good)':(t==='slipping'?'var(--watch)':'var(--muted)');
+  function draw(){{
+    rows.sort((a,b)=>{{
+      let x=a[sortK==='span'?'_spanKey':sortK], y=b[sortK==='span'?'_spanKey':sortK];
+      if (typeof x==='string') return dir*x.localeCompare(y);
+      return dir*((x||0)-(y||0));
+    }});
+    tb.innerHTML='';
+    rows.forEach(r=>{{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${{r.song}}</td>`+
+        `<td class="num"><b>${{r.best_lead}}</b></td>`+
+        `<td class="num">${{r.n_takes}}</td>`+
+        `<td class="num">${{r.latest_lead}} <span style="color:var(--muted);font-size:11px">${{r.latest_which==='capture-fair'?'cf':'ov'}}</span></td>`+
+        `<td>${{r.trend?`<span style="color:${{trendColor(r.trend)}};font-weight:600">${{r.trend}}</span>`:'<span style="color:var(--muted)">— single take</span>'}}</td>`+
+        `<td style="color:var(--muted);font-size:12.5px">${{r.span}}</td>`;
+      tb.appendChild(tr);
+    }});
+  }}
+  document.querySelectorAll('#ltbl th').forEach(th=>{{
+    th.addEventListener('click',()=>{{
+      const k=th.dataset.k;
+      if (sortK===k) dir*=-1; else {{ sortK=k; dir=(k==='song'||k==='trend')?1:-1; }}
       draw();
     }});
   }});
