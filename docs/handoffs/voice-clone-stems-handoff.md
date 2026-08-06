@@ -36,7 +36,7 @@ devices or Dropbox and stem-separate them.
 | 8 | Lose Control | 8.7 | 9.8 | 3.5m | `2019-12-31-aaron-lose-control-take-001_analysis.json` |
 | 9 | Play That Funky Music | 8.7 | 9.9 | 3.4m | `2026-07-25-aaron-play-that-funky-music-take-001_analysis.json` |
 | 10 | Danger Zone (New Studio) | 8.7 | 9.1 | 3.6m | `2026-07-11-aaron-danger-zone-new-studio-take-002_analysis.json` |
-| 11 | Kung Fu Fighting | 8.6 | 9.2 | 3.4m | `2026-08-04-aaron-kung-fu-fighting-take-001_analysis.json` |
+| 11 | Kung Fu Fighting | 8.5 | 10.0 | 3.4m | `2026-08-01-aaron-kung-fu-fighting-take-003_analysis.json` |
 | 12 | One | 8.6 | 9.3 | 3.5m | `2026-07-24-aaron-one-take-001_analysis.json` |
 | 13 | You Sexy Thing | 8.5 | 9.4 | 2.9m | `2026-07-30-aaron-you-sexy-thing-take-001_analysis.json` |
 
@@ -57,8 +57,10 @@ VQ-9+ takes.
   Dropbox July uploads.
 - **2026-07-27** (Kryptonite), **2026-07-16** (My Babe),
   **2026-07-11** (Danger Zone): check Dropbox July uploads.
-- **2026-08-04** (Kung Fu Fighting take-001): same Aug 4 session as Oh What A
-  Night / Do Wah Diddy — TazCam and phone versions likely both exist.
+- **2026-08-01** (Kung Fu Fighting take-003): this is the **studio** take —
+  clean dry vocal (VQ 10.0), RoFormer-separated. NOT the Aug 4 TazCam mixer
+  version, which is a desk recording and not clean enough for cloning. Use the
+  Aug 1 studio session file.
 - **2026-07-24** (One), **2026-07-30** (You Sexy Thing): check Dropbox July
   uploads. You Sexy Thing has a Hot Chocolate reference already analysed, so
   the original vocal is well characterised for a quality cross-check.
