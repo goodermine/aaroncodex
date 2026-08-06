@@ -26,7 +26,7 @@ devices or Dropbox and stem-separate them.
 
 | # | Song | Score | VQ | Duration | Analysis file |
 |---|------|:-----:|:--:|:--------:|---------------|
-| 1 | Oh What A Night | 9.4 | 10.0 | 3.5m | `2026-08-04-aaron-oh-what-a-night-take-001_analysis.json` |
+| 1 | Oh What A Night | 8.9 | 10.0 | 3.3m | `2026-07-08-aaron-oh-what-a-night-take-001_analysis.json` |
 | 2 | Pressure Down | 9.2 | 10.0 | 3.8m | `2026-07-24-aaron-pressure-down-take-003_analysis.json` |
 | 3 | Do Wah Diddy | 9.1 | 10.0 | 2.4m | `2026-08-04-aaron-do-wah-diddy-take-003_analysis.json` |
 | 4 | Pressure Down (take 1) | 9.0 | 10.0 | 4.0m | `2026-07-24-aaron-pressure-down-take-001_analysis.json` |
@@ -50,9 +50,13 @@ VQ-9+ takes.
 
 ## Where the originals might be
 
-- **2026-08-04 takes** (Oh What A Night, Do Wah Diddy): recorded on TazCam
-  mixer (MP3) and phone (M4A). The TazCam versions are preferred — higher
-  voice quality scores. Check Dropbox for the Aug 4 session files.
+- **2026-07-08** (Oh What A Night take-001): this is the **studio** take —
+  clean dry vocal (VQ 10.0), RoFormer-separated. Chosen over the Aug 4 TazCam
+  mixer take for a clean studio source. Check Dropbox for the Jul 8 session.
+- **2026-08-04** (Do Wah Diddy take-003): recorded on TazCam mixer, but the
+  separated stem is VQ 10.0 (cleaner than the Jul 8 studio take, which reads
+  VQ 7.95). Kept on Aug 4 because the stem itself is cleaner — what matters
+  for cloning. Check Dropbox for the Aug 4 session files.
 - **2026-07-24/25 takes** (Pressure Down x2, Play That Funky Music): check
   Dropbox July uploads.
 - **2026-07-27** (Kryptonite), **2026-07-16** (My Babe),
