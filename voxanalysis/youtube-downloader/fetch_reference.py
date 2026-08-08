@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch an original/reference song from YouTube for VOXAI comparison.
+"""VYT Downloader CLI - fetch an original/reference song from YouTube for VOXAI comparison.
 
 Agent-facing one-shot CLI: give it a song name (search) or a YouTube URL
 and it downloads the top match into the reference library, printing a
@@ -79,10 +79,18 @@ def main() -> int:
         action="store_true",
         help="Re-download even if the video is already in the reference library.",
     )
+    parser.add_argument(
+        "--list",
+        type=int,
+        metavar="N",
+        help="Search and print the top N results (no download) so a specific one can be chosen by URL.",
+    )
     args = parser.parse_args()
 
     try:
-        if args.info_only:
+        if args.list:
+            result = {"results": rd.search(args.target, limit=args.list)}
+        elif args.info_only:
             result = rd.fetch_info(args.target)
         else:
             result = rd.download_reference(

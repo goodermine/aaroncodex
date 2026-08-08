@@ -31,8 +31,18 @@ def test_the_letter_finds_joe_cocker():
     assert ref and "joe-cocker-the-letter" in ref
 
 
-def test_song_without_reference_returns_none():
+def test_kung_fu_finds_the_carl_douglas_reference():
+    # Once the reference library gained Carl Douglas (F4), Kung Fu takes pair
+    # with it. This guards that the matcher keeps finding it.
     ref = find_reference(os.path.join(ARCH, "2026-08-01-aaron-kung-fu-fighting-take-005_analysis.json"))
+    assert ref and "carl-douglas-kung-fu-fighting" in ref
+
+
+def test_song_without_reference_returns_none():
+    # A synthetic song that can never have a reference — kept stable against the
+    # growing library, since find_reference only parses the take's filename and
+    # globs the reference files (it never opens the take itself).
+    ref = find_reference(os.path.join(ARCH, "2099-01-01-aaron-a-song-with-no-reference-xyzzy-take-001_analysis.json"))
     assert ref is None
 
 
