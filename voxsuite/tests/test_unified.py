@@ -154,6 +154,28 @@ def test_pitch_monitor_serves_standalone():
         assert r.headers.get("cache-control") == "no-cache"
 
 
+def test_timbertones_serves_standalone_with_samples():
+    """TimberTones (piano + pitch-match trainer) rides the suite origin at
+    /timbertones for the same secure-context reason as the monitor, and its
+    samples/ tree is served under the trailing-slash path so the page's relative
+    fetches resolve. The manifest and a sample must come back with the right
+    media types; a traversal attempt must 404."""
+    with tempfile.TemporaryDirectory() as tmp:
+        c = _client(tmp)
+        r = c.get("/timbertones")                      # bare path redirects to trailing slash
+        assert r.status_code == 200                    # (test client follows the 307)
+        assert "TimberTones" in r.text
+        assert "getFloatTimeDomainData" in r.text      # the shared YIN detection path is present
+        assert r.headers.get("cache-control") == "no-cache"
+        man = c.get("/timbertones/samples/manifest.json")
+        assert man.status_code == 200 and man.headers["content-type"].startswith("application/json")
+        assert isinstance(man.json(), list) and 60 in man.json()   # middle C shipped as a centre
+        mp3 = c.get("/timbertones/samples/60.mp3")
+        assert mp3.status_code == 200 and mp3.headers["content-type"] == "audio/mpeg"
+        assert c.get("/timbertones/../../etc/passwd").status_code == 404   # traversal guard
+        assert c.get("/timbertones/index.py").status_code == 404          # suffix whitelist
+
+
 def test_analyze_deck_ships_the_score_badge():
     """The score badge surfaces overall + capture-fair + confidence + the
     calibration provenance line, so a user can see whether the number is

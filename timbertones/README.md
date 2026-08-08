@@ -24,6 +24,21 @@ exactly how close you are.
 - **Computer keyboard**: `A S D F G H J …` for white keys, `W E T Y U …` for
   black keys (shown on desktop).
 
+### Scale guides
+
+Pick a **key** (tonic) and a **scale** in the header and TimberTones highlights
+the notes that belong to it — so you can practise matching pitches *within a
+key*:
+
+- out-of-scale keys dim on the keyboard; the tonic gets a marker (a dot on white
+  keys, an accent ring on black keys);
+- the grid tints the in-scale lanes and brightens their labels, with the tonic
+  lane picked out, so you can see the key's shape while you sing.
+
+It's a guide, not a cage — every key still plays, so you can wander outside the
+scale. Set the scale to **Chromatic** to turn the highlighting off. Included:
+Major, Natural/Harmonic minor, Dorian, Mixolydian, Major/Minor pentatonic, Blues.
+
 ## Running it
 
 The microphone needs a **secure context** — `https://` or `localhost`. From this
@@ -36,6 +51,14 @@ python3 -m http.server 8000
 
 Headphones are recommended so the piano doesn't leak into the mic and confuse
 the pitch detector.
+
+### In the VOX Suite
+
+The unified server also serves it at **`/timbertones`** (alongside the pitch
+monitor at `/monitor`), so it rides the suite's HTTPS origin — the secure
+context the mic needs on phones — with no separate deploy. The route serves this
+folder's `index.html` and its `samples/` tree directly; override the location
+with the `VOX_TIMBERTONES_ROOT` env var.
 
 ## What's inside
 

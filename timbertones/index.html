@@ -45,6 +45,11 @@ button.pill{appearance:none;border:1px solid var(--line);background:var(--panel-
   font:600 13px var(--sans);border-radius:999px;padding:7px 12px;cursor:pointer;user-select:none;}
 button.pill:hover{border-color:var(--accent);}
 button.pill.on{background:var(--accent);border-color:var(--accent);color:#06122b;}
+select.sel{appearance:none;-webkit-appearance:none;background:var(--panel-2);color:var(--ink);
+  border:1px solid var(--line);border-radius:8px;font:600 12px var(--sans);padding:6px 24px 6px 10px;cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%2393a0ae'/></svg>");
+  background-repeat:no-repeat;background-position:right 8px center;}
+select.sel:hover{border-color:var(--accent);}
 
 /* readout */
 .readout{display:flex;align-items:center;justify-content:center;gap:18px;flex:0 0 auto;
@@ -77,6 +82,9 @@ button.pill.on{background:var(--accent);border-color:var(--accent);color:#06122b
   padding-bottom:10px;cursor:pointer;}
 .wkey.down{background:linear-gradient(180deg,#e3ded4,#cfc9bf);transform:translateY(1px);}
 .wkey.target{background:linear-gradient(180deg,#cfe0ff,#a9c8ff);}
+.wkey.off{filter:brightness(.66) saturate(.7);}
+.wkey.tonic .lbl::after{content:"";display:block;width:6px;height:6px;border-radius:50%;
+  background:var(--accent);margin:3px auto 0;}
 .wkey .lbl{font:600 13px var(--sans);color:#3a352e;pointer-events:none;}
 .wkey .oct{font:600 9px var(--sans);color:#a59b8c;pointer-events:none;}
 .bkey{position:absolute;top:0;height:60%;z-index:3;border-radius:0 0 4px 4px;
@@ -85,6 +93,8 @@ button.pill.on{background:var(--accent);border-color:var(--accent);color:#06122b
   align-items:center;padding-bottom:7px;cursor:pointer;}
 .bkey.down{transform:translateY(1px);background:linear-gradient(180deg,#000,#181614);}
 .bkey.target{background:linear-gradient(180deg,#2a4a86,#12285a);}
+.bkey.off{opacity:.42;}
+.bkey.tonic{box-shadow:0 4px 6px rgba(0,0,0,.6),inset 0 0 0 2px var(--accent);}
 .bkey .lbl{font:700 9px/1.05 var(--sans);color:#d8d2c8;text-align:center;pointer-events:none;opacity:.85;}
 .bkey .lbl .f{color:#9a938a;font-weight:600;}
 
@@ -99,7 +109,8 @@ button.pill.on{background:var(--accent);border-color:var(--accent);color:#06122b
 .gate .sub{margin-top:14px;font-size:12px;color:var(--muted);}
 @media (max-width:640px){
   .tag{display:none;} .kbwrap{flex-basis:38%;}
-  .bar{padding:8px 10px;gap:8px;} .brand{font-size:15px;}
+  .bar{padding:8px 10px;gap:8px;flex-wrap:wrap;row-gap:8px;} .brand{font-size:15px;}
+  select.sel{flex:1 1 auto;min-width:0;}
   #octLabel{display:none;}
   .readout{gap:9px;padding:6px 8px;}
   .rblock{min-width:50px;} .rblock .v{font-size:19px;} .rblock .k{font-size:9px;}
@@ -114,6 +125,8 @@ button.pill.on{background:var(--accent);border-color:var(--accent);color:#06122b
     <span class="tag">play a note · match it with your voice</span>
     <div class="spacer"></div>
     <div class="mic" id="micStat"><span class="dot"></span><span id="micTxt">mic off</span></div>
+    <select class="sel" id="keySel" title="Key (tonic)"></select>
+    <select class="sel" id="scaleSel" title="Scale — highlights the notes in the key"></select>
     <button class="pill" id="octDown" title="Octave down (Z)">◀</button>
     <span class="pill" id="octLabel" style="cursor:default">C3–C5</span>
     <button class="pill" id="octUp" title="Octave up (X)">▶</button>
@@ -159,6 +172,23 @@ function hzFromMidi(m){return CAL*Math.pow(2,(m-69)/12);}
 function octOf(m){return Math.floor(m/12)-1;}
 function noteLabel(m){var r=Math.round(m);return NAMES[pc(r)]+octOf(r);}
 function isBlack(m){return [1,3,6,8,10].indexOf(m%12)>=0;}
+
+// ---------- scales (semitone sets relative to the tonic) ----------
+var SCALES={
+  "Chromatic":[0,1,2,3,4,5,6,7,8,9,10,11],
+  "Major":[0,2,4,5,7,9,11],
+  "Natural minor":[0,2,3,5,7,8,10],
+  "Harmonic minor":[0,2,3,5,7,8,11],
+  "Dorian":[0,2,3,5,7,9,10],
+  "Mixolydian":[0,2,4,5,7,9,10],
+  "Major pentatonic":[0,2,4,7,9],
+  "Minor pentatonic":[0,3,5,7,10],
+  "Blues":[0,3,5,6,7,10]
+};
+var TONIC=0, SCALE="Chromatic";          // 0 = C
+function scaleOn(){return SCALE!=="Chromatic";}
+function inScale(m){return SCALES[SCALE].indexOf((((m-TONIC)%12)+12)%12)>=0;}
+function isTonic(m){return scaleOn() && ((((m-TONIC)%12)+12)%12)===0;}
 
 // ---------- audio graph ----------
 var AC=null, analyser=null, tbuf=null, SR=44100, micLive=false;
@@ -264,9 +294,16 @@ function draw(ts){
   ctx.textBaseline="middle"; ctx.font=(12*DPR)+"px "+getComputedStyle(document.body).fontFamily;
   for(var m=lo;m<=hi;m++){
     var y=yForM(m),blk=isBlack(m);
+    if(scaleOn()&&inScale(m)){                       // faint lane for notes in the key
+      var yhi=yForM(m+0.5),ylo=yForM(m-0.5);
+      ctx.fillStyle=isTonic(m)?"rgba(59,130,246,.11)":"rgba(255,255,255,.038)";
+      ctx.fillRect(0,yhi,w,ylo-yhi);
+    }
     ctx.strokeStyle= blk? "#191e25":"#232a33";
     ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();
-    if(!blk){ctx.fillStyle="#5b6672";ctx.fillText(noteLabel(m),6*DPR,y-8*DPR);}
+    if(!blk){var lit=!scaleOn()||inScale(m);
+      ctx.fillStyle=isTonic(m)?"#60a5fa":(lit?"#7c8896":"#3a424c");
+      ctx.fillText(noteLabel(m),6*DPR,y-8*DPR);}
   }
   // target lane
   if(targetM!=null){
@@ -355,6 +392,7 @@ function build(){
     var sh=NAMES[m2%12];
     el2.innerHTML='<div class="lbl">'+sh+'<br><span class="f">'+FLATS[m2%12]+'</span></div>';
     kb.appendChild(el2);keyEls.set(m2,el2);}
+  applyScaleClasses();
   document.getElementById("octLabel").textContent=noteLabel(startMidi)+"–"+noteLabel(end);
   // computer keys map from startMidi
   keyMap={}; var wi2=0,bi=0;
@@ -364,6 +402,22 @@ function build(){
   }
   paintTargetKey();
 }
+function applyScaleClasses(){
+  keyEls.forEach(function(el,m){
+    var off= scaleOn() && !inScale(m);
+    el.classList.toggle("off",off);
+    el.classList.toggle("tonic",isTonic(m));
+  });
+}
+function populateScalePickers(){
+  var ks=document.getElementById("keySel");
+  for(var i=0;i<12;i++){var o=document.createElement("option");o.value=i;o.textContent=NAMES[i];if(i===TONIC)o.selected=true;ks.appendChild(o);}
+  var ss=document.getElementById("scaleSel");
+  Object.keys(SCALES).forEach(function(name){var o=document.createElement("option");o.value=name;o.textContent=name;if(name===SCALE)o.selected=true;ss.appendChild(o);});
+  ks.onchange=function(){TONIC=+this.value;applyScaleClasses();};
+  ss.onchange=function(){SCALE=this.value;applyScaleClasses();};
+}
+
 var pressedKeys=new Set();
 function pressKey(m){ if(m==null||pressedKeys.has(m))return; pressedKeys.add(m);
   var el=keyEls.get(m); if(el)el.classList.add("down");
@@ -395,7 +449,7 @@ function setMic(cls,txt){var s=document.getElementById("micStat");s.className="m
 var rz;window.addEventListener("resize",function(){clearTimeout(rz);rz=setTimeout(function(){sizeCanvas();if(fitOct()!==octaves)build();},150);});
 
 // ---------- boot ----------
-build(); sizeCanvas();
+populateScalePickers(); build(); sizeCanvas();
 requestAnimationFrame(draw); requestAnimationFrame(tick);
 document.getElementById("startBtn").onclick=function(){
   var btn=this; btn.disabled=true; btn.textContent="Loading…";
