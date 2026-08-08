@@ -20,6 +20,8 @@ voxpolish_out/
 *.mp3
 *.m4a
 !voxpolish/tests/**/*.wav
+# TimberTones ships its CC0 piano samples as app assets (not vocal recordings).
+!timbertones/samples/*.mp3
 
 # Tooling
 .pytest_cache/
