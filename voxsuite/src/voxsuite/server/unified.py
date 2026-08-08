@@ -192,6 +192,27 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
             raise HTTPException(404, "not found")
         return Response(path.read_bytes(), media_type=media, headers={"Cache-Control": "no-cache"})
 
+    @app.get("/hub", response_class=HTMLResponse)
+    def hub() -> HTMLResponse:
+        """The systems directory — every VOX system as a card with a live status
+        dot, rendered from the registry + this app's own route table so a moved
+        or removed path shows up immediately. Same-origin (relative) links, so
+        they follow the suite to whatever address it's hosted on."""
+        from .hubpage import render
+        from .systems import resolve
+        systems = resolve(app, base_url="")   # relative paths: never stale on host change
+        return HTMLResponse(render(systems, api_url="/api/systems"), headers={"Cache-Control": "no-cache"})
+
+    @app.get("/api/systems")
+    def api_systems(request: Request):
+        """Machine-readable registry — the source the standalone hub polls to stay
+        current. URLs are absolute (built from this request's origin) so a page
+        hosted elsewhere gets working links; ``path`` stays relative alongside."""
+        from .systems import resolve
+        base = str(request.base_url).rstrip("/")
+        systems = resolve(app, base_url=base)
+        return JSONResponse({"origin": base, "count": len(systems), "systems": systems})
+
     @app.get("/api/build")
     def build(request: Request, format: str | None = None):
         """Which build is live. Hashes the deck files this process actually reads

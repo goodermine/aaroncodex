@@ -176,6 +176,73 @@ def test_timbertones_serves_standalone_with_samples():
         assert c.get("/timbertones/index.py").status_code == 404          # suffix whitelist
 
 
+def test_hub_lists_every_system_with_relative_links():
+    """The systems directory at /hub renders every registry entry as a card with
+    same-origin (relative) links, so it follows the suite to any address without
+    going stale, and polls /api/systems to keep status live."""
+    from voxsuite.server.systems import SYSTEMS
+    with tempfile.TemporaryDirectory() as tmp:
+        r = _client(tmp).get("/hub")
+        assert r.status_code == 200
+        assert r.headers.get("cache-control") == "no-cache"
+        for s in SYSTEMS:
+            assert s["name"] in r.text, s["name"]
+            assert f'href="{s["path"]}"' in r.text, s["path"]      # relative, not absolute
+        assert 'href="https://' not in r.text and 'href="http://' not in r.text  # nothing hard-coded
+        assert "/api/systems" in r.text                             # the live-refresh source
+
+
+def test_api_systems_is_absolute_and_route_checked():
+    """The JSON registry stamps absolute URLs from the request origin (for a page
+    hosted elsewhere) and marks each system live against the app's real routes."""
+    from voxsuite.server.systems import SYSTEMS
+    with tempfile.TemporaryDirectory() as tmp:
+        j = _client(tmp).get("/api/systems").json()
+        assert j["count"] == len(SYSTEMS)
+        by_id = {s["id"]: s for s in j["systems"]}
+        for sid in ("fused", "analyze", "polish", "monitor", "timbertones", "build"):
+            assert by_id[sid]["live"] is True, sid                  # its route is really registered
+            assert by_id[sid]["url"].startswith(j["origin"]), sid   # absolute under the origin
+
+
+def test_api_systems_flags_a_removed_route_as_down():
+    """A registry entry whose path is no longer served must report live=False —
+    the hub can't quietly claim a dead system is up."""
+    from voxsuite.server import systems as S
+    from voxsuite.server.unified import create_unified_app
+    with tempfile.TemporaryDirectory() as tmp:
+        try:
+            app = create_unified_app(Path(tmp) / "base", engines=FakeEngines())
+        except Exception as exc:
+            pytest.skip(f"unified app unavailable: {exc}")
+        resolved = S.resolve(app, base_url="https://x")
+        ghost = S.is_live({"path": "/does-not-exist"}, S.registered_paths(app))
+        assert ghost is False
+        assert all(s["url"].startswith("https://x") for s in resolved)
+
+
+def test_standalone_hub_is_self_contained():
+    """tools/build_hub.py emits one file with only the given base's links — no
+    /static deps, no CDN — and wires its refresh at <base>/api/systems."""
+    import importlib.util
+    from voxsuite.server.systems import SYSTEMS
+    path = Path(__file__).resolve().parents[2] / "tools" / "build_hub.py"
+    spec = importlib.util.spec_from_file_location("build_hub", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    base = "https://vox.example.ts.net"
+    html = mod.build(base)
+    for s in SYSTEMS:
+        assert base + s["path"] in html, s["path"]                 # absolute links baked in
+    assert "/static/" not in html                                  # self-contained
+    assert "cdn" not in html.lower() and "googleapis" not in html.lower()
+    assert base + "/api/systems" in html                           # self-refresh target
+    # the only external origin referenced is the base we asked for
+    import re
+    hosts = {m for m in re.findall(r'https?://[^"\')\s]+', html)}
+    assert all(h.startswith(base) for h in hosts), hosts
+
+
 def test_analyze_deck_ships_the_score_badge():
     """The score badge surfaces overall + capture-fair + confidence + the
     calibration provenance line, so a user can see whether the number is
