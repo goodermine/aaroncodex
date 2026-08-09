@@ -207,7 +207,7 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
         from .hubpage import render
         from .systems import resolve
         systems = resolve(app, base_url="")   # relative paths: never stale on host change
-        return HTMLResponse(render(systems, api_url="/api/systems"), headers={"Cache-Control": "no-cache"})
+        return HTMLResponse(_with_nav(render(systems, api_url="/api/systems"), "/hub"), headers={"Cache-Control": "no-cache"})
 
     @app.get("/api/systems")
     def api_systems(request: Request):

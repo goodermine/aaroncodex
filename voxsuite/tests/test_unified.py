@@ -259,8 +259,21 @@ def test_every_page_carries_the_nav_bar():
                 assert href in body, f"{href} missing on {url}"
             # the current page is marked active
             assert f'class="link active" href="{active}"' in body, f"{url} not marked active"
-        # the bar is not injected onto the hub itself (it *is* the directory)
-        assert 'id="vox-nav-tpl"' not in c.get("/hub").text
+        # the hub carries the bar too (consistent navigation, never a dead-end)
+        hub = c.get("/hub").text
+        assert 'id="vox-nav-tpl"' in hub and 'class="link active" href="/hub"' in hub
+
+
+def test_hub_links_stay_relative_behind_a_proxy():
+    """The live hub's cards AND its refresh script use same-origin relative paths,
+    so links keep working behind a reverse proxy (Tailscale) where the server's own
+    base_url is an unreachable internal address — the bug that made them dead."""
+    with tempfile.TemporaryDirectory() as tmp:
+        hub = _client(tmp).get("/hub").text
+        assert 'href="/analyze"' in hub and 'href="/timbertones"' in hub  # relative cards
+        assert 'href="http' not in hub                                    # nothing absolute baked in
+        assert "REL=true" in hub                                          # refresh is in relative mode
+        assert "(REL&&s.path)?s.path:s.url" in hub                        # and uses the relative path
 
 
 def test_analyze_deck_ships_the_score_badge():
