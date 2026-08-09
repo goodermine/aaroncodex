@@ -51,6 +51,15 @@ def _pitchmonitor_root() -> Path:
     return Path(__file__).resolve().parents[4] / "pitchmonitor"
 
 
+def _timbertones_root() -> Path:
+    """Repo location of the standalone TimberTones page (piano + pitch-match
+    trainer, self-contained apart from its samples/ asset dir)."""
+    env = os.environ.get("VOX_TIMBERTONES_ROOT")
+    if env:
+        return Path(env)
+    return Path(__file__).resolve().parents[4] / "timbertones"
+
+
 def _load_analyze_module(runtime: Path):
     """Import voxanalysis' viewer/app.py under an explicit module name.
 
@@ -149,6 +158,60 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
             raise HTTPException(404, "not found")
         media = {".css": "text/css", ".png": "image/png", ".webmanifest": "application/manifest+json"}[path.suffix]
         return Response(path.read_bytes(), media_type=media, headers={"Cache-Control": "no-cache"})
+
+    @app.get("/timbertones")
+    def timbertones_redirect():
+        """Same trailing-slash reasoning as /monitor: TimberTones' relative asset
+        links (vox-tokens.css, samples/…) must resolve under /timbertones/."""
+        return RedirectResponse(url="/timbertones/", status_code=307)
+
+    @app.get("/timbertones/", response_class=HTMLResponse)
+    def timbertones() -> HTMLResponse:
+        """TimberTones — a sampled piano fused with a live pitch-match trainer.
+        Rides the suite's HTTPS origin so the mic (getUserMedia) has the secure
+        context it needs on phones, same as the monitor."""
+        path = _timbertones_root() / "index.html"
+        if not path.is_file():
+            raise HTTPException(404, "timbertones not installed")
+        return HTMLResponse(path.read_text(encoding="utf-8"), headers={"Cache-Control": "no-cache"})
+
+    @app.get("/timbertones/{sub:path}")
+    def timbertones_asset(sub: str):
+        """Sibling assets and the samples/ tree (vox-tokens.css, manifest.json,
+        <midi>.mp3). Resolved inside the app root with a suffix whitelist and a
+        traversal guard so a crafted path can't escape the directory."""
+        root = _timbertones_root().resolve()
+        path = (root / sub).resolve()
+        try:
+            path.relative_to(root)
+        except ValueError:
+            raise HTTPException(404, "not found")
+        media = {".css": "text/css", ".png": "image/png", ".webmanifest": "application/manifest+json",
+                 ".mp3": "audio/mpeg", ".json": "application/json", ".js": "text/javascript"}.get(path.suffix)
+        if not path.is_file() or media is None:
+            raise HTTPException(404, "not found")
+        return Response(path.read_bytes(), media_type=media, headers={"Cache-Control": "no-cache"})
+
+    @app.get("/hub", response_class=HTMLResponse)
+    def hub() -> HTMLResponse:
+        """The systems directory — every VOX system as a card with a live status
+        dot, rendered from the registry + this app's own route table so a moved
+        or removed path shows up immediately. Same-origin (relative) links, so
+        they follow the suite to whatever address it's hosted on."""
+        from .hubpage import render
+        from .systems import resolve
+        systems = resolve(app, base_url="")   # relative paths: never stale on host change
+        return HTMLResponse(render(systems, api_url="/api/systems"), headers={"Cache-Control": "no-cache"})
+
+    @app.get("/api/systems")
+    def api_systems(request: Request):
+        """Machine-readable registry — the source the standalone hub polls to stay
+        current. URLs are absolute (built from this request's origin) so a page
+        hosted elsewhere gets working links; ``path`` stays relative alongside."""
+        from .systems import resolve
+        base = str(request.base_url).rstrip("/")
+        systems = resolve(app, base_url=base)
+        return JSONResponse({"origin": base, "count": len(systems), "systems": systems})
 
     @app.get("/api/build")
     def build(request: Request, format: str | None = None):

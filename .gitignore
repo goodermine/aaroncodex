@@ -20,6 +20,8 @@ voxpolish_out/
 *.mp3
 *.m4a
 !voxpolish/tests/**/*.wav
+# TimberTones ships its CC0 piano samples as app assets (not vocal recordings).
+!timbertones/samples/*.mp3
 
 # Tooling
 .pytest_cache/
@@ -48,3 +50,11 @@ voxanalysis/vox-analysis/output/
 voxanalysis/vox-analysis/reports/
 voxanalysis/youtube-downloader/.venv-reference/
 *.pre-reanalysis
+
+# Session-level analysis artefacts (rule 9: no audio/stems/plots in repo)
+output/
+reports/
+Onset-Map-*.png
+
+# Generated standalone hub builds (regenerated per host via tools/build_hub.py)
+voxsuite/dist/
