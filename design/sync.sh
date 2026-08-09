@@ -25,11 +25,14 @@ for target in "${targets[@]}"; do
   fi
 done
 
-# the standalone practice apps are self-contained pages that consume only the
-# tokens (they carry their own CSS/JS inline, so they take no other kit file).
+# Standalone pages that consume ONLY the tokens (they carry their own CSS/JS
+# inline, so they take no other kit file).
+#
+# TimberTones is deliberately NOT here: it keeps its own palette by design, uses
+# no --vox- variables, and vendoring tokens it never reads would only re-create
+# the dead file this list is meant to keep honest.
 tokens_only=(
   "$root/pitchmonitor"
-  "$root/timbertones"
 )
 
 for target in "${tokens_only[@]}"; do
