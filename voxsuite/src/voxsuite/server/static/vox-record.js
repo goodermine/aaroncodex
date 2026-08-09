@@ -45,6 +45,10 @@
           '<label class="vrec-field"><span>Microphone</span><select class="vrec-device"></select></label>' +
           '<div class="vrec-meter"><i class="vrec-meter__fill"></i><b class="vrec-meter__peak"></b></div>' +
           '<div class="vrec-levelmsg">Checking input…</div>' +
+          '<div class="vrec-gain"><span class="vrec-gain__k">Input gain</span>' +
+            '<input type="range" class="vrec-gain__sl" min="-12" max="24" step="1" value="0" aria-label="Input gain in decibels">' +
+            '<b class="vrec-gain__v vox-tnum">0 dB</b></div>' +
+          '<p class="vrec-gain__note">A constant boost for a quiet mic — it lifts the level without squashing your dynamics (that\'s auto-gain, which stays off). Keep the meter out of the red.</p>' +
           '<div class="vrec-row"><label class="vrec-check"><input type="checkbox" class="vrec-countin" checked> 3-2-1 count-in</label>' +
             '<button class="vrec-btn vrec-btn--rec vrec-start" type="button"><span class="vrec-dot"></span>Record</button></div>' +
         '</div>' +
@@ -107,6 +111,9 @@
     if (!mime) { $(".vrec-enable").disabled = true; fail("This browser can't record audio — please use Upload."); }
 
     var stream = null, ac = null, analyser = null, tdat = null, recorder = null, chunks = [], startAt = 0, raf = 0, blobUrl = null, deviceId = null;
+    var gainNode = null, destNode = null, gainDb = 0;   // manual input gain, applied to BOTH the meter and the recorded take
+    try { var _gd = parseFloat(localStorage.getItem("vrec.gainDb")); if (!isNaN(_gd)) gainDb = Math.max(-12, Math.min(24, _gd)); } catch (e) {}
+    function dbToLin(db) { return Math.pow(10, db / 20); }
 
     function openMic() {
       $(".vrec-err").hidden = true;
@@ -117,7 +124,12 @@
         stream = s;
         if (!ac) { ac = new (root.AudioContext || root.webkitAudioContext)(); analyser = ac.createAnalyser(); analyser.fftSize = 1024; tdat = new Uint8Array(analyser.fftSize); }
         try { srcNode && srcNode.disconnect(); } catch (e) {}
-        srcNode = ac.createMediaStreamSource(stream); srcNode.connect(analyser);
+        try { gainNode && gainNode.disconnect(); } catch (e) {}
+        srcNode = ac.createMediaStreamSource(stream);
+        if (!gainNode) gainNode = ac.createGain();
+        gainNode.gain.value = dbToLin(gainDb);
+        destNode = ac.createMediaStreamDestination();
+        srcNode.connect(gainNode); gainNode.connect(analyser); gainNode.connect(destNode);  // gain feeds the meter AND the recorder
         return navigator.mediaDevices.enumerateDevices();
       }).then(function (devs) {
         var sel = $(".vrec-device"); sel.innerHTML = "";
@@ -153,7 +165,7 @@
     }
 
     function beginRecording() {
-      chunks = []; try { recorder = new MediaRecorder(stream, mime[0] ? { mimeType: mime[0], audioBitsPerSecond: 192000 } : undefined); }
+      chunks = []; try { recorder = new MediaRecorder((destNode ? destNode.stream : stream), mime[0] ? { mimeType: mime[0], audioBitsPerSecond: 192000 } : undefined); }
       catch (e) { fail("Recording failed to start — please use Upload."); stage("monitor"); return; }
       recorder.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
       recorder.onstop = function () {
@@ -388,6 +400,16 @@
 
     $(".vrec-enable").addEventListener("click", openMic);
     $(".vrec-device").addEventListener("change", function () { deviceId = this.value; openMic(); });
+    (function () {
+      var sl = $(".vrec-gain__sl"), out = $(".vrec-gain__v");
+      function show() { out.textContent = (gainDb > 0 ? "+" : "") + gainDb + " dB"; }
+      sl.value = gainDb; show();
+      sl.addEventListener("input", function () {
+        gainDb = +this.value; show();
+        if (gainNode) gainNode.gain.value = dbToLin(gainDb);
+        try { localStorage.setItem("vrec.gainDb", String(gainDb)); } catch (e) {}
+      });
+    })();
     $(".vrec-start").addEventListener("click", function () { if (ac && ac.state === "suspended") ac.resume(); startFlow(); });
     $(".vrec-stop").addEventListener("click", stopRecording);
     $(".vrec-again").addEventListener("click", function () { stopPreview(); openMic(); });
