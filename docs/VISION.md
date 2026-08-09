@@ -151,6 +151,14 @@ Public testing behind a login needs, at minimum:
 This is the largest single body of unbuilt work in the project, and none of the
 existing engines need to change to do it — it is a layer above them.
 
+**How it ships is now planned:** `docs/plans/PACKAGING_AND_DEPLOYMENT_PLAN.md`
+(9 Aug 2026) covers the four distribution options — cloud+login, Windows
+desktop, Docker, PWA — and recommends Docker first as the one artefact that
+serves both Candi's box and a cloud host. It also records the fact that decides
+between them: the system splits by weight into a browser-only light half
+(monitor, TimberTones, recorder) and a ~2.5–4 GB heavy half (separation,
+analysis, polish).
+
 ---
 
 ## What "most powerful on the planet" has to mean in practice
