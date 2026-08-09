@@ -45,6 +45,34 @@ def _limit(audio: np.ndarray, sr: int, ceiling_lin: float) -> tuple[np.ndarray, 
     return audio * gain[None, :], max_gr_db
 
 
+def output_limiter(
+    audio: np.ndarray, sr: int, ceiling_dbtp: float = -3.0, drive_db: float = 0.0
+) -> tuple[np.ndarray, dict]:
+    """Brick-wall output limiter for the interactive Polish render.
+
+    Pushes the whole track ``drive_db`` louder INTO a look-ahead limiter that
+    holds the true-peak ceiling — "push louder against a hard ceiling". Unlike
+    ``master()`` this does no loudness targeting: the drive is the only gain, so
+    the result is predictable from the two knobs. Preserves mono/stereo shape.
+    """
+    was_1d = np.asarray(audio).ndim == 1
+    x = np.atleast_2d(audio).astype(np.float64) * 10 ** (drive_db / 20.0)
+    ceiling_lin = 10 ** (ceiling_dbtp / 20.0)
+    x, gr_db = _limit(x, sr, ceiling_lin)
+    # Inter-sample peaks can survive the sample-domain limiter; guarantee the ceiling.
+    tp = measure.true_peak_db(x, sr)
+    if tp > ceiling_dbtp:
+        x *= 10 ** ((ceiling_dbtp - tp) / 20.0)
+    out = np.clip(x, -1.0, 1.0).astype(np.float32)
+    report = {
+        "ceiling_dbtp": ceiling_dbtp,
+        "drive_db": drive_db,
+        "limiter_gr_db": round(gr_db, 2),
+        "final_true_peak_dbtp": round(measure.true_peak_db(out, sr), 2),
+    }
+    return (out[0] if was_1d else out), report
+
+
 def master(
     audio: np.ndarray,
     sr: int,

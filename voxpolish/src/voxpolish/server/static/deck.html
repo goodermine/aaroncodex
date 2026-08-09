@@ -28,6 +28,11 @@
   /* draggable module amount — taller, tappable track */
   .vox-module__track{height:12px;cursor:pointer;touch-action:none}
   .vox-module__track:hover{box-shadow:0 0 0 1px var(--vox-line-2)}
+  /* output limiter control */
+  .vox-out__row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 4px;font:12px var(--vox-sans);color:var(--vox-body)}
+  .vox-out__sel{background:var(--vox-panel);color:var(--vox-ink);border:1px solid var(--vox-line-2);border-radius:7px;padding:5px 8px;font:inherit;font-size:12px}
+  .vox-out__v{font-family:var(--vox-mono);font-size:12px;color:var(--vox-ink)}
+  .vox-out__hint{font:11px var(--vox-sans);color:var(--vox-muted);margin-top:6px;line-height:1.4}
   /* bigger, touch-friendly scrubber with a knob */
   .vox-transport .vox-seek{position:relative;height:24px;display:flex;align-items:center;cursor:pointer;touch-action:none}
   .vox-transport .vox-seek::before{content:"";position:absolute;left:0;right:0;height:6px;border-radius:3px;background:var(--vox-surface-1);border:1px solid var(--vox-line)}
@@ -80,6 +85,7 @@
     <aside class="vox-rail" id="leftRail">
       <div class="vox-rail__title"><span class="vox-led is-standby"></span>Signal Modules</div>
       <div id="modules"></div>
+      <div id="output"></div>
     </aside>
 
     <section class="vox-scope">
@@ -221,6 +227,43 @@ function TOK(n){try{return getComputedStyle(document.documentElement).getPropert
         track.addEventListener("pointerup",function(e){if(!dragging)return;dragging=false;setAmount(m,frac(e.clientX));});
       }
     });
+    renderOutput();
+  }
+  // ---- Output: brick-wall peak limiter (ceiling + drive) -------------------
+  function renderOutput(){
+    var host=document.querySelector("#output"); if(!host)return;
+    if(!doc){host.innerHTML="";return;}
+    var m=doc.master||(doc.master={on:true,ceiling_dbtp:-3.0,drive_db:0.0});
+    var off=(m.on===false), drive=+m.drive_db||0;
+    host.innerHTML=
+      '<div class="vox-rail__title" style="margin-top:16px"><span class="vox-led '+(off?"is-standby":"is-on")+'"></span>Output</div>'+
+      '<div class="vox-out">'+
+        '<div class="vox-out__row"><span>Peak ceiling</span>'+
+          '<select class="vox-out__sel" id="mCeiling">'+
+            '<option value="off">Off</option><option value="-1">−1 dB</option>'+
+            '<option value="-3">−3 dB</option><option value="-6">−6 dB</option>'+
+          '</select></div>'+
+        '<div class="vox-out__row"><span>Drive</span><span class="vox-out__v" id="mDriveV">+'+drive+' dB</span></div>'+
+        '<div class="vox-module__track" id="mDriveTrack"><i style="width:'+(drive/9*100)+'%;background:var(--vox-cyan)"></i></div>'+
+        '<div class="vox-out__hint">Pushes the whole track louder into a hard ceiling. Watch it doesn’t get crushed.</div>'+
+      '</div>';
+    var sel=document.querySelector("#mCeiling");
+    sel.value = off ? "off" : String(m.ceiling_dbtp);
+    sel.addEventListener("change",function(){
+      doc.master=doc.master||{};
+      if(this.value==="off"){doc.master.on=false;}
+      else{doc.master.on=true;doc.master.ceiling_dbtp=parseFloat(this.value);}
+      renderOutput();saveAndRender();
+    });
+    var track=document.querySelector("#mDriveTrack"),fill=track.querySelector("i"),
+        vEl=document.querySelector("#mDriveV"),dragging=false;
+    var frac=function(x){var r=track.getBoundingClientRect();return Math.max(0,Math.min(1,(x-r.left)/r.width));};
+    var live=function(f){fill.style.width=(f*100)+"%";vEl.textContent="+"+Math.round(f*9)+" dB";};
+    track.addEventListener("pointerdown",function(e){dragging=true;track.setPointerCapture(e.pointerId);live(frac(e.clientX));});
+    track.addEventListener("pointermove",function(e){if(dragging)live(frac(e.clientX));});
+    track.addEventListener("pointerup",function(e){if(!dragging)return;dragging=false;
+      doc.master=doc.master||{};doc.master.drive_db=Math.round(frac(e.clientX)*9);
+      if(doc.master.on===false){doc.master.on=true;} saveAndRender();renderOutput();});
   }
   function toggleModule(m){
     if(!doc)return;var on=moduleOn(m);

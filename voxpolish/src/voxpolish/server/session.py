@@ -23,7 +23,7 @@ import numpy as np
 from .. import audio_io
 from ..document import EditDocument
 from ..pipeline import Settings, analyze
-from ..stages import clean, pitch, render
+from ..stages import clean, master, pitch, render
 
 PEAK_BUCKETS = 2400  # points per waveform; a few KB regardless of file size
 
@@ -233,6 +233,19 @@ class Session:
             notes.append("Auto Tune is off (bypassed) — no pitch correction applied")
         elif tune_on and not curve:
             notes.append("Auto Tune is on but this take has no correction curve")
+
+        # Output limiter (last): push `drive_db` louder into a brick-wall limiter
+        # holding the true-peak ceiling. Guarantees the whole track sits under the
+        # ceiling; drive 0 is a transparent safety limiter.
+        m = doc.master or {}
+        if m.get("on", True):
+            ceiling = float(m.get("ceiling_dbtp", -3.0))
+            drive = float(m.get("drive_db", 0.0))
+            out, minfo = master.output_limiter(out, sr, ceiling_dbtp=ceiling, drive_db=drive)
+            notes.append(
+                f"output limiter: ceiling {ceiling:g} dBTP, drive +{drive:g} dB "
+                f"({minfo['limiter_gr_db']:g} dB gain reduction)"
+            )
 
         # Unique temp name per render, not a shared ".render-tmp.wav": two
         # overlapping renders (possible once a wedged one can be taken over)
