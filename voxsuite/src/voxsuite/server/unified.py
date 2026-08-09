@@ -113,22 +113,28 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
     # Keep the sub-apps referenced so their route closures (state) stay alive.
     app.state.sub_apps = {"analyze": analyze_app, "polish": polish_app, "fused": fused_app}
 
-    def _shell(path: Path) -> HTMLResponse:
+    def _with_nav(html: str, current_path: str) -> str:
+        """Inject the floating "jump to any app" menu, built from the registry."""
+        from .navbar import inject as inject_nav, render as render_nav
+        from .systems import resolve
+        return inject_nav(html, render_nav(resolve(app, base_url=""), current_path))
+
+    def _shell(path: Path, nav_path: str = "/") -> HTMLResponse:
         html = path.read_text(encoding="utf-8").replace("__ASSET_VERSION__", _asset_version())
-        return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
+        return HTMLResponse(_with_nav(html, nav_path), headers={"Cache-Control": "no-cache"})
 
     @app.get("/", response_class=HTMLResponse)
     @app.get("/fused", response_class=HTMLResponse)
     def home() -> HTMLResponse:
-        return _shell(shells["fused"])
+        return _shell(shells["fused"], "/")
 
     @app.get("/analyze", response_class=HTMLResponse)
     def analyze_deck() -> HTMLResponse:
-        return _shell(shells["analyze"])
+        return _shell(shells["analyze"], "/analyze")
 
     @app.get("/polish", response_class=HTMLResponse)
     def polish_deck() -> HTMLResponse:
-        return _shell(shells["polish"])
+        return _shell(shells["polish"], "/polish")
 
     @app.get("/monitor")
     def pitch_monitor_redirect():
@@ -145,7 +151,7 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
         path = _pitchmonitor_root() / "index.html"
         if not path.is_file():
             raise HTTPException(404, "pitch monitor not installed")
-        return HTMLResponse(path.read_text(encoding="utf-8"), headers={"Cache-Control": "no-cache"})
+        return HTMLResponse(_with_nav(path.read_text(encoding="utf-8"), "/monitor"), headers={"Cache-Control": "no-cache"})
 
     @app.get("/monitor/{asset}")
     def pitch_monitor_asset(asset: str):
@@ -173,7 +179,7 @@ def create_unified_app(base_dir, engines=None) -> FastAPI:
         path = _timbertones_root() / "index.html"
         if not path.is_file():
             raise HTTPException(404, "timbertones not installed")
-        return HTMLResponse(path.read_text(encoding="utf-8"), headers={"Cache-Control": "no-cache"})
+        return HTMLResponse(_with_nav(path.read_text(encoding="utf-8"), "/timbertones"), headers={"Cache-Control": "no-cache"})
 
     @app.get("/timbertones/{sub:path}")
     def timbertones_asset(sub: str):

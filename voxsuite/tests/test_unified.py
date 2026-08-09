@@ -243,6 +243,26 @@ def test_standalone_hub_is_self_contained():
     assert all(h.startswith(base) for h in hosts), hosts
 
 
+def test_every_page_carries_the_nav_menu():
+    """A floating jump-to-any-app menu is injected into every served page (decks,
+    monitor, TimberTones) from the registry, so navigation is one tap anywhere —
+    and it marks the current page active."""
+    with tempfile.TemporaryDirectory() as tmp:
+        c = _client(tmp)
+        pages = {"/": "/", "/analyze": "/analyze", "/polish": "/polish",
+                 "/monitor/": "/monitor", "/timbertones/": "/timbertones"}
+        for url, active in pages.items():
+            body = c.get(url).text
+            assert 'id="vox-nav"' in body, f"nav missing on {url}"
+            # links to the hub and the other apps are present
+            for href in ('href="/hub"', 'href="/analyze"', 'href="/timbertones"', 'href="/monitor"'):
+                assert href in body, f"{href} missing on {url}"
+            # the current page is marked active
+            assert f'class="item active" href="{active}"' in body, f"{url} not marked active"
+        # the menu is not injected onto the hub itself (it *is* the directory)
+        assert 'id="vox-nav"' not in c.get("/hub").text
+
+
 def test_analyze_deck_ships_the_score_badge():
     """The score badge surfaces overall + capture-fair + confidence + the
     calibration provenance line, so a user can see whether the number is
