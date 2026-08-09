@@ -126,6 +126,15 @@
 .vox-modeswitch button:hover{color:var(--vox-ink)}
 .vox-modeswitch button.active{color:var(--vox-on-accent);background:var(--vox-accent)}
 .vox-modeswitch button.active .dot{opacity:1;background:var(--vox-on-accent)}
+/* practice tools — same-origin links to the standalone practice apps.
+   Deliberately quieter than the mode switch: these are tools, not engine modes. */
+.vox-tools{display:flex;gap:4px;padding:4px;border:1px solid var(--vox-line);border-radius:11px;background:var(--vox-panel)}
+.vox-tools a{font-family:var(--vox-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--vox-muted);text-decoration:none;border-radius:8px;padding:9px 14px;
+  display:flex;align-items:center;gap:8px;transition:.18s}
+.vox-tools a .dot{width:7px;height:7px;border-radius:2px;background:currentColor;opacity:.5}
+.vox-tools a:hover{color:var(--vox-ink);background:var(--vox-panel-2,transparent)}
+.vox-tools a:hover .dot{opacity:1}
 .vox-fusedbtn{font-family:var(--vox-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--vox-muted);
   border:1px solid var(--vox-line-2);border-radius:9px;padding:9px 14px;cursor:pointer;background:var(--vox-panel);
   display:flex;align-items:center;gap:9px;transition:.18s}
