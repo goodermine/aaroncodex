@@ -64,14 +64,21 @@ WORKDIR /app
 COPY voxanalysis/vox-analysis/engine/requirements.txt  voxanalysis/vox-analysis/engine/requirements.txt
 COPY voxanalysis/vox-analysis/viewer/requirements.txt  voxanalysis/vox-analysis/viewer/requirements.txt
 
-RUN python -m pip install --upgrade pip setuptools wheel \
+# setuptools is pinned <70 on purpose: pyworld (the WORLD vocoder for Auto Tune)
+# does `import pkg_resources` on load, and newer setuptools has REMOVED
+# pkg_resources — so an unpinned `--upgrade setuptools` makes Auto Tune fail with
+# "No module named 'pkg_resources'". 69.x still ships it and satisfies every
+# build backend here (builds are PEP517-isolated, so this only sets the runtime).
+RUN python -m pip install --upgrade pip wheel "setuptools>=68,<70" \
     && pip install -r voxanalysis/vox-analysis/viewer/requirements.txt \
     # voxpolish base dep + PDF rendering (reportlab is imported; pdfplumber per plan D7)
     && pip install pyloudnorm reportlab pdfplumber \
     # RoFormer stem separation (in-process voxpolish path). onnxruntime is the runtime backend.
     && if [ "$WITH_SEPARATION" = "1" ]; then pip install "audio-separator>=0.18" onnxruntime; fi \
-    # WORLD vocoder for Polish auto-tune (needs setuptools/pkg_resources on 3.11+)
-    && if [ "$WITH_PITCH" = "1" ]; then pip install "pyworld>=0.3" "setuptools>=68" cython; fi
+    # WORLD vocoder for Polish auto-tune. Re-pin setuptools in case a dep bumped it,
+    # then assert pkg_resources imports so a regression fails the build, not runtime.
+    && if [ "$WITH_PITCH" = "1" ]; then pip install "pyworld>=0.3" "setuptools>=68,<70" cython \
+         && python -c "import pkg_resources; print('pkg_resources OK — WORLD vocoder can load')"; fi
 
 # --- app code + local packages ---------------------------------------------
 COPY . /app
