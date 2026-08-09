@@ -69,6 +69,12 @@ if [ "$drift" -eq 1 ]; then echo "FAIL: run design/sync.sh"; fail=1; else echo "
 echo "== gate 4: WCAG AA contrast on token pairs =="
 python3 tools/check_contrast.py || fail=1
 
+echo "== gate 5: JavaScript syntax (external + inline deck/app scripts) =="
+python3 tools/check_js_syntax.py; rc=$?
+if [ "$rc" -eq 1 ]; then fail=1
+elif [ "$rc" -eq 2 ]; then echo "(skipped — node not available)"
+fi
+
 if [ "$fail" -eq 0 ]; then
   echo; echo "UI GUARD PASSED — all gates green."
 else

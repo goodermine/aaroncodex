@@ -264,6 +264,34 @@ def test_every_page_carries_the_nav_bar():
         assert 'id="vox-nav-tpl"' in hub and 'class="link active" href="/hub"' in hub
 
 
+def test_served_page_scripts_parse():
+    """Every inline <script> in a SERVED page (deck shells + the injected nav bar
+    + the generated hub) must parse under `node --check`. A syntax error silently
+    kills a whole page's JS while its static shell still renders — the exact bug
+    that shipped once. Skips where node isn't installed."""
+    import os
+    import re
+    import shutil
+    import subprocess
+    import tempfile as _tf
+    if not shutil.which("node"):
+        pytest.skip("node not available")
+    inline = re.compile(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", re.S)
+    with tempfile.TemporaryDirectory() as tmp:
+        c = _client(tmp)
+        for url in ("/", "/analyze", "/polish", "/monitor/", "/timbertones/", "/hub"):
+            html = c.get(url).text
+            for i, block in enumerate(inline.findall(html)):
+                with _tf.NamedTemporaryFile("w", suffix=".js", delete=False) as t:
+                    t.write(block)
+                    path = t.name
+                try:
+                    r = subprocess.run(["node", "--check", path], capture_output=True, text=True)
+                finally:
+                    os.unlink(path)
+                assert r.returncode == 0, f"{url} inline script #{i} has a JS syntax error:\n{r.stderr}"
+
+
 def test_hub_links_stay_relative_behind_a_proxy():
     """The live hub's cards AND its refresh script use same-origin relative paths,
     so links keep working behind a reverse proxy (Tailscale) where the server's own
