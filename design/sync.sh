@@ -25,8 +25,20 @@ for target in "${targets[@]}"; do
   fi
 done
 
-# the pitch monitor consumes only the tokens (self-contained page)
-cp "$here/vox-tokens.css" "$root/pitchmonitor/vox-tokens.css"
-echo "synced vox-tokens.css -> pitchmonitor/vox-tokens.css"
+# the standalone practice apps are self-contained pages that consume only the
+# tokens (they carry their own CSS/JS inline, so they take no other kit file).
+tokens_only=(
+  "$root/pitchmonitor"
+  "$root/timbertones"
+)
+
+for target in "${tokens_only[@]}"; do
+  if [[ -d "$target" ]]; then
+    cp "$here/vox-tokens.css" "$target/vox-tokens.css"
+    echo "synced vox-tokens.css -> ${target#"$root"/}/vox-tokens.css"
+  else
+    echo "skip (not found): ${target#"$root"/}"
+  fi
+done
 
 echo "done."
