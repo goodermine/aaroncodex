@@ -1,6 +1,12 @@
 # Dream report — proposals awaiting Aaron's approval
 
-Run: 2026-08-09 · 1 transcript reviewed (this session) · memory at 20 facts.
+Run: 2026-08-09 · 1 transcript reviewed (this session) · memory at 20 facts on main.
+
+> **Renumbered 030–033.** These were first written as 021–024, but PR #50
+> (`claude/stemscribe-handoff-l3cjhv`) already claims **021–029** for a
+> different set of facts. Moved clear rather than collide — the same class of
+> silent clash that idea D11 exists to prevent, caught this time before it
+> landed.
 
 ## Recovered before proposing anything
 
@@ -14,7 +20,7 @@ as idea D11.
 
 ## Memory proposals — nothing applied, awaiting approval
 
-1. **NEW → `memory/021-felt-difficulty-is-signal.md`**
+1. **NEW → `memory/030-felt-difficulty-is-signal.md`**
    Aaron's subjective read of a song is evidence worth acting on: twice in one
    exchange it caught an error the measured model had made. He said *Oh What A
    Night* was hard (it is — falsetto-led, ~61% head voice) and that *Hat On*
@@ -23,7 +29,7 @@ as idea D11.
    not as something the numbers overrule.
    > evidence: "I've only ever sang. Oh what a night once and I actually sang it again today. It's a really hard song to sing. I think and for me something like I'm Joe Cocker's leave. Your hat on is feels easier to what's your thoughts on that." — 2026-08-09
 
-2. **NEW → `memory/022-timbertones.md`**
+2. **NEW → `memory/031-timbertones.md`**
    TimberTones is a built, merged app in this repo (`timbertones/`, served at
    `/timbertones`): a sampled upright piano fused with a live pitch-match
    trainer — press a key, it plays the note and drops a target lane; sing to
@@ -32,7 +38,7 @@ as idea D11.
    searching the timbre spelling finds nothing.
    > evidence: "Read handoff. docs/handoffs/TIMBERTONES_HANDOFF.md → pushed on claude/voiceassist-plugin-planning-krhz0d, opened as draft PR #46" — 2026-08-09
 
-3. **NEW → `memory/023-song-guide-workflow.md`** *(re-proposed — pending since 4 Aug)*
+3. **NEW → `memory/032-song-guide-workflow.md`** *(re-proposed — pending since 4 Aug)*
    How Aaron builds a how-to-sing guide: he has ChatGPT map a song's vowels,
    drafts his own exercises from that, then wants the engine-measured layer
    added (range, breath map, prep plan). Source `.txt` files go in a Dropbox
@@ -41,7 +47,7 @@ as idea D11.
    token and this repo is public.
    > evidence: "thus where I'm saving my extreme files. check for a new." — 2026-08-04
 
-4. **NEW → `memory/024-listening-pdfs.md`** *(re-proposed — pending since 4 Aug)*
+4. **NEW → `memory/033-listening-pdfs.md`** *(re-proposed — pending since 4 Aug)*
    Distinct from fact 005 (reading PDFs): some coaching docs should also be
    produced as **narration-optimised** PDFs — flowing prose, no tables, note
    names spelled out — for listening via ElevenLabs Reader while resting. The
