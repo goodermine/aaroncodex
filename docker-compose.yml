@@ -15,6 +15,10 @@ services:
         WITH_SEPARATION: "1"
         WITH_PITCH: "1"
         PREFETCH_MODEL: "1"
+        # Stamp the running commit into the image (no .git inside) so /api/build
+        # shows it. Build with:  VOX_BUILD_COMMIT=$(git rev-parse --short=12 HEAD) docker compose up --build
+        VOX_BUILD_COMMIT: "${VOX_BUILD_COMMIT:-}"
+        VOX_BUILD_BRANCH: "${VOX_BUILD_BRANCH:-}"
     image: voxsuite:latest
     ports:
       - "8080:8080"

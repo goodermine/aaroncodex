@@ -21,6 +21,8 @@ FROM python:3.11-slim-bookworm
 ARG WITH_SEPARATION=1   # audio-separator + onnxruntime (RoFormer stems) — needed for canonical scores + Fused end-to-end
 ARG WITH_PITCH=1        # pyworld WORLD vocoder for Polish auto-tune
 ARG PREFETCH_MODEL=1    # bake the pinned separation model into the image (best-effort; needs network at build)
+ARG VOX_BUILD_COMMIT=   # pass $(git rev-parse --short=12 HEAD) so /api/build shows the commit (no .git in the image)
+ARG VOX_BUILD_BRANCH=
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -39,7 +41,9 @@ ENV PYTHONUNBUFFERED=1 \
     VOX_ANALYSIS_ROOT=/app/voxanalysis/vox-analysis \
     VOX_PITCHMONITOR_ROOT=/app/pitchmonitor \
     VOX_TIMBERTONES_ROOT=/app/timbertones \
-    VOX_BASE=/data
+    VOX_BASE=/data \
+    VOX_BUILD_COMMIT=$VOX_BUILD_COMMIT \
+    VOX_BUILD_BRANCH=$VOX_BUILD_BRANCH
 
 # --- system deps ------------------------------------------------------------
 # ffmpeg: audio I/O for librosa / soundfile / audio-separator / yt-dlp.

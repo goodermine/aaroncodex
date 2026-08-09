@@ -454,14 +454,18 @@ requestAnimationFrame(draw); requestAnimationFrame(tick);
 document.getElementById("startBtn").onclick=function(){
   var btn=this; btn.disabled=true; btn.textContent="Loading…";
   AC=new (window.AudioContext||window.webkitAudioContext)(); SR=AC.sampleRate;
+  if(AC.state==="suspended"&&AC.resume)AC.resume();
   comp=AC.createDynamicsCompressor(); comp.threshold.value=-14; comp.knee.value=24; comp.ratio.value=3; comp.attack.value=.003; comp.release.value=.25;
   master=AC.createGain(); master.gain.value=0.9; comp.connect(master); master.connect(AC.destination);
+  // Ask for the mic INSIDE the tap gesture — iOS Safari rejects getUserMedia
+  // called later from an async callback (which is why the voice part failed
+  // while the piano worked). It runs alongside sample loading, not after it.
+  startMic().catch(function(err){
+    setMic("denied","mic blocked");
+    document.getElementById("hint").textContent="Piano works — but allow the mic to see and match your pitch.";
+  });
   loadSamples().then(function(){
     document.getElementById("gate").style.display="none";
-    return startMic().catch(function(err){
-      setMic("denied","mic blocked");
-      document.getElementById("hint").textContent="Piano works — but allow the mic to see and match your pitch.";
-    });
   }).catch(function(e){ btn.disabled=false; btn.textContent="Start"; alert("Could not start audio: "+e.message); });
 };
 })();

@@ -292,6 +292,7 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
       buf=new Float32Array(analyser.fftSize);                 // time domain (YIN reads a 2048 slice)
       freqBuf=new Float32Array(analyser.frequencyBinCount);   // magnitude spectrum (dB) for the spectrogram
       srcNode=ac.createMediaStreamSource(stream); srcNode.connect(analyser);
+      if(ac.state==="suspended"&&ac.resume)ac.resume();   // mobile Safari starts the context suspended → no data until resumed
       running=true; sizeSpec();
     });
   }

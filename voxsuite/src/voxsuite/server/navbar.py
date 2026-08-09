@@ -19,7 +19,7 @@ import json
 _MENU_GROUPS = ("STUDIO", "PRACTICE")
 
 _TEMPLATE = """
-<div id="vox-nav" style="position:fixed;right:16px;bottom:16px;z-index:2147483647"></div>
+<div id="vox-nav" style="position:fixed;left:16px;bottom:16px;z-index:2147483647"></div>
 <template id="vox-nav-tpl"><style>
 :host,*{box-sizing:border-box}
 .fab{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.14);
@@ -27,7 +27,7 @@ _TEMPLATE = """
   box-shadow:0 6px 20px rgba(0,0,0,.35);transition:transform .12s,background .12s;padding:0}
 .fab:hover{background:#242c36;transform:translateY(-1px)}
 .fab svg{width:22px;height:22px}
-.panel{position:absolute;right:0;bottom:56px;width:230px;background:#12161c;color:#e8edf3;
+.panel{position:absolute;left:0;bottom:56px;width:230px;background:#12161c;color:#e8edf3;
   border:1px solid #2a323d;border-radius:14px;padding:8px;box-shadow:0 12px 40px rgba(0,0,0,.5);
   font:14px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .panel[hidden]{display:none}
