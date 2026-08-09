@@ -64,6 +64,19 @@ select.sel:hover{border-color:var(--accent);}
 #matchPill.near{background:var(--near);color:#1c1600;border-color:var(--near);}
 #cents.in{color:var(--good);} #cents.near{color:var(--near);} #cents.off{color:var(--ink);}
 
+/* mic gate */
+.micbar{display:flex;align-items:center;gap:12px;flex:0 0 auto;padding:7px 16px;
+  background:var(--panel);border-bottom:1px solid var(--line);}
+.micbar .mk{font:600 10px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);flex:0 0 auto;}
+.meter{position:relative;flex:1 1 auto;max-width:340px;height:10px;border-radius:6px;
+  background:#0c0f13;border:1px solid var(--line);overflow:hidden;}
+.meter i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--muted);transition:width .05s linear;}
+.meter i.hot{background:var(--good);}
+.meter b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--accent-2);} /* gate marker */
+.micbar input[type=range]{flex:0 0 auto;width:130px;accent-color:var(--accent);}
+.micbar .hint2{font:12px var(--sans);color:var(--muted);flex:0 0 auto;}
+@media (max-width:640px){ .micbar .hint2{display:none;} .micbar{padding:6px 10px;gap:9px;} }
+
 /* grid */
 .gridwrap{flex:1 1 auto;position:relative;min-height:0;background:var(--page);}
 #grid{position:absolute;inset:0;width:100%;height:100%;display:block;}
@@ -139,6 +152,15 @@ select.sel:hover{border-color:var(--accent);}
     <div class="rblock"><span class="k">Off by</span><span class="v" id="cents" class="off">—</span></div>
     <span id="matchPill">sing to match</span>
     <div class="rblock"><span class="k">Streak</span><span class="v" id="streak">0</span></div>
+  </div>
+
+  <div class="micbar">
+    <span class="mk">🎤 Gate</span>
+    <div class="meter" title="Your live mic level. The marker is the gate — sound below it is ignored.">
+      <i id="mlvl"></i><b id="mgate"></b>
+    </div>
+    <input type="range" id="gateSlider" min="0" max="20" step="0.5" aria-label="Mic gate threshold">
+    <span class="hint2">raise if it reacts to noise or the piano</span>
   </div>
 
   <div class="gridwrap">
@@ -227,6 +249,7 @@ function releaseNote(m,force){
 
 // ---------- mic + YIN (from pitchmonitor) ----------
 var YIN_THRESH=0.15, THRESH=2.0, lastRms=0;
+try{var _g=parseFloat(localStorage.getItem("tt.gate"));if(!isNaN(_g))THRESH=_g;}catch(e){}  // 0–20 → rms gate 0–0.2
 function startMic(){
   return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false})
     .then(function(s){
@@ -335,10 +358,20 @@ function draw(ts){
 }
 
 // ---------- update loop (pitch) ----------
+// ---------- mic level meter + gate ----------
+function updateGateMark(){var b=document.getElementById("mgate");if(b)b.style.left=((THRESH/20)*100).toFixed(1)+"%";}
+function updateMeter(){
+  var fill=document.getElementById("mlvl"); if(!fill)return;
+  var lvl=Math.min(1,lastRms/0.2);              // 0.2 rms = full scale (matches the 0–20 gate)
+  fill.style.width=(lvl*100).toFixed(1)+"%";
+  fill.className = lastRms>=THRESH/100 ? "hot" : "";
+}
+
 function tick(){
   requestAnimationFrame(tick);
   if(!micLive)return;
   var now=performance.now(),f=detect(),m=f>0?midiFromHz(f):null;
+  updateMeter();
   if(m!=null){smoothM = smoothM==null? m : smoothM+(m-smoothM)*0.35;}
   trace.push({t:now,m:m});
   while(trace.length&&now-trace[0].t>TRACE_MS+500)trace.shift();
@@ -450,6 +483,9 @@ var rz;window.addEventListener("resize",function(){clearTimeout(rz);rz=setTimeou
 
 // ---------- boot ----------
 populateScalePickers(); build(); sizeCanvas();
+(function(){var gs=document.getElementById("gateSlider");gs.value=THRESH;updateGateMark();
+  gs.addEventListener("input",function(){THRESH=+this.value;updateGateMark();
+    try{localStorage.setItem("tt.gate",String(THRESH));}catch(e){}});})();
 requestAnimationFrame(draw); requestAnimationFrame(tick);
 document.getElementById("startBtn").onclick=function(){
   var btn=this; btn.disabled=true; btn.textContent="Loading…";
