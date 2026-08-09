@@ -39,5 +39,15 @@ Rules (mirrored in the skill):
 - `018-rebel-yell-preferred-not-suited.md` — prefers Rebel Yell stylistically but poor technical fit (6.4/10)
 - `019-tazcam-compresses-dynamics.md` — TazCam mixer compresses dynamics (11 dB vs 44 dB phone); don't coach on it
 - `020-andy-gibb-reference.md` — "I Just Want To Be Your Everything" is Andy Gibb reference, not Aaron's take
+- `021-github-branch-deletion-blocked.md` — can't delete remote branches from the session; use the PR page
+- `022-linked-repos.md` — the three linked goodermine repos: StemScribe-, aaroncodex, songbook
+- `023-commercial-safe-licensing.md` — default to MIT/commercial-cleared; gate non-commercial behind opt-in
+- `024-ephemeral-container.md` — sessions run in a Linux ephemeral container (HOME=/root); commit to persist
+- `025-act-on-terse-commands.md` — act decisively on short commands; confirm only irreversible/ambiguous steps
+- `026-aaroncodex-product-shape.md` — concise product summary of aaroncodex (engine + VoxPolish/Suite + KB)
+- `027-exploring-aaroncodex-sale.md` — exploring a sale of aaroncodex; valuation/buyer/pitch conclusions
+- `028-parselmouth-gpl-constraint.md` — GPL parselmouth blocks off-server builds; de-link to the Praat CLI
+- `029-machine-and-artist-name.md` — artist name Rustwood; own machine Windows, home C:\Users\Rustwood
 
 *(approved from /dream runs of 2026-08-04 and 2026-08-05)*
+*(021–029 mirrored from the Claude Code session memory, approved 2026-08-09)*
