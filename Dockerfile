@@ -72,9 +72,20 @@ RUN python -m pip install --upgrade pip setuptools wheel \
 # --- app code + local packages ---------------------------------------------
 COPY . /app
 
-# Install our two packages without deps (everything above is already present),
-# which also puts the `vox` console script on PATH.
-RUN pip install --no-deps ./voxpolish ./voxsuite
+# Install our two packages EDITABLE (deps already present above). Editable is
+# required, not cosmetic: neither package declares its static/ dir as package
+# data, so a regular install copies only the .py files and DROPS the deck.html /
+# CSS / JS assets — which 500s `/` and `/polish`. Editable points the import at
+# /app/*/src (already in the image), where every asset lives. Also puts the
+# `vox` console script on PATH.
+RUN pip install --no-deps -e ./voxpolish -e ./voxsuite
+
+# Guard: fail the build here (cheaply) if the deck assets don't resolve from the
+# installed packages, instead of discovering it as a 500 after a 12 GB build.
+RUN python -c "import voxsuite.server.app as s, voxpolish.server.app as p; \
+assert (s.STATIC/'deck.html').is_file(), 'voxsuite deck.html not resolvable'; \
+assert (p.STATIC/'deck.html').is_file(), 'voxpolish deck.html not resolvable'; \
+print('deck assets OK:', s.STATIC/'deck.html', p.STATIC/'deck.html')"
 
 # batch_stems.sh (engine-side separation helper) expects an audio-separator in a
 # dedicated venv at $HOME/.venvs/vox-sep-uvr. Create it sharing the system
