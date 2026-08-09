@@ -75,11 +75,15 @@ behave identically:
   feeds the analyser only (never the output), so there is no feedback loop.
 
 ```
-index.html          the whole app
+index.html          the whole app — inline CSS + JS, no build step, no deps
 samples/            <midi>.mp3 — the pitch centres, plus manifest.json
 samples/manifest.json
-vox-tokens.css      vendored design tokens (shared suite palette)
 ```
+
+**Styling is deliberately self-contained.** TimberTones keeps its own palette
+rather than inheriting the suite design tokens — the look is a decision, not an
+oversight, so `design/sync.sh` intentionally does not vendor `vox-tokens.css`
+here (unlike `pitchmonitor/`).
 
 ## Samples — credit & licence
 

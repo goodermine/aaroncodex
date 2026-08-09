@@ -25,8 +25,23 @@ for target in "${targets[@]}"; do
   fi
 done
 
-# the pitch monitor consumes only the tokens (self-contained page)
-cp "$here/vox-tokens.css" "$root/pitchmonitor/vox-tokens.css"
-echo "synced vox-tokens.css -> pitchmonitor/vox-tokens.css"
+# Standalone pages that consume ONLY the tokens (they carry their own CSS/JS
+# inline, so they take no other kit file).
+#
+# TimberTones is deliberately NOT here: it keeps its own palette by design, uses
+# no --vox- variables, and vendoring tokens it never reads would only re-create
+# the dead file this list is meant to keep honest.
+tokens_only=(
+  "$root/pitchmonitor"
+)
+
+for target in "${tokens_only[@]}"; do
+  if [[ -d "$target" ]]; then
+    cp "$here/vox-tokens.css" "$target/vox-tokens.css"
+    echo "synced vox-tokens.css -> ${target#"$root"/}/vox-tokens.css"
+  else
+    echo "skip (not found): ${target#"$root"/}"
+  fi
+done
 
 echo "done."
