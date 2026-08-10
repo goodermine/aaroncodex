@@ -214,12 +214,13 @@ def create_app(root: Path) -> FastAPI:
     async def create_upload(
         file: UploadFile = File(...),
         tune: bool = Form(True),
+        song: bool = Form(False),
     ):
         data = await file.read()
         if len(data) > MAX_UPLOAD_BYTES:
             raise HTTPException(413, "file too large (500 MB max)")
         try:
-            job = ws.start_upload(file.filename or "audio", data, tune)
+            job = ws.start_upload(file.filename or "audio", data, tune, song=song)
         except ValueError as e:
             raise HTTPException(422, str(e))
         return job.as_dict()

@@ -105,6 +105,7 @@
             <button id="modeUpload" class="on" role="tab" aria-selected="true" type="button">Upload</button><button id="modeRecord" role="tab" aria-selected="false" type="button">Record</button>
           </div>
           <div class="choice"><button id="chClean" type="button">Clean</button><button id="chTune" class="on" type="button">Clean + Auto&nbsp;Tune</button></div>
+          <div class="choice"><button id="chVocal" class="on" type="button">Isolated vocal</button><button id="chSong" type="button">Full song (isolate)</button></div>
           <div class="intake-source" id="intakeUpload">
             <div class="stage-msg"><b>Load your vocal take</b><span>WAV · FLAC · MP3 · M4A · WEBM</span></div>
             <button type="button" class="vox-btn vox-btn--primary" id="pickBtn">Choose recording</button>
@@ -185,7 +186,7 @@ function TOK(n){try{return getComputedStyle(document.documentElement).getPropert
   var tstamp=$("#tstamp"),recLabel=$("#recLabel"),deckAudio=$("#deckAudio"),playBtn=$("#playBtn"),exportBtn=$("#exportBtn"),dlLabel=$("#dlLabel"),tray=$("#exportTray");
   var mm=VOX.miniMeter($("#miniMeter"),16),gpuC=$("#gaugeGpu"),cpuC=$("#gaugeCpu");
   VOX.drawGauge(gpuC,0);VOX.drawGauge(cpuC,0);
-  var doc=null,revision=0,peaks=null,tuneChoice=true,denoiseAdjustable=false;
+  var doc=null,revision=0,peaks=null,tuneChoice=true,songChoice=false,denoiseAdjustable=false;
 
   // Modules: how the document's bypass/amounts/denoise map to rows.
   var MODULES=[
@@ -478,6 +479,8 @@ function TOK(n){try{return getComputedStyle(document.documentElement).getPropert
   // ---- upload / intake -----------------------------------------------------
   $("#chClean").addEventListener("click",function(){tuneChoice=false;this.classList.add("on");$("#chTune").classList.remove("on");});
   $("#chTune").addEventListener("click",function(){tuneChoice=true;this.classList.add("on");$("#chClean").classList.remove("on");});
+  $("#chVocal").addEventListener("click",function(){songChoice=false;this.classList.add("on");$("#chSong").classList.remove("on");});
+  $("#chSong").addEventListener("click",function(){songChoice=true;this.classList.add("on");$("#chVocal").classList.remove("on");});
   $("#pickBtn").addEventListener("click",function(){$("#file").click();});
   $("#file").addEventListener("change",function(){if(this.files&&this.files[0])startUpload(this.files[0]);});
   // Upload | Record input mode — the recorder hands a finished take to startUpload().
@@ -510,7 +513,7 @@ function TOK(n){try{return getComputedStyle(document.documentElement).getPropert
   $("#modeUpload").addEventListener("click",function(){setInputMode("upload");});
   $("#modeRecord").addEventListener("click",function(){setInputMode("record");});
   function startUpload(file){
-    var fd=new FormData();fd.append("file",file);fd.append("tune",tuneChoice?"true":"false");
+    var fd=new FormData();fd.append("file",file);fd.append("tune",tuneChoice?"true":"false");fd.append("song",songChoice?"true":"false");
     $("#jobTag").textContent="JOB · uploading";log("info","upload · "+file.name);
     intake.classList.add("hidden");stageMsg.classList.remove("hidden");stageMsg.innerHTML='<b>Processing…</b><span>separating &amp; cleaning</span>';
     setBusy("UPLOAD");

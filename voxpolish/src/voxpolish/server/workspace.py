@@ -96,7 +96,7 @@ class Workspace:
 
     # ------------------------------------------------------------- uploads
 
-    def start_upload(self, filename: str, data: bytes, tune: bool) -> UploadJob:
+    def start_upload(self, filename: str, data: bytes, tune: bool, song: bool = False) -> UploadJob:
         ext = Path(filename).suffix.lower()
         if ext not in ALLOWED_EXT:
             raise ValueError(
@@ -125,7 +125,7 @@ class Workspace:
 
                 Session.create(
                     upload_path, session_dir,
-                    settings=Settings.for_mode("voice"),
+                    settings=Settings.for_mode("song" if song else "voice"),
                     tune=tune, progress=progress, display_name=filename,
                 )
                 job.session_id = session_id
