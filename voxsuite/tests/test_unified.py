@@ -243,6 +243,67 @@ def test_standalone_hub_is_self_contained():
     assert all(h.startswith(base) for h in hosts), hosts
 
 
+def test_every_page_carries_the_nav_bar():
+    """A visible top nav bar is injected into every served page (decks, monitor,
+    TimberTones) from the registry, so navigation is one tap anywhere — and it
+    marks the current page active."""
+    with tempfile.TemporaryDirectory() as tmp:
+        c = _client(tmp)
+        pages = {"/": "/", "/analyze": "/analyze", "/polish": "/polish",
+                 "/monitor/": "/monitor", "/timbertones/": "/timbertones"}
+        for url, active in pages.items():
+            body = c.get(url).text
+            assert 'id="vox-nav-tpl"' in body, f"nav bar missing on {url}"
+            # links to the hub and the other apps are present
+            for href in ('href="/hub"', 'href="/analyze"', 'href="/timbertones"', 'href="/monitor"'):
+                assert href in body, f"{href} missing on {url}"
+            # the current page is marked active
+            assert f'class="link active" href="{active}"' in body, f"{url} not marked active"
+        # the hub carries the bar too (consistent navigation, never a dead-end)
+        hub = c.get("/hub").text
+        assert 'id="vox-nav-tpl"' in hub and 'class="link active" href="/hub"' in hub
+
+
+def test_served_page_scripts_parse():
+    """Every inline <script> in a SERVED page (deck shells + the injected nav bar
+    + the generated hub) must parse under `node --check`. A syntax error silently
+    kills a whole page's JS while its static shell still renders — the exact bug
+    that shipped once. Skips where node isn't installed."""
+    import os
+    import re
+    import shutil
+    import subprocess
+    import tempfile as _tf
+    if not shutil.which("node"):
+        pytest.skip("node not available")
+    inline = re.compile(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", re.S)
+    with tempfile.TemporaryDirectory() as tmp:
+        c = _client(tmp)
+        for url in ("/", "/analyze", "/polish", "/monitor/", "/timbertones/", "/hub"):
+            html = c.get(url).text
+            for i, block in enumerate(inline.findall(html)):
+                with _tf.NamedTemporaryFile("w", suffix=".js", delete=False) as t:
+                    t.write(block)
+                    path = t.name
+                try:
+                    r = subprocess.run(["node", "--check", path], capture_output=True, text=True)
+                finally:
+                    os.unlink(path)
+                assert r.returncode == 0, f"{url} inline script #{i} has a JS syntax error:\n{r.stderr}"
+
+
+def test_hub_links_stay_relative_behind_a_proxy():
+    """The live hub's cards AND its refresh script use same-origin relative paths,
+    so links keep working behind a reverse proxy (Tailscale) where the server's own
+    base_url is an unreachable internal address — the bug that made them dead."""
+    with tempfile.TemporaryDirectory() as tmp:
+        hub = _client(tmp).get("/hub").text
+        assert 'href="/analyze"' in hub and 'href="/timbertones"' in hub  # relative cards
+        assert 'href="http' not in hub                                    # nothing absolute baked in
+        assert "REL=true" in hub                                          # refresh is in relative mode
+        assert "(REL&&s.path)?s.path:s.url" in hub                        # and uses the relative path
+
+
 def test_analyze_deck_ships_the_score_badge():
     """The score badge surfaces overall + capture-fair + confidence + the
     calibration provenance line, so a user can see whether the number is

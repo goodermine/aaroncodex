@@ -1,0 +1,61 @@
+# VOX Suite — local run and the base for a cloud deploy.
+#
+#   docker compose up --build          # build + run on http://localhost:8080
+#
+# The same file runs on a cloud host; the extra cloud steps (TLS, auth) are the
+# commented blocks below and are documented in docs/DEPLOYMENT.md.
+
+services:
+  vox:
+    build:
+      context: .
+      args:
+        # Flip these to 0 for a lean image (light apps + scoring, DSP-fallback
+        # separation). Defaults build the full heavy image with RoFormer + auto-tune.
+        WITH_SEPARATION: "1"
+        WITH_PITCH: "1"
+        PREFETCH_MODEL: "1"
+        # Stamp the running commit into the image (no .git inside) so /api/build
+        # shows it. Build with:  VOX_BUILD_COMMIT=$(git rev-parse --short=12 HEAD) docker compose up --build
+        VOX_BUILD_COMMIT: "${VOX_BUILD_COMMIT:-}"
+        VOX_BUILD_BRANCH: "${VOX_BUILD_BRANCH:-}"
+    image: voxsuite:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      # Job state, uploads and new analyses persist here across restarts/rebuilds.
+      - vox-data:/data
+    environment:
+      VOX_BASE: /data
+      # Uncomment to hard-pin A4 etc. via the app's own settings; none required to run.
+    restart: unless-stopped
+    # HEALTHCHECK is defined in the image (hits /api/systems).
+
+    # --- GPU (optional) ------------------------------------------------------
+    # RoFormer separation is much faster on a GPU. On an NVIDIA host with the
+    # container toolkit, build from a CUDA base (see docs/DEPLOYMENT.md) and add:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # --- TLS + auth for a public cloud instance (optional) ---------------------
+  # The mic (monitor/TimberTones) needs HTTPS, and the engine + private singer
+  # data must sit behind a login. Front `vox` with a reverse proxy that
+  # terminates TLS and adds auth — e.g. Caddy (auto-HTTPS) or Traefik. Example:
+  #
+  # proxy:
+  #   image: caddy:2
+  #   depends_on: [vox]
+  #   ports: ["443:443", "80:80"]
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile   # reverse_proxy vox:8080 + basicauth
+  #     - caddy-data:/data
+  #   restart: unless-stopped
+
+volumes:
+  vox-data:
+  # caddy-data:

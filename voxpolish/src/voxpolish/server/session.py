@@ -23,7 +23,7 @@ import numpy as np
 from .. import audio_io
 from ..document import EditDocument
 from ..pipeline import Settings, analyze
-from ..stages import clean, pitch, render
+from ..stages import bleed, clean, master, pitch, render, separation
 
 PEAK_BUCKETS = 2400  # points per waveform; a few KB regardless of file size
 
@@ -85,7 +85,25 @@ class Session:
         if not source_copy.exists():
             shutil.copy2(source, source_copy)
 
-        vocal, sr = audio_io.load(source_copy)
+        # Song mode: isolate the vocal FIRST. Without this a full mix is run
+        # through the vocal pipeline (denoise/level/de-breath/tune) as if it were
+        # already a solo vocal — the source of the "weird artefacts" on songs.
+        sep_note: str | None = None
+        if settings.mode == "song" or settings.strip_music_bed:
+            if separation.available():
+                step("separating")
+                vocal, instrumental, sr = separation.separate(source_copy, settings.separation_model)
+                if settings.bleed_strength > 0:
+                    vocal, _b = bleed.suppress(
+                        vocal, instrumental, sr,
+                        strength=settings.bleed_strength, max_att_db=settings.bleed_max_att_db,
+                    )
+            else:
+                vocal, sr = audio_io.load(source_copy)
+                sep_note = ("song mode requested but vocal separation is unavailable "
+                            "(install voxpolish[separation]); polished the mix as-is")
+        else:
+            vocal, sr = audio_io.load(source_copy)
         step("cleaning")
         raw_vocal = vocal
         vocal, wet_vocal, denoise_info = clean.process_split(vocal, sr, settings.denoise_amount)
@@ -102,6 +120,8 @@ class Session:
         step("analyzing")
         doc = analyze(vocal, sr, settings)
         doc.denoise = denoise_info
+        if sep_note:
+            doc.analysis = {**(doc.analysis or {}), "separation_note": sep_note}
         # Tuner analysis: key, notes, and the proposed correction curve. A
         # failure here must never kill session creation — record and move on.
         try:
@@ -233,6 +253,19 @@ class Session:
             notes.append("Auto Tune is off (bypassed) — no pitch correction applied")
         elif tune_on and not curve:
             notes.append("Auto Tune is on but this take has no correction curve")
+
+        # Output limiter (last): push `drive_db` louder into a brick-wall limiter
+        # holding the true-peak ceiling. Guarantees the whole track sits under the
+        # ceiling; drive 0 is a transparent safety limiter.
+        m = doc.master or {}
+        if m.get("on", True):
+            ceiling = float(m.get("ceiling_dbtp", -3.0))
+            drive = float(m.get("drive_db", 0.0))
+            out, minfo = master.output_limiter(out, sr, ceiling_dbtp=ceiling, drive_db=drive)
+            notes.append(
+                f"output limiter: ceiling {ceiling:g} dBTP, drive +{drive:g} dB "
+                f"({minfo['limiter_gr_db']:g} dB gain reduction)"
+            )
 
         # Unique temp name per render, not a shared ".render-tmp.wav": two
         # overlapping renders (possible once a wedged one can be taken over)

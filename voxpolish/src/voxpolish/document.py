@@ -58,6 +58,10 @@ class EditDocument:
     pitch: dict = field(default_factory=dict)
     # Clean: model-based settings (applied before render DSP).
     denoise: dict = field(default_factory=lambda: {"amount": 0.0, "backend": "none"})
+    # Output: a brick-wall peak limiter on the whole track. `drive_db` pushes the
+    # signal louder into the limiter; `ceiling_dbtp` is the guaranteed true-peak
+    # ceiling. Applied last, after tuning.
+    master: dict = field(default_factory=lambda: {"on": True, "ceiling_dbtp": -3.0, "drive_db": 0.0})
     # Analysis context useful to a UI / for debugging, not used by render.
     analysis: dict = field(default_factory=dict)
 
@@ -81,6 +85,7 @@ class EditDocument:
             },
             pitch=raw.get("pitch", {}),
             denoise=raw.get("denoise", {"amount": 0.0, "backend": "none"}),
+            master={"on": True, "ceiling_dbtp": -3.0, "drive_db": 0.0, **raw.get("master", {})},
             analysis=raw.get("analysis", {}),
         )
         for name in ("pauses", "breaths", "sibilants"):

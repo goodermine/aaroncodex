@@ -10,6 +10,7 @@ from a browser.
 from __future__ import annotations
 
 import hashlib
+import os
 import subprocess
 from pathlib import Path
 
@@ -46,6 +47,14 @@ def git_commit(start: Path) -> dict:
             info["dirty"] = bool(st.stdout.strip())
     except (OSError, subprocess.SubprocessError):
         pass
+    if not info.get("commit"):
+        # Container images ship without git or a .git dir; the commit is baked in
+        # at build time (VOX_BUILD_COMMIT) so the build page isn't blank there.
+        baked = os.environ.get("VOX_BUILD_COMMIT")
+        if baked:
+            info["commit"] = baked[:12]
+            info["branch"] = os.environ.get("VOX_BUILD_BRANCH") or info.get("branch")
+            info["source"] = "baked at image build (no git in container)"
     return info
 
 

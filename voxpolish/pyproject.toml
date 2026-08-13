@@ -26,12 +26,12 @@ vad = ["torch>=2.1", "silero-vad>=5.0"]
 ui = ["fastapi>=0.110", "uvicorn>=0.27", "python-multipart>=0.0.9"]
 # pyworld (the WORLD vocoder that Auto Tune renders through) does
 # `import pkg_resources` at import time, and pkg_resources ships INSIDE
-# setuptools — which Python 3.12+ no longer installs by default. Without it the
-# vocoder import raises and Auto Tune is silently bypassed on the host (it worked
-# in dev only because setuptools happened to be present). Declaring setuptools
-# here makes `pip install voxpolish[pitch]` restore pkg_resources every time,
-# instead of needing a manual `pip install --upgrade setuptools` on each host.
-pitch = ["pyworld>=0.3", "setuptools>=68"]
+# setuptools. Two ways it goes missing: Python 3.12+ doesn't install setuptools
+# by default, AND newer setuptools has REMOVED pkg_resources — so `setuptools>=68`
+# alone is no longer enough (a fresh env resolves to a version without it, and
+# Auto Tune fails with "No module named 'pkg_resources'"). Cap below the removal:
+# 69.x still ships pkg_resources and satisfies the build backend.
+pitch = ["pyworld>=0.3", "setuptools>=68,<70"]
 dev = ["pytest>=7.0", "httpx2>=0.1", "httpx>=0.27"]
 
 [project.scripts]

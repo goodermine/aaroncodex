@@ -487,11 +487,11 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
         css[1]+"\n"+css[0]+"\nbody{margin:0;background:var(--vox-void);color:var(--vox-ink);font-family:var(--vox-sans)}"+
         ".wrap{max-width:1080px;margin:0 auto;padding:26px 20px 64px}.vh{font-family:var(--vox-mono);letter-spacing:.14em;font-size:14px;color:var(--vox-cyan);margin:0 0 6px}"+
         ".vs{color:var(--vox-muted);font-family:var(--vox-mono);font-size:11px;margin:0 0 20px}"+
-        ".vox-report .rack{ }details[open]>summary~*{display:block}  .vox-hint{display:block;font:400 11px/1.4 var(--vox-sans);color:var(--vox-muted);margin-top:2px}
-  .vox-fileinput{margin-top:5px;font:inherit;font-size:12px;color:var(--vox-body)}
-  .vox-fileinput::file-selector-button{font:inherit;font-size:12px;cursor:pointer;margin-right:10px;
-    border:1px solid var(--vox-line-2);border-radius:6px;background:var(--vox-panel);color:var(--vox-body);padding:6px 10px}
-</style></head>"+
+        ".vox-report .rack{ }details[open]>summary~*{display:block}  .vox-hint{display:block;font:400 11px/1.4 var(--vox-sans);color:var(--vox-muted);margin-top:2px}"+
+        ".vox-fileinput{margin-top:5px;font:inherit;font-size:12px;color:var(--vox-body)}"+
+        ".vox-fileinput::file-selector-button{font:inherit;font-size:12px;cursor:pointer;margin-right:10px;"+
+        "border:1px solid var(--vox-line-2);border-radius:6px;background:var(--vox-panel);color:var(--vox-body);padding:6px 10px}"+
+        "</style></head>"+
         '<body class="vox-deck-bg"><div class="wrap"><div class="vh">VOX//SUITE · ANALYSIS RESULTS</div>'+
         '<div class="vs">'+esc(res.file_name||"vocal take")+"</div>"+
         '<section class="vox-report">'+report.innerHTML+"</section></div></body></html>";

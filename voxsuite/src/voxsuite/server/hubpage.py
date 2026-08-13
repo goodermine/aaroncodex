@@ -54,7 +54,7 @@ _GLYPH = ('<svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentCol
 
 _REFRESH_JS = """
 (function(){
-  var API=%(api)s;
+  var API=%(api)s, REL=%(rel)s;   // REL: use same-origin relative paths (live hub) vs absolute urls (standalone)
   var elStat=document.getElementById('refresh');
   function dotClass(live){return live===true?'dot live':live===false?'dot down':'dot';}
   function group(g){var id='grp-'+g,el=document.getElementById(id);
@@ -70,7 +70,7 @@ _REFRESH_JS = """
         +'<span class="name"></span><span class="dot"></span><span class="path"></span></div>'
         +'<div class="blurb"></div></div>';
       group(s.group).appendChild(card);}
-    card.href=s.url;
+    card.href=(REL&&s.path)?s.path:s.url;   // relative on the live hub so it survives a reverse proxy
     card.querySelector('.code').textContent=s.code;
     card.querySelector('.name').textContent=s.name;
     card.querySelector('.path').textContent=s.path;
@@ -123,7 +123,7 @@ def render(systems: list[dict], *, api_url: str = "/api/systems",
         note = ("Links are same-origin — they follow the suite to whatever address it's hosted on, "
                 "so they never go stale. This page is generated live from the server's own routes.")
 
-    js = _REFRESH_JS % {"api": json.dumps(api_url)}
+    js = _REFRESH_JS % {"api": json.dumps(api_url), "rel": json.dumps(not standalone)}
     return (
         "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">"
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"

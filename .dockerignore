@@ -1,0 +1,45 @@
+# Keep the build context lean, but DO NOT drop anything the image needs:
+# the calibration pack, the scored archive (score_preflight reads it), the
+# TimberTones samples and the committed test fixtures all stay in.
+
+# Version control / CI
+.git
+.github
+.gitignore
+
+# Python caches / build artefacts
+**/__pycache__
+**/*.py[cod]
+**/*.egg-info
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+build/
+dist/
+
+# Virtualenvs (the image builds its own)
+**/.venv
+**/venv
+voxanalysis/youtube-downloader/.venv-reference
+
+# Runtime job state / ephemeral outputs (regenerated in the container at /data)
+_vox/
+/data
+voxpolish_workspace/
+*_session/
+voxpolish_out/
+output/
+reports/
+Onset-Map-*.png
+*.pre-reanalysis
+
+# Local tooling noise
+node_modules/
+**/.DS_Store
+*.log
+voxsuite/dist/
+
+# Docker itself
+Dockerfile
+.dockerignore
+docker-compose.yml
