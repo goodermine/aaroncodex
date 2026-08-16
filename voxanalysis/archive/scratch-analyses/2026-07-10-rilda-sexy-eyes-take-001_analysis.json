@@ -6930,11 +6930,12 @@
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
   "technical_score": {
-    "status": "withheld_measurement_artefact",
-    "reason": "Held-note drift was fabricated as 0.0 by a short-note smoothing bug (fixed in analyse_song.py), which inflated pitch_stability and the straight-tone vibrato path toward 10/10. The stored overall / capture-fair numbers are not reliable.",
-    "action": "Re-analyse from the source audio with the fixed engine before quoting, displaying or trending; re-analysis restores a real score.",
+    "status": "retired_legacy_score",
+    "reason": "This file is an exact byte duplicate of the 9 July Sexy Eyes source at both raw MP4 and processed WAV level, so it is not an independent performance and must not create a second score or trend point.",
+    "action": "Use the corrected 2026-07-09-rilda-sexy-eyes-take-001 result for this audio; retain this record only as duplicate provenance.",
     "do_not_use": true,
-    "withheld_metric": "median_intra_note_drift_cents (short-note artefact)"
+    "withheld_metric": "median_intra_note_drift_cents (short-note artefact)",
+    "duplicate_of": "2026-07-09-rilda-sexy-eyes-take-001"
   },
   "prescriptions": {
     "method": "deterministic_prescription_engine_v1 — rules over measured values; exercise content verbatim from the library; no LLM selection",
