@@ -7,22 +7,40 @@ until they're re-analysed from the source audio, which only your box has.
 
 ---
 
-## Step 1 — sync to the fixed engine + prove it's live
+## Step 1 — get the fixed engine SAFELY (no destructive reset)
+
+> The canonical checkout is `~/.openclaw/mary-workspace/aaroncodex`. **Do NOT run
+> `git reset --hard` on it** — it would discard any local state. Use a throwaway
+> **git worktree** instead: it checks out the fixed branch in a separate folder
+> and never touches the canonical tree.
 
 ```bash
-# Go to your aaroncodex checkout (adjust the path if yours differs)
-cd ~/.openclaw/candi-workspace/aaroncodex && \
-# Get the fixed engine. If a plain branch fetch lands on an old commit (the
-# mirror lag we've seen), fetch the exact SHA instead: 5449915.
+# From the canonical checkout (adjust the path only if yours differs):
+cd ~/.openclaw/mary-workspace/aaroncodex && \
 git fetch origin claude/voiceassist-plugin-planning-krhz0d && \
-git checkout claude/voiceassist-plugin-planning-krhz0d && \
-git reset --hard FETCH_HEAD && \
-git log -1 --format='engine now on %h — %s' && \
-# Prove the fix is present and the guards pass
+# Isolated checkout of the fixed engine — the canonical tree is untouched.
+# (If the mirror lag surfaces, replace FETCH_HEAD with the exact SHA 5449915.)
+git worktree add /tmp/driftfix FETCH_HEAD && \
+cd /tmp/driftfix && \
+git log -1 --format='fixed engine on %h — %s' && \
 grep -q "measurable_drifts" voxanalysis/vox-analysis/engine/analyse_song.py \
-  && echo "FIX PRESENT ✅" || echo "FIX MISSING ❌ — stop, re-fetch by SHA 5449915" && \
+  && echo "FIX PRESENT ✅" || echo "FIX MISSING ❌ — stop, re-add worktree at SHA 5449915" && \
 python3 -m pytest voxanalysis/vox-analysis/engine/tests/test_scoring.py -q 2>&1 | tail -3
 ```
+
+Run the re-analysis (Step 2) **from `/tmp/driftfix`** — that worktree is on the
+fix branch, so the corrected JSONs you write into its
+`voxanalysis/archive/scratch-analyses/` overwrite the withheld stubs, and you
+commit + push from there. When finished:
+
+```bash
+cd ~/.openclaw/mary-workspace/aaroncodex && git worktree remove /tmp/driftfix
+```
+
+> Prefer to work in the canonical checkout instead of a worktree? Only if it is
+> clean: `git status --porcelain` must print nothing. Then `git fetch` +
+> `git checkout claude/voiceassist-plugin-planning-krhz0d` (a normal checkout,
+> **not** `reset --hard`). If it prints anything, stash or commit first.
 
 ## Step 2 — re-analyse each take from its isolated vocal stem
 
