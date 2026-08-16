@@ -7788,11 +7788,12 @@
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
   "technical_score": {
-    "status": "withheld_measurement_artefact",
-    "reason": "Held-note drift was fabricated as 0.0 by a short-note smoothing bug (fixed in analyse_song.py), which inflated pitch_stability and the straight-tone vibrato path toward 10/10. The stored overall / capture-fair numbers are not reliable. (Precautionary: near-zero drift on a short-note take — re-run to confirm.)",
-    "action": "Re-analyse from the source audio with the fixed engine before quoting, displaying or trending; re-analysis restores a real score.",
+    "status": "retired_legacy_score",
+    "reason": "The near-zero drift is precautionarily withheld. No original vocal performance or canonical current RoFormer vocal stem was found locally; the only matching media is an instrumental and must not be analysed as the singer.",
+    "action": "Keep this take non-quotable until the original vocal source is supplied and re-analysed with the fixed engine.",
     "do_not_use": true,
-    "withheld_metric": "median_intra_note_drift_cents (short-note artefact)"
+    "withheld_metric": "median_intra_note_drift_cents (short-note artefact)",
+    "source_status": "vocal_source_not_found_locally"
   },
   "entry_accuracy": {
     "is_score": false,
