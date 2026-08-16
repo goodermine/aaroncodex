@@ -321,9 +321,12 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
         if overall is not None
         else f"VOXAI completed the diagnostic pass. The next useful focus is {focus['pillar'].lower()}."
     )
+    _drift = intonation.get("median_intra_note_drift_cents")
     measured = [
         f"Median pitch-centre deviation: {intonation.get('median_abs_deviation_cents')} cents.",
-        f"Median held-note drift: {intonation.get('median_intra_note_drift_cents')} cents.",
+        (f"Median held-note drift: {_drift} cents."
+         if _drift is not None else
+         "Held-note drift: not measurable on this take (notes too short — held-note stability was not scored)."),
         f"Notes within +/-25 cents: {intonation.get('pct_notes_within_25_cents')}%.",
         f"Comfortable core in this take: {range_map.get('comfortable_core', 'unavailable')}.",
     ]

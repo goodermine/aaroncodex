@@ -72,7 +72,12 @@ def test_every_archived_score_is_on_the_pinned_calibration_pack():
     for path in sorted(glob.glob(os.path.join(archive, "*_analysis.json"))):
         with open(path) as fh:
             score = (json.load(fh) or {}).get("technical_score")
-        if not isinstance(score, dict) or score.get("status") == "retired_legacy_score":
+        # Score-less stubs carry no calibration by design and are exempt: a
+        # legacy rubric retirement, or a score withheld pending re-analysis
+        # (e.g. the short-note drift artefact). Both lack an identity, so
+        # is_legacy_score()/score_conflict() already refuse to quote them.
+        if (not isinstance(score, dict)
+                or score.get("status") in ("retired_legacy_score", "withheld_measurement_artefact")):
             continue
         fp = (score.get("identity") or {}).get("calibration_fingerprint")
         if fp != pinned:
