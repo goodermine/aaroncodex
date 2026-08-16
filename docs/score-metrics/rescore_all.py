@@ -63,15 +63,24 @@ def score_row(f):
     name = os.path.basename(f).replace("_analysis.json", "")
     d = json.load(open(f))
     old = d.get("technical_score") or {}
-    ts = compute_technical_score(d, cal) or {}
+    # A retired score can represent measurements that are known to be
+    # contaminated and cannot yet be regenerated from source audio.  Running
+    # those stored measurements back through the current scorer would recreate
+    # the very number the retirement stub is meant to withhold (for example the
+    # short-note 0.0-cent drift artefact).  Keep the row for audit/raw metrics,
+    # but never manufacture a replacement score from a retired record.
+    retired = old.get("status") == "retired_legacy_score"
+    ts = {} if retired else (compute_technical_score(d, cal) or {})
     comp = {k: v.get("score") for k, v in (ts.get("components") or {}).items()}
     inton = d.get("intonation", {}); vq = d.get("voice_quality", {})
     vib = d.get("vibrato", {}); phr = d.get("phrasing", {}); dyn = d.get("dynamics", {})
     return {
         "take": name, "singer": singer(name), "song": song(name), "date": date_of(name),
         "n_notes": inton.get("n_notes"),
-        "prior_score_status": ("retired_legacy" if old.get("status") == "retired_legacy_score"
+        "prior_score_status": ("retired_legacy" if retired
                                else ("current" if old.get("identity") else "none")),
+        "score_status": "withheld" if retired else "current",
+        "withheld_reason": old.get("reason") if retired else None,
         "overall": ts.get("overall_score_0_to_10"),
         "capture_fair": ts.get("capture_fair_score_0_to_10"),
         "coverage": ts.get("coverage"),
@@ -137,11 +146,13 @@ json.dump(out, open(os.path.join(OUTDIR, f"all-takes-rescore-{RUBRIC}-{STAMP}.js
 # ---- markdown ----
 def comp(r, k): return r["components"].get(k, "–")
 md = [f"# All takes — re-scored with the current engine (rubric {RUBRIC}, {STAMP})", "",
-      f"Every archived take re-scored with **{out['engine']}** "
+      f"Every eligible archived take re-scored with **{out['engine']}** "
       f"(calibration active, {out['calibration']['n_references']} pro references). "
       "Scores from superseded rubrics have been retired from the archive "
-      "(retire_legacy_scores.py), so every number here is a current recompute — there are no "
-      "stale scores left to quote. `cf` = capture-fair (voice_quality **and** dynamics "
+      "(retire_legacy_scores.py), so every numeric score here is a current recompute. "
+      "Retired or source-blocked records remain visible as **withheld** rows and are not "
+      "recomputed from contaminated stored measurements. `cf` = capture-fair "
+      "(voice_quality **and** dynamics "
       "excluded — the capture-robust components; **breath** is deliberately kept in, "
       "because air running out is the singer, not the room).", "",
       f"`breath` is new in {RUBRIC}. A blank means the analysis predates "
@@ -160,11 +171,15 @@ md = [f"# All takes — re-scored with the current engine (rubric {RUBRIC}, {STA
       f"| singer | song | notes | **{RUBRIC}** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |",
       "|---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|"]
 for r in take_rows:
-    md.append(f"| {r['singer']} | {r['song']} | {r['n_notes']} | "
-              f"**{r['overall']}** | {r['capture_fair']} | {r['confidence']} | "
-              f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
-              f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} | "
-              f"{comp(r,'breath_support')} |")
+    if r["score_status"] == "withheld":
+        md.append(f"| {r['singer']} | {r['song']} | {r['n_notes']} | "
+                  "**withheld** | – | – | – | – | – | – | – | – | – |")
+    else:
+        md.append(f"| {r['singer']} | {r['song']} | {r['n_notes']} | "
+                  f"**{r['overall']}** | {r['capture_fair']} | {r['confidence']} | "
+                  f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
+                  f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} | "
+                  f"{comp(r,'breath_support')} |")
 md += ["", "## Professional references (calibration sanity check)", "",
        f"Overall: min {out['aggregate']['references']['overall'].get('min')} · "
        f"max {out['aggregate']['references']['overall'].get('max')} · "
@@ -172,10 +187,13 @@ md += ["", "## Professional references (calibration sanity check)", "",
        f"| reference | {RUBRIC} | cf | inton | pitch | voice | vib | dyn | phrase | breath |",
        "|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|"]
 for r in ref_rows:
-    md.append(f"| {r['song']} | **{r['overall']}** | {r['capture_fair']} | "
-              f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
-              f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} | "
-              f"{comp(r,'breath_support')} |")
+    if r["score_status"] == "withheld":
+        md.append(f"| {r['song']} | **withheld** | – | – | – | – | – | – | – | – |")
+    else:
+        md.append(f"| {r['song']} | **{r['overall']}** | {r['capture_fair']} | "
+                  f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
+                  f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} | "
+                  f"{comp(r,'breath_support')} |")
 open(os.path.join(OUTDIR, f"all-takes-rescore-{RUBRIC}-{STAMP}.md"), "w").write("\n".join(md) + "\n")
 print(f"takes={len(take_rows)} refs={len(ref_rows)}")
 print("takes overall", out['aggregate']['takes']['overall'])
