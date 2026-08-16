@@ -360,3 +360,72 @@ def test_a_clean_capture_is_flagged_high():
     t["voice_quality"] = {"hnr_db_median": 20.9, "jitter_local_percent_median": 0.60}
     t["intonation"] = {"median_intra_note_drift_cents": 38.2}
     assert A.compute_entry_accuracy(t, cal)["reliability"] == "high"
+
+
+# ── Short-note drift artefact (the "0.0 cents / auto-10 stability" bug) ──────
+# Notes shorter than the ~0.35 s drift smoothing window used to be flattened to
+# a constant, whose spread is a fabricated 0.0 — reading as "perfectly steady"
+# and pinning pitch_stability (and the straight-tone vibrato path) to 10/10 on
+# short, fast phrasing (rap/funk/patter). The fix: exclude unmeasurable notes,
+# report drift as None when too few remain, and let the scorer drop the
+# component rather than credit the fake zero. This guards against regression.
+
+def _f0_notes(note_len_s, n_notes=12, sr=22050, hop=512, base_hz=220.0,
+              wobble_cents=25.0, gap_s=0.15):
+    """A synthetic f0 track: n_notes stable-pitch plateaus (with a little
+    vibrato-like wobble) separated by silence. note_len_s sets how long each
+    sustained note is."""
+    import numpy as np
+    fps = sr / hop
+    frames = []
+    for i in range(n_notes):
+        hz = base_hz * 2 ** ([0, 2, 4, 5, 7][i % 5] / 12)
+        t = np.arange(int(note_len_s * fps)) / fps
+        frames.append(hz * 2 ** ((wobble_cents * np.sin(2 * np.pi * 5 * t)) / 1200.0))
+        frames.append(np.full(int(gap_s * fps), np.nan))
+    return np.concatenate(frames), sr, hop
+
+
+def test_short_notes_do_not_fabricate_zero_drift():
+    # 0.30 s notes sit below the ~0.35 s smoothing window: drift is unmeasurable,
+    # and MUST come back as None — never 0.0.
+    f0, sr, hop = _f0_notes(0.30)
+    r = A.analyse_intonation(f0, sr, hop)
+    assert r["median_intra_note_drift_cents"] is None, (
+        "short notes must report drift as unmeasurable (None), not a fabricated 0.0")
+    assert r["drift_measurable_notes"] == 0
+    # per-note values are None, not 0.0, so nothing downstream reads a fake zero
+    assert all(n["drift_cents"] is None for n in r["notes"])
+
+
+def test_long_notes_still_measure_real_drift():
+    # 0.90 s notes are comfortably measurable: drift is a real, non-None number.
+    f0, sr, hop = _f0_notes(0.90)
+    r = A.analyse_intonation(f0, sr, hop)
+    assert r["median_intra_note_drift_cents"] is not None
+    assert r["drift_measurable_notes"] >= 5
+
+
+def test_pitch_stability_dropped_when_drift_unmeasurable():
+    # When drift is None the component must be ABSENT (weights renormalise),
+    # never present at a fake 10.0.
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    r = _base_results(22.0, 30.0)
+    r["intonation"] = {"method": "grid", "n_notes": 20,
+                       "median_abs_deviation_cents": 15.0,
+                       "median_intra_note_drift_cents": None}
+    ts = A.compute_technical_score(r, cal)
+    assert "pitch_stability" not in ts["components"], (
+        "unmeasurable drift must drop pitch_stability, not score it 10/10")
+    assert "pitch_stability" in ts["components_unscored"]
+    # the straight-tone vibrato path must not claim steadiness it never measured
+    vib = ts["components"].get("vibrato_control")
+    if vib is not None:
+        assert "straight-tone" not in vib.get("input", ""), (
+            "straight-tone vibrato path must be skipped when drift is unmeasurable")
+
+
+def test_measurable_drift_still_scores_pitch_stability():
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    ts = A.compute_technical_score(_base_results(22.0, 30.0), cal)  # drift = 20.0
+    assert "pitch_stability" in ts["components"]

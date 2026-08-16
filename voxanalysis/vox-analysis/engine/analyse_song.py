@@ -1323,27 +1323,45 @@ def analyse_intonation(f0, sr, hop_length=512):
     devs = ((devs + 50) % 100) - 50
     abs_devs = np.abs(devs)
 
-    # Intra-note drift of the slow contour (vibrato excluded by smoothing)
-    drifts = []
-    for note in notes:
-        contour = note["cents_contour"]
-        slow = moving_average(contour, int(0.35 * pitch_sr))
-        drifts.append(float(np.percentile(slow, 95) - np.percentile(slow, 5)))
-
     median_abs = float(np.median(abs_devs))
+
+    # ── Intra-note drift ──────────────────────────────────────────────────
+    # How much the slow (vibrato-removed) contour wanders WITHIN each note.
+    # This is only measurable on a note long enough for the smoother to remove
+    # vibrato. A note shorter than the smoothing window collapses to a single
+    # constant, whose spread is a *fabricated* 0.0 — "perfectly steady" for a
+    # note that was never actually measured. Those notes are EXCLUDED from the
+    # drift statistics rather than counted as zero, and if too few notes are
+    # long enough, drift is reported as unmeasurable (None) so the scorer drops
+    # pitch-stability instead of crediting a fake zero. Short, fast phrasing
+    # (rap / funk / patter) is what trips this — historically it inflated
+    # pitch-stability and the straight-tone vibrato path to 10/10.
+    drift_win = max(3, int(0.35 * pitch_sr) | 1)   # mirror moving_average's own flooring
+
+    def _contour_spread(x):
+        s = moving_average(x, drift_win)
+        return float(np.percentile(s, 95) - np.percentile(s, 5))
 
     # ── Time-localised detail ────────────────────────────────────────────
     # Every sustained note with its timestamp, so reports can say WHERE the
     # problems live, not just how big they are on average.
     note_details = []
-    for note, dev, drift in zip(notes, devs, drifts):
-        # Mid-note drift: middle 60% of the contour only, so onset scoops
-        # and release slides don't read as "the held note drifted".
+    measurable_drifts = []          # full-note drift, only for notes long enough to measure
+    for note, dev in zip(notes, devs):
         contour = note["cents_contour"]
+        # Full-note drift: measurable only if the note itself spans the window.
+        if len(contour) >= drift_win:
+            drift_val = _contour_spread(contour)
+            measurable_drifts.append(drift_val)
+            drift_out = round(drift_val, 1)
+        else:
+            drift_out = None
+        # Mid-note drift: middle 60% of the contour only, so onset scoops and
+        # release slides don't read as "the held note drifted". Needs a note
+        # ~1.7x longer again for that middle slice to span the window.
         lo, hi = int(0.2 * len(contour)), int(0.8 * len(contour))
-        mid = contour[lo:hi] if hi - lo >= 5 else contour
-        mid_slow = moving_average(mid, int(0.35 * pitch_sr))
-        held_drift = float(np.percentile(mid_slow, 95) - np.percentile(mid_slow, 5))
+        mid = contour[lo:hi]
+        held_out = round(_contour_spread(mid), 1) if len(mid) >= drift_win else None
         note_details.append({
             "time": seconds_to_mmss(note["start_s"]),
             "start_s": round(note["start_s"], 2),
@@ -1351,9 +1369,14 @@ def analyse_intonation(f0, sr, hop_length=512):
             "note": hz_to_note_safe(note["median_hz"]),
             "note_detailed": hz_to_note_cents(note["median_hz"]),
             "deviation_cents": round(float(dev), 1),
-            "drift_cents": round(float(drift), 1),
-            "held_drift_cents": round(held_drift, 1),
+            "drift_cents": drift_out,
+            "held_drift_cents": held_out,
         })
+
+    # Too few measurable notes -> drift is not reportable (rather than a fake 0).
+    MIN_DRIFT_NOTES = 5
+    median_drift = (round(float(np.median(measurable_drifts)), 1)
+                    if len(measurable_drifts) >= MIN_DRIFT_NOTES else None)
 
     worst_intonation = sorted(
         (n for n in note_details if abs(n["deviation_cents"]) > TROUBLE_DEV_CENTS),
@@ -1362,7 +1385,8 @@ def analyse_intonation(f0, sr, hop_length=512):
     # artifact, not a control problem — excluded from the trouble list.
     worst_drift = sorted(
         (n for n in note_details
-         if TROUBLE_DRIFT_CENTS < n["held_drift_cents"] <= 300),
+         if n["held_drift_cents"] is not None
+         and TROUBLE_DRIFT_CENTS < n["held_drift_cents"] <= 300),
         key=lambda n: -n["held_drift_cents"])[:8]
 
     # Per-section aggregates (~20 s bins) — which stretch of the song needs work
@@ -1374,14 +1398,15 @@ def analyse_intonation(f0, sr, hop_length=512):
     section_summary = []
     for idx in sorted(sections):
         seg = sections[idx]
+        seg_drifts = [n["held_drift_cents"] for n in seg if n["held_drift_cents"] is not None]
         section_summary.append({
             "time_range": f"{seconds_to_mmss(idx * section_s)}-{seconds_to_mmss((idx + 1) * section_s)}",
             "n_notes": len(seg),
             "median_abs_deviation_cents": round(float(np.median([abs(n["deviation_cents"]) for n in seg])), 1),
-            "median_drift_cents": round(float(np.median([n["held_drift_cents"] for n in seg])), 1),
-            "worst_note": max(seg, key=lambda n: max(abs(n["deviation_cents"]), n["drift_cents"] / 2))["time"],
+            "median_drift_cents": round(float(np.median(seg_drifts)), 1) if seg_drifts else None,
+            "worst_note": max(seg, key=lambda n: max(abs(n["deviation_cents"]), (n["drift_cents"] or 0) / 2))["time"],
         })
-    drift_ranked = sorted(section_summary, key=lambda s: -s["median_drift_cents"])
+    drift_ranked = sorted(section_summary, key=lambda s: -(s["median_drift_cents"] or 0))
     dev_ranked = sorted(section_summary, key=lambda s: -s["median_abs_deviation_cents"])
 
     return {
@@ -1392,12 +1417,20 @@ def analyse_intonation(f0, sr, hop_length=512):
         "p90_abs_deviation_cents": round(float(np.percentile(abs_devs, 90)), 1),
         "pct_notes_within_10_cents": round(float(np.mean(abs_devs <= 10) * 100), 1),
         "pct_notes_within_25_cents": round(float(np.mean(abs_devs <= 25) * 100), 1),
-        "median_intra_note_drift_cents": round(float(np.median(drifts)), 1),
+        "median_intra_note_drift_cents": median_drift,
+        "drift_measurable_notes": len(measurable_drifts),
+        "drift_note": (
+            None if median_drift is not None else
+            f"Held-note drift not scored: only {len(measurable_drifts)} of "
+            f"{len(notes)} sustained notes were long enough (>= {round(drift_win / pitch_sr, 2)}s) "
+            f"to measure drift without fabricating a zero; pitch-stability is dropped "
+            f"and its weight renormalised. Typical of short, fast phrasing (rap/funk/patter)."
+        ),
         "notes": note_details,
         "worst_intonation_notes": worst_intonation,
         "worst_drift_notes": worst_drift,
         "sections_20s": section_summary,
-        "most_drift_sections": [s["time_range"] for s in drift_ranked[:3] if s["median_drift_cents"] > TROUBLE_DRIFT_CENTS * 0.6],
+        "most_drift_sections": [s["time_range"] for s in drift_ranked[:3] if (s["median_drift_cents"] or 0) > TROUBLE_DRIFT_CENTS * 0.6],
         "most_off_grid_sections": [s["time_range"] for s in dev_ranked[:3] if s["median_abs_deviation_cents"] > TROUBLE_DEV_CENTS * 0.8],
         "classification": (
             "Exceptional accuracy" if median_abs <= 5 else
@@ -3587,7 +3620,7 @@ def generate_markdown_report(results, flags, archetype, artist_name, file_name, 
         f"| Median abs deviation | {intonation.get('median_abs_deviation_cents', 'N/A')} cents |",
         f"| Notes within ±10 cents | {intonation.get('pct_notes_within_10_cents', 'N/A')}% |",
         f"| Notes within ±25 cents | {intonation.get('pct_notes_within_25_cents', 'N/A')}% |",
-        f"| Intra-note drift (median) | {intonation.get('median_intra_note_drift_cents', 'N/A')} cents |",
+        f"| Intra-note drift (median) | {(str(intonation['median_intra_note_drift_cents']) + ' cents') if intonation.get('median_intra_note_drift_cents') is not None else 'not measurable — notes too short'} |",
         f"| Classification | **{intonation.get('classification', 'N/A')}** |",
         f"",
         f"*{intonation.get('caveat', '')}*",
