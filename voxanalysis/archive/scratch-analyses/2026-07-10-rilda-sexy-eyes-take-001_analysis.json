@@ -6930,93 +6930,11 @@
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
   "technical_score": {
-    "identity": {
-      "contract": "voxai_score_v1",
-      "rubric": "deterministic_rubric_v5",
-      "rubric_fingerprint": "7cbd02df8f62",
-      "calibrated": true,
-      "calibration_references": 50,
-      "calibration_fingerprint": "1d3e2991f144",
-      "stem_model": "RoFormer",
-      "take_fingerprint": "45cbac9c3bb9"
-    },
-    "overall_score_0_to_10": 7.6,
-    "capture_fair_score_0_to_10": 8.0,
-    "capture_fair_note": "Rubric with the capture-sensitive components (voice_quality and dynamics_expression) excluded (weights renormalised). Jitter/shimmer/HNR and effective dynamic range partly measure the recording chain and stem-separation artefacts: vintage masters run through separation read far worse than clean modern captures of an equal voice. Use capture_fair on BOTH sides for any take-vs-original or cross-era comparison; use overall_score for a singer's absolute result and self-progress. Note breath_support is deliberately NOT excluded: phrase-ending sag is air running out, not the room, so it is scored on a phone or room take like any other.",
-    "provenance": "deterministic_rubric_v5 — computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
-    "calibration": {
-      "active": true,
-      "file": "/home/rustwood/.openclaw/candi-workspace/.worktrees/aaroncodex-rilda-host-20260728/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
-      "n_references": 50,
-      "note": null
-    },
-    "confidence": "high",
-    "confidence_basis": {
-      "praat_metrics_available": true,
-      "n_sustained_notes": 161,
-      "capture_risk_elevated": false
-    },
-    "components": {
-      "intonation_accuracy": {
-        "weight": 0.25,
-        "input": "median abs grid deviation = 25.0 cents — matches or beats 8.0% of 50 pro references",
-        "formula": "10 at pro-reference median (20.0 cents), 0 at 45 cents, linear",
-        "score": 8.0
-      },
-      "pitch_stability": {
-        "weight": 0.15,
-        "input": "median intra-note drift = 0.0 cents — matches or beats 100.0% of 50 pro references",
-        "formula": "10 at pro-reference median (24.25 cents), 0 at 80 cents, linear",
-        "score": 10.0
-      },
-      "voice_quality": {
-        "weight": 0.2,
-        "input": "jitter = 1.8607% — matches or beats 0.0% of 50 pro references; shimmer = 15.8311% — matches or beats 6.0% of 50 pro references; HNR = 12.36 dB — matches or beats 30.0% of 50 pro references; CPPS = 10.62 dB — matches or beats 0.0% of 50 pro references",
-        "formula": "mean of jitter/shimmer/HNR/CPPS sub-scores (Praat, per sustained note)",
-        "score": 4.55
-      },
-      "vibrato_control": {
-        "weight": 0.15,
-        "input": "50.0% of long notes carry vibrato (10 at >=40%); rate 4.81 Hz (ideal 4.877-5.99); extent 76.7 cents (ideal 52.55-78.02); intra-note drift 0.0 cents (straight-tone path)",
-        "formula": "best of vibrato-quality path and straight-tone steadiness path (consistent straight tone is a valid professional style)",
-        "style_detected": "straight-tone",
-        "score": 10.0
-      },
-      "dynamics_expression": {
-        "weight": 0.15,
-        "input": "phrase-level spread 38.27 dB (pro p10/p50/p90 8.795/21.825/45.739); effective range 28.66 dB (pro p10/p50/p90 18.398/26.965/36.303)",
-        "formula": "best of phrase-level shaping and effective range, graded to the pro distribution (10 at the professional median, ~7 across the pro range, floored not zeroed beyond it)",
-        "capture_sensitive": true,
-        "score": 9.46
-      },
-      "phrase_control": {
-        "weight": 0.1,
-        "input": "median phrase length = 1.27 s — matches or beats 4.0% of 50 pro references",
-        "formula": "10 at pro-reference median (3.8 s), 0 at 0.5 s, linear",
-        "score": 2.33
-      },
-      "breath_support": {
-        "weight": 0.1,
-        "input": "22 of 48 phrase endings sag = 45.8% — matches or beats 10.0% of 50 pro references",
-        "formula": "10 at pro-reference median (33.3%), 0 at 90.0%, linear",
-        "capture_sensitive": false,
-        "score": 7.8
-      }
-    },
-    "weights_note": "Weights renormalised over measurable components.",
-    "components_scored": [
-      "breath_support",
-      "dynamics_expression",
-      "intonation_accuracy",
-      "phrase_control",
-      "pitch_stability",
-      "vibrato_control",
-      "voice_quality"
-    ],
-    "components_unscored": [],
-    "coverage": "full",
-    "coverage_note": null,
-    "scope_note": "Technical execution only. Artistry, emotion, interpretation and style-appropriateness are human judgements and are not part of this number. Any 'listener impact' figure elsewhere in a report is a subjective estimate, not a measurement."
+    "status": "withheld_measurement_artefact",
+    "reason": "Held-note drift was fabricated as 0.0 by a short-note smoothing bug (fixed in analyse_song.py), which inflated pitch_stability and the straight-tone vibrato path toward 10/10. The stored overall / capture-fair numbers are not reliable.",
+    "action": "Re-analyse from the source audio with the fixed engine before quoting, displaying or trending; re-analysis restores a real score.",
+    "do_not_use": true,
+    "withheld_metric": "median_intra_note_drift_cents (short-note artefact)"
   },
   "prescriptions": {
     "method": "deterministic_prescription_engine_v1 — rules over measured values; exercise content verbatim from the library; no LLM selection",
