@@ -2877,6 +2877,12 @@ def analyse_phrasing(f0, sr, hop_length=512):
 
 def _severity_color(dev, drift):
     """Ribbon color from the shared trouble thresholds."""
+    # A section can legitimately have no eligible long notes after the
+    # short-note drift guard.  In that case drift is unavailable, not zero;
+    # the ribbon should still grade the section from its intonation deviation
+    # instead of crashing the entire analysis while rendering diagnostics.
+    dev = 0 if dev is None else dev
+    drift = 0 if drift is None else drift
     if dev > TROUBLE_DEV_CENTS or drift > TROUBLE_DRIFT_CENTS * 1.5:
         return "#d62728"      # red
     if dev > TROUBLE_DEV_CENTS * 0.72 or drift > TROUBLE_DRIFT_CENTS * 1.1:

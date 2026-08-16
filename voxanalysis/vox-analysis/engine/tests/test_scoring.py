@@ -20,6 +20,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import analyse_song as A  # noqa: E402
 
 
+def test_visual_severity_tolerates_unmeasurable_section_drift():
+    """Short-note sections now report drift=None; diagnostics must still render."""
+    assert A._severity_color(10.0, None) == "#2a9d3a"
+    assert A._severity_color(A.TROUBLE_DEV_CENTS + 1, None) == "#d62728"
+
+
 def test_graded_peak_shape():
     # p10=10, p50=22, p90=40; zero bounds 0.5 and 70
     f = A._graded_peak
