@@ -72,8 +72,18 @@ genuinely has too few long notes). Copy each corrected JSON over its file in
 | Aaron | `2020-01-01-aaron-hang-on-sloopy-take-001` |
 | Aaron | `2026-07-07-aaron-you-sexy-thing-take-002` |
 
-**Also — held for PR #57:** `2026-08-15-aaron-bust-a-move-take-001`. Re-analyse it
-and send the real score; that unblocks the PR.
+**Done — PR #57:** `2026-08-15-aaron-bust-a-move-take-001` re-analysed (5.9 / 6.4),
+merged to `main`. ✅
+
+**Held for PR #58 — `2026-07-16-aaron-open-road-take-001`.** This take was
+analysed on the **pre-fix engine** (its JSON has no `drift_measurable_notes` /
+`drift_note` field, and 46 short notes carry a fabricated `0.0` drift), so its
+current 8.4 / 9.1 and pitch-stability 10.0 are **inflated**. Re-analyse it on the
+fixed engine and commit the corrected JSON onto the PR #58 branch
+`codex/live-bramble-bay-originals-2026-07-16-corrected`. The other two takes on
+that PR (`that-s-my-flavor`, `carved-from-stone`) were already run on the fixed
+engine and are fine — leave them. **PR #58 stays held until Open Road is
+corrected**, then all three merge together.
 
 ## Step 3 — regenerate the score tables (ONLY after Step 2)
 
