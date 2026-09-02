@@ -89,6 +89,25 @@ def missing_modules(analysis: dict) -> list[str]:
     return [m for m in LATER_MODULES if not analysis.get(m)]
 
 
+def _engine():
+    """The one engine, imported lazily so the tool's dry-run/matching logic
+    stays importable without the engine's audio dependencies."""
+    if ENGINE_DIR not in sys.path:
+        sys.path.insert(0, ENGINE_DIR)
+    import analyse_song
+    return analyse_song
+
+
+def carry_forward(old: dict, new: dict) -> dict:
+    """Declarative metadata the engine never produces must survive a re-run.
+    `take_context` (intent / capture / superseded / note) was set by the singer
+    at upload time and is not in the audio; dropping it would silently return
+    a learning take to the leaderboard or un-retire a superseded capture."""
+    if isinstance(old.get("take_context"), dict):
+        new["take_context"] = old["take_context"]
+    return new
+
+
 def run_engine(stem_path: str, artist: str, timeout: int) -> tuple[dict | None, str]:
     """Analyse one stem with the current engine. Returns (analysis, error)."""
     base = os.path.splitext(os.path.basename(stem_path))[0]
@@ -117,6 +136,10 @@ def main() -> int:
     ap.add_argument("stem_dirs", nargs="+", help="Directories holding the vocal stems")
     ap.add_argument("--write", action="store_true",
                     help="Actually re-analyse and update the archive (default: dry run)")
+    ap.add_argument("--stale-measurement", action="store_true",
+                    help="Select takes whose measurement era differs from this engine's "
+                         "measurement_fingerprint (instead of takes missing modules). "
+                         "This is the Phase 1 run of docs/VOX_SYSTEM_REVIEW_2026-09-02.md.")
     ap.add_argument("--only", default="",
                     help="Substring filter on the archived analysis filename")
     ap.add_argument("--limit", type=int, default=0, help="Stop after N takes (0 = all)")
@@ -138,20 +161,33 @@ def main() -> int:
     if args.only:
         archived = [p for p in archived if args.only in os.path.basename(p)]
 
+    engine = live_fp = None
+    if args.stale_measurement:
+        engine = _engine()
+        live_fp = engine.measurement_fingerprint()
+        print(f"Selecting analyses not measured by this engine ({live_fp}).\n")
+
     todo, complete, unmatched = [], [], []
     for path in archived:
         with open(path) as fh:
             a = json.load(fh)
-        gaps = missing_modules(a)
-        if not gaps:
-            complete.append(os.path.basename(path))
-            continue
+        if args.stale_measurement:
+            era = engine.measurement_era(a)
+            if era == live_fp:
+                complete.append(os.path.basename(path))
+                continue
+            gaps = [f"measurement era {era} -> {live_fp}"]
+        else:
+            gaps = missing_modules(a)
+            if not gaps:
+                complete.append(os.path.basename(path))
+                continue
         stem_name = a.get("analysis_input_file")
         stem_path = stems.get(stem_name) if stem_name else None
         if stem_path is None:
             unmatched.append((os.path.basename(path), stem_name, gaps))
         else:
-            todo.append((path, stem_path, a.get("artist_name") or "Unknown Artist", gaps))
+            todo.append((path, stem_path, a.get("artist_name") or "Unknown Artist", gaps, a))
 
     print(f"already complete : {len(complete)}")
     print(f"to re-analyse    : {len(todo)}")
@@ -169,7 +205,7 @@ def main() -> int:
 
     if not args.write:
         print("\nDRY RUN — would re-analyse:")
-        for path, stem_path, artist, gaps in todo:
+        for path, stem_path, artist, gaps, _old in todo:
             print(f"  {os.path.basename(path)}")
             print(f"    from {stem_path}")
             print(f"    recovers: {', '.join(gaps)}")
@@ -177,7 +213,7 @@ def main() -> int:
         return 0
 
     ok, failed, no_breath = 0, [], []
-    for i, (path, stem_path, artist, gaps) in enumerate(todo, 1):
+    for i, (path, stem_path, artist, gaps, old) in enumerate(todo, 1):
         name = os.path.basename(path)
         print(f"[{i}/{len(todo)}] {name}")
         analysis, err = run_engine(stem_path, artist, args.timeout)
@@ -196,8 +232,10 @@ def main() -> int:
             print(f"    sag {sag}% of endings"
                   f" ({(analysis.get('breath') or {}).get('n_sagging_endings')}"
                   f"/{(analysis.get('breath') or {}).get('n_phrases_measured')})")
+        if analysis.get("measurement_fingerprint"):
+            print(f"    measured by {analysis['measurement_fingerprint']}")
         shutil.copy2(path, path + ".pre-reanalysis")
-        atomic_write_json(path, analysis)
+        atomic_write_json(path, carry_forward(old, analysis))
         ok += 1
 
     print(f"\nre-analysed: {ok}   failed: {len(failed)}   without a sag figure: {len(no_breath)}")

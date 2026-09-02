@@ -98,3 +98,48 @@ def test_a_take_whose_stem_is_absent_is_reported_not_skipped_silently(tmp_path):
     assert proc.returncode == 0, proc.stderr
     assert "stem not found   : 1" in proc.stdout
     assert "gone_(Vocals)_UVR_MDXNET_Main.flac" in proc.stdout
+
+
+def test_take_context_survives_a_rerun():
+    """The singer's intent/capture/superseded tag is not in the audio. A re-run
+    that dropped it would quietly return a learning take to the leaderboard."""
+    m = _load()
+    old = {"take_context": {"intent": "learning", "capture": "home", "superseded": False,
+                            "note": "first time on the high note"},
+           "intonation": {"n_notes": 10}}
+    new = {"intonation": {"n_notes": 11}, "measurement_fingerprint": "abc"}
+    merged = m.carry_forward(old, new)
+    assert merged["take_context"] == old["take_context"]
+    assert merged["intonation"]["n_notes"] == 11          # measurements are the fresh ones
+    assert "take_context" not in m.carry_forward({"intonation": {}}, {"x": 1})
+
+
+def test_stale_measurement_mode_selects_by_era_not_by_missing_modules(tmp_path):
+    """Phase 1 of the Sep 2026 review: every analysis whose measurement era
+    differs from the running engine is selected, even when it has every module;
+    one already stamped with this engine's fingerprint is left alone."""
+    m = _load()
+    sys.path.insert(0, os.path.join(ROOT, "voxanalysis/vox-analysis/engine"))
+    import analyse_song as A
+    live = A.measurement_fingerprint()
+    archive = tmp_path / "archive"
+    stems = tmp_path / "stems"
+    archive.mkdir(); stems.mkdir()
+    complete = {mod: {"x": 1} for mod in m.LATER_MODULES}
+    for name, extra in (
+            ("2026-07-01-aaron-old-take-001", {"intonation": {"median_intra_note_drift_cents": 30.0}}),
+            ("2026-08-20-aaron-postfix-take-001", {"intonation": {"drift_measurable_notes": 90}}),
+            ("2026-09-02-aaron-fresh-take-001", {"measurement_fingerprint": live})):
+        stem = f"{name}_(vocals)_vocals_mel_band_roformer.flac"
+        (stems / stem).write_bytes(b"x")
+        (archive / f"{name}_analysis.json").write_text(json.dumps(
+            {"analysis_input_file": stem, "artist_name": "Aaron", **complete, **extra}))
+
+    proc = subprocess.run([sys.executable, TOOL, str(stems), "--archive", str(archive),
+                           "--stale-measurement"], capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    assert "already complete : 1" in proc.stdout
+    assert "to re-analyse    : 2" in proc.stdout
+    assert "pre-drift-fix (unstamped)" in proc.stdout
+    assert "post-drift-fix (unstamped)" in proc.stdout
+    assert "DRY RUN" in proc.stdout
