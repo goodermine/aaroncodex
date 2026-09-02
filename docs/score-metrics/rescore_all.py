@@ -153,6 +153,8 @@ json.dump(out, open(os.path.join(OUTDIR, f"all-takes-rescore-{RUBRIC}-{STAMP}.js
 
 # ---- markdown ----
 def comp(r, k): return r["components"].get(k, "–")
+take_stats = out["aggregate"]["takes"]["overall"]
+take_dynamics_stats = out["aggregate"]["takes"]["dynamics"]
 md = [f"# All takes — re-scored with the current engine (rubric {RUBRIC}, {STAMP})", "",
       f"Every eligible archived take re-scored with **{out['engine']}** "
       f"(calibration active, {out['calibration']['n_references']} pro references). "
@@ -170,11 +172,11 @@ md = [f"# All takes — re-scored with the current engine (rubric {RUBRIC}, {STA
       "the gap — the difference is at most ~0.25 points, which is why they are still "
       "shown rather than withheld.", "",
       "## Singer takes", "",
-      f"Overall: min {out['aggregate']['takes']['overall']['min']} · "
-      f"max {out['aggregate']['takes']['overall']['max']} · "
-      f"mean {out['aggregate']['takes']['overall']['mean']}. "
-      f"Dynamics component spreads {out['aggregate']['takes']['dynamics']['min']}–"
-      f"{out['aggregate']['takes']['dynamics']['max']} (was a flat 10.0 for every take in v3).", "",
+      f"Overall: min {take_stats.get('min', 'n/a')} · "
+      f"max {take_stats.get('max', 'n/a')} · "
+      f"mean {take_stats.get('mean', 'n/a')}. "
+      f"Dynamics component spreads {take_dynamics_stats.get('min', 'n/a')}–"
+      f"{take_dynamics_stats.get('max', 'n/a')} (was a flat 10.0 for every take in v3).", "",
       f"Full coverage: {sum(1 for r in take_rows if r['coverage'] == 'full')}/{len(take_rows)} takes.", "",
       f"| singer | song | notes | **{RUBRIC}** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |",
       "|---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|"]
