@@ -165,11 +165,11 @@ def test_match_by_take_accepts_a_single_renamed_stem_and_refuses_two(tmp_path):
     (stems / "2026-07-24-aaron-one-take-001_(vocals)_vocals_mel_band_roformer.flac").write_bytes(b"x")
     (stems / "2026-07-24-aaron-one-take-001_(vocals)_vocals_mel_band_roformer_v2.flac").write_bytes(b"x")
 
-    proc = subprocess.run([sys.executable, TOOL, str(stems), "--archive", str(archive)],
-                          capture_output=True, text=True)
+    proc = subprocess.run([sys.executable, TOOL, str(stems), "--archive", str(archive),
+                           "--stale-measurement"], capture_output=True, text=True)
     assert "stem not found   : 2" in proc.stdout           # without the flag: nothing matches
     proc = subprocess.run([sys.executable, TOOL, str(stems), "--archive", str(archive),
-                           "--match-by-take"], capture_output=True, text=True)
+                           "--stale-measurement", "--match-by-take"], capture_output=True, text=True)
     assert proc.returncode == 0, proc.stderr
     assert "matched by take name" in proc.stdout
     assert "to re-analyse    : 1" in proc.stdout
