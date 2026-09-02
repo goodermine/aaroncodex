@@ -27,9 +27,13 @@ def running_identity():
     import analyse_song as A
     cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
     ident = A.score_identity({}, cal)
-    return A, cal, {k: ident[k] for k in
-                    ("contract", "rubric", "rubric_fingerprint",
-                     "calibrated", "calibration_references", "calibration_fingerprint")}
+    pinned = {k: ident[k] for k in
+              ("contract", "rubric", "rubric_fingerprint",
+               "calibrated", "calibration_references", "calibration_fingerprint")}
+    # The measurement build is pinned too, so an engine whose MEASUREMENT differs
+    # from the repo's (not just its scoring maths) fails check 1 outright.
+    pinned["measurement_fingerprint"] = A.measurement_fingerprint()
+    return A, cal, pinned
 
 
 def main() -> int:
@@ -57,7 +61,8 @@ def main() -> int:
     else:
         with open(CONTRACT) as fh:
             expected = json.load(fh)
-        for key in ("contract", "rubric", "rubric_fingerprint", "calibration_fingerprint"):
+        for key in ("contract", "rubric", "rubric_fingerprint", "calibration_fingerprint",
+                    "measurement_fingerprint"):
             if expected.get(key) != ident.get(key):
                 problems.append(
                     f"{key}: repo expects {expected.get(key)!r}, "

@@ -461,6 +461,9 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
         "entry_accuracy": raw.get("entry_accuracy"),
         # Interim reading rule (None when the take and pack are on one scale).
         "interim_stability": interim,
+        # WORDS vs NOTES — vowel drift vs boundary excursion, per held note.
+        # Diagnostic beside entry accuracy; neither is a score.
+        "word_drift": raw.get("word_drift"),
         "score": {
             "overall": _number(overall, 1),
             "capture_fair": _number(score.get("capture_fair_score_0_to_10"), 1),
@@ -713,6 +716,34 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
         line(f"Measured over {ea.get('n_onsets')} note entries. This is a raw measure, "
              "always comparable across takes — it is not a /10 and is not averaged "
              "into the score above.")
+
+    # ---- words vs notes (diagnostic — the drill target, beside the entries) ----
+    wd = report.get("word_drift") or {}
+    if wd.get("median_vowel_drift_cents") is not None or wd.get("error"):
+        line("")
+        line("WORDS vs NOTES  (diagnostic — NOT part of the score)")
+        if wd.get("error"):
+            line(f"Not available: {wd['error']}")
+        else:
+            line(f"Vowel drift (the vowel itself, boundaries and onset/release excluded): "
+                 f"median {wd['median_vowel_drift_cents']} cents over {wd.get('n_notes_analysed')} held notes")
+            mb = wd.get("median_boundary_excursion_cents")
+            line(f"Boundary excursion (pitch knocked off at a consonant/word change): "
+                 + (f"median {mb} cents across {wd.get('n_notes_with_boundaries')} notes "
+                    f"({wd.get('pct_notes_with_boundaries')}% of held notes carry a boundary)"
+                    if mb is not None else "too few boundaries to read"))
+            line(f"Read: {wd.get('read')}")
+            for p in (wd.get("worst_boundary_notes") or [])[:5]:
+                line(f"- {p.get('time')}  {p.get('note')}  boundary excursion "
+                     f"{p.get('worst_boundary_excursion_cents')}c  (vowel {p.get('vowel_drift_cents')}c, "
+                     f"{p.get('n_boundaries')} boundar{'y' if p.get('n_boundaries') == 1 else 'ies'})")
+            if ea.get("pct_clean") is not None:
+                pct = ea.get("percentile_vs_pro_pack")
+                line(f"Entries beside it: {ea['pct_clean']}% clean"
+                     + (f" — matches or beats {pct}% of {ea.get('n_references')} pro references"
+                        if pct is not None else "")
+                     + ". Same skill from the other end: the first millisecond of the word.")
+            line(f"Reliability: {wd.get('reliability')}")
 
     rmin, rmax = result.get("robust_min_note"), result.get("robust_max_note")
     if rmin or rmax:

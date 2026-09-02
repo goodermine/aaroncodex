@@ -1514,6 +1514,151 @@ def analyse_onsets(f0, sr, hop_length=512):
     }
 
 
+# WORDS vs NOTES — diagnostic only. Deliberately NOT in MEASUREMENT_FUNCTIONS
+# (it feeds no scored input, like compute_entry_accuracy) so adding it leaves
+# measurement_fingerprint and rubric_fingerprint exactly where they were.
+WORD_DRIFT_MIN_NOTE_S = 0.6     # room for a vowel core plus at least one boundary
+WORD_BOUNDARY_DIP_DB = 3.0      # an energy dip this far under the note's own median
+WORD_BOUNDARY_GUARD_S = 0.08    # frames this close to a boundary belong to it, not the vowel
+
+
+def analyse_word_drift(y, sr, f0, hop_length=512):
+    """
+    WORDS vs NOTES — where inside a held note does the pitch move?
+    ────────────────────────────────────────────────────────────────
+    A "sustained note" as segmented here often carries several words on one
+    pitch ("come on over"). Whole-note drift then mixes two different faults:
+    the vowel itself wandering, and the pitch being knocked off each time a
+    consonant or word boundary interrupts the airflow. They need different
+    coaching — steadiness on the vowel versus keeping consonants at speaking
+    volume and pitch — so this reads them apart, per note, with timestamps.
+
+    Boundaries are inferred from the audio, not from lyrics: a dip in RMS
+    energy of WORD_BOUNDARY_DIP_DB below the note's own median, or a voicing
+    gap the note segmenter bridged. Around each boundary (±WORD_BOUNDARY_GUARD_S)
+    the largest excursion of the vibrato-smoothed contour from the vowel's
+    pitch centre is the *boundary excursion*; the spread of the contour over
+    the frames beyond the smoother's reach of any boundary, onset or release
+    is the *vowel drift*. Notes with no boundary report vowel drift only.
+
+    Diagnostic only, never scored. Reliability medium: a breathy vowel can
+    register as a boundary, and a note sung on one word reports none.
+    """
+    print("  Words vs notes (vowel drift vs boundary excursion)...")
+    pitch_sr = sr / hop_length
+    notes = [n for n in segment_sustained_notes(f0, hop_length, sr)
+             if n["duration_s"] >= WORD_DRIFT_MIN_NOTE_S]
+    if len(notes) < 5:
+        return {"error": f"Fewer than 5 notes >= {WORD_DRIFT_MIN_NOTE_S}s — words-vs-notes "
+                         "diagnostic not available.", "n_notes_analysed": len(notes)}
+
+    rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=hop_length)[0]
+    rms_db = librosa.amplitude_to_db(rms, ref=np.max)
+    smooth_win = max(3, int(0.15 * pitch_sr) | 1)
+    guard = max(1, int(WORD_BOUNDARY_GUARD_S * pitch_sr))
+    # A smoothed frame carries half a window of its neighbours, so a frame only
+    # counts as "vowel" when it sits beyond the smoother's reach from any
+    # boundary, onset or release — otherwise the knock leaks into vowel drift.
+    reach = guard + smooth_win // 2
+
+    def _spread(x):
+        return float(np.percentile(x, 95) - np.percentile(x, 5))
+
+    per_note = []
+    for note in notes:
+        i0, i1 = note["start"], note["end"]
+        contour = note["cents_contour"]
+        n = min(len(contour), len(rms_db) - i0)
+        if n < 2 * reach + smooth_win:
+            continue
+        contour = contour[:n]
+        seg_rms = rms_db[i0:i0 + n]
+        unvoiced = ~np.isfinite(f0[i0:i0 + n])
+        slow = moving_average(contour, smooth_win)
+
+        # Boundary events: runs of low-energy or bridged-unvoiced frames, one
+        # event per run (its energy minimum), never inside the onset/release guard.
+        low = (seg_rms <= float(np.median(seg_rms)) - WORD_BOUNDARY_DIP_DB) | unvoiced
+        boundaries = []
+        j = 0
+        while j < n:
+            if low[j]:
+                k = j
+                while k < n and low[k]:
+                    k += 1
+                centre = j + int(np.argmin(seg_rms[j:k]))
+                if guard <= centre < n - guard:
+                    boundaries.append(centre)
+                j = k
+            else:
+                j += 1
+
+        vowel_mask = np.ones(n, dtype=bool)
+        vowel_mask[:reach] = False
+        vowel_mask[n - reach:] = False
+        for b in boundaries:
+            vowel_mask[max(0, b - reach):b + reach + 1] = False
+        vowel = slow[vowel_mask]
+        vowel_centre = float(np.median(vowel)) if len(vowel) else float(np.median(slow))
+        vowel_drift = round(_spread(vowel), 1) if len(vowel) >= smooth_win else None
+        excursions = [float(np.max(np.abs(slow[max(0, b - guard):b + guard + 1] - vowel_centre)))
+                      for b in boundaries]
+        per_note.append({
+            "time": seconds_to_mmss(note["start_s"]),
+            "start_s": round(note["start_s"], 2),
+            "duration_s": round(note["duration_s"], 2),
+            "note": hz_to_note_safe(note["median_hz"]),
+            "n_boundaries": len(boundaries),
+            "vowel_drift_cents": vowel_drift,
+            "boundary_excursion_cents": round(float(np.median(excursions)), 1) if excursions else None,
+            "worst_boundary_excursion_cents": round(max(excursions), 1) if excursions else None,
+        })
+
+    if len(per_note) < 5:
+        return {"error": "Too few notes long enough for the words-vs-notes diagnostic.",
+                "n_notes_analysed": len(per_note)}
+
+    with_b = [p for p in per_note if p["n_boundaries"]]
+    vowel_vals = [p["vowel_drift_cents"] for p in per_note if p["vowel_drift_cents"] is not None]
+    bound_vals = [p["boundary_excursion_cents"] for p in with_b]
+    median_vowel = round(float(np.median(vowel_vals)), 1) if len(vowel_vals) >= 5 else None
+    median_bound = round(float(np.median(bound_vals)), 1) if len(bound_vals) >= 3 else None
+    # >300 cents at a boundary is a deliberate slide or a segmentation artefact,
+    # not a consonant knocking the pitch — same rule as the intonation module.
+    worst = sorted((p for p in with_b if (p["worst_boundary_excursion_cents"] or 0) <= 300),
+                   key=lambda p: -(p["worst_boundary_excursion_cents"] or 0))[:8]
+
+    if median_vowel is None or median_bound is None:
+        read = ("Not enough word boundaries inside held notes to compare the two — "
+                "this take is mostly single-word sustains; read whole-note drift instead.")
+    elif median_bound >= 1.5 * max(median_vowel, 10.0):
+        read = ("The vowels hold; the pitch is knocked off at the word boundaries. "
+                "Coach the consonants (speaking volume and pitch, vowelised R/L/W/Y, "
+                "unvoiced plosives), not the vowel.")
+    elif median_vowel >= 1.5 * max(median_bound, 10.0):
+        read = ("The vowels themselves wander; the word boundaries add little. "
+                "Coach steadiness on the sustained vowel (messa di voce, straw) first.")
+    else:
+        read = "Vowel drift and boundary excursions are of similar size — work both."
+
+    return {
+        "method": ("per held note >= 0.6 s: vibrato-smoothed contour spread over vowel frames "
+                   "vs largest excursion within ±80 ms of each energy-dip / voicing-gap boundary"),
+        "n_notes_analysed": len(per_note),
+        "n_notes_with_boundaries": len(with_b),
+        "pct_notes_with_boundaries": round(len(with_b) / len(per_note) * 100, 1),
+        "median_vowel_drift_cents": median_vowel,
+        "median_boundary_excursion_cents": median_bound,
+        "read": read,
+        "worst_boundary_notes": worst,
+        "notes": per_note,
+        "reliability": ("medium — boundaries are inferred from energy dips and voicing gaps "
+                        "inside a held note, not from lyrics; a breathy vowel can register "
+                        "as a boundary. Confirm at the timestamps."),
+        "note": "Diagnostic only — never scored, never part of the /10.",
+    }
+
+
 def analyse_harmonics(y, sr, f0, hop_length=512):
     """
     HARMONIC PROFILE (overtone strengths)
@@ -4132,6 +4277,12 @@ def main():
         results["range_map"] = analyse_range_map(raw_f0, sr)
         results["onsets"] = analyse_onsets(raw_f0, sr)
         results["harmonics"] = analyse_harmonics(y, sr, raw_f0)
+        # Diagnostic, not scored: a failure degrades to an error note and can
+        # never break the scored analysis.
+        try:
+            results["word_drift"] = analyse_word_drift(y, sr, raw_f0)
+        except Exception as word_error:
+            results["word_drift"] = {"error": f"words-vs-notes diagnostic failed: {word_error}"}
         if stem_metadata and stem_metadata.get("instrumental_path"):
             # Groove is a DIAGNOSTIC, not a scored component — it must never be
             # able to break a scored analysis. Any failure degrades to an error

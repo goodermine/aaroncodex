@@ -26,7 +26,11 @@ def test_pinned_contract_matches_the_engine():
         pinned = json.load(fh)
     cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
     live = A.score_identity({}, cal)
-    for key in ("contract", "rubric", "rubric_fingerprint", "calibration_fingerprint"):
+    # The measurement build is part of the contract from Sep 2026: a change to
+    # how a scored input is MEASURED must be as deliberate as a rubric change.
+    live["measurement_fingerprint"] = A.measurement_fingerprint()
+    for key in ("contract", "rubric", "rubric_fingerprint", "calibration_fingerprint",
+                "measurement_fingerprint"):
         assert pinned.get(key) == live.get(key), (
             f"{key} drifted: contract={pinned.get(key)!r} engine={live.get(key)!r} — "
             "re-pin with `python3 tools/score_preflight.py --update` and commit it")
