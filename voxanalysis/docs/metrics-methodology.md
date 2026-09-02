@@ -210,6 +210,7 @@ never shift silently.
 | Breath (`breath`) | Phrase-end pitch sag (final 0.5 s slope) — timestamped "ran out of air" flags | medium (intentional fall-offs also trip it) |
 | Groove (`groove`) | Vocal onsets vs half-beat grid of the vocal-free instrumental stem — rushing/dragging in ms, per 20 s section; tempo cross-checked against the original pre-split mix | high when mix↔instrumental tempos agree, else medium (needs a rhythmic backing) |
 | Range map (`range_map`) | Time-weighted seconds-per-semitone, comfortable core (mid-80%), extremes | high |
+| Words vs notes (`word_drift`) | Per held note ≥ 0.6 s: *vowel drift* (contour spread over frames away from any boundary, onset and release) vs *boundary excursion* (largest contour excursion within ±80 ms of an energy-dip / voicing-gap boundary inside the note). Take-level medians, share of notes carrying a boundary, worst boundary notes with timestamps, and a read that says which of the two to coach. Added 2 Sep 2026 for the "pitch is knocked off as the words change" question. | medium (boundaries inferred from the audio, not lyrics; breathy vowels can register as boundaries). Diagnostic only; outside the measurement fingerprint. |
 
 Competitor-parity diagnostics (post-take equivalents of what VoceVista /
 Sing&See display live; no live tracking, no EGG by design):

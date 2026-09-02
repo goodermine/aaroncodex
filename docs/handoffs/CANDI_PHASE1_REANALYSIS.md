@@ -1,0 +1,251 @@
+# Candi — Phase 1: put the whole archive and the reference pack on ONE measurement
+
+**Why (two sentences).** The 16 Aug drift fix changed how held-note drift is
+measured, but the 50 professional references and ~208 archived takes were never
+re-run, so every take analysed since is scored on pitch-stability against a pro
+anchor built on the old measurement (~2.5× too strict). This run re-analyses
+everything not on the current engine from its retained RoFormer stem, rebuilds
+the pack, and re-scores — full story in `docs/VOX_SYSTEM_REVIEW_2026-09-02.md` §3.1.
+
+No separation re-runs. This is engine passes over existing stems, overnight.
+
+---
+
+## Step 1 — get the Phase-0 engine SAFELY (worktree, no reset)
+
+```bash
+cd ~/.openclaw/mary-workspace/aaroncodex && \
+git fetch origin claude/voiceassist-plugin-planning-krhz0d && \
+git worktree add /tmp/phase1 FETCH_HEAD && \
+cd /tmp/phase1 && \
+git log -1 --format='engine on %h — %s' && \
+grep -c "def measurement_fingerprint" voxanalysis/vox-analysis/engine/analyse_song.py && \
+python3 - <<'PY'
+import importlib.util, os
+path = os.path.abspath("voxanalysis/vox-analysis/engine/analyse_song.py")
+spec = importlib.util.spec_from_file_location("analyse_song", path)
+A = importlib.util.module_from_spec(spec); spec.loader.exec_module(A)
+print("engine file:", path)
+print("measurement fingerprint:", A.measurement_fingerprint())
+PY
+```
+
+The `grep -c` line must print `1` and the last line **must print
+`28e854af22ea`**. This loads the engine from the worktree's own file by absolute
+path — a plain `import analyse_song` on the host can pick up another copy of
+the engine (the deploy checkout, an installed package, a `PYTHONPATH` entry)
+and report the wrong build, which is what happened on the first attempt. If
+either line disagrees, stop and send me the full output.
+(If the mirror lag surfaces and FETCH_HEAD is stale, fetch the branch by its
+current SHA from the PR #59 page and use that instead of FETCH_HEAD.)
+
+Every later step runs from `/tmp/phase1` too; the tools there insert the
+worktree's engine directory at the front of `sys.path`, so they are not
+exposed to the same shadowing — but if any step prints a fingerprint other than
+`28e854af22ea`, stop.
+
+Then confirm the problem is visible from here:
+
+```bash
+python3 tools/score_preflight.py | tail -25
+```
+
+Expected: `FAIL  the archive + reference pack span more than one MEASUREMENT era`
+with roughly `208 archive, 50 references` pre-drift-fix and `26 archive`
+post-drift-fix. That FAIL is what Phase 1 clears.
+
+## Step 2 — rehearse (dry run, writes nothing)
+
+`<STEMS>` = the folder(s) holding the retained RoFormer vocal stems, for both the
+singers' takes and the reference originals. Give as many directories as needed.
+
+```bash
+cd /tmp/phase1 && \
+python3 tools/reanalyse_archive.py <STEMS> --stale-measurement 2>&1 | tee /tmp/phase1-archive-dryrun.txt && \
+python3 tools/reanalyse_archive.py <STEMS> --stale-measurement \
+    --archive voxanalysis/vox-analysis/engine/calibration/references 2>&1 | tee /tmp/phase1-refs-dryrun.txt
+```
+
+Read the two summaries:
+
+- `to re-analyse` + `stem not found` — together 237 for the archive and 50
+  for the references (verified on this engine); ideally almost all of them in
+  `to re-analyse`.
+- `stem not found` — **send me this list before the write run.** Each line is a
+  take whose stem is not under `<STEMS>`; it cannot be re-analysed without the
+  audio. (Retired stubs without an `analysis_input_file` also land here — that
+  is expected; ignore those.)
+- `already complete` — anything already stamped `28e854af22ea` (none yet).
+
+The tool matches each analysis to its stem by the **exact basename** it
+recorded in `analysis_input_file`. Nothing is guessed.
+
+## Step 3 — the write run (overnight; resumable)
+
+```bash
+cd /tmp/phase1 && \
+python3 tools/reanalyse_archive.py <STEMS> --stale-measurement --write 2>&1 | tee /tmp/phase1-archive-run.txt && \
+python3 tools/reanalyse_archive.py <STEMS> --stale-measurement --write \
+    --archive voxanalysis/vox-analysis/engine/calibration/references 2>&1 | tee /tmp/phase1-refs-run.txt
+```
+
+- Interrupt and re-run any time: takes already stamped `28e854af22ea` are
+  skipped, so it resumes where it stopped.
+- Each take's previous JSON is kept beside it as `*.pre-reanalysis`. **Do not
+  commit those.** Delete them once Step 5 passes.
+- `take_context` (intent / capture / superseded / note) is carried forward from
+  the old file automatically — the singer's tags survive the re-run.
+- A failed take leaves its old file untouched and is listed under `Failures:`
+  at the end. Send me that list too.
+
+## Step 3b — re-separate what has no stem (added after the first run)
+
+The first pass found 97 of 232 archive stems and none of the 50 reference
+stems. The rest must be **re-separated from the original mixes** with the pinned
+model, then re-analysed. Three tools do it deterministically; no renaming by hand.
+
+**References first** — the pack is the point of Phase 1.
+
+```bash
+cd /tmp/phase1 && \
+python3 tools/pair_reference_audio.py <REFERENCE_MIXES_DIR> --recursive 2>&1 | tee /tmp/phase1-refs-pairing.txt
+```
+
+`<REFERENCE_MIXES_DIR>` is wherever the original reference recordings live (the
+same folder the July RoFormer migration paired from). Read the report: it pairs
+each reference analysis to a source file only when **duration and name both
+agree**. Send me the report. Anything under `CONFIRM THESE PAIRINGS BY EYE`,
+`AMBIGUOUS` or `NO SOURCE FOUND` is yours to confirm or mine to chase — never
+stage those by hand. Then:
+
+```bash
+python3 tools/pair_reference_audio.py <REFERENCE_MIXES_DIR> --recursive --stage /tmp/phase1-ref-mixes && \
+bash voxanalysis/vox-analysis/engine/tools/stems/batch_stems.sh --input /tmp/phase1-ref-mixes --output /tmp/phase1-ref-stems && \
+python3 tools/reanalyse_archive.py /tmp/phase1-ref-stems --stale-measurement \
+    --archive voxanalysis/vox-analysis/engine/calibration/references 2>&1 | tee /tmp/phase1-refs-dryrun3.txt
+```
+
+Staged mixes are renamed to the reference key, so the separator's output is
+exactly the stem name each reference analysis recorded — the dry run should show
+`to re-analyse` equal to the number staged and `stem not found` only for the
+unstaged ones. If that holds, add `--write` and let it run.
+
+**Then the archive tail** — the takes whose stems were not found:
+
+```bash
+python3 tools/reanalyse_archive.py <STEM_DIRS...> --stale-measurement 2>&1 \
+  | sed -n '/Missing stems/,$p' | grep "_analysis.json" | sed 's/^ *//' > /tmp/phase1-missing.txt && wc -l /tmp/phase1-missing.txt
+python3 tools/pair_reference_audio.py <UPLOADS_ROOT> --recursive --skip-current-era \
+    --refs voxanalysis/archive/scratch-analyses 2>&1 | tee /tmp/phase1-archive-pairing.txt
+```
+
+`<UPLOADS_ROOT>` is the root holding the singers' original recordings (the
+host's uploads, Dropbox `/Song_Analysis`, whatever holds the mixes). Same rules:
+send me the report; only confident pairs get staged. Then:
+
+```bash
+python3 tools/pair_reference_audio.py <UPLOADS_ROOT> --recursive --skip-current-era \
+    --refs voxanalysis/archive/scratch-analyses --stage /tmp/phase1-take-mixes && \
+bash voxanalysis/vox-analysis/engine/tools/stems/batch_stems.sh --input /tmp/phase1-take-mixes --output /tmp/phase1-take-stems && \
+python3 tools/reanalyse_archive.py <STEM_DIRS...> /tmp/phase1-take-stems --stale-measurement --match-by-take 2>&1 | tee /tmp/phase1-archive-dryrun3.txt
+```
+
+`--match-by-take` lets an analysis whose recorded stem name no longer matches
+(takes renamed after they were run: Open Road, Carved From Stone, That's My
+Flavor, the two KFF takes, the old `(Vocals).mp3` / `_h8.wav` chains) pick up
+the freshly separated stem named by its own take — **only when exactly one
+exists**, and every such match is printed. Check that list, then `--write`.
+
+**The genuine tail** — anything still under `stem not found` after all that has
+no stem and no mix. Put those basenames in a list and retire their scores
+honestly (the raw measurements stay; the number goes, like a legacy rubric):
+
+```bash
+python3 tools/reanalyse_archive.py <ALL_STEM_DIRS...> --stale-measurement --match-by-take 2>&1 \
+  | sed -n '/Missing stems/,$p' | grep "_analysis.json" | sed 's/^ *//' > /tmp/phase1-unmeasurable.txt
+python3 docs/score-metrics/retire_unmeasurable.py --list /tmp/phase1-unmeasurable.txt --dry-run
+python3 docs/score-metrics/retire_unmeasurable.py --list /tmp/phase1-unmeasurable.txt
+```
+
+Send me that list before running it without `--dry-run`. Expect the 2019–2024
+voice-cloning splits and a few one-offs; expect **no** references there.
+
+Time: RoFormer separation is the slow part — budget a few minutes per song on
+the GPU, so 50 references plus up to ~135 takes is an overnight job. Both
+separation and re-analysis are resumable.
+
+## Step 4 — rebuild the pack, re-score everything, re-pin
+
+Only after **both** write runs finish:
+
+```bash
+cd /tmp/phase1 && \
+python3 voxanalysis/vox-analysis/engine/tools/build_calibration.py \
+    voxanalysis/vox-analysis/engine/calibration/references \
+    --out voxanalysis/vox-analysis/engine/calibration/pro_reference.json && \
+python3 -c "
+import json; p=json.load(open('voxanalysis/vox-analysis/engine/calibration/pro_reference.json'))
+d=p['metrics']['intonation_median_intra_note_drift_cents']
+print('pack measurement:', p.get('measurement_fingerprint')); print('drift p10/p50/p90:', d['p10'], d['p50'], d['p90'])" && \
+python3 docs/score-metrics/rescore_archive_inplace.py && \
+python3 docs/score-metrics/retire_legacy_scores.py && \
+python3 docs/score-metrics/rescore_all.py && \
+python3 tools/score_preflight.py --update && \
+python3 tools/score_preflight.py
+```
+
+Expected:
+
+- `pack measurement: 28e854af22ea` (not `None` — if None, some reference was
+  not re-analysed; go back to the refs dry run).
+- drift p50 lands somewhere near **60 cents** (it was 24.25). That rise is the
+  fabricated zeros leaving the pack, not a regression.
+- The final preflight prints `PREFLIGHT PASSED`. The `--update` re-pins
+  `docs/score-metrics/SCORE_CONTRACT.json` to the new calibration fingerprint —
+  commit that file with the rest.
+- **If the pack is rebuilt before the whole archive is re-analysed** (Aaron's
+  call: references first), `rescore_archive_inplace.py` will refuse to re-score
+  any take still on the old measurement and say how many; `rescore_all.py` shows
+  those rows as withheld; preflight keeps failing on the era split. That is the
+  correct, honest state — every NEW take is then scored on the right ruler while
+  the old archive waits its turn. Do not force anything past it.
+
+## Step 5 — tests, then one PR
+
+```bash
+cd /tmp/phase1/voxanalysis/vox-analysis && python3 -m pytest engine/tests -q 2>&1 | tail -3
+cd /tmp/phase1 && find voxanalysis -name '*.pre-reanalysis' -delete && git status --short | head
+```
+
+Commit everything that changed (re-analysed archive + reference JSONs, the
+rebuilt `pro_reference.json`, `SCORE_CONTRACT.json`, the regenerated score
+tables) as **one PR to `main`** titled
+`Phase 1: archive + references re-analysed on one measurement era`. In the PR
+body paste: the two dry-run summaries, the missing-stem list, the failures list,
+the pack's old vs new drift p10/p50/p90, and the final preflight output.
+
+When done: `cd ~/.openclaw/mary-workspace/aaroncodex && git worktree remove /tmp/phase1`.
+
+---
+
+## Two cautions (they matter)
+
+- **Do not quote `pitch_stability` from the rebuilt pack yet.** Rebuilding the
+  pack lifts the interim reading rule (the stamps now match), but the
+  component's zero anchor ("0 at 80 cents") was set against the old scale — on
+  the new one the professional p90 sits near 90 cents, so a good take can still
+  read 0. Phase 2 re-anchors it. Until Phase 2 lands, keep quoting the held-drift
+  median against the pro band, as now. Every other component is fine to quote.
+- **Expect scores to move.** Pitch-stability changes on every take (both
+  directions — pre-fix takes lose their fabricated zeros, post-fix takes gain a
+  fair anchor). Intonation, voice quality, dynamics, phrase control and breath
+  do not change. If a component other than pitch-stability moves on a take,
+  send me the take name.
+
+## Send back
+
+1. `/tmp/phase1-archive-dryrun.txt` and `/tmp/phase1-refs-dryrun.txt` (before writing)
+2. missing-stem and failures lists
+3. the pack's new drift p10/p50/p90 and its `measurement fingerprint`
+4. the final preflight output
+5. the PR link

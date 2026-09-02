@@ -15,6 +15,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, os.path.join(ROOT, "voxanalysis/vox-analysis/engine"))
 from analyse_song import (  # noqa: E402
     ALL_COMPONENTS, RUBRIC_VERSION, compute_technical_score, load_calibration,
+    scale_mismatch, measurement_era, pack_measurement_era,
     DEFAULT_CALIBRATION_PATH)
 
 ARCH = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
@@ -70,7 +71,11 @@ def score_row(f):
     # short-note 0.0-cent drift artefact).  Keep the row for audit/raw metrics,
     # but never manufacture a replacement score from a retired record.
     retired = old.get("status") == "retired_legacy_score"
-    ts = {} if retired else (compute_technical_score(d, cal) or {})
+    # Measurement-era guard (see rescore_archive_inplace.py): inputs from a
+    # different era than the pack's anchors are withheld from the tables, never
+    # scored against the wrong ruler.
+    cross_era = (not retired) and scale_mismatch(d, cal)
+    ts = {} if (retired or cross_era) else (compute_technical_score(d, cal) or {})
     comp = {k: v.get("score") for k, v in (ts.get("components") or {}).items()}
     inton = d.get("intonation", {}); vq = d.get("voice_quality", {})
     vib = d.get("vibrato", {}); phr = d.get("phrasing", {}); dyn = d.get("dynamics", {})
@@ -79,8 +84,11 @@ def score_row(f):
         "n_notes": inton.get("n_notes"),
         "prior_score_status": ("retired_legacy" if retired
                                else ("current" if old.get("identity") else "none")),
-        "score_status": "withheld" if retired else "current",
-        "withheld_reason": old.get("reason") if retired else None,
+        "score_status": "withheld" if (retired or cross_era) else "current",
+        "withheld_reason": (old.get("reason") if retired else
+                            (f"measured on {measurement_era(d)}, pack built from "
+                             f"{pack_measurement_era(cal)} — re-analyse on the current engine")
+                            if cross_era else None),
         "overall": ts.get("overall_score_0_to_10"),
         "capture_fair": ts.get("capture_fair_score_0_to_10"),
         "coverage": ts.get("coverage"),
@@ -145,6 +153,8 @@ json.dump(out, open(os.path.join(OUTDIR, f"all-takes-rescore-{RUBRIC}-{STAMP}.js
 
 # ---- markdown ----
 def comp(r, k): return r["components"].get(k, "–")
+take_stats = out["aggregate"]["takes"]["overall"]
+take_dynamics_stats = out["aggregate"]["takes"]["dynamics"]
 md = [f"# All takes — re-scored with the current engine (rubric {RUBRIC}, {STAMP})", "",
       f"Every eligible archived take re-scored with **{out['engine']}** "
       f"(calibration active, {out['calibration']['n_references']} pro references). "
@@ -162,11 +172,11 @@ md = [f"# All takes — re-scored with the current engine (rubric {RUBRIC}, {STA
       "the gap — the difference is at most ~0.25 points, which is why they are still "
       "shown rather than withheld.", "",
       "## Singer takes", "",
-      f"Overall: min {out['aggregate']['takes']['overall']['min']} · "
-      f"max {out['aggregate']['takes']['overall']['max']} · "
-      f"mean {out['aggregate']['takes']['overall']['mean']}. "
-      f"Dynamics component spreads {out['aggregate']['takes']['dynamics']['min']}–"
-      f"{out['aggregate']['takes']['dynamics']['max']} (was a flat 10.0 for every take in v3).", "",
+      f"Overall: min {take_stats.get('min', 'n/a')} · "
+      f"max {take_stats.get('max', 'n/a')} · "
+      f"mean {take_stats.get('mean', 'n/a')}. "
+      f"Dynamics component spreads {take_dynamics_stats.get('min', 'n/a')}–"
+      f"{take_dynamics_stats.get('max', 'n/a')} (was a flat 10.0 for every take in v3).", "",
       f"Full coverage: {sum(1 for r in take_rows if r['coverage'] == 'full')}/{len(take_rows)} takes.", "",
       f"| singer | song | notes | **{RUBRIC}** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |",
       "|---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|"]

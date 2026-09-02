@@ -20,6 +20,82 @@ def _number(value, digits=1):
     return round(float(value), digits)
 
 
+# ---------------------------------------------------------------------------
+# INTERIM READING RULE — held-note stability on a mismatched measurement scale.
+#
+# The 16 Aug 2026 drift fix moved the drift measurement ~2.5x for every take
+# analysed afterwards, while the 50-reference pack stayed on the old measurement
+# (docs/VOX_SYSTEM_REVIEW_2026-09-02.md §3.1). Until the references are
+# re-analysed and the pack rebuilt, a post-fix take's pitch_stability is scored
+# against anchors from another scale and reads ~0 regardless of the singing.
+# This is a READING rule at the report layer: the engine's number is untouched
+# (rule 1), it is simply not quoted, and the raw held-drift median is shown
+# against the professional band instead. It switches itself off the moment the
+# pack carries a measurement_fingerprint matching the take's.
+#
+# The band is an EMULATION from the stored per-note data of the 50 references
+# (median held_drift_cents over notes >= 0.6 s), not a calibration value — see
+# the review's §6 for the rule. Delete this block when the pack is rebuilt.
+INTERIM_PRO_HELD_DRIFT_BAND_CENTS = (23.7, 37.5, 51.2)   # p10 / p50 / p90
+HELD_DRIFT_MIN_NOTE_S = 0.6
+
+
+def _measurement_scale_mismatch(raw: dict) -> bool:
+    """True when the take's inputs and the pack's anchors come from different
+    measurement code. Decided from the stamps when both exist; otherwise inferred:
+    an analysis carrying the drift fix's marker, scored against a pack that has
+    no measurement stamp (every pack built before Sep 2026), is mismatched."""
+    ident = _get(raw, "technical_score", "identity", default={}) or {}
+    take_fp = ident.get("measurement_fingerprint") or raw.get("measurement_fingerprint")
+    pack_fp = ident.get("calibration_measurement_fingerprint")
+    if take_fp and pack_fp:
+        return take_fp != pack_fp
+    post_fix = bool(take_fp) or "drift_measurable_notes" in (raw.get("intonation") or {})
+    return post_fix and not pack_fp
+
+
+def _held_drift_median_cents(raw: dict):
+    """Median mid-note (middle 60%) drift over notes long enough to measure it,
+    from the per-note data the engine already stores. Pure Python, no numpy."""
+    notes = _get(raw, "intonation", "notes", default=[]) or []
+    vals = sorted(
+        float(n["held_drift_cents"]) for n in notes
+        if isinstance(n, dict) and n.get("held_drift_cents") is not None
+        and (n.get("duration_s") or 0) >= HELD_DRIFT_MIN_NOTE_S)
+    if len(vals) < 5:
+        return None
+    mid = len(vals) // 2
+    return round(vals[mid] if len(vals) % 2 else (vals[mid - 1] + vals[mid]) / 2, 1)
+
+
+def _interim_stability_note(raw: dict) -> dict | None:
+    """The replacement reading for a withheld pitch_stability component."""
+    if not _measurement_scale_mismatch(raw):
+        return None
+    held = _held_drift_median_cents(raw)
+    p10, p50, p90 = INTERIM_PRO_HELD_DRIFT_BAND_CENTS
+    if held is None:
+        read = "too few notes long enough to measure held drift on this take"
+    elif held <= p50:
+        read = "inside the typical-professional band"
+    elif held <= p90:
+        read = f"about {held - p50:.0f} cents wider than a typical pro, inside the pro range"
+    else:
+        read = f"about {held - p50:.0f} cents wider than a typical pro, beyond the pro range"
+    return {
+        "held_drift_median_cents": held,
+        "pro_band_cents": {"p10": p10, "p50": p50, "p90": p90},
+        "read": read,
+        "reason": (
+            "Held-note stability is NOT quoted on this take: it was measured on the "
+            "engine after the 16 Aug 2026 drift fix but scored against a reference "
+            "pack built before it, so the component reads against anchors ~2.5x too "
+            "strict. Read the held-drift median against the professional band "
+            "instead (band emulated from the pack's stored notes). Lifts when the "
+            "pack is rebuilt on the fixed engine."),
+    }
+
+
 def _component_rows(raw: dict) -> list[dict]:
     labels = {
         "intonation_accuracy": "Pitch centre",
@@ -31,8 +107,12 @@ def _component_rows(raw: dict) -> list[dict]:
         "breath_support": "Breath support",
     }
     components = _get(raw, "technical_score", "components", default={})
-    return [
-        {
+    mismatch = _measurement_scale_mismatch(raw)
+    rows = []
+    for key, value in components.items():
+        if not isinstance(value, dict) or value.get("score") is None:
+            continue
+        row = {
             "key": key,
             "label": labels.get(key, key.replace("_", " ").title()),
             "score": _number(value.get("score"), 2),
@@ -40,10 +120,17 @@ def _component_rows(raw: dict) -> list[dict]:
             # Carried through so the focus picker can avoid coaching off the
             # microphone. The engine declares this per component.
             "capture_sensitive": bool(value.get("capture_sensitive")),
+            "withheld": False,
         }
-        for key, value in components.items()
-        if isinstance(value, dict) and value.get("score") is not None
-    ]
+        if key == "pitch_stability" and mismatch:
+            # Interim reading rule: the engine's number stays in the JSON; the
+            # report does not quote it. See _interim_stability_note.
+            row["score"] = None
+            row["withheld"] = True
+            row["basis"] = ("withheld — measured post drift-fix, scored against a "
+                            "pre-fix reference pack; see HELD-NOTE STABILITY (interim)")
+        rows.append(row)
+    return rows
 
 
 def _primary_focus(raw: dict, components: list[dict]) -> dict:
@@ -52,6 +139,12 @@ def _primary_focus(raw: dict, components: list[dict]) -> dict:
     deviation = _get(raw, "intonation", "median_abs_deviation_cents")
     sag = _get(raw, "breath", "pct_sagging_endings")
     flags = raw.get("diagnostic_flags") or []
+    # Interim reading rule: on a scale-mismatched take the drift number is on
+    # the wrong ruler, so neither the drift threshold nor the withheld component
+    # may pick the focus. Every other rule below still applies.
+    if _measurement_scale_mismatch(raw):
+        drift = None
+        components = [c for c in components if not c.get("withheld")]
 
     if strain >= 15:
         return {
@@ -322,11 +415,24 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
         else f"VOXAI completed the diagnostic pass. The next useful focus is {focus['pillar'].lower()}."
     )
     _drift = intonation.get("median_intra_note_drift_cents")
+    interim = _interim_stability_note(raw)
+    if interim is not None:
+        _held = interim["held_drift_median_cents"]
+        _band = interim["pro_band_cents"]
+        drift_line = (
+            f"Median held-note drift (middle of each note, notes >= {HELD_DRIFT_MIN_NOTE_S} s): "
+            f"{_held if _held is not None else '—'} cents — {interim['read']} "
+            f"(pro band p10/p50/p90 {_band['p10']}/{_band['p50']}/{_band['p90']} cents, emulated). "
+            "Whole-note drift is not quoted on this take: measurement scale mismatch with the "
+            "reference pack.")
+    elif _drift is not None:
+        drift_line = f"Median held-note drift: {_drift} cents."
+    else:
+        drift_line = ("Held-note drift: not measurable on this take (notes too short — "
+                      "held-note stability was not scored).")
     measured = [
         f"Median pitch-centre deviation: {intonation.get('median_abs_deviation_cents')} cents.",
-        (f"Median held-note drift: {_drift} cents."
-         if _drift is not None else
-         "Held-note drift: not measurable on this take (notes too short — held-note stability was not scored)."),
+        drift_line,
         f"Notes within +/-25 cents: {intonation.get('pct_notes_within_25_cents')}%.",
         f"Comfortable core in this take: {range_map.get('comfortable_core', 'unavailable')}.",
     ]
@@ -353,6 +459,11 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
         # one. Onsets are the largest measured gap for this singer and were the
         # one thing the engine measured and never reported.
         "entry_accuracy": raw.get("entry_accuracy"),
+        # Interim reading rule (None when the take and pack are on one scale).
+        "interim_stability": interim,
+        # WORDS vs NOTES — vowel drift vs boundary excursion, per held note.
+        # Diagnostic beside entry accuracy; neither is a score.
+        "word_drift": raw.get("word_drift"),
         "score": {
             "overall": _number(overall, 1),
             "capture_fair": _number(score.get("capture_fair_score_0_to_10"), 1),
@@ -558,6 +669,18 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
         basis = c.get("basis")
         line(f"- {label}: {val if val is not None else '—'}" + (f"  [{basis}]" if basis else ""))
 
+    # ---- interim reading rule: held-note stability on a mismatched scale ----
+    interim = report.get("interim_stability")
+    if interim:
+        line("")
+        line("HELD-NOTE STABILITY (interim reading — component withheld)")
+        held = interim.get("held_drift_median_cents")
+        band = interim.get("pro_band_cents") or {}
+        line(f"Held-drift median: {held if held is not None else '—'} cents — {interim.get('read')}")
+        line(f"Professional band (emulated): p10 {band.get('p10')} · p50 {band.get('p50')} · "
+             f"p90 {band.get('p90')} cents")
+        line(f"! {interim.get('reason')}")
+
     # ---- entry accuracy (diagnostic — never a /10, never in the overall) ----
     ea = report.get("entry_accuracy") or {}
     if ea.get("pct_clean") is not None:
@@ -593,6 +716,34 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
         line(f"Measured over {ea.get('n_onsets')} note entries. This is a raw measure, "
              "always comparable across takes — it is not a /10 and is not averaged "
              "into the score above.")
+
+    # ---- words vs notes (diagnostic — the drill target, beside the entries) ----
+    wd = report.get("word_drift") or {}
+    if wd.get("median_vowel_drift_cents") is not None or wd.get("error"):
+        line("")
+        line("WORDS vs NOTES  (diagnostic — NOT part of the score)")
+        if wd.get("error"):
+            line(f"Not available: {wd['error']}")
+        else:
+            line(f"Vowel drift (the vowel itself, boundaries and onset/release excluded): "
+                 f"median {wd['median_vowel_drift_cents']} cents over {wd.get('n_notes_analysed')} held notes")
+            mb = wd.get("median_boundary_excursion_cents")
+            line(f"Boundary excursion (pitch knocked off at a consonant/word change): "
+                 + (f"median {mb} cents across {wd.get('n_notes_with_boundaries')} notes "
+                    f"({wd.get('pct_notes_with_boundaries')}% of held notes carry a boundary)"
+                    if mb is not None else "too few boundaries to read"))
+            line(f"Read: {wd.get('read')}")
+            for p in (wd.get("worst_boundary_notes") or [])[:5]:
+                line(f"- {p.get('time')}  {p.get('note')}  boundary excursion "
+                     f"{p.get('worst_boundary_excursion_cents')}c  (vowel {p.get('vowel_drift_cents')}c, "
+                     f"{p.get('n_boundaries')} boundar{'y' if p.get('n_boundaries') == 1 else 'ies'})")
+            if ea.get("pct_clean") is not None:
+                pct = ea.get("percentile_vs_pro_pack")
+                line(f"Entries beside it: {ea['pct_clean']}% clean"
+                     + (f" — matches or beats {pct}% of {ea.get('n_references')} pro references"
+                        if pct is not None else "")
+                     + ". Same skill from the other end: the first millisecond of the word.")
+            line(f"Reliability: {wd.get('reliability')}")
 
     rmin, rmax = result.get("robust_min_note"), result.get("robust_max_note")
     if rmin or rmax:

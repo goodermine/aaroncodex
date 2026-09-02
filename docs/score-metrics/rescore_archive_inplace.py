@@ -43,6 +43,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, os.path.join(ROOT, "voxanalysis/vox-analysis/engine"))
 from analyse_song import (  # noqa: E402
     compute_technical_score, compute_entry_accuracy, load_calibration,
+    scale_mismatch, measurement_era, pack_measurement_era,
     DEFAULT_CALIBRATION_PATH)
 
 ARCHIVE = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
@@ -56,12 +57,24 @@ def main() -> int:
               "Uncalibrated anchors read ~2-3 points too harsh.")
         return 1
 
-    changed, unchanged, skipped, backfilled = [], 0, [], 0
+    changed, unchanged, skipped, backfilled, cross_era = [], 0, [], 0, {}
     for path in sorted(glob.glob(os.path.join(ARCHIVE, "*_analysis.json"))):
         name = os.path.basename(path)
         with open(path) as fh:
             d = json.load(fh)
         old = d.get("technical_score") or {}
+
+        # MEASUREMENT ERA GUARD. Re-scoring stored inputs from one measurement
+        # era against a pack built from another puts the take on the wrong
+        # ruler in whichever direction the mismatch runs — after the pack is
+        # rebuilt on the fixed engine, a pre-fix take's flattered drift would
+        # read pitch-stability ~10. The stored score is left exactly as it is;
+        # the take stays listed under its era until it is re-analysed
+        # (tools/reanalyse_archive.py --stale-measurement) or retired
+        # (docs/score-metrics/retire_unmeasurable.py).
+        if old.get("status") != "retired_legacy_score" and scale_mismatch(d, cal):
+            cross_era.setdefault(measurement_era(d), []).append(name)
+            continue
 
         # ENTRY ACCURACY is a diagnostic computed outside the score, so it is
         # backfilled here for takes analysed before it existed. It changes no
@@ -109,6 +122,15 @@ def main() -> int:
     verb = "would be re-scored" if DRY else "re-scored"
     print(f"{len(changed)} {verb}, {unchanged} already current, "
           f"{len(skipped)} skipped (retired or unscoreable)")
+    if cross_era:
+        n = sum(len(v) for v in cross_era.values())
+        print(f"{n} NOT re-scored — measured on a different era from the pack "
+              f"(pack: {pack_measurement_era(cal)}):")
+        for era, names in sorted(cross_era.items(), key=lambda kv: -len(kv[1])):
+            print(f"    {era}: {len(names)}")
+        print("    Stored scores left untouched. Re-analyse them on the current engine "
+              "(tools/reanalyse_archive.py --stale-measurement) or retire them "
+              "(docs/score-metrics/retire_unmeasurable.py); preflight reports the split.")
     if backfilled:
         print(f"{backfilled} entry-accuracy diagnostic(s) "
               f"{'would be ' if DRY else ''}written (not a score, changes no number)")

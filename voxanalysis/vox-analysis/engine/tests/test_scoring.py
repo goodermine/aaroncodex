@@ -334,10 +334,20 @@ def _contaminated():
 
 def _harsh_room():
     """Aaron's BEST take on file — Kung Fu Fighting, Prince of Wales, 9.4
-    capture-fair. Rough room, entirely human numbers. Must not be withheld."""
+    capture-fair. Rough room, entirely human numbers. Must not be withheld.
+
+    Drift 59.0c is the real post-drift-fix reading on a comparable take (Kung
+    Fu Fighting take-009, 29 Aug 2026, uptempo like this one) — not the 33.2c
+    once reported for THIS take, which was measured on the pre-fix engine and
+    likely benefited from the same fabricated-short-note-zero artefact (Kung
+    Fu Fighting is fast; see docs/VOX_SYSTEM_REVIEW_2026-09-02.md §3.1). The
+    old 33.2c stopped being a fair fixture the moment the reference pack was
+    rebuilt on the fixed engine (Phase 1a, Sep 2026): against the corrected
+    pack it read as beating 98% of the professionals, tripping the
+    conjunctive "too good to be real" half of the gate on its own."""
     t = _onset_take(pct_clean=26.2, n=140)
     t["voice_quality"] = {"hnr_db_median": 12.8, "jitter_local_percent_median": 1.00}
-    t["intonation"] = {"median_intra_note_drift_cents": 33.2}
+    t["intonation"] = {"median_intra_note_drift_cents": 59.0}
     return t
 
 
@@ -435,3 +445,81 @@ def test_measurable_drift_still_scores_pitch_stability():
     cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
     ts = A.compute_technical_score(_base_results(22.0, 30.0), cal)  # drift = 20.0
     assert "pitch_stability" in ts["components"]
+
+
+# ---------------------------------------------------------------------------
+# MEASUREMENT ERA — the provenance hole the 16 Aug 2026 drift fix fell through.
+# ---------------------------------------------------------------------------
+
+def test_measurement_fingerprint_is_deterministic_and_travels_in_identity():
+    """The rubric fingerprint hashes the scoring maths only, so a change to how a
+    metric is MEASURED left every identity field identical and the two eras
+    looked comparable. The measurement stamp closes that: stamped by main() on
+    the analysis, carried into the score identity, and the pack's own stamp
+    travels alongside it. Uses synthetic calibration dicts rather than the
+    committed pack, which was unstamped when this test was first written and
+    is stamped 28e854af22ea since Phase 1a (Sep 2026) rebuilt it — the
+    identity mechanics must hold either way, not just for whatever the
+    committed pack happens to be right now."""
+    fp = A.measurement_fingerprint()
+    assert fp and fp == A.measurement_fingerprint()
+
+    unstamped_pack = {"metrics": {}}                                # a pre-Sep-2026 pack
+    stamped_pack = {"metrics": {}, "measurement_fingerprint": "otherotherother"}
+    stamped_take = _base_results(22.0, 30.0)
+    stamped_take["measurement_fingerprint"] = fp
+    unstamped_take = _base_results(22.0, 30.0)
+
+    ident = A.compute_technical_score(stamped_take, unstamped_pack)["identity"]
+    assert ident["measurement_fingerprint"] == fp
+    assert ident["calibration_measurement_fingerprint"] is None
+
+    ident2 = A.compute_technical_score(stamped_take, stamped_pack)["identity"]
+    assert ident2["calibration_measurement_fingerprint"] == "otherotherother"
+
+    unident = A.compute_technical_score(unstamped_take, unstamped_pack)["identity"]
+    assert unident["measurement_fingerprint"] is None
+    # adding the stamp must not have moved the rubric fingerprint
+    assert ident["rubric_fingerprint"] == unident["rubric_fingerprint"]
+
+
+def test_scores_from_different_measurement_builds_are_not_comparable():
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    a = _base_results(22.0, 30.0); a["measurement_fingerprint"] = "aaaaaaaaaaaa"
+    b = _base_results(22.0, 30.0); b["measurement_fingerprint"] = "bbbbbbbbbbbb"
+    sa, sb = A.compute_technical_score(a, cal), A.compute_technical_score(b, cal)
+    conflict = A.score_conflict(sa, sb)
+    assert conflict is not None and "different engine builds" in conflict
+    # same build compares; an unstamped (pre-stamp) score is left to preflight's
+    # era inference rather than refused outright
+    assert A.score_conflict(sa, A.compute_technical_score(a, cal)) is None
+    assert A.score_conflict(sa, A.compute_technical_score(_base_results(22.0, 30.0), cal)) is None
+
+
+def test_measurement_era_places_unstamped_analyses_by_the_drift_fix_marker():
+    assert A.measurement_era({"measurement_fingerprint": "abc"}) == "abc"
+    assert A.measurement_era({"intonation": {"drift_measurable_notes": 93}}) \
+        == "post-drift-fix (unstamped)"
+    assert A.measurement_era({"intonation": {"median_intra_note_drift_cents": 30.2}}) \
+        == "pre-drift-fix (unstamped)"
+    assert A.measurement_era(None) == "unknown"
+
+
+def test_scale_mismatch_refuses_cross_era_scoring_in_both_directions():
+    """After the pack is rebuilt on the fixed engine, a pre-fix take's flattered
+    drift must not be re-scored against it (it would read ~10); before that, a
+    post-fix take against the pre-fix pack is the mismatch the interim rule
+    covers. The re-score tools skip both; the tables show them withheld."""
+    old_pack = {"metrics": {}}                                  # unstamped, pre-fix
+    new_pack = {"metrics": {}, "measurement_fingerprint": "newnewnewnew"}
+    pre_fix = {"intonation": {"median_intra_note_drift_cents": 30.0}}
+    post_fix_unstamped = {"intonation": {"drift_measurable_notes": 90}}
+    stamped = {"measurement_fingerprint": "newnewnewnew"}
+    assert A.pack_measurement_era(old_pack) == "pre-drift-fix (unstamped)"
+    assert A.pack_measurement_era(new_pack) == "newnewnewnew"
+    assert not A.scale_mismatch(pre_fix, old_pack)               # today's archive: fine
+    assert A.scale_mismatch(post_fix_unstamped, old_pack)        # today's post-fix takes: interim rule
+    assert A.scale_mismatch(pre_fix, new_pack)                   # tomorrow's hazard: refused
+    assert A.scale_mismatch(post_fix_unstamped, new_pack)        # unproven era: refused
+    assert not A.scale_mismatch(stamped, new_pack)               # re-analysed on the engine: fine
+    assert not A.scale_mismatch(pre_fix, None)                   # no pack: nothing to mismatch

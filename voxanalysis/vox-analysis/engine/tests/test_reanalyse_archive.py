@@ -98,3 +98,115 @@ def test_a_take_whose_stem_is_absent_is_reported_not_skipped_silently(tmp_path):
     assert proc.returncode == 0, proc.stderr
     assert "stem not found   : 1" in proc.stdout
     assert "gone_(Vocals)_UVR_MDXNET_Main.flac" in proc.stdout
+
+
+def test_take_context_survives_a_rerun():
+    """The singer's intent/capture/superseded tag is not in the audio. A re-run
+    that dropped it would quietly return a learning take to the leaderboard."""
+    m = _load()
+    old = {"take_context": {"intent": "learning", "capture": "home", "superseded": False,
+                            "note": "first time on the high note"},
+           "intonation": {"n_notes": 10}}
+    new = {"intonation": {"n_notes": 11}, "measurement_fingerprint": "abc"}
+    merged = m.carry_forward(old, new)
+    assert merged["take_context"] == old["take_context"]
+    assert merged["intonation"]["n_notes"] == 11          # measurements are the fresh ones
+    assert "take_context" not in m.carry_forward({"intonation": {}}, {"x": 1})
+
+
+def test_stale_measurement_mode_selects_by_era_not_by_missing_modules(tmp_path):
+    """Phase 1 of the Sep 2026 review: every analysis whose measurement era
+    differs from the running engine is selected, even when it has every module;
+    one already stamped with this engine's fingerprint is left alone."""
+    m = _load()
+    sys.path.insert(0, os.path.join(ROOT, "voxanalysis/vox-analysis/engine"))
+    import analyse_song as A
+    live = A.measurement_fingerprint()
+    archive = tmp_path / "archive"
+    stems = tmp_path / "stems"
+    archive.mkdir(); stems.mkdir()
+    complete = {mod: {"x": 1} for mod in m.LATER_MODULES}
+    for name, extra in (
+            ("2026-07-01-aaron-old-take-001", {"intonation": {"median_intra_note_drift_cents": 30.0}}),
+            ("2026-08-20-aaron-postfix-take-001", {"intonation": {"drift_measurable_notes": 90}}),
+            ("2026-09-02-aaron-fresh-take-001", {"measurement_fingerprint": live})):
+        stem = f"{name}_(vocals)_vocals_mel_band_roformer.flac"
+        (stems / stem).write_bytes(b"x")
+        (archive / f"{name}_analysis.json").write_text(json.dumps(
+            {"analysis_input_file": stem, "artist_name": "Aaron", **complete, **extra}))
+
+    proc = subprocess.run([sys.executable, TOOL, str(stems), "--archive", str(archive),
+                           "--stale-measurement"], capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    assert "already complete : 1" in proc.stdout
+    assert "to re-analyse    : 2" in proc.stdout
+    assert "pre-drift-fix (unstamped)" in proc.stdout
+    assert "post-drift-fix (unstamped)" in proc.stdout
+    assert "DRY RUN" in proc.stdout
+
+
+def test_match_by_take_accepts_a_single_renamed_stem_and_refuses_two(tmp_path):
+    """Stems re-separated from a mix staged as <take>.<ext> are named by the take,
+    not by whatever analysis_input_file recorded (renamed takes, old chains).
+    Opt-in, unique-match only, and every such match is printed."""
+    m = _load()
+    archive = tmp_path / "archive"
+    stems = tmp_path / "stems"
+    archive.mkdir(); stems.mkdir()
+    complete = {mod: {"x": 1} for mod in m.LATER_MODULES}
+    # renamed: analysis records an August stem, the re-separated stem carries the take name
+    (archive / "2026-07-16-aaron-open-road-take-001_analysis.json").write_text(json.dumps(
+        {"analysis_input_file": "2026-08-16-aaron-open-road-take-001_(vocals)_vocals_mel_band_roformer.flac",
+         "artist_name": "Aaron", **complete}))
+    (stems / "2026-07-16-aaron-open-road-take-001_(vocals)_vocals_mel_band_roformer.flac").write_bytes(b"x")
+    # ambiguous: two candidate stems for one take -> must NOT match
+    (archive / "2026-07-24-aaron-one-take-001_analysis.json").write_text(json.dumps(
+        {"analysis_input_file": "gone.flac", "artist_name": "Aaron", **complete}))
+    (stems / "2026-07-24-aaron-one-take-001_(vocals)_vocals_mel_band_roformer.flac").write_bytes(b"x")
+    (stems / "2026-07-24-aaron-one-take-001_(vocals)_vocals_mel_band_roformer_v2.flac").write_bytes(b"x")
+
+    proc = subprocess.run([sys.executable, TOOL, str(stems), "--archive", str(archive),
+                           "--stale-measurement"], capture_output=True, text=True)
+    assert "stem not found   : 2" in proc.stdout           # without the flag: nothing matches
+    proc = subprocess.run([sys.executable, TOOL, str(stems), "--archive", str(archive),
+                           "--stale-measurement", "--match-by-take"], capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    assert "matched by take name" in proc.stdout
+    assert "to re-analyse    : 1" in proc.stdout
+    assert "stem not found   : 1" in proc.stdout
+    assert "2026-07-16-aaron-open-road-take-001_(vocals)" in proc.stdout
+
+
+def test_retire_unmeasurable_stubs_only_listed_pre_fix_takes(tmp_path):
+    """The tail of Phase 1: takes with no stem and no mix get a score-less stub
+    (same status every reader already refuses), never a current-era take, and
+    the raw measurements stay in the file."""
+    tool = os.path.join(ROOT, "docs/score-metrics/retire_unmeasurable.py")
+    sys.path.insert(0, os.path.join(ROOT, "voxanalysis/vox-analysis/engine"))
+    import analyse_song as A
+    archive = tmp_path / "archive"; archive.mkdir()
+    old = {"technical_score": {"overall_score_0_to_10": 7.9, "provenance": "deterministic_rubric_v5 — x"},
+           "intonation": {"median_intra_note_drift_cents": 30.0, "n_notes": 40}}
+    (archive / "2026-07-01-aaron-gone-take-001_analysis.json").write_text(json.dumps(old))
+    (archive / "2026-09-01-aaron-fresh-take-001_analysis.json").write_text(json.dumps(
+        {"technical_score": {"overall_score_0_to_10": 8.1},
+         "measurement_fingerprint": A.measurement_fingerprint()}))
+    lst = tmp_path / "missing.txt"
+    lst.write_text("2026-07-01-aaron-gone-take-001_analysis.json\n2026-09-01-aaron-fresh-take-001\n")
+
+    proc = subprocess.run([sys.executable, tool, "--list", str(lst), "--archive", str(archive), "--dry-run"],
+                          capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    assert "would retire : 1" in proc.stdout and "already on the current measurement" in proc.stdout
+    assert json.loads((archive / "2026-07-01-aaron-gone-take-001_analysis.json").read_text())["technical_score"]["overall_score_0_to_10"] == 7.9
+
+    proc = subprocess.run([sys.executable, tool, "--list", str(lst), "--archive", str(archive)],
+                          capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    gone = json.loads((archive / "2026-07-01-aaron-gone-take-001_analysis.json").read_text())
+    assert gone["technical_score"]["status"] == "retired_legacy_score"
+    assert "overall_score_0_to_10" not in gone["technical_score"]
+    assert gone["intonation"]["median_intra_note_drift_cents"] == 30.0     # measurements kept
+    assert A.is_legacy_score(gone["technical_score"])
+    fresh = json.loads((archive / "2026-09-01-aaron-fresh-take-001_analysis.json").read_text())
+    assert fresh["technical_score"]["overall_score_0_to_10"] == 8.1
