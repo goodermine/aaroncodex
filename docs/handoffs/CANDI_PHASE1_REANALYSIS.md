@@ -51,7 +51,9 @@ python3 tools/reanalyse_archive.py <STEMS> --stale-measurement \
 
 Read the two summaries:
 
-- `to re-analyse` — expect ~234 for the archive and 50 for the references.
+- `to re-analyse` + `stem not found` — together 237 for the archive and 50
+  for the references (verified on this engine); ideally almost all of them in
+  `to re-analyse`.
 - `stem not found` — **send me this list before the write run.** Each line is a
   take whose stem is not under `<STEMS>`; it cannot be re-analysed without the
   audio. (Retired stubs without an `analysis_input_file` also land here — that
