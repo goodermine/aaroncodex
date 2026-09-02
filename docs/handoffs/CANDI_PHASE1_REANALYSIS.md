@@ -98,6 +98,82 @@ python3 tools/reanalyse_archive.py <STEMS> --stale-measurement --write \
 - A failed take leaves its old file untouched and is listed under `Failures:`
   at the end. Send me that list too.
 
+## Step 3b — re-separate what has no stem (added after the first run)
+
+The first pass found 97 of 232 archive stems and none of the 50 reference
+stems. The rest must be **re-separated from the original mixes** with the pinned
+model, then re-analysed. Three tools do it deterministically; no renaming by hand.
+
+**References first** — the pack is the point of Phase 1.
+
+```bash
+cd /tmp/phase1 && \
+python3 tools/pair_reference_audio.py <REFERENCE_MIXES_DIR> --recursive 2>&1 | tee /tmp/phase1-refs-pairing.txt
+```
+
+`<REFERENCE_MIXES_DIR>` is wherever the original reference recordings live (the
+same folder the July RoFormer migration paired from). Read the report: it pairs
+each reference analysis to a source file only when **duration and name both
+agree**. Send me the report. Anything under `CONFIRM THESE PAIRINGS BY EYE`,
+`AMBIGUOUS` or `NO SOURCE FOUND` is yours to confirm or mine to chase — never
+stage those by hand. Then:
+
+```bash
+python3 tools/pair_reference_audio.py <REFERENCE_MIXES_DIR> --recursive --stage /tmp/phase1-ref-mixes && \
+bash voxanalysis/vox-analysis/engine/tools/stems/batch_stems.sh --input /tmp/phase1-ref-mixes --output /tmp/phase1-ref-stems && \
+python3 tools/reanalyse_archive.py /tmp/phase1-ref-stems --stale-measurement \
+    --archive voxanalysis/vox-analysis/engine/calibration/references 2>&1 | tee /tmp/phase1-refs-dryrun3.txt
+```
+
+Staged mixes are renamed to the reference key, so the separator's output is
+exactly the stem name each reference analysis recorded — the dry run should show
+`to re-analyse` equal to the number staged and `stem not found` only for the
+unstaged ones. If that holds, add `--write` and let it run.
+
+**Then the archive tail** — the takes whose stems were not found:
+
+```bash
+python3 tools/reanalyse_archive.py <STEM_DIRS...> --stale-measurement 2>&1 \
+  | sed -n '/Missing stems/,$p' | grep "_analysis.json" | sed 's/^ *//' > /tmp/phase1-missing.txt && wc -l /tmp/phase1-missing.txt
+python3 tools/pair_reference_audio.py <UPLOADS_ROOT> --recursive --skip-current-era \
+    --refs voxanalysis/archive/scratch-analyses 2>&1 | tee /tmp/phase1-archive-pairing.txt
+```
+
+`<UPLOADS_ROOT>` is the root holding the singers' original recordings (the
+host's uploads, Dropbox `/Song_Analysis`, whatever holds the mixes). Same rules:
+send me the report; only confident pairs get staged. Then:
+
+```bash
+python3 tools/pair_reference_audio.py <UPLOADS_ROOT> --recursive --skip-current-era \
+    --refs voxanalysis/archive/scratch-analyses --stage /tmp/phase1-take-mixes && \
+bash voxanalysis/vox-analysis/engine/tools/stems/batch_stems.sh --input /tmp/phase1-take-mixes --output /tmp/phase1-take-stems && \
+python3 tools/reanalyse_archive.py <STEM_DIRS...> /tmp/phase1-take-stems --stale-measurement --match-by-take 2>&1 | tee /tmp/phase1-archive-dryrun3.txt
+```
+
+`--match-by-take` lets an analysis whose recorded stem name no longer matches
+(takes renamed after they were run: Open Road, Carved From Stone, That's My
+Flavor, the two KFF takes, the old `(Vocals).mp3` / `_h8.wav` chains) pick up
+the freshly separated stem named by its own take — **only when exactly one
+exists**, and every such match is printed. Check that list, then `--write`.
+
+**The genuine tail** — anything still under `stem not found` after all that has
+no stem and no mix. Put those basenames in a list and retire their scores
+honestly (the raw measurements stay; the number goes, like a legacy rubric):
+
+```bash
+python3 tools/reanalyse_archive.py <ALL_STEM_DIRS...> --stale-measurement --match-by-take 2>&1 \
+  | sed -n '/Missing stems/,$p' | grep "_analysis.json" | sed 's/^ *//' > /tmp/phase1-unmeasurable.txt
+python3 docs/score-metrics/retire_unmeasurable.py --list /tmp/phase1-unmeasurable.txt --dry-run
+python3 docs/score-metrics/retire_unmeasurable.py --list /tmp/phase1-unmeasurable.txt
+```
+
+Send me that list before running it without `--dry-run`. Expect the 2019–2024
+voice-cloning splits and a few one-offs; expect **no** references there.
+
+Time: RoFormer separation is the slow part — budget a few minutes per song on
+the GPU, so 50 references plus up to ~135 takes is an overnight job. Both
+separation and re-analysis are resumable.
+
 ## Step 4 — rebuild the pack, re-score everything, re-pin
 
 Only after **both** write runs finish:

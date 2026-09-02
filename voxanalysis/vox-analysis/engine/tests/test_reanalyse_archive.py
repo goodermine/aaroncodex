@@ -143,3 +143,70 @@ def test_stale_measurement_mode_selects_by_era_not_by_missing_modules(tmp_path):
     assert "pre-drift-fix (unstamped)" in proc.stdout
     assert "post-drift-fix (unstamped)" in proc.stdout
     assert "DRY RUN" in proc.stdout
+
+
+def test_match_by_take_accepts_a_single_renamed_stem_and_refuses_two(tmp_path):
+    """Stems re-separated from a mix staged as <take>.<ext> are named by the take,
+    not by whatever analysis_input_file recorded (renamed takes, old chains).
+    Opt-in, unique-match only, and every such match is printed."""
+    m = _load()
+    archive = tmp_path / "archive"
+    stems = tmp_path / "stems"
+    archive.mkdir(); stems.mkdir()
+    complete = {mod: {"x": 1} for mod in m.LATER_MODULES}
+    # renamed: analysis records an August stem, the re-separated stem carries the take name
+    (archive / "2026-07-16-aaron-open-road-take-001_analysis.json").write_text(json.dumps(
+        {"analysis_input_file": "2026-08-16-aaron-open-road-take-001_(vocals)_vocals_mel_band_roformer.flac",
+         "artist_name": "Aaron", **complete}))
+    (stems / "2026-07-16-aaron-open-road-take-001_(vocals)_vocals_mel_band_roformer.flac").write_bytes(b"x")
+    # ambiguous: two candidate stems for one take -> must NOT match
+    (archive / "2026-07-24-aaron-one-take-001_analysis.json").write_text(json.dumps(
+        {"analysis_input_file": "gone.flac", "artist_name": "Aaron", **complete}))
+    (stems / "2026-07-24-aaron-one-take-001_(vocals)_vocals_mel_band_roformer.flac").write_bytes(b"x")
+    (stems / "2026-07-24-aaron-one-take-001_(vocals)_vocals_mel_band_roformer_v2.flac").write_bytes(b"x")
+
+    proc = subprocess.run([sys.executable, TOOL, str(stems), "--archive", str(archive)],
+                          capture_output=True, text=True)
+    assert "stem not found   : 2" in proc.stdout           # without the flag: nothing matches
+    proc = subprocess.run([sys.executable, TOOL, str(stems), "--archive", str(archive),
+                           "--match-by-take"], capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    assert "matched by take name" in proc.stdout
+    assert "to re-analyse    : 1" in proc.stdout
+    assert "stem not found   : 1" in proc.stdout
+    assert "2026-07-16-aaron-open-road-take-001_(vocals)" in proc.stdout
+
+
+def test_retire_unmeasurable_stubs_only_listed_pre_fix_takes(tmp_path):
+    """The tail of Phase 1: takes with no stem and no mix get a score-less stub
+    (same status every reader already refuses), never a current-era take, and
+    the raw measurements stay in the file."""
+    tool = os.path.join(ROOT, "docs/score-metrics/retire_unmeasurable.py")
+    sys.path.insert(0, os.path.join(ROOT, "voxanalysis/vox-analysis/engine"))
+    import analyse_song as A
+    archive = tmp_path / "archive"; archive.mkdir()
+    old = {"technical_score": {"overall_score_0_to_10": 7.9, "provenance": "deterministic_rubric_v5 — x"},
+           "intonation": {"median_intra_note_drift_cents": 30.0, "n_notes": 40}}
+    (archive / "2026-07-01-aaron-gone-take-001_analysis.json").write_text(json.dumps(old))
+    (archive / "2026-09-01-aaron-fresh-take-001_analysis.json").write_text(json.dumps(
+        {"technical_score": {"overall_score_0_to_10": 8.1},
+         "measurement_fingerprint": A.measurement_fingerprint()}))
+    lst = tmp_path / "missing.txt"
+    lst.write_text("2026-07-01-aaron-gone-take-001_analysis.json\n2026-09-01-aaron-fresh-take-001\n")
+
+    proc = subprocess.run([sys.executable, tool, "--list", str(lst), "--archive", str(archive), "--dry-run"],
+                          capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    assert "would retire : 1" in proc.stdout and "already on the current measurement" in proc.stdout
+    assert json.loads((archive / "2026-07-01-aaron-gone-take-001_analysis.json").read_text())["technical_score"]["overall_score_0_to_10"] == 7.9
+
+    proc = subprocess.run([sys.executable, tool, "--list", str(lst), "--archive", str(archive)],
+                          capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    gone = json.loads((archive / "2026-07-01-aaron-gone-take-001_analysis.json").read_text())
+    assert gone["technical_score"]["status"] == "retired_legacy_score"
+    assert "overall_score_0_to_10" not in gone["technical_score"]
+    assert gone["intonation"]["median_intra_note_drift_cents"] == 30.0     # measurements kept
+    assert A.is_legacy_score(gone["technical_score"])
+    fresh = json.loads((archive / "2026-09-01-aaron-fresh-take-001_analysis.json").read_text())
+    assert fresh["technical_score"]["overall_score_0_to_10"] == 8.1

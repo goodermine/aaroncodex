@@ -159,17 +159,32 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("source_dir", help="Directory holding the original reference mixes")
     ap.add_argument("--stage", default="", help="Copy confident pairs into this directory")
-    ap.add_argument("--refs", default=REFS, help="Reference analyses directory")
+    ap.add_argument("--refs", default=REFS,
+                    help="Analyses directory to pair (default: the reference pack; point it "
+                         "at voxanalysis/archive/scratch-analyses to pair singer takes)")
     ap.add_argument("--tolerance", type=float, default=2.0,
                     help="Duration tolerance in seconds (default 2.0)")
+    ap.add_argument("--recursive", action="store_true",
+                    help="Search source_dir recursively (uploads are usually nested)")
+    ap.add_argument("--skip-current-era", action="store_true",
+                    help="Skip analyses already stamped with a measurement_fingerprint "
+                         "(i.e. already re-run on the current engine) — the Phase 1 tail")
     args = ap.parse_args()
 
     refs = sorted(glob.glob(os.path.join(args.refs, "*_analysis.json")))
+    if args.skip_current_era:
+        before = len(refs)
+        refs = [r for r in refs if not json.load(open(r)).get("measurement_fingerprint")]
+        print(f"skipping {before - len(refs)} analysis(es) already on the current measurement")
     if not refs:
-        print(f"No reference analyses under {args.refs}")
+        print(f"No analyses to pair under {args.refs}")
         return 1
-    sources = [os.path.join(args.source_dir, f) for f in sorted(os.listdir(args.source_dir))
-               if f.lower().endswith(AUDIO_EXTS)]
+    if args.recursive:
+        sources = sorted(p for p in glob.glob(os.path.join(args.source_dir, "**", "*"), recursive=True)
+                         if p.lower().endswith(AUDIO_EXTS) and os.path.isfile(p))
+    else:
+        sources = [os.path.join(args.source_dir, f) for f in sorted(os.listdir(args.source_dir))
+                   if f.lower().endswith(AUDIO_EXTS)]
     if not sources:
         print(f"No audio found under {args.source_dir}")
         return 1

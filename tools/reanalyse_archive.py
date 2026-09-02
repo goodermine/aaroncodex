@@ -140,6 +140,13 @@ def main() -> int:
                     help="Select takes whose measurement era differs from this engine's "
                          "measurement_fingerprint (instead of takes missing modules). "
                          "This is the Phase 1 run of docs/VOX_SYSTEM_REVIEW_2026-09-02.md.")
+    ap.add_argument("--match-by-take", action="store_true",
+                    help="When the exact recorded stem is absent, accept a stem named "
+                         "<take>_(vocals)_..._mel_band_roformer.* for the analysis's own take "
+                         "name — but only when exactly one such stem exists. For stems "
+                         "re-separated from a mix staged as <take>.<ext>, and for analyses "
+                         "whose take was renamed after it was run. Every such match is "
+                         "printed so it can be checked.")
     ap.add_argument("--only", default="",
                     help="Substring filter on the archived analysis filename")
     ap.add_argument("--limit", type=int, default=0, help="Stop after N takes (0 = all)")
@@ -167,7 +174,7 @@ def main() -> int:
         live_fp = engine.measurement_fingerprint()
         print(f"Selecting analyses not measured by this engine ({live_fp}).\n")
 
-    todo, complete, unmatched = [], [], []
+    todo, complete, unmatched, by_take = [], [], [], []
     for path in archived:
         with open(path) as fh:
             a = json.load(fh)
@@ -184,11 +191,24 @@ def main() -> int:
                 continue
         stem_name = a.get("analysis_input_file")
         stem_path = stems.get(stem_name) if stem_name else None
+        if stem_path is None and args.match_by_take:
+            take = os.path.basename(path).replace("_analysis.json", "")
+            prefix = (take + "_(vocals)").lower()
+            cands = [p for b, p in stems.items()
+                     if b.lower().startswith(prefix) and "mel_band_roformer" in b.lower()]
+            if len(cands) == 1:
+                stem_path = cands[0]
+                by_take.append((os.path.basename(path), os.path.basename(stem_path)))
         if stem_path is None:
             unmatched.append((os.path.basename(path), stem_name, gaps))
         else:
             todo.append((path, stem_path, a.get("artist_name") or "Unknown Artist", gaps, a))
 
+    if by_take:
+        print(f"matched by take name (exact stem absent, one candidate) : {len(by_take)}")
+        for name, stem in by_take:
+            print(f"    {name}\n      <- {stem}")
+        print()
     print(f"already complete : {len(complete)}")
     print(f"to re-analyse    : {len(todo)}")
     print(f"stem not found   : {len(unmatched)}")
