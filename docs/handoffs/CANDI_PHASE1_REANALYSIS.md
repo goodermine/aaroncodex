@@ -19,13 +19,30 @@ git fetch origin claude/voiceassist-plugin-planning-krhz0d && \
 git worktree add /tmp/phase1 FETCH_HEAD && \
 cd /tmp/phase1 && \
 git log -1 --format='engine on %h — %s' && \
-python3 -c "import sys; sys.path.insert(0,'voxanalysis/vox-analysis/engine'); import analyse_song as A; print('measurement fingerprint:', A.measurement_fingerprint())"
+grep -c "def measurement_fingerprint" voxanalysis/vox-analysis/engine/analyse_song.py && \
+python3 - <<'PY'
+import importlib.util, os
+path = os.path.abspath("voxanalysis/vox-analysis/engine/analyse_song.py")
+spec = importlib.util.spec_from_file_location("analyse_song", path)
+A = importlib.util.module_from_spec(spec); spec.loader.exec_module(A)
+print("engine file:", path)
+print("measurement fingerprint:", A.measurement_fingerprint())
+PY
 ```
 
-The last line **must print `28e854af22ea`**. If it prints anything else, stop
-and send me the output — the worktree is not on the Phase-0 engine.
+The `grep -c` line must print `1` and the last line **must print
+`28e854af22ea`**. This loads the engine from the worktree's own file by absolute
+path — a plain `import analyse_song` on the host can pick up another copy of
+the engine (the deploy checkout, an installed package, a `PYTHONPATH` entry)
+and report the wrong build, which is what happened on the first attempt. If
+either line disagrees, stop and send me the full output.
 (If the mirror lag surfaces and FETCH_HEAD is stale, fetch the branch by its
 current SHA from the PR #59 page and use that instead of FETCH_HEAD.)
+
+Every later step runs from `/tmp/phase1` too; the tools there insert the
+worktree's engine directory at the front of `sys.path`, so they are not
+exposed to the same shadowing — but if any step prints a fingerprint other than
+`28e854af22ea`, stop.
 
 Then confirm the problem is visible from here:
 
