@@ -166,6 +166,9 @@ def main() -> int:
                     help="Duration tolerance in seconds (default 2.0)")
     ap.add_argument("--recursive", action="store_true",
                     help="Search source_dir recursively (uploads are usually nested)")
+    ap.add_argument("--list-confident", action="store_true",
+                    help="Print every confident pair as a review table (analysis, source "
+                         "file, both durations, basis) — for sign-off before separation")
     ap.add_argument("--skip-current-era", action="store_true",
                     help="Skip analyses already stamped with a measurement_fingerprint "
                          "(i.e. already re-run on the current engine) — the Phase 1 tail")
@@ -226,6 +229,14 @@ def main() -> int:
             unmatched.append((key, want))
         else:
             unmatched.append((key, want))
+
+    if args.list_confident:
+        print("\n--- CONFIDENT PAIRS (for review before separation) ---")
+        print(f"{'analysis':60} {'source file':60} {'analysis s':>10} {'file s':>8}  basis")
+        for key, path, want, got in confident:
+            basis = "exact name" if flat_name(path) == flat_name(key) else "duration+name"
+            print(f"{key[:60]:60} {os.path.basename(path)[:60]:60} "
+                  f"{(want if want is not None else float('nan')):10.2f} {got:8.1f}  {basis}")
 
     print(f"\nCONFIDENT  (duration AND name agree) : {len(confident)}")
     print(f"NAME UNSURE (duration only, 1 match) : {len(name_only)}   <- needs your eye")
