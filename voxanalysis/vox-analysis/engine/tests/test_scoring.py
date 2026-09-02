@@ -481,3 +481,23 @@ def test_measurement_era_places_unstamped_analyses_by_the_drift_fix_marker():
     assert A.measurement_era({"intonation": {"median_intra_note_drift_cents": 30.2}}) \
         == "pre-drift-fix (unstamped)"
     assert A.measurement_era(None) == "unknown"
+
+
+def test_scale_mismatch_refuses_cross_era_scoring_in_both_directions():
+    """After the pack is rebuilt on the fixed engine, a pre-fix take's flattered
+    drift must not be re-scored against it (it would read ~10); before that, a
+    post-fix take against the pre-fix pack is the mismatch the interim rule
+    covers. The re-score tools skip both; the tables show them withheld."""
+    old_pack = {"metrics": {}}                                  # unstamped, pre-fix
+    new_pack = {"metrics": {}, "measurement_fingerprint": "newnewnewnew"}
+    pre_fix = {"intonation": {"median_intra_note_drift_cents": 30.0}}
+    post_fix_unstamped = {"intonation": {"drift_measurable_notes": 90}}
+    stamped = {"measurement_fingerprint": "newnewnewnew"}
+    assert A.pack_measurement_era(old_pack) == "pre-drift-fix (unstamped)"
+    assert A.pack_measurement_era(new_pack) == "newnewnewnew"
+    assert not A.scale_mismatch(pre_fix, old_pack)               # today's archive: fine
+    assert A.scale_mismatch(post_fix_unstamped, old_pack)        # today's post-fix takes: interim rule
+    assert A.scale_mismatch(pre_fix, new_pack)                   # tomorrow's hazard: refused
+    assert A.scale_mismatch(post_fix_unstamped, new_pack)        # unproven era: refused
+    assert not A.scale_mismatch(stamped, new_pack)               # re-analysed on the engine: fine
+    assert not A.scale_mismatch(pre_fix, None)                   # no pack: nothing to mismatch

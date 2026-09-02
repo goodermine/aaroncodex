@@ -2379,6 +2379,25 @@ def measurement_era(results):
     return "pre-drift-fix (unstamped)"
 
 
+def pack_measurement_era(calibration):
+    """The measurement era a calibration pack's anchors were built from. Packs
+    built before the stamp existed were built from pre-drift-fix analyses."""
+    if not calibration:
+        return None
+    return calibration.get("measurement_fingerprint") or "pre-drift-fix (unstamped)"
+
+
+def scale_mismatch(results, calibration):
+    """True when these inputs and this pack's anchors come from different
+    measurement eras — scoring one against the other puts the take on the wrong
+    ruler (a pre-fix take against a post-fix pack reads pitch-stability ~10; a
+    post-fix take against the pre-fix pack reads ~0). The re-score tools refuse
+    to do it; the report layer withholds the affected component."""
+    if not calibration:
+        return False
+    return measurement_era(results) != pack_measurement_era(calibration)
+
+
 def _take_fingerprint(results):
     """Identifies the take a score belongs to, so two scores can be checked to be
     OF THE SAME recording. Derived from file identity + measured shape (not a

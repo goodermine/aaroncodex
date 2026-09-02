@@ -203,6 +203,12 @@ Expected:
 - The final preflight prints `PREFLIGHT PASSED`. The `--update` re-pins
   `docs/score-metrics/SCORE_CONTRACT.json` to the new calibration fingerprint —
   commit that file with the rest.
+- **If the pack is rebuilt before the whole archive is re-analysed** (Aaron's
+  call: references first), `rescore_archive_inplace.py` will refuse to re-score
+  any take still on the old measurement and say how many; `rescore_all.py` shows
+  those rows as withheld; preflight keeps failing on the era split. That is the
+  correct, honest state — every NEW take is then scored on the right ruler while
+  the old archive waits its turn. Do not force anything past it.
 
 ## Step 5 — tests, then one PR
 
