@@ -2172,6 +2172,68 @@ def _calibration_fingerprint(calibration):
     return _sha1("|".join(parts))
 
 
+# The measurement code that produces the scorer's INPUTS. The rubric fingerprint
+# deliberately hashes only the scoring maths, so a change to how a metric is
+# measured leaves rubric_fingerprint, calibration_fingerprint and stem_model all
+# identical — and score_conflict() waves the two eras through as comparable.
+# That is exactly what happened on 16 Aug 2026: the held-note drift fix removed a
+# fabricated 0.0 from every note shorter than the smoothing window, which moved
+# the drift scale ~2.5x for every take analysed afterwards, while the 50-reference
+# pack and 209 archived takes stayed on the old measurement (see
+# docs/VOX_SYSTEM_REVIEW_2026-09-02.md §3.1). This fingerprint is stamped on the
+# analysis at measurement time and carried into the score identity, so the next
+# measurement change is caught by preflight and by score_conflict() instead of
+# being discovered a fortnight later in the singer's reports.
+MEASUREMENT_CONSTANTS = (
+    "PYIN_FMIN_NOTE", "PYIN_FMAX_NOTE", "PRAAT_PITCH_FLOOR", "PRAAT_PITCH_CEILING",
+    "SILENCE_THRESHOLD_DB", "VOICED_GAP_BRIDGE_FRAMES", "NOTE_SPLIT_CENTS",
+    "NOTE_MIN_DURATION_S", "VIBRATO_NOTE_MIN_S", "PHRASE_GAP_BRIDGE_S",
+    "VIBRATO_RATE_MIN_HZ", "VIBRATO_RATE_MAX_HZ", "VIBRATO_SEARCH_MIN_HZ",
+    "VIBRATO_SEARCH_MAX_HZ", "VIBRATO_MIN_EXTENT_CENTS", "VIBRATO_MAX_EXTENT_CENTS",
+    "VIBRATO_MIN_BAND_RATIO",
+)
+
+
+def _measurement_functions():
+    return (moving_average, hz_to_cents, segment_voiced_runs, segment_sustained_notes,
+            segment_phrases, analyse_pitch, analyse_voice_quality, analyse_dynamics,
+            analyse_vibrato, analyse_intonation, analyse_onsets, analyse_breath,
+            analyse_phrasing)
+
+
+def measurement_fingerprint():
+    """Hash of the measurement source + constants that produce every scored input.
+    Stamped on the analysis by main(); compare with the value stored on a take or
+    a calibration pack to know whether two sets of inputs are on one scale."""
+    try:
+        import inspect
+        src = "".join(inspect.getsource(fn) for fn in _measurement_functions())
+        consts = "|".join(f"{name}={globals().get(name)!r}" for name in MEASUREMENT_CONSTANTS)
+        return _sha1(src + consts)
+    except Exception:
+        return None
+
+
+# Marker the 16 Aug 2026 drift fix introduced. Analyses made before
+# measurement_fingerprint existed can only be placed in an era by inference, and
+# this field is the one reliable tell: pre-fix analyses never wrote it.
+POST_DRIFT_FIX_MARKER = "drift_measurable_notes"
+
+
+def measurement_era(results):
+    """Which measurement produced this analysis's inputs: the stamped fingerprint
+    when there is one, otherwise an inferred era label for older analyses."""
+    if not isinstance(results, dict):
+        return "unknown"
+    fp = results.get("measurement_fingerprint")
+    if fp:
+        return fp
+    intonation = results.get("intonation") or {}
+    if POST_DRIFT_FIX_MARKER in intonation:
+        return "post-drift-fix (unstamped)"
+    return "pre-drift-fix (unstamped)"
+
+
 def _take_fingerprint(results):
     """Identifies the take a score belongs to, so two scores can be checked to be
     OF THE SAME recording. Derived from file identity + measured shape (not a
@@ -2222,6 +2284,12 @@ def score_identity(results, calibration=None):
         "calibration_fingerprint": _calibration_fingerprint(calibration),
         "stem_model": _stem_model(results),
         "take_fingerprint": _take_fingerprint(results),
+        # Which measurement code produced the inputs (stamped by main(); None on
+        # analyses that predate the stamp) and which measurement the pack's
+        # anchors were built from (None on packs built before the stamp). When
+        # these differ the take is scored against anchors from another scale.
+        "measurement_fingerprint": results.get("measurement_fingerprint"),
+        "calibration_measurement_fingerprint": (calibration or {}).get("measurement_fingerprint"),
     }
 
 
@@ -2263,6 +2331,13 @@ def score_conflict(a, b):
                 f"{ib.get('stem_model')}) — re-separate both with one model before "
                 "comparing; separation moves the measured features by as much as "
                 "the differences being looked for")
+    # Measurement era. Only decidable when both sides are stamped; analyses that
+    # predate the stamp are caught by tools/score_preflight.py's era check,
+    # which infers their era from the analysis itself.
+    ma, mb = ia.get("measurement_fingerprint"), ib.get("measurement_fingerprint")
+    if ma and mb and ma != mb:
+        return (f"measured by different engine builds ({ma} vs {mb}) — the scored "
+                "inputs are on different scales; re-analyse both on one engine")
     return None
 
 
@@ -4104,6 +4179,11 @@ def main():
             ],
             "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces.",
         }
+
+    # Stamp which measurement code produced everything above, BEFORE scoring, so
+    # the score identity can carry it and a later measurement change is visible
+    # as a different era rather than as silently comparable numbers.
+    results["measurement_fingerprint"] = measurement_fingerprint()
 
     # Stage 4: Deterministic technical score
     print("\nComputing deterministic technical score...")

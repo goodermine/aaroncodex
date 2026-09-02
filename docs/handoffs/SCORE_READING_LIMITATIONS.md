@@ -156,6 +156,23 @@ justify a coaching pivot — use a dry solo recording, exactly as the onset
 document's Stage 0 says. The engine's onset numbers are a good weekly tracking
 signal on consistent captures; they are not a lab measurement.
 
+## 6. (added 2 Sep 2026) `pitch_stability` is on the wrong ruler for every post-16-Aug take
+
+The 16 Aug drift fix removed a fabricated 0.0 drift from every note shorter than
+the smoothing window. That moved the drift scale ~2.5× for everything analysed
+afterwards, but the 50 references and 209 archived takes were not re-analysed,
+so post-fix takes are scored against a pro anchor (24.25 c) that emulates to
+~62.5 c on the fixed engine. Result: six of the eleven Aaron takes merged since
+22 Aug read `pitch_stability` 0.0 regardless of the singing. Full evidence and
+the fix in `docs/VOX_SYSTEM_REVIEW_2026-09-02.md` §3.1.
+
+**Practice rule:** do not quote `pitch_stability` on a post-fix take (the
+report builder withholds it). Quote the held-drift median against the emulated
+professional band (p10/p50/p90 = 23.7 / 37.5 / 51.2 c) — Aaron's archive
+median is 47.9 c, about ten cents wider than a typical pro. Preflight fails
+until the pack is rebuilt; `measurement_fingerprint` now travels with every
+score so this cannot recur silently.
+
 ## What the validity test did NOT establish
 
 Three historical takes (2019 ×1, 2024 ×2) against 65 recent clean captures is

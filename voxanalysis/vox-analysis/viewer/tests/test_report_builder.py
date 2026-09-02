@@ -177,3 +177,66 @@ def test_capture_fair_line_is_capture_aware():
     plain = text_for(None)
     assert "quote this for live or rough captures" in plain
     assert "Take context:" not in plain
+
+
+class InterimStabilityRuleTests(unittest.TestCase):
+    """docs/VOX_SYSTEM_REVIEW_2026-09-02.md §3.1: a take measured after the drift
+    fix but scored against the pre-fix pack must not quote pitch_stability; the
+    held-drift median is read against the professional band instead."""
+
+    def post_fix_take(self):
+        notes = [{"duration_s": 0.8, "held_drift_cents": c} for c in (30.0, 45.0, 50.0, 60.0, 90.0)]
+        notes.append({"duration_s": 0.3, "held_drift_cents": 0.0})   # too short: ignored
+        return {
+            "technical_score": {
+                "overall_score_0_to_10": 7.3, "capture_fair_score_0_to_10": 6.2,
+                "confidence": "high",
+                "identity": {"contract": "voxai_score_v1", "rubric": "deterministic_rubric_v5",
+                             "rubric_fingerprint": "7cbd02df8f62",
+                             "measurement_fingerprint": None,
+                             "calibration_measurement_fingerprint": None},
+                "components": {
+                    "intonation_accuracy": {"score": 10.0, "input": "measured"},
+                    "pitch_stability": {"score": 0.0, "input": "median intra-note drift = 103.7 cents"},
+                    "breath_support": {"score": 2.56, "input": "measured"},
+                },
+            },
+            "intonation": {"n_notes": 129, "median_abs_deviation_cents": 20.0,
+                           "median_intra_note_drift_cents": 103.7,
+                           "drift_measurable_notes": 93, "notes": notes},
+            "voice_quality": {"strain": {"pct_top_notes_strained": 0}},
+            "breath": {"pct_sagging_endings": 40.0},
+        }
+
+    def test_pitch_stability_is_withheld_and_held_drift_read_against_the_band(self):
+        report = build_v2_report(self.post_fix_take())
+        rows = {c["key"]: c for c in report["score"]["components"]}
+        self.assertTrue(rows["pitch_stability"]["withheld"])
+        self.assertIsNone(rows["pitch_stability"]["score"])
+        self.assertEqual(rows["intonation_accuracy"]["score"], 10.0)
+        interim = report["interim_stability"]
+        self.assertEqual(interim["held_drift_median_cents"], 50.0)   # median of the 5 long notes
+        self.assertIn("wider than a typical pro", interim["read"])
+        # the focus must not be picked from the withheld component or the drift threshold
+        self.assertNotEqual(report["main_focus"]["pillar"], "Held-note stability")
+        text = render_full_results_text(report)
+        self.assertIn("HELD-NOTE STABILITY (interim reading", text)
+        self.assertIn("Held-note stability: —", text)
+        self.assertNotIn("PRIMARY FOCUS: Held-note stability", text)
+
+    def test_rule_lifts_when_take_and_pack_share_a_measurement_stamp(self):
+        raw = self.post_fix_take()
+        raw["technical_score"]["identity"]["measurement_fingerprint"] = "abc123abc123"
+        raw["technical_score"]["identity"]["calibration_measurement_fingerprint"] = "abc123abc123"
+        report = build_v2_report(raw)
+        rows = {c["key"]: c for c in report["score"]["components"]}
+        self.assertFalse(rows["pitch_stability"]["withheld"])
+        self.assertEqual(rows["pitch_stability"]["score"], 0.0)
+        self.assertIsNone(report["interim_stability"])
+
+    def test_pre_fix_take_is_untouched(self):
+        raw = self.post_fix_take()
+        del raw["intonation"]["drift_measurable_notes"]
+        report = build_v2_report(raw)
+        self.assertIsNone(report["interim_stability"])
+        self.assertFalse({c["key"]: c for c in report["score"]["components"]}["pitch_stability"]["withheld"])

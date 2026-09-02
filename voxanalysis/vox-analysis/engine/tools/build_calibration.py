@@ -215,9 +215,32 @@ def main():
             "p90": round(float(np.percentile(arr, 90)), 4),
         }
 
+    # Which measurement code produced the reference analyses. The anchors only
+    # mean "a typical pro" for takes measured the same way, so the pack records
+    # the stamp when every source shares one, and None (with a warning) when the
+    # sources are unstamped or mixed — score_identity carries it beside the
+    # take's own stamp, and tools/score_preflight.py refuses a mismatch.
+    stamps = set()
+    for path in json_paths:
+        try:
+            with open(path) as f:
+                stamps.add(json.load(f).get("measurement_fingerprint"))
+        except Exception:
+            continue
+    stamps.discard(None)
+    if len(stamps) == 1:
+        pack_measurement = next(iter(stamps))
+    else:
+        pack_measurement = None
+        print("  WARNING: reference analyses are "
+              + ("unstamped" if not stamps else f"on {len(stamps)} measurement builds")
+              + " — the pack carries no measurement_fingerprint. Re-analyse the"
+                " references on one current engine before relying on its anchors.")
+
     calibration = {
         "version": "pro_reference_v1",
         "created": datetime.now().isoformat(timespec="seconds"),
+        "measurement_fingerprint": pack_measurement,
         "n_references": len(sources),
         "source_files": sources,
         "praat_excluded_files": excluded,

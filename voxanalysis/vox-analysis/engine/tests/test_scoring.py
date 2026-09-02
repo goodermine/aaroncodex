@@ -435,3 +435,49 @@ def test_measurable_drift_still_scores_pitch_stability():
     cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
     ts = A.compute_technical_score(_base_results(22.0, 30.0), cal)  # drift = 20.0
     assert "pitch_stability" in ts["components"]
+
+
+# ---------------------------------------------------------------------------
+# MEASUREMENT ERA — the provenance hole the 16 Aug 2026 drift fix fell through.
+# ---------------------------------------------------------------------------
+
+def test_measurement_fingerprint_is_deterministic_and_travels_in_identity():
+    """The rubric fingerprint hashes the scoring maths only, so a change to how a
+    metric is MEASURED left every identity field identical and the two eras
+    looked comparable. The measurement stamp closes that: stamped by main() on
+    the analysis, carried into the score identity, None on older analyses."""
+    fp = A.measurement_fingerprint()
+    assert fp and fp == A.measurement_fingerprint()
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    stamped = _base_results(22.0, 30.0)
+    stamped["measurement_fingerprint"] = fp
+    ident = A.compute_technical_score(stamped, cal)["identity"]
+    assert ident["measurement_fingerprint"] == fp
+    # the committed pack predates the stamp: recorded honestly as None
+    assert ident["calibration_measurement_fingerprint"] is None
+    unstamped = A.compute_technical_score(_base_results(22.0, 30.0), cal)["identity"]
+    assert unstamped["measurement_fingerprint"] is None
+    # adding the stamp must not have moved the rubric fingerprint
+    assert ident["rubric_fingerprint"] == unstamped["rubric_fingerprint"]
+
+
+def test_scores_from_different_measurement_builds_are_not_comparable():
+    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
+    a = _base_results(22.0, 30.0); a["measurement_fingerprint"] = "aaaaaaaaaaaa"
+    b = _base_results(22.0, 30.0); b["measurement_fingerprint"] = "bbbbbbbbbbbb"
+    sa, sb = A.compute_technical_score(a, cal), A.compute_technical_score(b, cal)
+    conflict = A.score_conflict(sa, sb)
+    assert conflict is not None and "different engine builds" in conflict
+    # same build compares; an unstamped (pre-stamp) score is left to preflight's
+    # era inference rather than refused outright
+    assert A.score_conflict(sa, A.compute_technical_score(a, cal)) is None
+    assert A.score_conflict(sa, A.compute_technical_score(_base_results(22.0, 30.0), cal)) is None
+
+
+def test_measurement_era_places_unstamped_analyses_by_the_drift_fix_marker():
+    assert A.measurement_era({"measurement_fingerprint": "abc"}) == "abc"
+    assert A.measurement_era({"intonation": {"drift_measurable_notes": 93}}) \
+        == "post-drift-fix (unstamped)"
+    assert A.measurement_era({"intonation": {"median_intra_note_drift_cents": 30.2}}) \
+        == "pre-drift-fix (unstamped)"
+    assert A.measurement_era(None) == "unknown"

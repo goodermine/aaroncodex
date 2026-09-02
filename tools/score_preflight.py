@@ -199,6 +199,62 @@ def main() -> int:
     else:
         print(f"{OK}  one separation model throughout: {A.PINNED_SEPARATOR}")
 
+    # 5. one MEASUREMENT era across the archive, the reference pack and this engine.
+    #
+    # The rubric fingerprint hashes the scoring maths only, so a change to how a
+    # metric is MEASURED leaves every identity field identical and score_conflict()
+    # passes the two eras as comparable. That is how the 16 Aug 2026 drift fix
+    # split the archive: 209 takes and all 50 references stayed on the old
+    # measurement while every later take was scored against their anchors on a
+    # scale ~2.5x stricter (docs/VOX_SYSTEM_REVIEW_2026-09-02.md §3.1). Analyses
+    # now carry measurement_fingerprint; older ones are placed by inference from
+    # the drift fix's own marker. Any mix is a FAIL.
+    live_era = A.measurement_fingerprint()
+    eras = {}
+    for label, folder in (("archive", ARCHIVE), ("references", CAL_REFS)):
+        for path in sorted(glob.glob(os.path.join(folder, "*_analysis.json"))):
+            try:
+                with open(path) as fh:
+                    data = json.load(fh) or {}
+            except (OSError, json.JSONDecodeError):
+                continue
+            score = data.get("technical_score")
+            if label == "archive" and isinstance(score, dict) \
+                    and score.get("status") in ("retired_legacy_score",
+                                                "withheld_measurement_artefact"):
+                continue
+            eras.setdefault(A.measurement_era(data), {}).setdefault(label, []) \
+                .append(os.path.basename(path))
+    pack_era = cal.get("measurement_fingerprint")
+    split = len(eras) > 1 or (eras and live_era not in eras) or pack_era != live_era
+    if split:
+        n_total = sum(len(f) for by in eras.values() for f in by.values())
+        print(f"{FAIL}  the archive + reference pack span more than one MEASUREMENT era "
+              f"({len(eras)} found across {n_total} analyses; this engine is {live_era}):")
+        for era, by in sorted(eras.items(), key=lambda kv: -sum(len(f) for f in kv[1].values())):
+            counts = ", ".join(f"{len(files)} {label}" for label, files in sorted(by.items()))
+            mark = "  <- this engine" if era == live_era else ""
+            print(f"        - {era}: {counts}{mark}")
+        print(f"        - calibration pack built from: "
+              f"{pack_era or 'unstamped (pre-Sep-2026 pack)'}"
+              + ("  <- this engine" if pack_era == live_era else ""))
+        print("\n      Scores from different eras are on different scales, and the pack's")
+        print("      anchors only mean 'a typical pro' for takes measured the same way.")
+        print("      DO NOT quote pitch_stability, a leaderboard, a trend or any cross-era")
+        print("      comparison. Single-take delivery continues under the interim reading")
+        print("      rule (CLAUDE.md rule 5): full results with pitch_stability withheld.")
+        print("      Fix (see the review §3.1): re-analyse every analysis not on this engine")
+        print("      from its retained RoFormer stem, then rebuild the pack and re-score:")
+        print("        python3 tools/analyse_takes.py <stems> --write --force")
+        print("        python3 voxanalysis/vox-analysis/engine/tools/build_calibration.py \\")
+        print("            voxanalysis/vox-analysis/engine/calibration/references \\")
+        print("            --out voxanalysis/vox-analysis/engine/calibration/pro_reference.json")
+        print("        python3 docs/score-metrics/rescore_archive_inplace.py")
+        print("        python3 docs/score-metrics/rescore_all.py")
+        print("        python3 tools/score_preflight.py --update   # re-pin the contract")
+        return 1
+    print(f"{OK}  one measurement era throughout: {live_era}")
+
     print("\nPREFLIGHT PASSED — safe to score and publish.")
     return 0
 
