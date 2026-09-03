@@ -56,9 +56,37 @@ def test_stem_index_finds_audio_by_basename(tmp_path):
     nested.mkdir(parents=True)
     (nested / "take_(Vocals)_UVR_MDXNET_Main.flac").write_bytes(b"x")
     (tmp_path / "notes.txt").write_text("not audio")
-    idx = m.index_stems([str(tmp_path)])
+    idx, collisions = m.index_stems([str(tmp_path)])
     assert "take_(Vocals)_UVR_MDXNET_Main.flac" in idx
     assert "notes.txt" not in idx
+    assert collisions == {}
+
+
+def test_stem_index_uses_a_duplicate_copy_but_refuses_a_genuine_collision(tmp_path):
+    """Two directories legitimately holding a COPY of the same stem (recovered
+    into more than one place) must resolve quietly. Two directories holding a
+    DIFFERENT recording under the SAME basename — an untrimmed raw separation
+    next to the actually-accepted trimmed window, the exact failure that fed
+    63 extra seconds of host talk/crowd noise into Reasons take-003 on
+    3 Sep 2026 — must be excluded, never silently guessed."""
+    m = _load()
+    dir_a = tmp_path / "a"; dir_b = tmp_path / "b"; dir_c = tmp_path / "c"
+    dir_a.mkdir(); dir_b.mkdir(); dir_c.mkdir()
+
+    # same file, two locations: within tolerance, resolves quietly
+    (dir_a / "dup_(vocals)_vocals_mel_band_roformer.flac").write_bytes(b"x" * 1000)
+    (dir_b / "dup_(vocals)_vocals_mel_band_roformer.flac").write_bytes(b"x" * 1005)
+
+    # different recordings sharing a basename: a trimmed 210s take vs an
+    # untrimmed one — modelled here as a large size gap, well past tolerance
+    (dir_a / "reasons_(vocals)_vocals_mel_band_roformer.flac").write_bytes(b"y" * 1000)
+    (dir_c / "reasons_(vocals)_vocals_mel_band_roformer.flac").write_bytes(b"y" * 1300)
+
+    idx, collisions = m.index_stems([str(dir_a), str(dir_b), str(dir_c)])
+    assert "dup_(vocals)_vocals_mel_band_roformer.flac" in idx
+    assert "reasons_(vocals)_vocals_mel_band_roformer.flac" not in idx
+    assert "reasons_(vocals)_vocals_mel_band_roformer.flac" in collisions
+    assert len(collisions["reasons_(vocals)_vocals_mel_band_roformer.flac"]) == 2
 
 
 def test_dry_run_reports_matches_and_writes_nothing(tmp_path):
