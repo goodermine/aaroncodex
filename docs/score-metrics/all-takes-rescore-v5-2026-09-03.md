@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **** (calibration active, 50 pro ref
 
 ## Singer takes
 
-Overall: min n/a · max n/a · mean n/a. Dynamics component spreads n/a–n/a (was a flat 10.0 for every take in v3).
+Overall: min 6.9 · max 7.3 · mean 7.1. Dynamics component spreads 9.1–9.8 (was a flat 10.0 for every take in v3).
 
-Full coverage: 0/218 takes.
+Full coverage: 2/220 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -183,6 +183,7 @@ Full coverage: 0/218 takes.
 | aaron | to-be-with-you-zoom-h8-capture-take-001 | 159 | **withheld** | – | – | – | – | – | – | – | – | – |
 | aaron | cry-in-shame-take-002 | 291 | **withheld** | – | – | – | – | – | – | – | – | – |
 | aaron | let-s-go-take-001 | 129 | **withheld** | – | – | – | – | – | – | – | – | – |
+| aaron | fireball-take-001 | 230 | **6.9** | 6.8 | high | 10.0 | 0.0 | 5.58 | 9.41 | 9.06 | 2.7 | 9.44 |
 | aaron-and-rilda | burning-down-the-house-take-001 | 198 | **withheld** | – | – | – | – | – | – | – | – | – |
 | aaron-g | 1973-take-001 | 156 | **withheld** | – | – | – | – | – | – | – | – | – |
 | aaron-g | if-you-could-read-my-mind-take-001 | 201 | **withheld** | – | – | – | – | – | – | – | – | – |
@@ -230,6 +231,7 @@ Full coverage: 0/218 takes.
 | rilda | i-love-to-love-take-001 | 147 | **withheld** | – | – | – | – | – | – | – | – | – |
 | rilda | sexy-eyes-take-002 | 206 | **withheld** | – | – | – | – | – | – | – | – | – |
 | rilda | bow-river-take-004 | 247 | **withheld** | – | – | – | – | – | – | – | – | – |
+| rilda | to-sir-with-love-take-001 | 165 | **7.3** | 7.5 | high | 10.0 | 0.17 | 4.63 | 10.0 | 9.75 | 10.0 | 6.26 |
 
 ## Professional references (calibration sanity check)
 

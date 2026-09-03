@@ -9,10 +9,25 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 218,
-      "overall": {},
-      "capture_fair": {},
-      "dynamics": {}
+      "n": 220,
+      "overall": {
+        "min": 6.9,
+        "max": 7.3,
+        "mean": 7.1,
+        "spread": 0.4
+      },
+      "capture_fair": {
+        "min": 6.8,
+        "max": 7.5,
+        "mean": 7.15,
+        "spread": 0.7
+      },
+      "dynamics": {
+        "min": 9.1,
+        "max": 9.8,
+        "mean": 9.41,
+        "spread": 0.7
+      }
     },
     "references": {
       "n": 19,
@@ -5664,6 +5679,47 @@
       }
     },
     {
+      "take": "2026-09-03-aaron-fireball-take-001",
+      "singer": "aaron",
+      "song": "fireball-take-001",
+      "date": "2026-09-03",
+      "n_notes": 230,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 6.9,
+      "capture_fair": 6.8,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 5.58,
+        "vibrato_control": 9.41,
+        "dynamics_expression": 9.06,
+        "phrase_control": 2.7,
+        "breath_support": 9.44
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 88.3,
+        "pct_within_25c": 57.4,
+        "jitter_pct": 1.3853,
+        "shimmer_pct": 15.5601,
+        "hnr_db": 11.62,
+        "vibrato_pct_notes": 38.6,
+        "dyn_phrase_spread_db": 37.27,
+        "dyn_effective_range_db": 29.9,
+        "median_phrase_s": 1.39,
+        "onsets_pct_clean": 19.2,
+        "onsets_pct_scooped": 35.1,
+        "onsets_pct_overshot": 45.7,
+        "entry_accuracy_reliability": "reduced"
+      }
+    },
+    {
       "take": "2026-07-30-aaron-and-rilda-burning-down-the-house-take-001",
       "singer": "aaron-and-rilda",
       "song": "burning-down-the-house-take-001",
@@ -7211,6 +7267,47 @@
         "onsets_pct_clean": 22.7,
         "onsets_pct_scooped": 33.1,
         "onsets_pct_overshot": 44.2,
+        "entry_accuracy_reliability": "reduced"
+      }
+    },
+    {
+      "take": "2026-09-03-rilda-to-sir-with-love-take-001",
+      "singer": "rilda",
+      "song": "to-sir-with-love-take-001",
+      "date": "2026-09-03",
+      "n_notes": 165,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 7.3,
+      "capture_fair": 7.5,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 0.17,
+        "voice_quality": 4.63,
+        "vibrato_control": 10.0,
+        "dynamics_expression": 9.75,
+        "phrase_control": 10.0,
+        "breath_support": 6.26
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 79.7,
+        "pct_within_25c": 59.4,
+        "jitter_pct": 1.661,
+        "shimmer_pct": 16.6097,
+        "hnr_db": 10.54,
+        "vibrato_pct_notes": 47.1,
+        "dyn_phrase_spread_db": 20.75,
+        "dyn_effective_range_db": 19.54,
+        "median_phrase_s": 4.39,
+        "onsets_pct_clean": 25.2,
+        "onsets_pct_scooped": 30.8,
+        "onsets_pct_overshot": 43.9,
         "entry_accuracy_reliability": "reduced"
       }
     }
