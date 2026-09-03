@@ -1,25 +1,13 @@
 {
-  "file_name": "2026-08-29-aaron-to-be-with-you-take-001.wav",
+  "file_name": "2026-08-29-aaron-to-be-with-you-take-001_(vocals)_vocals_mel_band_roformer.flac",
   "analysis_input_file": "2026-08-29-aaron-to-be-with-you-take-001_(vocals)_vocals_mel_band_roformer.flac",
-  "analysed_at": "2026-08-29T00:30:23",
+  "analysed_at": "2026-09-03T16:00:46",
   "artist_name": "Aaron",
   "duration_seconds": 201.28,
   "sample_rate": 44100,
   "engine": {
     "parselmouth_available": true,
     "measurement_policy": "voice-quality metrics restricted to sustained voiced notes; deterministic scoring rubric v5"
-  },
-  "stem_separation": {
-    "enabled": true,
-    "script_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/tools/stems/batch_stems.sh",
-    "output_dir": "output/stems/2026-08-29-aaron-to-be-with-you-take-001_20260829-002437",
-    "vocals_path": "output/stems/2026-08-29-aaron-to-be-with-you-take-001_20260829-002437/2026-08-29-aaron-to-be-with-you-take-001_(vocals)_vocals_mel_band_roformer.flac",
-    "instrumental_path": "output/stems/2026-08-29-aaron-to-be-with-you-take-001_20260829-002437/2026-08-29-aaron-to-be-with-you-take-001_(other)_vocals_mel_band_roformer.flac",
-    "original_mix_path": "/home/rustwood/.openclaw/candi-workspace/openclaw-data/vox-coach/uploads/raw/2026-08-29-aaron-to-be-with-you-take-001.wav",
-    "separator": "kimberleyjsn-melbandroformer",
-    "separator_model": "vocals_mel_band_roformer",
-    "separator_backend": "audio-separator",
-    "separator_license": "MIT"
   },
   "pitch": {
     "f0_contour": {
@@ -2255,7 +2243,7 @@
   "rhythm": {
     "measures": "onset density & regularity of the vocal delivery \u2014 NOT timing vs the backing (see groove)",
     "estimated_tempo_bpm": 84.7,
-    "tempo_confidence": "low (isolated vocal stem \u2014 beat tracking expects a full mix; indicative only)",
+    "tempo_confidence": "medium",
     "timing_vs_backing": "scored separately by analyse_groove (canonical)",
     "total_onsets": 442,
     "onsets_per_second": 2.2,
@@ -6816,74 +6804,950 @@
     "h1_h2_read": "Balanced source",
     "note": "Numeric overtone profile. On separated stems, separation artifacts add noise to upper harmonics \u2014 read H5+ cautiously."
   },
-  "groove": {
-    "method": "vocal-stem onsets vs the half-beat grid of the backing (canonical timing scorer)",
-    "grid_source": "instrumental stem (mix \u2212 vocal, vocal-free)",
-    "tempo_bpm": 84.7,
-    "confidence": "high",
-    "cross_check": {
-      "mix_tempo_bpm": 84.7,
-      "instrumental_tempo_bpm": 84.7,
-      "agree": true,
-      "note": "Mix and instrumental agree on tempo."
-    },
-    "n_onsets": 442,
-    "mean_offset_ms": -15.5,
-    "offset_spread_ms": 95.0,
-    "feel": "in the pocket",
-    "sections_20s": [
+  "word_drift": {
+    "method": "per held note >= 0.6 s: vibrato-smoothed contour spread over vowel frames vs largest excursion within \u00b180 ms of each energy-dip / voicing-gap boundary",
+    "n_notes_analysed": 85,
+    "n_notes_with_boundaries": 66,
+    "pct_notes_with_boundaries": 77.6,
+    "median_vowel_drift_cents": 108.2,
+    "median_boundary_excursion_cents": 74.2,
+    "read": "Vowel drift and boundary excursions are of similar size \u2014 work both.",
+    "worst_boundary_notes": [
       {
-        "time_range": "0:00-0:20",
-        "mean_offset_ms": -22.7,
-        "feel": "in the pocket"
+        "time": "0:52",
+        "start_s": 52.0,
+        "duration_s": 1.09,
+        "note": "F\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 178.5,
+        "boundary_excursion_cents": 223.1,
+        "worst_boundary_excursion_cents": 280.4
       },
       {
-        "time_range": "0:20-0:40",
-        "mean_offset_ms": -25.2,
-        "feel": "rushing"
+        "time": "1:09",
+        "start_s": 68.92,
+        "duration_s": 1.2,
+        "note": "G\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 243.1,
+        "worst_boundary_excursion_cents": 260.8
       },
       {
-        "time_range": "0:40-1:00",
-        "mean_offset_ms": -22.8,
-        "feel": "in the pocket"
+        "time": "2:20",
+        "start_s": 139.62,
+        "duration_s": 0.89,
+        "note": "A4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 258.1,
+        "boundary_excursion_cents": 248.1,
+        "worst_boundary_excursion_cents": 248.1
       },
       {
-        "time_range": "1:00-1:20",
-        "mean_offset_ms": -15.8,
-        "feel": "in the pocket"
+        "time": "0:14",
+        "start_s": 14.43,
+        "duration_s": 0.68,
+        "note": "F\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 244.2,
+        "worst_boundary_excursion_cents": 244.2
       },
       {
-        "time_range": "1:20-1:40",
-        "mean_offset_ms": -1.3,
-        "feel": "in the pocket"
+        "time": "0:56",
+        "start_s": 56.47,
+        "duration_s": 1.72,
+        "note": "F\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 222.5,
+        "boundary_excursion_cents": 120.0,
+        "worst_boundary_excursion_cents": 226.9
       },
       {
-        "time_range": "1:40-2:00",
-        "mean_offset_ms": 7.7,
-        "feel": "in the pocket"
+        "time": "2:17",
+        "start_s": 136.9,
+        "duration_s": 1.34,
+        "note": "G4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 66.5,
+        "boundary_excursion_cents": 203.8,
+        "worst_boundary_excursion_cents": 216.9
       },
       {
-        "time_range": "2:00-2:20",
-        "mean_offset_ms": 14.2,
-        "feel": "in the pocket"
+        "time": "0:24",
+        "start_s": 23.66,
+        "duration_s": 1.21,
+        "note": "G\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 152.3,
+        "worst_boundary_excursion_cents": 210.0
       },
       {
-        "time_range": "2:20-2:40",
-        "mean_offset_ms": -15.8,
-        "feel": "in the pocket"
-      },
-      {
-        "time_range": "2:40-3:00",
-        "mean_offset_ms": -29.9,
-        "feel": "rushing"
-      },
-      {
-        "time_range": "3:00-3:20",
-        "mean_offset_ms": -39.5,
-        "feel": "rushing"
+        "time": "1:15",
+        "start_s": 75.42,
+        "duration_s": 1.95,
+        "note": "F\u266f4",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 266.2,
+        "boundary_excursion_cents": 107.3,
+        "worst_boundary_excursion_cents": 209.2
       }
     ],
-    "note": "Negative = ahead of the beat. Persistent |offset| under ~25 ms reads as tight; deliberate back-phrasing (soul/jazz) shows as consistent positive offsets \u2014 style, not error."
+    "notes": [
+      {
+        "time": "0:06",
+        "start_s": 5.9,
+        "duration_s": 1.02,
+        "note": "F4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 108.2,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:07",
+        "start_s": 6.92,
+        "duration_s": 0.91,
+        "note": "F\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 117.0,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:08",
+        "start_s": 8.49,
+        "duration_s": 0.72,
+        "note": "F4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 50.8,
+        "worst_boundary_excursion_cents": 116.9
+      },
+      {
+        "time": "0:10",
+        "start_s": 9.98,
+        "duration_s": 0.7,
+        "note": "D\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 29.6,
+        "worst_boundary_excursion_cents": 33.1
+      },
+      {
+        "time": "0:11",
+        "start_s": 10.98,
+        "duration_s": 1.46,
+        "note": "F\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 199.8,
+        "boundary_excursion_cents": 82.3,
+        "worst_boundary_excursion_cents": 91.2
+      },
+      {
+        "time": "0:12",
+        "start_s": 12.46,
+        "duration_s": 0.87,
+        "note": "G4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 135.2,
+        "boundary_excursion_cents": 16.5,
+        "worst_boundary_excursion_cents": 16.5
+      },
+      {
+        "time": "0:14",
+        "start_s": 14.43,
+        "duration_s": 0.68,
+        "note": "F\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 244.2,
+        "worst_boundary_excursion_cents": 244.2
+      },
+      {
+        "time": "0:15",
+        "start_s": 15.48,
+        "duration_s": 0.82,
+        "note": "D\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 82.1,
+        "boundary_excursion_cents": 56.2,
+        "worst_boundary_excursion_cents": 56.2
+      },
+      {
+        "time": "0:16",
+        "start_s": 16.31,
+        "duration_s": 0.68,
+        "note": "G4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 106.6,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:17",
+        "start_s": 17.0,
+        "duration_s": 0.73,
+        "note": "E4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 204.2,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:18",
+        "start_s": 17.73,
+        "duration_s": 0.62,
+        "note": "F\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 32.3,
+        "worst_boundary_excursion_cents": 32.3
+      },
+      {
+        "time": "0:18",
+        "start_s": 18.34,
+        "duration_s": 0.77,
+        "note": "D\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 26.1,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:20",
+        "start_s": 20.12,
+        "duration_s": 1.02,
+        "note": "F4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 66.9,
+        "boundary_excursion_cents": 70.0,
+        "worst_boundary_excursion_cents": 112.3
+      },
+      {
+        "time": "0:21",
+        "start_s": 21.15,
+        "duration_s": 0.74,
+        "note": "E4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 10.4,
+        "boundary_excursion_cents": 45.4,
+        "worst_boundary_excursion_cents": 45.4
+      },
+      {
+        "time": "0:22",
+        "start_s": 22.33,
+        "duration_s": 1.32,
+        "note": "G4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 240.2,
+        "boundary_excursion_cents": 106.5,
+        "worst_boundary_excursion_cents": 125.0
+      },
+      {
+        "time": "0:24",
+        "start_s": 23.66,
+        "duration_s": 1.21,
+        "note": "G\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 152.3,
+        "worst_boundary_excursion_cents": 210.0
+      },
+      {
+        "time": "0:25",
+        "start_s": 25.11,
+        "duration_s": 1.31,
+        "note": "G\u266f4",
+        "n_boundaries": 6,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 103.5,
+        "worst_boundary_excursion_cents": 128.5
+      },
+      {
+        "time": "0:27",
+        "start_s": 27.18,
+        "duration_s": 1.25,
+        "note": "E4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 122.3,
+        "boundary_excursion_cents": 24.2,
+        "worst_boundary_excursion_cents": 24.2
+      },
+      {
+        "time": "0:38",
+        "start_s": 37.5,
+        "duration_s": 1.52,
+        "note": "F4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 118.3,
+        "boundary_excursion_cents": 101.9,
+        "worst_boundary_excursion_cents": 118.5
+      },
+      {
+        "time": "0:39",
+        "start_s": 39.09,
+        "duration_s": 0.71,
+        "note": "E4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 63.3,
+        "boundary_excursion_cents": 78.5,
+        "worst_boundary_excursion_cents": 78.5
+      },
+      {
+        "time": "0:42",
+        "start_s": 41.99,
+        "duration_s": 0.8,
+        "note": "A\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 29.2,
+        "worst_boundary_excursion_cents": 148.5
+      },
+      {
+        "time": "0:43",
+        "start_s": 42.89,
+        "duration_s": 1.68,
+        "note": "E4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 133.7,
+        "boundary_excursion_cents": 40.0,
+        "worst_boundary_excursion_cents": 66.2
+      },
+      {
+        "time": "0:45",
+        "start_s": 44.98,
+        "duration_s": 0.96,
+        "note": "G4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 127.3,
+        "worst_boundary_excursion_cents": 174.6
+      },
+      {
+        "time": "0:47",
+        "start_s": 46.95,
+        "duration_s": 1.76,
+        "note": "F4",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 136.9,
+        "boundary_excursion_cents": 127.7,
+        "worst_boundary_excursion_cents": 146.9
+      },
+      {
+        "time": "0:51",
+        "start_s": 50.98,
+        "duration_s": 1.02,
+        "note": "F\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 182.5,
+        "boundary_excursion_cents": 198.5,
+        "worst_boundary_excursion_cents": 198.5
+      },
+      {
+        "time": "0:52",
+        "start_s": 52.0,
+        "duration_s": 1.09,
+        "note": "F\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 178.5,
+        "boundary_excursion_cents": 223.1,
+        "worst_boundary_excursion_cents": 280.4
+      },
+      {
+        "time": "0:53",
+        "start_s": 53.31,
+        "duration_s": 0.65,
+        "note": "F4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 61.5,
+        "worst_boundary_excursion_cents": 61.5
+      },
+      {
+        "time": "0:54",
+        "start_s": 53.96,
+        "duration_s": 0.73,
+        "note": "G4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 2.3,
+        "boundary_excursion_cents": 127.7,
+        "worst_boundary_excursion_cents": 127.7
+      },
+      {
+        "time": "0:55",
+        "start_s": 55.18,
+        "duration_s": 0.71,
+        "note": "E4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 27.7,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:56",
+        "start_s": 56.47,
+        "duration_s": 1.72,
+        "note": "F\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 222.5,
+        "boundary_excursion_cents": 120.0,
+        "worst_boundary_excursion_cents": 226.9
+      },
+      {
+        "time": "0:59",
+        "start_s": 58.91,
+        "duration_s": 0.71,
+        "note": "E4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 109.7,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:00",
+        "start_s": 59.62,
+        "duration_s": 0.74,
+        "note": "F4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 271.8,
+        "boundary_excursion_cents": 150.0,
+        "worst_boundary_excursion_cents": 150.0
+      },
+      {
+        "time": "1:00",
+        "start_s": 60.37,
+        "duration_s": 1.11,
+        "note": "E4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 175.2,
+        "boundary_excursion_cents": 50.8,
+        "worst_boundary_excursion_cents": 193.1
+      },
+      {
+        "time": "1:02",
+        "start_s": 61.89,
+        "duration_s": 1.0,
+        "note": "E4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 202.7,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:03",
+        "start_s": 62.98,
+        "duration_s": 0.64,
+        "note": "F\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 44.2,
+        "worst_boundary_excursion_cents": 44.2
+      },
+      {
+        "time": "1:05",
+        "start_s": 64.66,
+        "duration_s": 1.64,
+        "note": "F\u266f4",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 216.1,
+        "boundary_excursion_cents": 123.8,
+        "worst_boundary_excursion_cents": 176.9
+      },
+      {
+        "time": "1:08",
+        "start_s": 67.57,
+        "duration_s": 0.68,
+        "note": "G\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 30.4,
+        "worst_boundary_excursion_cents": 48.5
+      },
+      {
+        "time": "1:09",
+        "start_s": 68.92,
+        "duration_s": 1.2,
+        "note": "G\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 243.1,
+        "worst_boundary_excursion_cents": 260.8
+      },
+      {
+        "time": "1:10",
+        "start_s": 70.37,
+        "duration_s": 1.28,
+        "note": "G\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 165.8,
+        "boundary_excursion_cents": 156.5,
+        "worst_boundary_excursion_cents": 168.8
+      },
+      {
+        "time": "1:13",
+        "start_s": 72.61,
+        "duration_s": 1.0,
+        "note": "D\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 26.9,
+        "boundary_excursion_cents": 35.4,
+        "worst_boundary_excursion_cents": 38.5
+      },
+      {
+        "time": "1:15",
+        "start_s": 75.42,
+        "duration_s": 1.95,
+        "note": "F\u266f4",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 266.2,
+        "boundary_excursion_cents": 107.3,
+        "worst_boundary_excursion_cents": 209.2
+      },
+      {
+        "time": "1:23",
+        "start_s": 82.62,
+        "duration_s": 0.96,
+        "note": "F\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 127.1,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:24",
+        "start_s": 83.68,
+        "duration_s": 0.94,
+        "note": "F4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 169.2,
+        "boundary_excursion_cents": 133.8,
+        "worst_boundary_excursion_cents": 147.7
+      },
+      {
+        "time": "1:27",
+        "start_s": 87.18,
+        "duration_s": 0.87,
+        "note": "B4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 34.0,
+        "boundary_excursion_cents": 126.9,
+        "worst_boundary_excursion_cents": 126.9
+      },
+      {
+        "time": "1:28",
+        "start_s": 88.17,
+        "duration_s": 1.72,
+        "note": "E4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 114.2,
+        "boundary_excursion_cents": 20.8,
+        "worst_boundary_excursion_cents": 21.9
+      },
+      {
+        "time": "1:33",
+        "start_s": 93.31,
+        "duration_s": 0.86,
+        "note": "E4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 8.5,
+        "boundary_excursion_cents": 22.7,
+        "worst_boundary_excursion_cents": 28.8
+      },
+      {
+        "time": "1:37",
+        "start_s": 96.66,
+        "duration_s": 1.59,
+        "note": "E4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 387.5,
+        "boundary_excursion_cents": 175.8,
+        "worst_boundary_excursion_cents": 300.8
+      },
+      {
+        "time": "1:40",
+        "start_s": 99.94,
+        "duration_s": 0.66,
+        "note": "F4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 193.5,
+        "worst_boundary_excursion_cents": 201.5
+      },
+      {
+        "time": "1:42",
+        "start_s": 102.3,
+        "duration_s": 0.72,
+        "note": "F4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 58.2,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:43",
+        "start_s": 103.03,
+        "duration_s": 0.95,
+        "note": "D\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 64.6,
+        "boundary_excursion_cents": 10.8,
+        "worst_boundary_excursion_cents": 10.8
+      },
+      {
+        "time": "1:44",
+        "start_s": 104.05,
+        "duration_s": 1.16,
+        "note": "G4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 46.5,
+        "worst_boundary_excursion_cents": 147.3
+      },
+      {
+        "time": "1:47",
+        "start_s": 107.11,
+        "duration_s": 3.03,
+        "note": "E4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 75.7,
+        "boundary_excursion_cents": 63.1,
+        "worst_boundary_excursion_cents": 63.1
+      },
+      {
+        "time": "2:09",
+        "start_s": 128.84,
+        "duration_s": 0.72,
+        "note": "G\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 26.0,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "2:10",
+        "start_s": 129.9,
+        "duration_s": 0.71,
+        "note": "G4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 77.2,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "2:11",
+        "start_s": 131.34,
+        "duration_s": 0.67,
+        "note": "F\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 86.9,
+        "worst_boundary_excursion_cents": 86.9
+      },
+      {
+        "time": "2:12",
+        "start_s": 132.04,
+        "duration_s": 0.6,
+        "note": "D\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 11.0,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "2:14",
+        "start_s": 133.97,
+        "duration_s": 0.67,
+        "note": "F\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 21.5,
+        "worst_boundary_excursion_cents": 23.8
+      },
+      {
+        "time": "2:15",
+        "start_s": 134.66,
+        "duration_s": 0.71,
+        "note": "D\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 34.2,
+        "worst_boundary_excursion_cents": 56.2
+      },
+      {
+        "time": "2:16",
+        "start_s": 135.62,
+        "duration_s": 1.28,
+        "note": "G4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 158.5,
+        "boundary_excursion_cents": 114.6,
+        "worst_boundary_excursion_cents": 125.4
+      },
+      {
+        "time": "2:17",
+        "start_s": 136.9,
+        "duration_s": 1.34,
+        "note": "G4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 66.5,
+        "boundary_excursion_cents": 203.8,
+        "worst_boundary_excursion_cents": 216.9
+      },
+      {
+        "time": "2:18",
+        "start_s": 138.26,
+        "duration_s": 1.34,
+        "note": "G4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 200.5,
+        "boundary_excursion_cents": 146.2,
+        "worst_boundary_excursion_cents": 188.5
+      },
+      {
+        "time": "2:20",
+        "start_s": 139.62,
+        "duration_s": 0.89,
+        "note": "A4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 258.1,
+        "boundary_excursion_cents": 248.1,
+        "worst_boundary_excursion_cents": 248.1
+      },
+      {
+        "time": "2:21",
+        "start_s": 140.75,
+        "duration_s": 2.4,
+        "note": "E4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 296.7,
+        "boundary_excursion_cents": 5.4,
+        "worst_boundary_excursion_cents": 5.4
+      },
+      {
+        "time": "2:27",
+        "start_s": 147.13,
+        "duration_s": 0.64,
+        "note": "A4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 102.5,
+        "boundary_excursion_cents": 152.7,
+        "worst_boundary_excursion_cents": 152.7
+      },
+      {
+        "time": "2:28",
+        "start_s": 147.77,
+        "duration_s": 2.12,
+        "note": "G4",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 243.2,
+        "boundary_excursion_cents": 18.8,
+        "worst_boundary_excursion_cents": 197.7
+      },
+      {
+        "time": "2:33",
+        "start_s": 152.76,
+        "duration_s": 1.6,
+        "note": "A4",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 100.3,
+        "boundary_excursion_cents": 36.5,
+        "worst_boundary_excursion_cents": 43.8
+      },
+      {
+        "time": "2:37",
+        "start_s": 157.27,
+        "duration_s": 0.79,
+        "note": "C\u266f5",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 68.4,
+        "boundary_excursion_cents": 53.1,
+        "worst_boundary_excursion_cents": 53.1
+      },
+      {
+        "time": "2:38",
+        "start_s": 158.14,
+        "duration_s": 1.57,
+        "note": "G4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 98.0,
+        "boundary_excursion_cents": 33.8,
+        "worst_boundary_excursion_cents": 41.9
+      },
+      {
+        "time": "2:43",
+        "start_s": 162.96,
+        "duration_s": 1.08,
+        "note": "G4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 123.1,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "2:48",
+        "start_s": 167.58,
+        "duration_s": 0.79,
+        "note": "C\u266f5",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 145.0,
+        "worst_boundary_excursion_cents": 150.8
+      },
+      {
+        "time": "2:48",
+        "start_s": 168.37,
+        "duration_s": 1.32,
+        "note": "B4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 41.3,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "2:50",
+        "start_s": 169.69,
+        "duration_s": 0.67,
+        "note": "G\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 10.8,
+        "boundary_excursion_cents": 97.7,
+        "worst_boundary_excursion_cents": 97.7
+      },
+      {
+        "time": "2:50",
+        "start_s": 170.46,
+        "duration_s": 0.87,
+        "note": "D\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 29.2,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "2:56",
+        "start_s": 175.55,
+        "duration_s": 1.39,
+        "note": "F\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 133.7,
+        "boundary_excursion_cents": 81.9,
+        "worst_boundary_excursion_cents": 90.0
+      },
+      {
+        "time": "3:00",
+        "start_s": 179.8,
+        "duration_s": 0.78,
+        "note": "A\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 32.3,
+        "boundary_excursion_cents": 45.8,
+        "worst_boundary_excursion_cents": 60.8
+      },
+      {
+        "time": "3:01",
+        "start_s": 180.66,
+        "duration_s": 0.79,
+        "note": "E4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 81.6,
+        "boundary_excursion_cents": 91.5,
+        "worst_boundary_excursion_cents": 91.5
+      },
+      {
+        "time": "3:01",
+        "start_s": 181.45,
+        "duration_s": 0.91,
+        "note": "E4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 64.4,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "3:03",
+        "start_s": 183.19,
+        "duration_s": 0.67,
+        "note": "F\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 10.0,
+        "worst_boundary_excursion_cents": 10.0
+      },
+      {
+        "time": "3:05",
+        "start_s": 184.9,
+        "duration_s": 0.63,
+        "note": "F\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 62.7,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "3:06",
+        "start_s": 185.89,
+        "duration_s": 0.65,
+        "note": "E4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 6.9,
+        "boundary_excursion_cents": 9.2,
+        "worst_boundary_excursion_cents": 9.2
+      },
+      {
+        "time": "3:09",
+        "start_s": 188.86,
+        "duration_s": 0.7,
+        "note": "F4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 40.4,
+        "worst_boundary_excursion_cents": 53.8
+      },
+      {
+        "time": "3:10",
+        "start_s": 189.86,
+        "duration_s": 0.81,
+        "note": "C\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 85.6,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "3:11",
+        "start_s": 190.69,
+        "duration_s": 2.15,
+        "note": "E4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 382.9,
+        "boundary_excursion_cents": 135.8,
+        "worst_boundary_excursion_cents": 135.8
+      },
+      {
+        "time": "3:13",
+        "start_s": 192.84,
+        "duration_s": 3.01,
+        "note": "E4",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 75.6,
+        "boundary_excursion_cents": 50.8,
+        "worst_boundary_excursion_cents": 89.2
+      },
+      {
+        "time": "3:17",
+        "start_s": 196.6,
+        "duration_s": 2.33,
+        "note": "E4",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 158.4,
+        "boundary_excursion_cents": 11.9,
+        "worst_boundary_excursion_cents": 17.3
+      }
+    ],
+    "reliability": "medium \u2014 boundaries are inferred from energy dips and voicing gaps inside a held note, not from lyrics; a breathy vowel can register as a boundary. Confirm at the timestamps.",
+    "note": "Diagnostic only \u2014 never scored, never part of the /10."
   },
   "time_diagnostics": {
     "energy_blocks_10s": [
@@ -7004,9 +7868,9 @@
     }
   },
   "visual_diagnostics": {
-    "plot_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-08-29-aaron-to-be-with-you-take-001_diagnostic_plot.png",
-    "note_cards_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-08-29-aaron-to-be-with-you-take-001_note_cards.png",
-    "notes_csv_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/output/2026-08-29-aaron-to-be-with-you-take-001_notes.csv",
+    "plot_path": "/tmp/phase1/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-08-29-aaron-to-be-with-you-take-001_(vocals)_vocals_mel_band_roformer_diagnostic_plot.png",
+    "note_cards_path": "/tmp/phase1/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-08-29-aaron-to-be-with-you-take-001_(vocals)_vocals_mel_band_roformer_note_cards.png",
+    "notes_csv_path": "/tmp/phase1/voxanalysis/vox-analysis/engine/output/2026-08-29-aaron-to-be-with-you-take-001_(vocals)_vocals_mel_band_roformer_notes.csv",
     "panels": [
       "section_health_ribbon",
       "waveform_amplitude",
@@ -7018,6 +7882,7 @@
     ],
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
+  "measurement_fingerprint": "28e854af22ea",
   "technical_score": {
     "identity": {
       "contract": "voxai_score_v1",
@@ -7025,9 +7890,11 @@
       "rubric_fingerprint": "7cbd02df8f62",
       "calibrated": true,
       "calibration_references": 50,
-      "calibration_fingerprint": "1d3e2991f144",
+      "calibration_fingerprint": "4c52716b5aed",
       "stem_model": "RoFormer",
-      "take_fingerprint": "7dec158b49b3"
+      "take_fingerprint": "68b173316dd8",
+      "measurement_fingerprint": "28e854af22ea",
+      "calibration_measurement_fingerprint": "28e854af22ea"
     },
     "overall_score_0_to_10": 6.2,
     "capture_fair_score_0_to_10": 5.4,
@@ -7035,7 +7902,7 @@
     "provenance": "deterministic_rubric_v5 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
     "calibration": {
       "active": true,
-      "file": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
+      "file": "/tmp/phase1/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
       "n_references": 50,
       "note": null
     },
@@ -7054,8 +7921,8 @@
       },
       "pitch_stability": {
         "weight": 0.15,
-        "input": "median intra-note drift = 88.6 cents \u2014 matches or beats 2.0% of 50 pro references",
-        "formula": "10 at pro-reference median (24.25 cents), 0 at 80 cents, linear",
+        "input": "median intra-note drift = 88.6 cents \u2014 matches or beats 14.0% of 50 pro references",
+        "formula": "10 at pro-reference median (62.55 cents), 0 at 80 cents, linear",
         "score": 0.0
       },
       "voice_quality": {
@@ -7172,7 +8039,7 @@
       {
         "category": "breath_support",
         "selector_heading": "If the main limiter is BREATH / SUPPORT",
-        "severity_0_to_100": 98.0,
+        "severity_0_to_100": 86.0,
         "evidence": [
           "held notes drift 88.6 cents",
           "59.4% of phrase endings sag (intentional fall-offs also register \u2014 confirm by ear)"
@@ -7257,13 +8124,6 @@
     "no_direct_coverage": [],
     "note": "Primary drill = highest-severity measured limiter. Candi may choose among the category's listed exercises using drill history, or justify a deviation in prose."
   },
-  "take_context": {
-    "intent": "learning",
-    "capture": "home",
-    "milestone": null,
-    "note": "Separate home karaoke room practice take of To Be With You, recorded 28 August 2026 with the Zoom H8 sitting in the room (ambient capture, not close-mic). Not the same session as 2026-08-22-aaron-to-be-with-you-take-001_analysis.json. Excluded from sung-performance rankings and trends by intent.",
-    "superseded": false
-  },
   "archetype": "Pitch Slider",
   "diagnostic_flags": [
     {
@@ -7282,5 +8142,12 @@
       "likely_cause": "Breath pressure decay or TA-dominant registration pulling pitch.",
       "intervention": "Fry to Head / Lip Trill / Messa di Voce on single pitches"
     }
-  ]
+  ],
+  "take_context": {
+    "intent": "learning",
+    "capture": "home",
+    "milestone": null,
+    "note": "Separate home karaoke room practice take of To Be With You, recorded 28 August 2026 with the Zoom H8 sitting in the room (ambient capture, not close-mic). Not the same session as 2026-08-22-aaron-to-be-with-you-take-001_analysis.json. Excluded from sung-performance rankings and trends by intent.",
+    "superseded": false
+  }
 }

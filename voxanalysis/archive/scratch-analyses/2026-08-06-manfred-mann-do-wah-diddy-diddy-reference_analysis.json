@@ -1,25 +1,13 @@
 {
-  "file_name": "do-wah-diddy-diddy-original.mp3",
+  "file_name": "do-wah-diddy-diddy-original_(vocals)_vocals_mel_band_roformer.flac",
   "analysis_input_file": "do-wah-diddy-diddy-original_(vocals)_vocals_mel_band_roformer.flac",
-  "analysed_at": "2026-08-06T11:21:56",
+  "analysed_at": "2026-09-03T15:35:31",
   "artist_name": "Manfred Mann",
   "duration_seconds": 141.32,
   "sample_rate": 44100,
   "engine": {
     "parselmouth_available": true,
     "measurement_policy": "voice-quality metrics restricted to sustained voiced notes; deterministic scoring rubric v5"
-  },
-  "stem_separation": {
-    "enabled": true,
-    "script_path": "/home/rustwood/.openclaw/candi-workspace/openclaw-data/vox-coach/temp/reference-runs/do-wah-my-babe-WXQMmnoW/repo/voxanalysis/vox-analysis/engine/tools/stems/batch_stems.sh",
-    "output_dir": "output/stems/do-wah-diddy-diddy-original_20260806-111800",
-    "vocals_path": "output/stems/do-wah-diddy-diddy-original_20260806-111800/do-wah-diddy-diddy-original_(vocals)_vocals_mel_band_roformer.flac",
-    "instrumental_path": "output/stems/do-wah-diddy-diddy-original_20260806-111800/do-wah-diddy-diddy-original_(other)_vocals_mel_band_roformer.flac",
-    "original_mix_path": "/home/rustwood/.openclaw/candi-workspace/openclaw-data/vox-coach/temp/reference-runs/do-wah-my-babe-WXQMmnoW/do-wah-diddy-diddy-original.mp3",
-    "separator": "kimberleyjsn-melbandroformer",
-    "separator_model": "vocals_mel_band_roformer",
-    "separator_backend": "audio-separator",
-    "separator_license": "MIT"
   },
   "pitch": {
     "f0_contour": {
@@ -1619,7 +1607,7 @@
   "rhythm": {
     "measures": "onset density & regularity of the vocal delivery \u2014 NOT timing vs the backing (see groove)",
     "estimated_tempo_bpm": 129.2,
-    "tempo_confidence": "low (isolated vocal stem \u2014 beat tracking expects a full mix; indicative only)",
+    "tempo_confidence": "medium",
     "timing_vs_backing": "scored separately by analyse_groove (canonical)",
     "total_onsets": 443,
     "onsets_per_second": 3.13,
@@ -3196,7 +3184,9 @@
     "p90_abs_deviation_cents": 40.0,
     "pct_notes_within_10_cents": 34.5,
     "pct_notes_within_25_cents": 72.5,
-    "median_intra_note_drift_cents": 20.8,
+    "median_intra_note_drift_cents": 29.7,
+    "drift_measurable_notes": 120,
+    "drift_note": null,
     "notes": [
       {
         "time": "0:04",
@@ -3215,8 +3205,8 @@
         "note": "B3",
         "note_detailed": "B3+10ct",
         "deviation_cents": 0.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:06",
@@ -3225,8 +3215,8 @@
         "note": "G\u266f3",
         "note_detailed": "G\u266f3+30ct",
         "deviation_cents": 20.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:06",
@@ -3236,7 +3226,7 @@
         "note_detailed": "C\u266f4+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 48.2,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:07",
@@ -3246,7 +3236,7 @@
         "note_detailed": "B3+45ct",
         "deviation_cents": 35.0,
         "drift_cents": 9.9,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:07",
@@ -3266,7 +3256,7 @@
         "note_detailed": "B3+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 22.1,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:10",
@@ -3285,8 +3275,8 @@
         "note": "B3",
         "note_detailed": "B3+30ct",
         "deviation_cents": 20.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:11",
@@ -3295,8 +3285,8 @@
         "note": "B3",
         "note_detailed": "B3+30ct",
         "deviation_cents": 20.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:12",
@@ -3306,7 +3296,7 @@
         "note_detailed": "B3+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 23.7,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:12",
@@ -3326,7 +3316,7 @@
         "note_detailed": "C\u266f4+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 36.3,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:14",
@@ -3336,7 +3326,7 @@
         "note_detailed": "B3+40ct",
         "deviation_cents": 30.0,
         "drift_cents": 47.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:15",
@@ -3346,7 +3336,7 @@
         "note_detailed": "A3-10ct",
         "deviation_cents": -20.0,
         "drift_cents": 24.7,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:16",
@@ -3356,7 +3346,7 @@
         "note_detailed": "B3+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 14.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:16",
@@ -3385,8 +3375,8 @@
         "note": "B3",
         "note_detailed": "B3+20ct",
         "deviation_cents": 10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:19",
@@ -3395,8 +3385,8 @@
         "note": "B3",
         "note_detailed": "B3-10ct",
         "deviation_cents": -20.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:20",
@@ -3406,7 +3396,7 @@
         "note_detailed": "E4+0ct",
         "deviation_cents": -10.0,
         "drift_cents": 21.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:20",
@@ -3416,7 +3406,7 @@
         "note_detailed": "C4-50ct",
         "deviation_cents": 40.0,
         "drift_cents": 17.8,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:21",
@@ -3425,8 +3415,8 @@
         "note": "E4",
         "note_detailed": "E4+30ct",
         "deviation_cents": 20.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:21",
@@ -3436,7 +3426,7 @@
         "note_detailed": "B3-20ct",
         "deviation_cents": -30.0,
         "drift_cents": 134.7,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:22",
@@ -3446,7 +3436,7 @@
         "note_detailed": "E4+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 14.2,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:23",
@@ -3455,8 +3445,8 @@
         "note": "E4",
         "note_detailed": "E4+40ct",
         "deviation_cents": 30.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:23",
@@ -3465,8 +3455,8 @@
         "note": "C4",
         "note_detailed": "C4-40ct",
         "deviation_cents": -50.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:24",
@@ -3476,7 +3466,7 @@
         "note_detailed": "B3+35ct",
         "deviation_cents": 25.0,
         "drift_cents": 28.2,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:25",
@@ -3486,7 +3476,7 @@
         "note_detailed": "E4+15ct",
         "deviation_cents": 5.0,
         "drift_cents": 26.9,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:25",
@@ -3496,7 +3486,7 @@
         "note_detailed": "B3+40ct",
         "deviation_cents": 30.0,
         "drift_cents": 59.7,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:26",
@@ -3525,8 +3515,8 @@
         "note": "A\u266f3",
         "note_detailed": "A\u266f3+20ct",
         "deviation_cents": 10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:29",
@@ -3556,7 +3546,7 @@
         "note_detailed": "A3-20ct",
         "deviation_cents": -30.0,
         "drift_cents": 50.0,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:31",
@@ -3566,7 +3556,7 @@
         "note_detailed": "B3+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 20.6,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:32",
@@ -3586,7 +3576,7 @@
         "note_detailed": "C\u266f4+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 47.6,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:33",
@@ -3595,8 +3585,8 @@
         "note": "C\u266f4",
         "note_detailed": "C\u266f4-20ct",
         "deviation_cents": -30.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:34",
@@ -3625,8 +3615,8 @@
         "note": "B3",
         "note_detailed": "B3-20ct",
         "deviation_cents": -30.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:36",
@@ -3635,8 +3625,8 @@
         "note": "C4",
         "note_detailed": "C4-50ct",
         "deviation_cents": 40.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:36",
@@ -3656,7 +3646,7 @@
         "note_detailed": "B3+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 15.6,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:38",
@@ -3665,8 +3655,8 @@
         "note": "A3",
         "note_detailed": "A3+50ct",
         "deviation_cents": 40.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:39",
@@ -3705,8 +3695,8 @@
         "note": "B3",
         "note_detailed": "B3-40ct",
         "deviation_cents": 50.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:42",
@@ -3716,7 +3706,7 @@
         "note_detailed": "B3+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 10.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:43",
@@ -3725,8 +3715,8 @@
         "note": "E4",
         "note_detailed": "E4+0ct",
         "deviation_cents": -10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:43",
@@ -3736,7 +3726,7 @@
         "note_detailed": "B3+0ct",
         "deviation_cents": -10.0,
         "drift_cents": 27.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:44",
@@ -3746,7 +3736,7 @@
         "note_detailed": "E4+45ct",
         "deviation_cents": 35.0,
         "drift_cents": 31.6,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:44",
@@ -3756,7 +3746,7 @@
         "note_detailed": "B3-5ct",
         "deviation_cents": -15.0,
         "drift_cents": 17.3,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:45",
@@ -3766,7 +3756,7 @@
         "note_detailed": "E4-10ct",
         "deviation_cents": -20.0,
         "drift_cents": 9.8,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:45",
@@ -3776,7 +3766,7 @@
         "note_detailed": "B3+0ct",
         "deviation_cents": -10.0,
         "drift_cents": 27.9,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:46",
@@ -3786,7 +3776,7 @@
         "note_detailed": "E4+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 39.7,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:46",
@@ -3796,7 +3786,7 @@
         "note_detailed": "B3+40ct",
         "deviation_cents": 30.0,
         "drift_cents": 30.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:47",
@@ -3805,8 +3795,8 @@
         "note": "E4",
         "note_detailed": "E4+40ct",
         "deviation_cents": 30.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:47",
@@ -3816,7 +3806,7 @@
         "note_detailed": "B3+0ct",
         "deviation_cents": -10.0,
         "drift_cents": 89.8,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:48",
@@ -3826,7 +3816,7 @@
         "note_detailed": "E4-10ct",
         "deviation_cents": -20.0,
         "drift_cents": 9.0,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:48",
@@ -3835,8 +3825,8 @@
         "note": "B3",
         "note_detailed": "B3+40ct",
         "deviation_cents": 30.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:49",
@@ -3846,7 +3836,7 @@
         "note_detailed": "E4-10ct",
         "deviation_cents": -20.0,
         "drift_cents": 15.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:49",
@@ -3865,8 +3855,8 @@
         "note": "B4",
         "note_detailed": "B4-40ct",
         "deviation_cents": -50.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:52",
@@ -3886,7 +3876,7 @@
         "note_detailed": "E5+50ct",
         "deviation_cents": 40.0,
         "drift_cents": 45.8,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:53",
@@ -3916,7 +3906,7 @@
         "note_detailed": "C\u266f4+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 8.9,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "0:56",
@@ -3925,8 +3915,8 @@
         "note": "G\u266f3",
         "note_detailed": "G\u266f3-40ct",
         "deviation_cents": -50.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:56",
@@ -3945,8 +3935,8 @@
         "note": "D4",
         "note_detailed": "D4+40ct",
         "deviation_cents": 30.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:00",
@@ -3956,7 +3946,7 @@
         "note_detailed": "D4-10ct",
         "deviation_cents": -20.0,
         "drift_cents": 142.4,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:02",
@@ -3976,7 +3966,7 @@
         "note_detailed": "F4+10ct",
         "deviation_cents": -0.0,
         "drift_cents": 221.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:04",
@@ -3996,7 +3986,7 @@
         "note_detailed": "B3+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 24.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:06",
@@ -4006,7 +3996,7 @@
         "note_detailed": "B3+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 36.0,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:07",
@@ -4016,7 +4006,7 @@
         "note_detailed": "C\u266f4+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 19.0,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:08",
@@ -4026,7 +4016,7 @@
         "note_detailed": "B3+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 60.4,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:08",
@@ -4036,7 +4026,7 @@
         "note_detailed": "A3+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 31.8,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:09",
@@ -4046,7 +4036,7 @@
         "note_detailed": "B3+0ct",
         "deviation_cents": -10.0,
         "drift_cents": 36.7,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:10",
@@ -4066,7 +4056,7 @@
         "note_detailed": "C\u266f4-20ct",
         "deviation_cents": -30.0,
         "drift_cents": 16.0,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:11",
@@ -4075,8 +4065,8 @@
         "note": "C\u266f4",
         "note_detailed": "C\u266f4-10ct",
         "deviation_cents": -20.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:12",
@@ -4085,8 +4075,8 @@
         "note": "B3",
         "note_detailed": "B3+20ct",
         "deviation_cents": 10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:13",
@@ -4095,8 +4085,8 @@
         "note": "B3",
         "note_detailed": "B3+20ct",
         "deviation_cents": 10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:13",
@@ -4116,7 +4106,7 @@
         "note_detailed": "B3+40ct",
         "deviation_cents": 30.0,
         "drift_cents": 45.0,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:15",
@@ -4126,7 +4116,7 @@
         "note_detailed": "C\u266f4+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 53.7,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:15",
@@ -4136,7 +4126,7 @@
         "note_detailed": "B3+35ct",
         "deviation_cents": 25.0,
         "drift_cents": 176.4,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:16",
@@ -4145,8 +4135,8 @@
         "note": "C4",
         "note_detailed": "C4-30ct",
         "deviation_cents": -40.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:16",
@@ -4186,7 +4176,7 @@
         "note_detailed": "E4+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 21.4,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:20",
@@ -4196,7 +4186,7 @@
         "note_detailed": "B3+0ct",
         "deviation_cents": -10.0,
         "drift_cents": 13.8,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:21",
@@ -4206,7 +4196,7 @@
         "note_detailed": "E4+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 31.3,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:21",
@@ -4215,8 +4205,8 @@
         "note": "B3",
         "note_detailed": "B3-10ct",
         "deviation_cents": -20.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:22",
@@ -4225,8 +4215,8 @@
         "note": "E4",
         "note_detailed": "E4+30ct",
         "deviation_cents": 20.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:22",
@@ -4236,7 +4226,7 @@
         "note_detailed": "B3+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 32.7,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:23",
@@ -4246,7 +4236,7 @@
         "note_detailed": "B3-5ct",
         "deviation_cents": -15.0,
         "drift_cents": 29.0,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:24",
@@ -4255,8 +4245,8 @@
         "note": "E4",
         "note_detailed": "E4+50ct",
         "deviation_cents": 40.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:24",
@@ -4266,7 +4256,7 @@
         "note_detailed": "B3+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 23.0,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:25",
@@ -4275,8 +4265,8 @@
         "note": "E4",
         "note_detailed": "E4+30ct",
         "deviation_cents": 20.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:25",
@@ -4285,8 +4275,8 @@
         "note": "B3",
         "note_detailed": "B3+20ct",
         "deviation_cents": 10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:26",
@@ -4296,7 +4286,7 @@
         "note_detailed": "E4+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 6.2,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:26",
@@ -4306,7 +4296,7 @@
         "note_detailed": "B3+0ct",
         "deviation_cents": -10.0,
         "drift_cents": 32.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:27",
@@ -4316,7 +4306,7 @@
         "note_detailed": "E4+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 9.8,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:27",
@@ -4326,7 +4316,7 @@
         "note_detailed": "B3+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 15.8,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:28",
@@ -4335,8 +4325,8 @@
         "note": "A3",
         "note_detailed": "A3-15ct",
         "deviation_cents": -25.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:30",
@@ -4366,7 +4356,7 @@
         "note_detailed": "E4+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 110.3,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:33",
@@ -4386,7 +4376,7 @@
         "note_detailed": "C\u266f4+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 11.2,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:34",
@@ -4406,7 +4396,7 @@
         "note_detailed": "D4+35ct",
         "deviation_cents": 25.0,
         "drift_cents": 122.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:38",
@@ -4416,7 +4406,7 @@
         "note_detailed": "D4+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 130.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:40",
@@ -4425,8 +4415,8 @@
         "note": "D\u266f4",
         "note_detailed": "D\u266f4-5ct",
         "deviation_cents": -15.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:41",
@@ -4436,7 +4426,7 @@
         "note_detailed": "D\u266f4-10ct",
         "deviation_cents": -20.0,
         "drift_cents": 14.3,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:41",
@@ -4446,7 +4436,7 @@
         "note_detailed": "F4+15ct",
         "deviation_cents": 5.0,
         "drift_cents": 215.1,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:42",
@@ -4466,7 +4456,7 @@
         "note_detailed": "B3+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 39.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:44",
@@ -4485,8 +4475,8 @@
         "note": "C\u266f4",
         "note_detailed": "C\u266f4+0ct",
         "deviation_cents": -10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:46",
@@ -4495,8 +4485,8 @@
         "note": "C\u266f4",
         "note_detailed": "C\u266f4+20ct",
         "deviation_cents": 10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:47",
@@ -4506,7 +4496,7 @@
         "note_detailed": "A3+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 106.0,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:47",
@@ -4516,7 +4506,7 @@
         "note_detailed": "B3+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 22.1,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:48",
@@ -4526,7 +4516,7 @@
         "note_detailed": "B3+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 11.2,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:48",
@@ -4565,8 +4555,8 @@
         "note": "B3",
         "note_detailed": "B3-30ct",
         "deviation_cents": -40.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:52",
@@ -4575,8 +4565,8 @@
         "note": "B3",
         "note_detailed": "B3-30ct",
         "deviation_cents": -40.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:52",
@@ -4585,8 +4575,8 @@
         "note": "B3",
         "note_detailed": "B3+20ct",
         "deviation_cents": 10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:53",
@@ -4596,7 +4586,7 @@
         "note_detailed": "C\u266f4-20ct",
         "deviation_cents": -30.0,
         "drift_cents": 19.4,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:54",
@@ -4605,8 +4595,8 @@
         "note": "A\u266f3",
         "note_detailed": "A\u266f3+10ct",
         "deviation_cents": -0.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:55",
@@ -4615,8 +4605,8 @@
         "note": "B3",
         "note_detailed": "B3+10ct",
         "deviation_cents": 0.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:56",
@@ -4636,7 +4626,7 @@
         "note_detailed": "C4-30ct",
         "deviation_cents": -40.0,
         "drift_cents": 98.6,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "1:58",
@@ -4645,8 +4635,8 @@
         "note": "E4",
         "note_detailed": "E4+30ct",
         "deviation_cents": 20.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:59",
@@ -4655,8 +4645,8 @@
         "note": "E4",
         "note_detailed": "E4+40ct",
         "deviation_cents": 30.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:00",
@@ -4665,8 +4655,8 @@
         "note": "E4",
         "note_detailed": "E4+0ct",
         "deviation_cents": -10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:00",
@@ -4676,7 +4666,7 @@
         "note_detailed": "B3+0ct",
         "deviation_cents": -10.0,
         "drift_cents": 181.4,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "2:01",
@@ -4686,7 +4676,7 @@
         "note_detailed": "B3+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 18.7,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "2:02",
@@ -4695,8 +4685,8 @@
         "note": "E4",
         "note_detailed": "E4+0ct",
         "deviation_cents": -10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:02",
@@ -4705,8 +4695,8 @@
         "note": "B3",
         "note_detailed": "B3+0ct",
         "deviation_cents": -10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:03",
@@ -4715,8 +4705,8 @@
         "note": "E4",
         "note_detailed": "E4+10ct",
         "deviation_cents": 0.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:03",
@@ -4726,7 +4716,7 @@
         "note_detailed": "B3+0ct",
         "deviation_cents": -10.0,
         "drift_cents": 37.2,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "2:04",
@@ -4736,7 +4726,7 @@
         "note_detailed": "E4+10ct",
         "deviation_cents": 0.0,
         "drift_cents": 6.5,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "2:05",
@@ -4746,7 +4736,7 @@
         "note_detailed": "E4+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 19.1,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "2:06",
@@ -4755,8 +4745,8 @@
         "note": "G\u266f3",
         "note_detailed": "G\u266f3-45ct",
         "deviation_cents": 45.2,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:07",
@@ -4765,8 +4755,8 @@
         "note": "B4",
         "note_detailed": "B4+45ct",
         "deviation_cents": 35.1,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:07",
@@ -4776,7 +4766,7 @@
         "note_detailed": "D\u266f4+40ct",
         "deviation_cents": 30.0,
         "drift_cents": 229.7,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "2:08",
@@ -4785,8 +4775,8 @@
         "note": "B3",
         "note_detailed": "B3+0ct",
         "deviation_cents": -10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:09",
@@ -4796,7 +4786,7 @@
         "note_detailed": "B3+25ct",
         "deviation_cents": 15.0,
         "drift_cents": 189.0,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "2:09",
@@ -4805,8 +4795,8 @@
         "note": "E5",
         "note_detailed": "E5+50ct",
         "deviation_cents": 40.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:10",
@@ -4826,7 +4816,7 @@
         "note_detailed": "B3+20ct",
         "deviation_cents": 10.0,
         "drift_cents": 8.3,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "2:12",
@@ -4845,8 +4835,8 @@
         "note": "C4",
         "note_detailed": "C4-40ct",
         "deviation_cents": -50.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:13",
@@ -4856,7 +4846,7 @@
         "note_detailed": "B3+30ct",
         "deviation_cents": 20.0,
         "drift_cents": 49.4,
-        "held_drift_cents": 0.0
+        "held_drift_cents": null
       },
       {
         "time": "2:14",
@@ -4875,8 +4865,8 @@
         "note": "C\u266f4",
         "note_detailed": "C\u266f4+0ct",
         "deviation_cents": -10.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:17",
@@ -4917,8 +4907,8 @@
         "note": "C4",
         "note_detailed": "C4-40ct",
         "deviation_cents": -50.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:30",
@@ -4937,8 +4927,8 @@
         "note": "B3",
         "note_detailed": "B3-40ct",
         "deviation_cents": 50.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:50",
@@ -4947,8 +4937,8 @@
         "note": "B4",
         "note_detailed": "B4-40ct",
         "deviation_cents": -50.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "0:56",
@@ -4957,8 +4947,8 @@
         "note": "G\u266f3",
         "note_detailed": "G\u266f3-40ct",
         "deviation_cents": -50.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "1:34",
@@ -4977,8 +4967,8 @@
         "note": "C4",
         "note_detailed": "C4-40ct",
         "deviation_cents": -50.0,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       },
       {
         "time": "2:06",
@@ -4987,8 +4977,8 @@
         "note": "G\u266f3",
         "note_detailed": "G\u266f3-45ct",
         "deviation_cents": 45.2,
-        "drift_cents": 0.0,
-        "held_drift_cents": 0.0
+        "drift_cents": null,
+        "held_drift_cents": null
       }
     ],
     "worst_drift_notes": [
@@ -5078,49 +5068,49 @@
         "time_range": "0:00-0:20",
         "n_notes": 21,
         "median_abs_deviation_cents": 10.0,
-        "median_drift_cents": 0.0,
+        "median_drift_cents": 27.2,
         "worst_note": "0:07"
       },
       {
         "time_range": "0:20-0:40",
         "n_notes": 28,
         "median_abs_deviation_cents": 20.0,
-        "median_drift_cents": 0.0,
+        "median_drift_cents": 20.4,
         "worst_note": "0:30"
       },
       {
         "time_range": "0:40-1:00",
         "n_notes": 26,
         "median_abs_deviation_cents": 20.0,
-        "median_drift_cents": 0.0,
+        "median_drift_cents": 53.3,
         "worst_note": "0:56"
       },
       {
         "time_range": "1:00-1:20",
         "n_notes": 24,
         "median_abs_deviation_cents": 10.0,
-        "median_drift_cents": 0.0,
+        "median_drift_cents": 27.7,
         "worst_note": "1:16"
       },
       {
         "time_range": "1:20-1:40",
         "n_notes": 23,
         "median_abs_deviation_cents": 20.0,
-        "median_drift_cents": 0.0,
+        "median_drift_cents": 47.1,
         "worst_note": "1:34"
       },
       {
         "time_range": "1:40-2:00",
         "n_notes": 25,
         "median_abs_deviation_cents": 10.0,
-        "median_drift_cents": 0.0,
+        "median_drift_cents": 24.0,
         "worst_note": "1:41"
       },
       {
         "time_range": "2:00-2:20",
         "n_notes": 23,
         "median_abs_deviation_cents": 10.0,
-        "median_drift_cents": 0.0,
+        "median_drift_cents": 24.7,
         "worst_note": "2:07"
       },
       {
@@ -5131,7 +5121,11 @@
         "worst_note": "2:20"
       }
     ],
-    "most_drift_sections": [],
+    "most_drift_sections": [
+      "0:40-1:00",
+      "1:20-1:40",
+      "1:00-1:20"
+    ],
     "most_off_grid_sections": [],
     "classification": "Good accuracy",
     "caveat": "Grid-deviation is a proxy: expressive slides, blue notes and non-12-TET material register as deviation. Interpret alongside the recording context."
@@ -6583,59 +6577,550 @@
     "h1_h2_read": "Balanced source",
     "note": "Numeric overtone profile. On separated stems, separation artifacts add noise to upper harmonics \u2014 read H5+ cautiously."
   },
-  "groove": {
-    "method": "vocal-stem onsets vs the half-beat grid of the backing (canonical timing scorer)",
-    "grid_source": "instrumental stem (mix \u2212 vocal, vocal-free)",
-    "tempo_bpm": 126.0,
-    "confidence": "high",
-    "cross_check": {
-      "mix_tempo_bpm": 126.0,
-      "instrumental_tempo_bpm": 126.0,
-      "agree": true,
-      "note": "Mix and instrumental agree on tempo."
-    },
-    "n_onsets": 443,
-    "mean_offset_ms": 6.9,
-    "offset_spread_ms": 46.6,
-    "feel": "in the pocket",
-    "sections_20s": [
+  "word_drift": {
+    "method": "per held note >= 0.6 s: vibrato-smoothed contour spread over vowel frames vs largest excursion within \u00b180 ms of each energy-dip / voicing-gap boundary",
+    "n_notes_analysed": 45,
+    "n_notes_with_boundaries": 33,
+    "pct_notes_with_boundaries": 73.3,
+    "median_vowel_drift_cents": 44.3,
+    "median_boundary_excursion_cents": 25.0,
+    "read": "The vowels themselves wander; the word boundaries add little. Coach steadiness on the sustained vowel (messa di voce, straw) first.",
+    "worst_boundary_notes": [
       {
-        "time_range": "0:00-0:20",
-        "mean_offset_ms": 7.2,
-        "feel": "in the pocket"
+        "time": "1:16",
+        "start_s": 76.05,
+        "duration_s": 1.14,
+        "note": "B3",
+        "n_boundaries": 5,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 166.9,
+        "worst_boundary_excursion_cents": 200.8
       },
       {
-        "time_range": "0:20-0:40",
-        "mean_offset_ms": 4.5,
-        "feel": "in the pocket"
+        "time": "0:07",
+        "start_s": 7.43,
+        "duration_s": 1.42,
+        "note": "B3",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 225.2,
+        "boundary_excursion_cents": 128.5,
+        "worst_boundary_excursion_cents": 128.5
       },
       {
-        "time_range": "0:40-1:00",
-        "mean_offset_ms": 2.6,
-        "feel": "in the pocket"
+        "time": "1:02",
+        "start_s": 62.21,
+        "duration_s": 0.74,
+        "note": "D\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 64.5,
+        "boundary_excursion_cents": 73.5,
+        "worst_boundary_excursion_cents": 73.5
       },
       {
-        "time_range": "1:00-1:20",
-        "mean_offset_ms": 12.3,
-        "feel": "in the pocket"
+        "time": "2:17",
+        "start_s": 137.22,
+        "duration_s": 1.29,
+        "note": "B3",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 33.0,
+        "boundary_excursion_cents": 12.7,
+        "worst_boundary_excursion_cents": 58.1
       },
       {
-        "time_range": "1:20-1:40",
-        "mean_offset_ms": 2.0,
-        "feel": "in the pocket"
+        "time": "0:35",
+        "start_s": 34.6,
+        "duration_s": 0.66,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 43.8,
+        "worst_boundary_excursion_cents": 48.5
       },
       {
-        "time_range": "1:40-2:00",
-        "mean_offset_ms": 1.7,
-        "feel": "in the pocket"
+        "time": "0:16",
+        "start_s": 16.01,
+        "duration_s": 1.27,
+        "note": "B3",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 10.9,
+        "boundary_excursion_cents": 27.3,
+        "worst_boundary_excursion_cents": 41.5
       },
       {
-        "time_range": "2:00-2:20",
-        "mean_offset_ms": 16.1,
-        "feel": "in the pocket"
+        "time": "0:36",
+        "start_s": 36.41,
+        "duration_s": 0.72,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 18.5,
+        "boundary_excursion_cents": 39.7,
+        "worst_boundary_excursion_cents": 39.7
+      },
+      {
+        "time": "1:49",
+        "start_s": 108.99,
+        "duration_s": 0.71,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 39.2,
+        "worst_boundary_excursion_cents": 39.2
       }
     ],
-    "note": "Negative = ahead of the beat. Persistent |offset| under ~25 ms reads as tight; deliberate back-phrasing (soul/jazz) shows as consistent positive offsets \u2014 style, not error."
+    "notes": [
+      {
+        "time": "0:04",
+        "start_s": 4.4,
+        "duration_s": 0.72,
+        "note": "B3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 51.0,
+        "boundary_excursion_cents": 27.7,
+        "worst_boundary_excursion_cents": 27.7
+      },
+      {
+        "time": "0:07",
+        "start_s": 7.43,
+        "duration_s": 1.42,
+        "note": "B3",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 225.2,
+        "boundary_excursion_cents": 128.5,
+        "worst_boundary_excursion_cents": 128.5
+      },
+      {
+        "time": "0:10",
+        "start_s": 9.78,
+        "duration_s": 0.66,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 26.5,
+        "worst_boundary_excursion_cents": 26.5
+      },
+      {
+        "time": "0:12",
+        "start_s": 12.33,
+        "duration_s": 1.11,
+        "note": "B3",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 36.4,
+        "boundary_excursion_cents": 34.2,
+        "worst_boundary_excursion_cents": 36.5
+      },
+      {
+        "time": "0:16",
+        "start_s": 16.01,
+        "duration_s": 1.27,
+        "note": "B3",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 10.9,
+        "boundary_excursion_cents": 27.3,
+        "worst_boundary_excursion_cents": 41.5
+      },
+      {
+        "time": "0:17",
+        "start_s": 17.32,
+        "duration_s": 0.66,
+        "note": "C\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 11.2,
+        "worst_boundary_excursion_cents": 13.8
+      },
+      {
+        "time": "0:26",
+        "start_s": 26.02,
+        "duration_s": 0.63,
+        "note": "B3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 44.3,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:27",
+        "start_s": 26.9,
+        "duration_s": 1.44,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 52.3,
+        "boundary_excursion_cents": 28.5,
+        "worst_boundary_excursion_cents": 30.0
+      },
+      {
+        "time": "0:29",
+        "start_s": 28.76,
+        "duration_s": 0.68,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 14.2,
+        "worst_boundary_excursion_cents": 14.2
+      },
+      {
+        "time": "0:30",
+        "start_s": 29.57,
+        "duration_s": 0.6,
+        "note": "B3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 177.3,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:32",
+        "start_s": 31.72,
+        "duration_s": 0.91,
+        "note": "B3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 16.9,
+        "boundary_excursion_cents": 16.6,
+        "worst_boundary_excursion_cents": 16.6
+      },
+      {
+        "time": "0:34",
+        "start_s": 33.55,
+        "duration_s": 0.96,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 20.5,
+        "boundary_excursion_cents": 28.8,
+        "worst_boundary_excursion_cents": 31.5
+      },
+      {
+        "time": "0:35",
+        "start_s": 34.6,
+        "duration_s": 0.66,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 43.8,
+        "worst_boundary_excursion_cents": 48.5
+      },
+      {
+        "time": "0:36",
+        "start_s": 36.41,
+        "duration_s": 0.72,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 18.5,
+        "boundary_excursion_cents": 39.7,
+        "worst_boundary_excursion_cents": 39.7
+      },
+      {
+        "time": "0:39",
+        "start_s": 38.67,
+        "duration_s": 0.68,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 14.2,
+        "worst_boundary_excursion_cents": 23.1
+      },
+      {
+        "time": "0:39",
+        "start_s": 39.39,
+        "duration_s": 0.65,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 15.0,
+        "worst_boundary_excursion_cents": 18.5
+      },
+      {
+        "time": "0:40",
+        "start_s": 40.21,
+        "duration_s": 0.72,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 17.9,
+        "boundary_excursion_cents": 17.7,
+        "worst_boundary_excursion_cents": 17.7
+      },
+      {
+        "time": "0:49",
+        "start_s": 48.97,
+        "duration_s": 0.82,
+        "note": "A\u266f3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 287.3,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:52",
+        "start_s": 52.3,
+        "duration_s": 0.7,
+        "note": "F\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 191.5,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:53",
+        "start_s": 53.46,
+        "duration_s": 0.64,
+        "note": "E4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 37.1,
+        "boundary_excursion_cents": 22.3,
+        "worst_boundary_excursion_cents": 22.3
+      },
+      {
+        "time": "0:55",
+        "start_s": 54.57,
+        "duration_s": 0.63,
+        "note": "E4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 77.0,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:56",
+        "start_s": 56.01,
+        "duration_s": 2.81,
+        "note": "G\u266f3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 383.1,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:02",
+        "start_s": 62.21,
+        "duration_s": 0.74,
+        "note": "D\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 64.5,
+        "boundary_excursion_cents": 73.5,
+        "worst_boundary_excursion_cents": 73.5
+      },
+      {
+        "time": "1:04",
+        "start_s": 63.63,
+        "duration_s": 1.17,
+        "note": "B3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 183.8,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:10",
+        "start_s": 69.94,
+        "duration_s": 0.81,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 4.6,
+        "boundary_excursion_cents": 19.6,
+        "worst_boundary_excursion_cents": 26.2
+      },
+      {
+        "time": "1:13",
+        "start_s": 73.04,
+        "duration_s": 0.84,
+        "note": "B3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 67.3,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:16",
+        "start_s": 76.05,
+        "duration_s": 1.14,
+        "note": "B3",
+        "n_boundaries": 5,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 166.9,
+        "worst_boundary_excursion_cents": 200.8
+      },
+      {
+        "time": "1:17",
+        "start_s": 77.22,
+        "duration_s": 0.79,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 25.0,
+        "worst_boundary_excursion_cents": 32.7
+      },
+      {
+        "time": "1:18",
+        "start_s": 78.32,
+        "duration_s": 0.66,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 31.5,
+        "worst_boundary_excursion_cents": 31.5
+      },
+      {
+        "time": "1:30",
+        "start_s": 90.43,
+        "duration_s": 0.7,
+        "note": "F\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 183.8,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:32",
+        "start_s": 91.6,
+        "duration_s": 0.64,
+        "note": "E4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 35.0,
+        "boundary_excursion_cents": 23.5,
+        "worst_boundary_excursion_cents": 23.5
+      },
+      {
+        "time": "1:33",
+        "start_s": 92.71,
+        "duration_s": 0.63,
+        "note": "E4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 72.6,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:34",
+        "start_s": 93.83,
+        "duration_s": 2.41,
+        "note": "G\u266f3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 314.5,
+        "boundary_excursion_cents": 366.2,
+        "worst_boundary_excursion_cents": 366.2
+      },
+      {
+        "time": "1:42",
+        "start_s": 101.76,
+        "duration_s": 1.16,
+        "note": "B3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 184.6,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:44",
+        "start_s": 103.91,
+        "duration_s": 0.68,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 22.2,
+        "boundary_excursion_cents": 28.8,
+        "worst_boundary_excursion_cents": 28.8
+      },
+      {
+        "time": "1:48",
+        "start_s": 108.1,
+        "duration_s": 0.88,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 15.4,
+        "worst_boundary_excursion_cents": 18.1
+      },
+      {
+        "time": "1:49",
+        "start_s": 108.99,
+        "duration_s": 0.71,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 39.2,
+        "worst_boundary_excursion_cents": 39.2
+      },
+      {
+        "time": "1:50",
+        "start_s": 109.93,
+        "duration_s": 0.67,
+        "note": "B3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 23.1,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:56",
+        "start_s": 115.69,
+        "duration_s": 0.62,
+        "note": "B3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 18.1,
+        "worst_boundary_excursion_cents": 18.1
+      },
+      {
+        "time": "2:10",
+        "start_s": 129.82,
+        "duration_s": 1.14,
+        "note": "B3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 44.3,
+        "boundary_excursion_cents": 26.2,
+        "worst_boundary_excursion_cents": 26.2
+      },
+      {
+        "time": "2:12",
+        "start_s": 131.6,
+        "duration_s": 0.7,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 28.6,
+        "boundary_excursion_cents": 13.1,
+        "worst_boundary_excursion_cents": 13.1
+      },
+      {
+        "time": "2:14",
+        "start_s": 133.92,
+        "duration_s": 0.67,
+        "note": "B3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 15.7,
+        "boundary_excursion_cents": 19.6,
+        "worst_boundary_excursion_cents": 19.6
+      },
+      {
+        "time": "2:17",
+        "start_s": 137.22,
+        "duration_s": 1.29,
+        "note": "B3",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 33.0,
+        "boundary_excursion_cents": 12.7,
+        "worst_boundary_excursion_cents": 58.1
+      },
+      {
+        "time": "2:19",
+        "start_s": 138.98,
+        "duration_s": 0.7,
+        "note": "C\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 23.8,
+        "worst_boundary_excursion_cents": 25.4
+      },
+      {
+        "time": "2:20",
+        "start_s": 140.27,
+        "duration_s": 1.06,
+        "note": "B3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 26.2,
+        "boundary_excursion_cents": 17.3,
+        "worst_boundary_excursion_cents": 17.7
+      }
+    ],
+    "reliability": "medium \u2014 boundaries are inferred from energy dips and voicing gaps inside a held note, not from lyrics; a breathy vowel can register as a boundary. Confirm at the timestamps.",
+    "note": "Diagnostic only \u2014 never scored, never part of the /10."
   },
   "time_diagnostics": {
     "energy_blocks_10s": [
@@ -6739,9 +7224,9 @@
     }
   },
   "visual_diagnostics": {
-    "plot_path": "/home/rustwood/.openclaw/candi-workspace/openclaw-data/vox-coach/temp/reference-runs/do-wah-my-babe-WXQMmnoW/repo/voxanalysis/vox-analysis/engine/reports/diagnostics/do-wah-diddy-diddy-original_diagnostic_plot.png",
-    "note_cards_path": "/home/rustwood/.openclaw/candi-workspace/openclaw-data/vox-coach/temp/reference-runs/do-wah-my-babe-WXQMmnoW/repo/voxanalysis/vox-analysis/engine/reports/diagnostics/do-wah-diddy-diddy-original_note_cards.png",
-    "notes_csv_path": "/home/rustwood/.openclaw/candi-workspace/openclaw-data/vox-coach/temp/reference-runs/do-wah-my-babe-WXQMmnoW/repo/voxanalysis/vox-analysis/engine/output/do-wah-diddy-diddy-original_notes.csv",
+    "plot_path": "/tmp/phase1/voxanalysis/vox-analysis/engine/reports/diagnostics/do-wah-diddy-diddy-original_(vocals)_vocals_mel_band_roformer_diagnostic_plot.png",
+    "note_cards_path": "/tmp/phase1/voxanalysis/vox-analysis/engine/reports/diagnostics/do-wah-diddy-diddy-original_(vocals)_vocals_mel_band_roformer_note_cards.png",
+    "notes_csv_path": "/tmp/phase1/voxanalysis/vox-analysis/engine/output/do-wah-diddy-diddy-original_(vocals)_vocals_mel_band_roformer_notes.csv",
     "panels": [
       "section_health_ribbon",
       "waveform_amplitude",
@@ -6753,6 +7238,7 @@
     ],
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
+  "measurement_fingerprint": "28e854af22ea",
   "technical_score": {
     "identity": {
       "contract": "voxai_score_v1",
@@ -6760,9 +7246,11 @@
       "rubric_fingerprint": "7cbd02df8f62",
       "calibrated": true,
       "calibration_references": 50,
-      "calibration_fingerprint": "1d3e2991f144",
+      "calibration_fingerprint": "4c52716b5aed",
       "stem_model": "RoFormer",
-      "take_fingerprint": "fe4f5de62740"
+      "take_fingerprint": "0c9c90aad1a0",
+      "measurement_fingerprint": "28e854af22ea",
+      "calibration_measurement_fingerprint": "28e854af22ea"
     },
     "overall_score_0_to_10": 9.5,
     "capture_fair_score_0_to_10": 10.0,
@@ -6770,7 +7258,7 @@
     "provenance": "deterministic_rubric_v5 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
     "calibration": {
       "active": true,
-      "file": "/home/rustwood/.openclaw/candi-workspace/openclaw-data/vox-coach/temp/reference-runs/do-wah-my-babe-WXQMmnoW/repo/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
+      "file": "/tmp/phase1/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
       "n_references": 50,
       "note": null
     },
@@ -6789,8 +7277,8 @@
       },
       "pitch_stability": {
         "weight": 0.15,
-        "input": "median intra-note drift = 20.8 cents \u2014 matches or beats 68.0% of 50 pro references",
-        "formula": "10 at pro-reference median (24.25 cents), 0 at 80 cents, linear",
+        "input": "median intra-note drift = 29.7 cents \u2014 matches or beats 100.0% of 50 pro references",
+        "formula": "10 at pro-reference median (62.55 cents), 0 at 80 cents, linear",
         "score": 10.0
       },
       "voice_quality": {
@@ -6801,7 +7289,7 @@
       },
       "vibrato_control": {
         "weight": 0.15,
-        "input": "64.8% of long notes carry vibrato (10 at >=40%); rate 5.56 Hz (ideal 4.877-5.99); extent 55.2 cents (ideal 52.55-78.02); intra-note drift 20.8 cents (straight-tone path)",
+        "input": "64.8% of long notes carry vibrato (10 at >=40%); rate 5.56 Hz (ideal 4.877-5.99); extent 55.2 cents (ideal 52.55-78.02); intra-note drift 29.7 cents (straight-tone path)",
         "formula": "best of vibrato-quality path and straight-tone steadiness path (consistent straight tone is a valid professional style)",
         "style_detected": "vibrato-led",
         "score": 10.0
@@ -6852,8 +7340,8 @@
     "pct_overshot": 37.5,
     "median_scoop_depth_cents": -73.2,
     "reliability": "suspect",
-    "reliability_reason": "HNR 11.29 dB / jitter 0.9721% is a degraded signal, yet the onsets (49.2% clean) and held-note drift (20.8c) beat 90% of the professional pack. A voice cannot sound that rough and start notes that perfectly. This is the signature of a pitch tracker locked onto backing instruments, which are perfectly in tune and start instantly \u2014 the measurement describes the band, not the singer. Re-separate.",
-    "basis": "49.2% of entries land clean \u2014 WITHHELD: HNR 11.29 dB / jitter 0.9721% is a degraded signal, yet the onsets (49.2% clean) and held-note drift (20.8c) beat 90% of the professional pack. A voice cannot sound that rough and start notes that perfectly. This is the signature of a pitch tracker locked onto backing instruments, which are perfectly in tune and start instantly \u2014 the measurement describes the band, not the singer. Re-separate."
+    "reliability_reason": "HNR 11.29 dB / jitter 0.9721% is a degraded signal, yet the onsets (49.2% clean) and held-note drift (29.7c) beat 90% of the professional pack. A voice cannot sound that rough and start notes that perfectly. This is the signature of a pitch tracker locked onto backing instruments, which are perfectly in tune and start instantly \u2014 the measurement describes the band, not the singer. Re-separate.",
+    "basis": "49.2% of entries land clean \u2014 WITHHELD: HNR 11.29 dB / jitter 0.9721% is a degraded signal, yet the onsets (49.2% clean) and held-note drift (29.7c) beat 90% of the professional pack. A voice cannot sound that rough and start notes that perfectly. This is the signature of a pitch tracker locked onto backing instruments, which are perfectly in tune and start instantly \u2014 the measurement describes the band, not the singer. Re-separate."
   },
   "prescriptions": {
     "method": "deterministic_prescription_engine_v1 \u2014 rules over measured values; exercise content verbatim from the library; no LLM selection",
