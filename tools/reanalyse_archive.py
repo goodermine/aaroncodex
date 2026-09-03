@@ -74,15 +74,51 @@ def atomic_write_json(path: str, data: dict) -> None:
         raise
 
 
-def index_stems(dirs: list[str]) -> dict[str, str]:
-    """basename -> full path, for every audio file under the given directories."""
+SAME_FILE_SIZE_TOLERANCE = 0.02   # 2% — covers re-encodes/metadata differences, not a different take
+
+def index_stems(dirs: list[str]) -> tuple[dict[str, str], dict[str, list[str]]]:
+    """basename -> full path, for every audio file under the given directories.
+
+    Multiple SOURCE directories (a live engine tree, a recovered backup, Trash)
+    routinely contain a file of the SAME NAME that is NOT the same recording —
+    an untrimmed raw separation next to the actually-accepted trimmed window,
+    an old attempt next to a redone one. Picking "whichever directory came
+    first" silently fed the wrong audio into four archived takes on 3 Sep 2026
+    (Reasons take-003, Back to Black, Kung Fu Fighting takes 004/005) — each
+    duration grew by the exact length of the host talk/crowd noise the original
+    curated take_context said had been excluded, because an untrimmed stem
+    with the same basename lived in a directory searched first.
+
+    So: EVERY candidate for a basename is collected, not just the first. If two
+    candidates differ in size by more than SAME_FILE_SIZE_TOLERANCE, that
+    basename is a COLLISION — excluded from the returned mapping entirely
+    (falls into "stem not found" downstream) rather than guessed. Candidates
+    within tolerance are treated as copies of the same file (expected: the
+    same stem legitimately recovered into more than one location) and the
+    first one found is used, as before.
+
+    Returns (stems, collisions) — collisions maps basename -> the candidate
+    paths that conflict, for a human to resolve.
+    """
     exts = (".flac", ".wav", ".mp3", ".m4a", ".aiff", ".aif", ".ogg")
-    found: dict[str, str] = {}
+    candidates: dict[str, list[str]] = {}
     for d in dirs:
         for path in glob.glob(os.path.join(d, "**", "*"), recursive=True):
-            if path.lower().endswith(exts):
-                found.setdefault(os.path.basename(path), path)
-    return found
+            if path.lower().endswith(exts) and os.path.isfile(path):
+                candidates.setdefault(os.path.basename(path), []).append(path)
+
+    stems, collisions = {}, {}
+    for basename, paths in candidates.items():
+        if len(paths) == 1:
+            stems[basename] = paths[0]
+            continue
+        sizes = [os.path.getsize(p) for p in paths]
+        spread = (max(sizes) - min(sizes)) / max(sizes) if max(sizes) else 0.0
+        if spread <= SAME_FILE_SIZE_TOLERANCE:
+            stems[basename] = paths[0]     # same file, recovered into >1 place
+        else:
+            collisions[basename] = paths   # genuinely different audio — refuse to guess
+    return stems, collisions
 
 
 def missing_modules(analysis: dict) -> list[str]:
@@ -158,11 +194,22 @@ def main() -> int:
     args = ap.parse_args()
     archive_dir = args.archive
 
-    stems = index_stems(args.stem_dirs)
-    if not stems:
+    stems, collisions = index_stems(args.stem_dirs)
+    if not stems and not collisions:
         print(f"No audio files found under: {', '.join(args.stem_dirs)}")
         return 1
-    print(f"Indexed {len(stems)} audio file(s) under {len(args.stem_dirs)} director(ies).\n")
+    print(f"Indexed {len(stems)} audio file(s) under {len(args.stem_dirs)} director(ies).")
+    if collisions:
+        print(f"\n{len(collisions)} basename(s) found with CONFLICTING candidates "
+              f"(different file sizes under the same name) — excluded, not guessed:")
+        for basename, paths in sorted(collisions.items()):
+            print(f"    {basename}")
+            for p in paths:
+                print(f"      {os.path.getsize(p):>12,} bytes  {p}")
+        print("    Resolve by pointing this run at only the correct directory for these, "
+              "or by renaming/removing the wrong candidate. They are NOT included below —"
+              " they will show as 'stem not found' until resolved.")
+    print()
 
     archived = sorted(glob.glob(os.path.join(archive_dir, "*_analysis.json")))
     if args.only:
