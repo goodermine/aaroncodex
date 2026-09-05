@@ -1,4 +1,4 @@
-# All takes — re-scored with the current engine (rubric v5, 2026-09-03)
+# All takes — re-scored with the current engine (rubric v5, 2026-09-06)
 
 Every eligible archived take re-scored with **** (calibration active, 50 pro references). Scores from superseded rubrics have been retired from the archive (retire_legacy_scores.py), so every numeric score here is a current recompute. Retired or source-blocked records remain visible as **withheld** rows and are not recomputed from contaminated stored measurements. `cf` = capture-fair (voice_quality **and** dynamics excluded — the capture-robust components; **breath** is deliberately kept in, because air running out is the singer, not the room).
 
@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **** (calibration active, 50 pro ref
 
 ## Singer takes
 
-Overall: min 6.9 · max 7.3 · mean 7.1. Dynamics component spreads 9.1–9.8 (was a flat 10.0 for every take in v3).
+Overall: min 6.1 · max 8.8 · mean 7.12. Dynamics component spreads 8.9–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 2/220 takes.
+Full coverage: 6/224 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -184,6 +184,9 @@ Full coverage: 2/220 takes.
 | aaron | cry-in-shame-take-002 | 291 | **withheld** | – | – | – | – | – | – | – | – | – |
 | aaron | let-s-go-take-001 | 129 | **withheld** | – | – | – | – | – | – | – | – | – |
 | aaron | fireball-take-001 | 230 | **6.9** | 6.8 | high | 10.0 | 0.0 | 5.58 | 9.41 | 9.06 | 2.7 | 9.44 |
+| aaron | you-give-love-a-bad-name-take-001 | 234 | **8.8** | 9.4 | high | 10.0 | 10.0 | 5.78 | 8.9 | 9.98 | 10.0 | 7.05 |
+| aaron | get-back-take-001 | 185 | **6.1** | 5.9 | high | 8.0 | 0.0 | 3.97 | 8.79 | 9.92 | 2.85 | 8.24 |
+| aaron | let-s-go-take-003 | 148 | **7.2** | 7.8 | high | 10.0 | 8.94 | 3.72 | 7.77 | 8.88 | 2.39 | 6.23 |
 | aaron-and-rilda | burning-down-the-house-take-001 | 198 | **withheld** | – | – | – | – | – | – | – | – | – |
 | aaron-g | 1973-take-001 | 156 | **withheld** | – | – | – | – | – | – | – | – | – |
 | aaron-g | if-you-could-read-my-mind-take-001 | 201 | **withheld** | – | – | – | – | – | – | – | – | – |
@@ -232,10 +235,11 @@ Full coverage: 2/220 takes.
 | rilda | sexy-eyes-take-002 | 206 | **withheld** | – | – | – | – | – | – | – | – | – |
 | rilda | bow-river-take-004 | 247 | **withheld** | – | – | – | – | – | – | – | – | – |
 | rilda | to-sir-with-love-take-001 | 165 | **7.3** | 7.5 | high | 10.0 | 0.17 | 4.63 | 10.0 | 9.75 | 10.0 | 6.26 |
+| rilda | tainted-love-take-001 | 227 | **6.4** | 6.2 | high | 8.0 | 0.0 | 4.53 | 9.85 | 9.58 | 8.48 | 3.53 |
 
 ## Professional references (calibration sanity check)
 
-Overall: min None · max None · mean None — pros should sit near the top.
+Overall: min 7.6 · max 7.6 · mean 7.6 — pros should sit near the top.
 
 | reference | v5 | cf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
@@ -249,6 +253,7 @@ Overall: min None · max None · mean None — pros should sit near the top.
 | suno-ai-sunshine-smile | **withheld** | – | – | – | – | – | – | – | – |
 | alex-live-it-up-take-001 | **withheld** | – | – | – | – | – | – | – | – |
 | athea-fireflies-take-002 | **withheld** | – | – | – | – | – | – | – | – |
+| Goodbyes Been Good To You | **7.6** | 7.1 | 10.0 | 4.01 | 8.58 | 9.99 | 8.57 | 2.64 | 4.8 |
 | carpenters-this-masquerade | **withheld** | – | – | – | – | – | – | – | – |
 | glenn-frey-the-heat-is-on | **withheld** | – | – | – | – | – | – | – | – |
 | james-blunt-1973 | **withheld** | – | – | – | – | – | – | – | – |
