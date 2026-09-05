@@ -141,6 +141,35 @@ class ReportBuilderTests(unittest.TestCase):
         self.assertEqual(report["main_focus"]["pillar"], "Ease and pressure")
         self.assertIn("heuristics", " ".join(report["unverifiable"]).lower())
 
+    def test_high_drift_does_not_override_a_genuinely_strong_pitch_stability_score(self):
+        """The 3 Sep 2026 pack rebuild moved the professional median for
+        held-note drift to ~62.55 cents (docs/handoffs/HANDOFF_SESSION_2026-09-03.md).
+        A hardcoded 45-cent threshold here, stale from before that rebuild,
+        used to flag PRIMARY FOCUS as held-note stability even when its
+        calibrated score was a perfect 10 — hijacking the focus away from an
+        actually weak component. Real example: the 2026-09-04 'You Give Love
+        a Bad Name' take scored pitch_stability 10.0 at 57.0 cents drift, but
+        the report still picked it over voice_quality at 5.78."""
+        raw = self.fixture()
+        raw["technical_score"]["components"]["pitch_stability"]["score"] = 10.0
+        raw["technical_score"]["components"]["voice_quality"] = {"score": 5.78, "input": "measured"}
+        raw["intonation"]["median_intra_note_drift_cents"] = 57.0
+        report = build_v2_report(raw)
+        self.assertEqual(report["main_focus"]["pillar"], "Voice quality")
+
+    def test_high_drift_still_overrides_when_pitch_stability_score_is_genuinely_severe(self):
+        """The drift fast-path must still fire when the calibrated score says
+        the drift really is bad — even if it is not the single lowest-scoring
+        component — so a glaring stability problem is not buried under a
+        marginally lower but less audible component."""
+        raw = self.fixture()
+        raw["technical_score"]["components"]["pitch_stability"]["score"] = 1.5
+        raw["technical_score"]["components"]["voice_quality"] = {"score": 4.0, "input": "measured"}
+        raw["intonation"]["median_intra_note_drift_cents"] = 95.0
+        report = build_v2_report(raw)
+        self.assertEqual(report["main_focus"]["pillar"], "Held-note stability")
+        self.assertIn("95.0 cents", report["main_focus"]["why"])
+
     def test_recording_conditions_are_context_not_causation(self):
         report = build_v2_report(
             self.fixture(),
