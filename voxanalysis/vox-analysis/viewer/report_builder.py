@@ -154,7 +154,23 @@ def _primary_focus(raw: dict, components: list[dict]) -> dict:
             "why": "Some high, loud notes lost harmonic clarity under pressure.",
             "target": "Record the most intense 30 seconds at 75% volume, keeping the same easy throat sensation from the straw.",
         }
-    if drift is not None and drift > 45:
+    # Held-note drift is flagged as an urgent concern (even when it is not the
+    # single lowest-scoring component) only when the CALIBRATED pitch_stability
+    # score says it is genuinely severe. A bare cents threshold goes stale every
+    # time the drift measurement or the calibration pack changes — it did on 16
+    # Aug 2026 and again on 3 Sep 2026, and a hardcoded "drift > 45" cutoff left
+    # over from before the 3 Sep pack rebuild was silently firing on ordinary,
+    # even perfectly-scored takes (pro-reference median drift is now 62.55
+    # cents), hijacking PRIMARY FOCUS onto a component reading 10.0/10 instead
+    # of the take's actually weakest one. See
+    # docs/VOX_SYSTEM_REVIEW_2026-09-02.md §3.1 and the 2026-09-04 "You Give
+    # Love a Bad Name" take (pitch_stability 10.0 at 57.0 cents drift).
+    pitch_stability_score = next(
+        (c["score"] for c in components
+         if c.get("key") == "pitch_stability" and c.get("score") is not None),
+        None,
+    )
+    if drift is not None and pitch_stability_score is not None and pitch_stability_score <= 3:
         return {
             "pillar": "Held-note stability",
             "drill": "Messa di Voce on Single Pitches",
