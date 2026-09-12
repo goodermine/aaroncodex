@@ -108,26 +108,32 @@ def carry_forward(old: dict, new: dict) -> dict:
     return new
 
 
-def run_engine(stem_path: str, artist: str, timeout: int) -> tuple[dict | None, str]:
+def run_engine(stem_path: str, artist: str, timeout: int, archive_target: str) -> tuple[dict | None, str]:
     """Analyse one stem with the current engine. Returns (analysis, error)."""
-    base = os.path.splitext(os.path.basename(stem_path))[0]
-    out_json = os.path.join(ENGINE_DIR, "output", f"{base}_analysis.json")
-    before = os.path.getmtime(out_json) if os.path.exists(out_json) else None
+    out_json = f"{archive_target}.engine-tmp"
+    if os.path.exists(out_json):
+        os.unlink(out_json)
     cmd = [sys.executable, "analyse_song.py", stem_path, "--name", artist]
+    cmd.extend(["--json-output", out_json])
     try:
         proc = subprocess.run(cmd, cwd=ENGINE_DIR, capture_output=True, text=True,
                               timeout=timeout)
     except subprocess.TimeoutExpired:
+        if os.path.exists(out_json):
+            os.unlink(out_json)
         return None, f"timed out after {timeout}s"
     if proc.returncode != 0:
+        if os.path.exists(out_json):
+            os.unlink(out_json)
         tail = (proc.stderr or proc.stdout or "").strip().splitlines()[-3:]
         return None, f"engine exited {proc.returncode}: {' / '.join(tail)}"
     if not os.path.exists(out_json):
-        return None, f"engine wrote no {os.path.relpath(out_json, ROOT)}"
-    if before is not None and os.path.getmtime(out_json) == before:
-        return None, "engine did not refresh its output file"
-    with open(out_json) as fh:
-        return json.load(fh), ""
+        return None, f"engine wrote no archive-side staging JSON: {os.path.relpath(out_json, ROOT)}"
+    try:
+        with open(out_json) as fh:
+            return json.load(fh), ""
+    finally:
+        os.unlink(out_json)
 
 
 def main() -> int:
@@ -236,7 +242,7 @@ def main() -> int:
     for i, (path, stem_path, artist, gaps, old) in enumerate(todo, 1):
         name = os.path.basename(path)
         print(f"[{i}/{len(todo)}] {name}")
-        analysis, err = run_engine(stem_path, artist, args.timeout)
+        analysis, err = run_engine(stem_path, artist, args.timeout, path)
         if analysis is None:
             print(f"    FAILED: {err}  (archive entry left untouched)")
             failed.append((name, err))
