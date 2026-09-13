@@ -25,7 +25,12 @@ once Praat is restored to gain the 7th.
 
 | Take | Analysed | Partial score (6/7) | Branch | Status |
 |---|---|---|---|---|
-| `2026-09-13-aaron-you-give-love-a-bad-name-take-001` | 13 Sep 2026 | 6.0 / 5.9, medium conf | `codex/dropbox-vocal-batch-2026-09-12` | **pending Praat re-run** |
+| `2026-09-13-aaron-you-give-love-a-bad-name-take-001` | 13 Sep 2026 | 6.0 / 5.9, medium conf | `codex/dropbox-vocal-batch-2026-09-12` | ✅ **CLEARED** — Praat restored, re-run `3703f3d`: now full coverage, voice_quality 9.73, overall 6.7 / cf 5.9, high confidence |
+
+**Queue is empty** as of the Praat env install. Any future take analysed on a
+host without praat-parselmouth would reopen this list — the tell is
+`technical_score.coverage == "partial"` with `voice_quality` in
+`components_unscored`.
 
 > Note: the 09-12 batch (15 takes) was analysed while Praat *was* working — those
 > carry full voice_quality and are not in this queue. The gap opened between
