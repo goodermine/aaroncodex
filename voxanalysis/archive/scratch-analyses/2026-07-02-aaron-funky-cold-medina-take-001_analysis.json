@@ -1,7 +1,7 @@
 {
   "file_name": "2026-07-02-aaron-funky-cold-medina-take-001.mp3",
   "analysis_input_file": "2026-07-02-aaron-funky-cold-medina-take-001_(vocals)_vocals_mel_band_roformer.flac",
-  "analysed_at": "2026-08-16T15:25:24",
+  "analysed_at": "2026-09-13T20:18:31",
   "artist_name": "Aaron",
   "duration_seconds": 314.77,
   "sample_rate": 44100,
@@ -11,10 +11,10 @@
   },
   "stem_separation": {
     "enabled": true,
-    "script_path": "/tmp/driftfix/voxanalysis/vox-analysis/engine/tools/stems/batch_stems.sh",
-    "output_dir": "output/stems/2026-07-02-aaron-funky-cold-medina-take-001_20260816-151626",
-    "vocals_path": "output/stems/2026-07-02-aaron-funky-cold-medina-take-001_20260816-151626/2026-07-02-aaron-funky-cold-medina-take-001_(vocals)_vocals_mel_band_roformer.flac",
-    "instrumental_path": "output/stems/2026-07-02-aaron-funky-cold-medina-take-001_20260816-151626/2026-07-02-aaron-funky-cold-medina-take-001_(other)_vocals_mel_band_roformer.flac",
+    "script_path": "/home/rustwood/.openclaw/candi-workspace/.worktrees/phase1c-archive-reanalysis-wip/voxanalysis/vox-analysis/engine/tools/stems/batch_stems.sh",
+    "output_dir": "output/stems/2026-07-02-aaron-funky-cold-medina-take-001_20260913-201010",
+    "vocals_path": "output/stems/2026-07-02-aaron-funky-cold-medina-take-001_20260913-201010/2026-07-02-aaron-funky-cold-medina-take-001_(vocals)_vocals_mel_band_roformer.flac",
+    "instrumental_path": "output/stems/2026-07-02-aaron-funky-cold-medina-take-001_20260913-201010/2026-07-02-aaron-funky-cold-medina-take-001_(other)_vocals_mel_band_roformer.flac",
     "original_mix_path": "/home/rustwood/.openclaw/candi-workspace/openclaw-data/vox-coach/uploads/raw/2026-07-02-aaron-funky-cold-medina-take-001.mp3",
     "separator": "kimberleyjsn-melbandroformer",
     "separator_model": "vocals_mel_band_roformer",
@@ -9698,6 +9698,401 @@
     "h1_h2_read": "Balanced source",
     "note": "Numeric overtone profile. On separated stems, separation artifacts add noise to upper harmonics \u2014 read H5+ cautiously."
   },
+  "word_drift": {
+    "method": "per held note >= 0.6 s: vibrato-smoothed contour spread over vowel frames vs largest excursion within \u00b180 ms of each energy-dip / voicing-gap boundary",
+    "n_notes_analysed": 30,
+    "n_notes_with_boundaries": 25,
+    "pct_notes_with_boundaries": 83.3,
+    "median_vowel_drift_cents": 99.6,
+    "median_boundary_excursion_cents": 69.2,
+    "read": "Vowel drift and boundary excursions are of similar size \u2014 work both.",
+    "worst_boundary_notes": [
+      {
+        "time": "0:28",
+        "start_s": 28.07,
+        "duration_s": 0.7,
+        "note": "A3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 158.5,
+        "worst_boundary_excursion_cents": 233.8
+      },
+      {
+        "time": "0:49",
+        "start_s": 48.91,
+        "duration_s": 0.68,
+        "note": "F\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 232.7,
+        "worst_boundary_excursion_cents": 232.7
+      },
+      {
+        "time": "2:33",
+        "start_s": 153.09,
+        "duration_s": 0.68,
+        "note": "C\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 313.8,
+        "boundary_excursion_cents": 178.1,
+        "worst_boundary_excursion_cents": 180.8
+      },
+      {
+        "time": "2:54",
+        "start_s": 173.53,
+        "duration_s": 0.79,
+        "note": "C4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 47.8,
+        "boundary_excursion_cents": 161.2,
+        "worst_boundary_excursion_cents": 162.3
+      },
+      {
+        "time": "1:35",
+        "start_s": 95.1,
+        "duration_s": 0.85,
+        "note": "F\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 128.5,
+        "worst_boundary_excursion_cents": 153.8
+      },
+      {
+        "time": "2:05",
+        "start_s": 125.05,
+        "duration_s": 0.87,
+        "note": "G3",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 126.9,
+        "worst_boundary_excursion_cents": 126.9
+      },
+      {
+        "time": "1:05",
+        "start_s": 64.59,
+        "duration_s": 0.84,
+        "note": "F3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 108.1,
+        "worst_boundary_excursion_cents": 125.8
+      },
+      {
+        "time": "4:51",
+        "start_s": 290.54,
+        "duration_s": 0.77,
+        "note": "B3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 99.6,
+        "boundary_excursion_cents": 116.9,
+        "worst_boundary_excursion_cents": 116.9
+      }
+    ],
+    "notes": [
+      {
+        "time": "0:00",
+        "start_s": 0.03,
+        "duration_s": 0.89,
+        "note": "A4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 33.8,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "0:01",
+        "start_s": 0.93,
+        "duration_s": 0.71,
+        "note": "G4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 42.3,
+        "worst_boundary_excursion_cents": 61.5
+      },
+      {
+        "time": "0:03",
+        "start_s": 2.57,
+        "duration_s": 0.94,
+        "note": "C4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 16.8,
+        "boundary_excursion_cents": 11.5,
+        "worst_boundary_excursion_cents": 16.2
+      },
+      {
+        "time": "0:28",
+        "start_s": 28.07,
+        "duration_s": 0.7,
+        "note": "A3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 158.5,
+        "worst_boundary_excursion_cents": 233.8
+      },
+      {
+        "time": "0:33",
+        "start_s": 32.79,
+        "duration_s": 1.03,
+        "note": "D5",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 177.1,
+        "boundary_excursion_cents": 45.6,
+        "worst_boundary_excursion_cents": 72.3
+      },
+      {
+        "time": "0:49",
+        "start_s": 48.91,
+        "duration_s": 0.68,
+        "note": "F\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 232.7,
+        "worst_boundary_excursion_cents": 232.7
+      },
+      {
+        "time": "1:02",
+        "start_s": 62.38,
+        "duration_s": 0.6,
+        "note": "C4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 58.8,
+        "worst_boundary_excursion_cents": 94.2
+      },
+      {
+        "time": "1:05",
+        "start_s": 64.59,
+        "duration_s": 0.84,
+        "note": "F3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 108.1,
+        "worst_boundary_excursion_cents": 125.8
+      },
+      {
+        "time": "1:18",
+        "start_s": 77.93,
+        "duration_s": 1.82,
+        "note": "B3",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 105.1,
+        "boundary_excursion_cents": 56.9,
+        "worst_boundary_excursion_cents": 87.7
+      },
+      {
+        "time": "1:20",
+        "start_s": 80.39,
+        "duration_s": 0.92,
+        "note": "C4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 54.6,
+        "worst_boundary_excursion_cents": 57.3
+      },
+      {
+        "time": "1:26",
+        "start_s": 86.32,
+        "duration_s": 0.64,
+        "note": "G\u266f3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 11.9,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:33",
+        "start_s": 92.83,
+        "duration_s": 1.16,
+        "note": "C4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 63.5,
+        "boundary_excursion_cents": 75.0,
+        "worst_boundary_excursion_cents": 78.8
+      },
+      {
+        "time": "1:35",
+        "start_s": 95.1,
+        "duration_s": 0.85,
+        "note": "F\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 128.5,
+        "worst_boundary_excursion_cents": 153.8
+      },
+      {
+        "time": "1:57",
+        "start_s": 117.09,
+        "duration_s": 0.6,
+        "note": "F\u266f3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 70.4,
+        "worst_boundary_excursion_cents": 100.4
+      },
+      {
+        "time": "2:05",
+        "start_s": 125.05,
+        "duration_s": 0.87,
+        "note": "G3",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 126.9,
+        "worst_boundary_excursion_cents": 126.9
+      },
+      {
+        "time": "2:11",
+        "start_s": 130.64,
+        "duration_s": 0.84,
+        "note": "C4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 40.6,
+        "worst_boundary_excursion_cents": 56.9
+      },
+      {
+        "time": "2:27",
+        "start_s": 147.19,
+        "duration_s": 0.65,
+        "note": "A3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 78.5,
+        "worst_boundary_excursion_cents": 113.8
+      },
+      {
+        "time": "2:33",
+        "start_s": 153.09,
+        "duration_s": 0.68,
+        "note": "C\u266f4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 313.8,
+        "boundary_excursion_cents": 178.1,
+        "worst_boundary_excursion_cents": 180.8
+      },
+      {
+        "time": "2:42",
+        "start_s": 161.85,
+        "duration_s": 0.7,
+        "note": "C4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 22.7,
+        "worst_boundary_excursion_cents": 27.7
+      },
+      {
+        "time": "2:43",
+        "start_s": 162.74,
+        "duration_s": 0.77,
+        "note": "G3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 101.4,
+        "boundary_excursion_cents": 67.7,
+        "worst_boundary_excursion_cents": 67.7
+      },
+      {
+        "time": "2:46",
+        "start_s": 165.79,
+        "duration_s": 0.66,
+        "note": "C4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 68.5,
+        "worst_boundary_excursion_cents": 80.0
+      },
+      {
+        "time": "2:54",
+        "start_s": 173.53,
+        "duration_s": 0.79,
+        "note": "C4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 47.8,
+        "boundary_excursion_cents": 161.2,
+        "worst_boundary_excursion_cents": 162.3
+      },
+      {
+        "time": "2:55",
+        "start_s": 174.67,
+        "duration_s": 1.11,
+        "note": "D\u266f4",
+        "n_boundaries": 3,
+        "vowel_drift_cents": 102.3,
+        "boundary_excursion_cents": 71.5,
+        "worst_boundary_excursion_cents": 71.5
+      },
+      {
+        "time": "3:08",
+        "start_s": 188.38,
+        "duration_s": 0.91,
+        "note": "C4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 43.5,
+        "boundary_excursion_cents": 69.2,
+        "worst_boundary_excursion_cents": 69.2
+      },
+      {
+        "time": "3:15",
+        "start_s": 194.5,
+        "duration_s": 1.04,
+        "note": "G3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 187.3,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "3:55",
+        "start_s": 234.81,
+        "duration_s": 0.63,
+        "note": "D4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 128.3,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "4:10",
+        "start_s": 249.75,
+        "duration_s": 0.79,
+        "note": "C4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 28.8,
+        "worst_boundary_excursion_cents": 29.2
+      },
+      {
+        "time": "4:26",
+        "start_s": 265.91,
+        "duration_s": 0.62,
+        "note": "C\u266f4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 58.2,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "4:45",
+        "start_s": 284.83,
+        "duration_s": 0.62,
+        "note": "G3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 24.0,
+        "worst_boundary_excursion_cents": 24.0
+      },
+      {
+        "time": "4:51",
+        "start_s": 290.54,
+        "duration_s": 0.77,
+        "note": "B3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 99.6,
+        "boundary_excursion_cents": 116.9,
+        "worst_boundary_excursion_cents": 116.9
+      }
+    ],
+    "reliability": "medium \u2014 boundaries are inferred from energy dips and voicing gaps inside a held note, not from lyrics; a breathy vowel can register as a boundary. Confirm at the timestamps.",
+    "note": "Diagnostic only \u2014 never scored, never part of the /10."
+  },
   "groove": {
     "method": "vocal-stem onsets vs the half-beat grid of the backing (canonical timing scorer)",
     "grid_source": "instrumental stem (mix \u2212 vocal, vocal-free)",
@@ -10086,9 +10481,9 @@
     }
   },
   "visual_diagnostics": {
-    "plot_path": "/tmp/driftfix/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-07-02-aaron-funky-cold-medina-take-001_diagnostic_plot.png",
-    "note_cards_path": "/tmp/driftfix/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-07-02-aaron-funky-cold-medina-take-001_note_cards.png",
-    "notes_csv_path": "/tmp/driftfix/voxanalysis/vox-analysis/engine/output/2026-07-02-aaron-funky-cold-medina-take-001_notes.csv",
+    "plot_path": "/home/rustwood/.openclaw/candi-workspace/.worktrees/phase1c-archive-reanalysis-wip/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-07-02-aaron-funky-cold-medina-take-001_diagnostic_plot.png",
+    "note_cards_path": "/home/rustwood/.openclaw/candi-workspace/.worktrees/phase1c-archive-reanalysis-wip/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-07-02-aaron-funky-cold-medina-take-001_note_cards.png",
+    "notes_csv_path": "/home/rustwood/.openclaw/candi-workspace/.worktrees/phase1c-archive-reanalysis-wip/voxanalysis/vox-analysis/engine/output/2026-07-02-aaron-funky-cold-medina-take-001_notes.csv",
     "panels": [
       "section_health_ribbon",
       "waveform_amplitude",
@@ -10100,6 +10495,7 @@
     ],
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
+  "measurement_fingerprint": "28e854af22ea",
   "technical_score": {
     "identity": {
       "contract": "voxai_score_v1",
@@ -10107,9 +10503,11 @@
       "rubric_fingerprint": "7cbd02df8f62",
       "calibrated": true,
       "calibration_references": 50,
-      "calibration_fingerprint": "1d3e2991f144",
+      "calibration_fingerprint": "4c52716b5aed",
       "stem_model": "RoFormer",
-      "take_fingerprint": "1760829d46ce"
+      "take_fingerprint": "1760829d46ce",
+      "measurement_fingerprint": "28e854af22ea",
+      "calibration_measurement_fingerprint": "28e854af22ea"
     },
     "overall_score_0_to_10": 6.0,
     "capture_fair_score_0_to_10": 5.9,
@@ -10117,7 +10515,7 @@
     "provenance": "deterministic_rubric_v5 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
     "calibration": {
       "active": true,
-      "file": "/tmp/driftfix/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
+      "file": "/home/rustwood/.openclaw/candi-workspace/.worktrees/phase1c-archive-reanalysis-wip/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
       "n_references": 50,
       "note": null
     },
@@ -10136,8 +10534,8 @@
       },
       "pitch_stability": {
         "weight": 0.15,
-        "input": "median intra-note drift = 81.4 cents \u2014 matches or beats 2.0% of 50 pro references",
-        "formula": "10 at pro-reference median (24.25 cents), 0 at 80 cents, linear",
+        "input": "median intra-note drift = 81.4 cents \u2014 matches or beats 18.0% of 50 pro references",
+        "formula": "10 at pro-reference median (62.55 cents), 0 at 80 cents, linear",
         "score": 0.0
       },
       "voice_quality": {
@@ -10215,88 +10613,88 @@
     "library_hash_verified": true,
     "library_hash_note": null,
     "primary": {
-      "category": "breath_support",
-      "selector_heading": "If the main limiter is BREATH / SUPPORT",
-      "severity_0_to_100": 98.0,
+      "category": "pitch_accuracy",
+      "selector_heading": "If pitch accuracy is unstable",
+      "severity_0_to_100": 92.0,
       "evidence": [
-        "held notes drift 81.4 cents",
-        "41.5% of phrase endings sag (intentional fall-offs also register \u2014 confirm by ear)"
+        "median grid deviation 25.0 cents (worse than 92.0% of pro pack)"
       ],
       "exercises": [
         {
-          "num": 1,
-          "name": "The Farinelli Maneuver"
+          "num": 74,
+          "name": "Interval Leaps (1-3, 1-5)"
         },
         {
-          "num": 2,
-          "name": "Rib Cage Stationary Drill"
+          "num": 76,
+          "name": "Chromatic Semi-Tone Scales"
         },
         {
-          "num": 3,
-          "name": "The Sibilant Hiss"
+          "num": 78,
+          "name": "Internal Imagery Drill"
         },
         {
-          "num": 4,
-          "name": "Pulsated Fricatives"
+          "num": 81,
+          "name": "Solfege (Do-Re-Mi)"
         },
         {
-          "num": 8,
-          "name": "The Tissue Flutter"
+          "num": 82,
+          "name": "Pitch Correction Slides"
         },
         {
-          "num": 10,
-          "name": "Back-Breathing Expansion"
-        },
-        {
-          "num": 12,
-          "name": "Silent Inhalation Drill"
-        },
-        {
-          "num": 15,
-          "name": "Axial Alignment Scan"
+          "num": 83,
+          "name": "A Cappella Melody Test"
         }
       ],
-      "primary_exercise_detail": "- Use when: suspended breath control and phrase stamina.\n- Pedagogical target: Suspended Breath Control.\n- How to do it: Inhale for 4 counts, suspend (hold with open glottis) for 4, exhale for 4; increase to 10+ counts.\n- How it should feel: Inhale low and wide, suspend without closing the throat, then release like a slow leak.\n- Common failure / safety note: Stop or reduce intensity if dizziness, shoulder lifting, throat gripping, or breath-holding appears.\n- Pass/Fail metric: Counts are even and the throat stays open during the suspension.\n- Song transfer: Apply the same sensation to one short phrase only; do not run the whole song until the cue holds.",
-      "next_take_cue": "Keep the ribs wide and let the air meter out slowly.",
-      "seven_day_template": "B"
+      "primary_exercise_detail": "- Use when: pitch accuracy, riffs/runs, rhythmic precision, interval security, agility.\n- Pedagogical target: Mental Tonal Mapping.\n- How to do it: Singing specific intervals with perfect accuracy to \"map\" the range.\n- How it should feel: Hear the pattern first; keep the body loose and let the voice move in small, clean adjustments.\n- Common failure / safety note: Slow down if notes smear, rhythm rushes, neck tightens, or the singer guesses instead of hearing the target.\n- Pass/Fail metric: Pattern is accurate at slow speed before increasing tempo; timing and pitch stay clean.\n- Song transfer: Apply the same sensation to one short phrase only; do not run the whole song until the cue holds.",
+      "next_take_cue": "Hear it first, then sing it. Do not fish for the note.",
+      "seven_day_template": "D"
     },
     "supporting": [
       {
-        "category": "pitch_accuracy",
-        "selector_heading": "If pitch accuracy is unstable",
-        "severity_0_to_100": 92.0,
+        "category": "breath_support",
+        "selector_heading": "If the main limiter is BREATH / SUPPORT",
+        "severity_0_to_100": 82.0,
         "evidence": [
-          "median grid deviation 25.0 cents (worse than 92.0% of pro pack)"
+          "held notes drift 81.4 cents",
+          "41.5% of phrase endings sag (intentional fall-offs also register \u2014 confirm by ear)"
         ],
         "exercises": [
           {
-            "num": 74,
-            "name": "Interval Leaps (1-3, 1-5)"
+            "num": 1,
+            "name": "The Farinelli Maneuver"
           },
           {
-            "num": 76,
-            "name": "Chromatic Semi-Tone Scales"
+            "num": 2,
+            "name": "Rib Cage Stationary Drill"
           },
           {
-            "num": 78,
-            "name": "Internal Imagery Drill"
+            "num": 3,
+            "name": "The Sibilant Hiss"
           },
           {
-            "num": 81,
-            "name": "Solfege (Do-Re-Mi)"
+            "num": 4,
+            "name": "Pulsated Fricatives"
           },
           {
-            "num": 82,
-            "name": "Pitch Correction Slides"
+            "num": 8,
+            "name": "The Tissue Flutter"
           },
           {
-            "num": 83,
-            "name": "A Cappella Melody Test"
+            "num": 10,
+            "name": "Back-Breathing Expansion"
+          },
+          {
+            "num": 12,
+            "name": "Silent Inhalation Drill"
+          },
+          {
+            "num": 15,
+            "name": "Axial Alignment Scan"
           }
         ],
-        "primary_exercise_detail": "- Use when: pitch accuracy, riffs/runs, rhythmic precision, interval security, agility.\n- Pedagogical target: Mental Tonal Mapping.\n- How to do it: Singing specific intervals with perfect accuracy to \"map\" the range.\n- How it should feel: Hear the pattern first; keep the body loose and let the voice move in small, clean adjustments.\n- Common failure / safety note: Slow down if notes smear, rhythm rushes, neck tightens, or the singer guesses instead of hearing the target.\n- Pass/Fail metric: Pattern is accurate at slow speed before increasing tempo; timing and pitch stay clean.\n- Song transfer: Apply the same sensation to one short phrase only; do not run the whole song until the cue holds.",
-        "next_take_cue": "Hear it first, then sing it. Do not fish for the note.",
-        "seven_day_template": "D"
+        "primary_exercise_detail": "- Use when: suspended breath control and phrase stamina.\n- Pedagogical target: Suspended Breath Control.\n- How to do it: Inhale for 4 counts, suspend (hold with open glottis) for 4, exhale for 4; increase to 10+ counts.\n- How it should feel: Inhale low and wide, suspend without closing the throat, then release like a slow leak.\n- Common failure / safety note: Stop or reduce intensity if dizziness, shoulder lifting, throat gripping, or breath-holding appears.\n- Pass/Fail metric: Counts are even and the throat stays open during the suspension.\n- Song transfer: Apply the same sensation to one short phrase only; do not run the whole song until the cue holds.",
+        "next_take_cue": "Keep the ribs wide and let the air meter out slowly.",
+        "seven_day_template": "B"
       },
       {
         "category": "vibrato",
