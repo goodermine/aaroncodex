@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.4 · mean 7.34. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 228/242 takes.
+Full coverage: 234/248 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -203,6 +203,10 @@ Full coverage: 228/242 takes.
 | aaron | playing-to-win-take-001 | 138 | **7.3** | 6.2 | high | 8.0 | 0.0 | 10.0 | 9.72 | 8.65 | 10.0 | 2.24 |
 | aaron | playing-to-win-take-002 | 324 | **6.7** | 5.7 | high | 7.0 | 0.0 | 9.6 | 10.0 | 7.83 | 5.24 | 5.19 |
 | aaron | to-be-with-you-take-001 | 192 | **8.1** | 7.3 | high | 10.0 | 0.0 | 9.7 | 9.12 | 9.85 | 10.0 | 5.91 |
+| aaron | a-bar-song-tipsy-take-001 | 199 | **6.3** | 5.5 | high | 6.0 | 2.06 | 7.56 | 9.19 | 9.01 | 5.24 | 3.88 |
+| aaron | fireball-take-004 | 213 | **7.4** | 6.7 | high | 10.0 | 0.0 | 9.58 | 9.86 | 7.74 | 2.55 | 7.95 |
+| aaron | goodbyes-been-good-to-you-take-001 | 237 | **7.6** | 6.7 | high | 10.0 | 0.0 | 9.91 | 8.66 | 8.52 | 5.94 | 6.54 |
+| aaron | kung-fu-fighting-take-002 | 238 | **9.0** | 8.8 | high | 9.0 | 10.0 | 9.48 | 9.42 | 9.6 | 7.67 | 6.54 |
 | aaron | you-give-love-a-bad-name-take-001 | 221 | **6.7** | 5.9 | high | 8.0 | 0.0 | 9.73 | 9.24 | 6.31 | 2.91 | 7.64 |
 | aaron-and-rilda | burning-down-the-house-take-001 | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973-take-001 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
@@ -254,6 +258,8 @@ Full coverage: 228/242 takes.
 | rilda | to-sir-with-love-take-001 | 165 | **7.3** | 7.5 | high | 10.0 | 0.17 | 4.63 | 10.0 | 9.75 | 10.0 | 6.26 |
 | rilda | tainted-love-take-001 | 227 | **6.4** | 6.2 | high | 8.0 | 0.0 | 4.53 | 9.85 | 9.58 | 8.48 | 3.53 |
 | rilda | ex-s-oh-s-take-002 | 266 | **8.7** | 8.6 | high | 8.0 | 10.0 | 8.18 | 10.0 | 9.91 | 4.64 | 10.0 |
+| rilda | give-me-one-reason-take-001 | 226 | **7.3** | 6.5 | high | 9.0 | 0.0 | 9.64 | 9.68 | 7.8 | 3.0 | 8.82 |
+| rilda | who-s-that-girl-take-002 | 268 | **8.3** | 7.8 | high | 10.0 | 0.0 | 8.86 | 9.72 | 9.65 | 10.0 | 9.26 |
 
 ## Professional references (calibration sanity check)
 
