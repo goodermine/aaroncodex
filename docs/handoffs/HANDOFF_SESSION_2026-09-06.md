@@ -62,3 +62,17 @@ Full lists (which take wants which stem, exact durations, exact candidate matche
 3. `docs/handoffs/CANDI_PHASE1_REANALYSIS.md`, for the exact procedure.
 4. `docs/VOX_SYSTEM_REVIEW_2026-09-02.md`, for why any of this matters.
 5. `CLAUDE.md`, always, for the standing scoring rules.
+
+## 6. Take-specific context — Things That Make You Go Hmm (15 Sep 2026)
+
+Aaron clarified the performance context for the current-pack analysis
+`2026-09-15-aaron-things-that-make-you-go-hmm-home-first-take-001` (commit
+`5e17673`): he performed **both the male and female parts himself in one
+continuous take**. The transition followed the **mail-wrapping section** and
+went directly into the female part; Aaron identifies that passage as a
+deliberate **register change**.
+
+This is singer-provided context, not an additional engine measurement or a
+medical conclusion. When handing the take to Claude or interpreting the
+register-related findings, preserve this context and avoid treating the
+male-to-female part transition as an unexplained artefact.
