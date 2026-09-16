@@ -334,10 +334,20 @@ def _contaminated():
 
 def _harsh_room():
     """Aaron's BEST take on file — Kung Fu Fighting, Prince of Wales, 9.4
-    capture-fair. Rough room, entirely human numbers. Must not be withheld."""
+    capture-fair. Rough room, entirely human numbers. Must not be withheld.
+
+    Drift 59.0c is the real post-drift-fix reading on a comparable take (Kung
+    Fu Fighting take-009, 29 Aug 2026, uptempo like this one) — not the 33.2c
+    once reported for THIS take, which was measured on the pre-fix engine and
+    likely benefited from the same fabricated-short-note-zero artefact (Kung
+    Fu Fighting is fast; see docs/VOX_SYSTEM_REVIEW_2026-09-02.md §3.1). The
+    old 33.2c stopped being a fair fixture the moment the reference pack was
+    rebuilt on the fixed engine (Phase 1a, Sep 2026): against the corrected
+    pack it read as beating 98% of the professionals, tripping the
+    conjunctive "too good to be real" half of the gate on its own."""
     t = _onset_take(pct_clean=26.2, n=140)
     t["voice_quality"] = {"hnr_db_median": 12.8, "jitter_local_percent_median": 1.00}
-    t["intonation"] = {"median_intra_note_drift_cents": 33.2}
+    t["intonation"] = {"median_intra_note_drift_cents": 59.0}
     return t
 
 
@@ -445,20 +455,32 @@ def test_measurement_fingerprint_is_deterministic_and_travels_in_identity():
     """The rubric fingerprint hashes the scoring maths only, so a change to how a
     metric is MEASURED left every identity field identical and the two eras
     looked comparable. The measurement stamp closes that: stamped by main() on
-    the analysis, carried into the score identity, None on older analyses."""
+    the analysis, carried into the score identity, and the pack's own stamp
+    travels alongside it. Uses synthetic calibration dicts rather than the
+    committed pack, which was unstamped when this test was first written and
+    is stamped 28e854af22ea since Phase 1a (Sep 2026) rebuilt it — the
+    identity mechanics must hold either way, not just for whatever the
+    committed pack happens to be right now."""
     fp = A.measurement_fingerprint()
     assert fp and fp == A.measurement_fingerprint()
-    cal = A.load_calibration(A.DEFAULT_CALIBRATION_PATH)
-    stamped = _base_results(22.0, 30.0)
-    stamped["measurement_fingerprint"] = fp
-    ident = A.compute_technical_score(stamped, cal)["identity"]
+
+    unstamped_pack = {"metrics": {}}                                # a pre-Sep-2026 pack
+    stamped_pack = {"metrics": {}, "measurement_fingerprint": "otherotherother"}
+    stamped_take = _base_results(22.0, 30.0)
+    stamped_take["measurement_fingerprint"] = fp
+    unstamped_take = _base_results(22.0, 30.0)
+
+    ident = A.compute_technical_score(stamped_take, unstamped_pack)["identity"]
     assert ident["measurement_fingerprint"] == fp
-    # the committed pack predates the stamp: recorded honestly as None
     assert ident["calibration_measurement_fingerprint"] is None
-    unstamped = A.compute_technical_score(_base_results(22.0, 30.0), cal)["identity"]
-    assert unstamped["measurement_fingerprint"] is None
+
+    ident2 = A.compute_technical_score(stamped_take, stamped_pack)["identity"]
+    assert ident2["calibration_measurement_fingerprint"] == "otherotherother"
+
+    unident = A.compute_technical_score(unstamped_take, unstamped_pack)["identity"]
+    assert unident["measurement_fingerprint"] is None
     # adding the stamp must not have moved the rubric fingerprint
-    assert ident["rubric_fingerprint"] == unstamped["rubric_fingerprint"]
+    assert ident["rubric_fingerprint"] == unident["rubric_fingerprint"]
 
 
 def test_scores_from_different_measurement_builds_are_not_comparable():

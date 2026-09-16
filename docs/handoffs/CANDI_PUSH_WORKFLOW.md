@@ -80,6 +80,12 @@ tool on another, and `git status` will not show it as missing. This has now cost
 two folds: analyses landing there instead of `archive/scratch-analyses/`, and a
 blind-listening-test record that had to be relocated by hand.
 
+For archive work, use `tools/analyse_takes.py` or
+`tools/reanalyse_archive.py`. Both pass an explicit archive-side staging path
+to the engine and publish the parsed JSON into the archive. Do not run the bare
+engine command as the archive write step; its default `engine/output/` is only
+scratch space.
+
 | Artefact | Where it goes |
 |---|---|
 | A take's analysis | `voxanalysis/archive/scratch-analyses/<date>-<singer>-<song>-take-NNN_analysis.json` |

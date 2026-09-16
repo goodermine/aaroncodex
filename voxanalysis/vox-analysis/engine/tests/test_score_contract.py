@@ -62,7 +62,18 @@ def test_every_archived_score_is_on_the_pinned_calibration_pack():
     leaderboard, the archive average and a cross-era comparison were all built
     from two rulers that disagreed by up to 0.5.
 
-    Fix when this fails:
+    A second, legitimate reason a stored score can sit on an older pack: its
+    MEASUREMENT era differs from the pack's (`A.scale_mismatch`). Phase 1a
+    (Sep 2026) rebuilt the calibration pack from the drift-fix engine before
+    re-analysing the 234 archive takes still measured on the pre-fix engine —
+    deliberately, since scoring those stored (flattered) inputs against the
+    corrected pack would put them on the wrong ruler in the other direction.
+    Those are exempt here the same way a retired/withheld stub is: not a
+    forgotten re-score, a deferred one (Phase 1c re-analyses them; until then
+    they are simply not comparable to current scores, which score_conflict()
+    already enforces).
+
+    Fix when this fails on a score that IS on the current measurement era:
         python3 docs/score-metrics/rescore_archive_inplace.py
         python3 docs/score-metrics/rescore_all.py
     """
@@ -75,13 +86,16 @@ def test_every_archived_score_is_on_the_pinned_calibration_pack():
     stale = []
     for path in sorted(glob.glob(os.path.join(archive, "*_analysis.json"))):
         with open(path) as fh:
-            score = (json.load(fh) or {}).get("technical_score")
+            data = json.load(fh) or {}
+        score = data.get("technical_score")
         # Score-less stubs carry no calibration by design and are exempt: a
         # legacy rubric retirement, or a score withheld pending re-analysis
         # (e.g. the short-note drift artefact). Both lack an identity, so
         # is_legacy_score()/score_conflict() already refuse to quote them.
         if (not isinstance(score, dict)
                 or score.get("status") in ("retired_legacy_score", "withheld_measurement_artefact")):
+            continue
+        if A.scale_mismatch(data, cal):
             continue
         fp = (score.get("identity") or {}).get("calibration_fingerprint")
         if fp != pinned:

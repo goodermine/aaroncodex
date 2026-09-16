@@ -52,11 +52,43 @@ def singer(name):
     for s in SINGERS:                      # longest first: aaron-g before aaron
         if _sings(name, s): return s
     return "reference"
+# The take number resets per recording SESSION, not globally, so "take-001"
+# recurring across many dates is the real repeat signal, not a coincidence to
+# discard -- keeping it in the key (the prior behaviour) silently fragmented
+# heavily-practiced songs into separate single-take buckets: Kung Fu Fighting
+# split across 9 buckets, Pressure Down across 10, both invisible to "songs
+# sung more than once" until every take happened to share a number.
+#
+# A recording is also sometimes suffixed with a venue or capture-method tag
+# between the title and the take number (home-instamic, zoom-h8-capture,
+# captain-cook-tavern, mango-hill-tavern, new-studio, bramble-bay, 2yr) --
+# left in place, the same song under a different tag silently starts a second,
+# disconnected group (caught via "All That She Wants Home InstaMic" landing
+# nowhere near "All That She Wants"). Stripped here as whole trailing
+# hyphen-segments only, never a substring match -- a substring match would
+# wrongly eat "bay" out of Blue Bayou or "live" out of Live It Up.
+DESCRIPTOR_SUFFIXES = (
+    "captain-cook-tavern", "mango-hill-tavern", "zoom-h8-capture",
+    "bramble-bay", "new-studio", "home-instamic", "zoom-h8", "instamic",
+    "home", "2yr",
+)
+
+
 def song(name):
     b = re.sub(r"_analysis$", "", name)
     b = re.sub(r"20\d\d-\d\d-\d\d-?", "", b)
     b = re.sub(r"^(" + "|".join(s + "-" for s in SINGERS) + r")", "", b)
     b = re.sub(r"-normalized|-song-cut|-reference", "", b)
+    b = b.strip("-")
+    b = re.sub(r"-take-\d+.*$", "", b)   # the take number and anything trailing it
+    changed = True
+    while changed:                       # trailing venue/capture tags, one at a time
+        changed = False
+        for tok in DESCRIPTOR_SUFFIXES:
+            if b.endswith("-" + tok):
+                b = b[: -(len(tok) + 1)]
+                changed = True
+    b = re.sub(r"^lets-", "let-s-", b)   # apostrophe dropped vs. hyphenated across filenames
     return b.strip("-")
 
 
@@ -118,92 +150,100 @@ def score_row(f):
     }
 
 
-allf = glob.glob(ARCH + "/*_analysis.json")
-takes = sorted([f for f in allf if is_take(os.path.basename(f))],
-               key=lambda f: (singer(os.path.basename(f)), date_of(os.path.basename(f)), os.path.basename(f)))
-refs = sorted([f for f in allf if not is_take(os.path.basename(f))],
-              key=lambda f: os.path.basename(f))
+def main():
 
-take_rows = [score_row(f) for f in takes]
-ref_rows = [score_row(f) for f in refs]
+    allf = glob.glob(ARCH + "/*_analysis.json")
+    takes = sorted([f for f in allf if is_take(os.path.basename(f))],
+                   key=lambda f: (singer(os.path.basename(f)), date_of(os.path.basename(f)), os.path.basename(f)))
+    refs = sorted([f for f in allf if not is_take(os.path.basename(f))],
+                  key=lambda f: os.path.basename(f))
 
-
-def stats(x):
-    x = [v for v in x if v is not None]
-    return {"min": round(min(x), 1), "max": round(max(x), 1),
-            "mean": round(sum(x) / len(x), 2), "spread": round(max(x) - min(x), 1)} if x else {}
+    take_rows = [score_row(f) for f in takes]
+    ref_rows = [score_row(f) for f in refs]
 
 
-out = {
-    "generated": STAMP,
-    "rubric": RUBRIC,
-    "engine": (take_rows[0]["provenance"] if take_rows else f"deterministic_rubric_{RUBRIC}"),
-    "calibration": {"active": cal is not None, "n_references": cal.get("n_references") if cal else 0},
-    "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
-    "aggregate": {
-        "takes": {"n": len(take_rows), "overall": stats([r["overall"] for r in take_rows]),
-                  "capture_fair": stats([r["capture_fair"] for r in take_rows]),
-                  "dynamics": stats([r["components"].get("dynamics_expression") for r in take_rows])},
-        "references": {"n": len(ref_rows), "overall": stats([r["overall"] for r in ref_rows])},
-    },
-    "takes": take_rows, "references": ref_rows,
-}
-os.makedirs(OUTDIR, exist_ok=True)
-json.dump(out, open(os.path.join(OUTDIR, f"all-takes-rescore-{RUBRIC}-{STAMP}.json"), "w"), indent=2)
+    def stats(x):
+        x = [v for v in x if v is not None]
+        return {"min": round(min(x), 1), "max": round(max(x), 1),
+                "mean": round(sum(x) / len(x), 2), "spread": round(max(x) - min(x), 1)} if x else {}
 
-# ---- markdown ----
-def comp(r, k): return r["components"].get(k, "–")
-md = [f"# All takes — re-scored with the current engine (rubric {RUBRIC}, {STAMP})", "",
-      f"Every eligible archived take re-scored with **{out['engine']}** "
-      f"(calibration active, {out['calibration']['n_references']} pro references). "
-      "Scores from superseded rubrics have been retired from the archive "
-      "(retire_legacy_scores.py), so every numeric score here is a current recompute. "
-      "Retired or source-blocked records remain visible as **withheld** rows and are not "
-      "recomputed from contaminated stored measurements. `cf` = capture-fair "
-      "(voice_quality **and** dynamics "
-      "excluded — the capture-robust components; **breath** is deliberately kept in, "
-      "because air running out is the singer, not the room).", "",
-      f"`breath` is new in {RUBRIC}. A blank means the analysis predates "
-      "`analyse_breath()` and has no phrase-sag data, so it scored on "
-      f"{len(ALL_COMPONENTS) - 1} of {len(ALL_COMPONENTS)} components (`coverage: partial`; "
-      "weights renormalised). Re-analyse those takes with the current engine to close "
-      "the gap — the difference is at most ~0.25 points, which is why they are still "
-      "shown rather than withheld.", "",
-      "## Singer takes", "",
-      f"Overall: min {out['aggregate']['takes']['overall']['min']} · "
-      f"max {out['aggregate']['takes']['overall']['max']} · "
-      f"mean {out['aggregate']['takes']['overall']['mean']}. "
-      f"Dynamics component spreads {out['aggregate']['takes']['dynamics']['min']}–"
-      f"{out['aggregate']['takes']['dynamics']['max']} (was a flat 10.0 for every take in v3).", "",
-      f"Full coverage: {sum(1 for r in take_rows if r['coverage'] == 'full')}/{len(take_rows)} takes.", "",
-      f"| singer | song | notes | **{RUBRIC}** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |",
-      "|---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|"]
-for r in take_rows:
-    if r["score_status"] == "withheld":
-        md.append(f"| {r['singer']} | {r['song']} | {r['n_notes']} | "
-                  "**withheld** | – | – | – | – | – | – | – | – | – |")
-    else:
-        md.append(f"| {r['singer']} | {r['song']} | {r['n_notes']} | "
-                  f"**{r['overall']}** | {r['capture_fair']} | {r['confidence']} | "
-                  f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
-                  f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} | "
-                  f"{comp(r,'breath_support')} |")
-md += ["", "## Professional references (calibration sanity check)", "",
-       f"Overall: min {out['aggregate']['references']['overall'].get('min')} · "
-       f"max {out['aggregate']['references']['overall'].get('max')} · "
-       f"mean {out['aggregate']['references']['overall'].get('mean')} — pros should sit near the top.", "",
-       f"| reference | {RUBRIC} | cf | inton | pitch | voice | vib | dyn | phrase | breath |",
-       "|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|"]
-for r in ref_rows:
-    if r["score_status"] == "withheld":
-        md.append(f"| {r['song']} | **withheld** | – | – | – | – | – | – | – | – |")
-    else:
-        md.append(f"| {r['song']} | **{r['overall']}** | {r['capture_fair']} | "
-                  f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
-                  f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} | "
-                  f"{comp(r,'breath_support')} |")
-open(os.path.join(OUTDIR, f"all-takes-rescore-{RUBRIC}-{STAMP}.md"), "w").write("\n".join(md) + "\n")
-print(f"takes={len(take_rows)} refs={len(ref_rows)}")
-print("takes overall", out['aggregate']['takes']['overall'])
-print("takes dynamics  ", out['aggregate']['takes']['dynamics'])
-print("refs  overall", out['aggregate']['references']['overall'])
+
+    out = {
+        "generated": STAMP,
+        "rubric": RUBRIC,
+        "engine": (take_rows[0]["provenance"] if take_rows else f"deterministic_rubric_{RUBRIC}"),
+        "calibration": {"active": cal is not None, "n_references": cal.get("n_references") if cal else 0},
+        "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
+        "aggregate": {
+            "takes": {"n": len(take_rows), "overall": stats([r["overall"] for r in take_rows]),
+                      "capture_fair": stats([r["capture_fair"] for r in take_rows]),
+                      "dynamics": stats([r["components"].get("dynamics_expression") for r in take_rows])},
+            "references": {"n": len(ref_rows), "overall": stats([r["overall"] for r in ref_rows])},
+        },
+        "takes": take_rows, "references": ref_rows,
+    }
+    os.makedirs(OUTDIR, exist_ok=True)
+    json.dump(out, open(os.path.join(OUTDIR, f"all-takes-rescore-{RUBRIC}-{STAMP}.json"), "w"), indent=2)
+
+    # ---- markdown ----
+    def comp(r, k): return r["components"].get(k, "–")
+    take_stats = out["aggregate"]["takes"]["overall"]
+    take_dynamics_stats = out["aggregate"]["takes"]["dynamics"]
+    md = [f"# All takes — re-scored with the current engine (rubric {RUBRIC}, {STAMP})", "",
+          f"Every eligible archived take re-scored with **{out['engine']}** "
+          f"(calibration active, {out['calibration']['n_references']} pro references). "
+          "Scores from superseded rubrics have been retired from the archive "
+          "(retire_legacy_scores.py), so every numeric score here is a current recompute. "
+          "Retired or source-blocked records remain visible as **withheld** rows and are not "
+          "recomputed from contaminated stored measurements. `cf` = capture-fair "
+          "(voice_quality **and** dynamics "
+          "excluded — the capture-robust components; **breath** is deliberately kept in, "
+          "because air running out is the singer, not the room).", "",
+          f"`breath` is new in {RUBRIC}. A blank means the analysis predates "
+          "`analyse_breath()` and has no phrase-sag data, so it scored on "
+          f"{len(ALL_COMPONENTS) - 1} of {len(ALL_COMPONENTS)} components (`coverage: partial`; "
+          "weights renormalised). Re-analyse those takes with the current engine to close "
+          "the gap — the difference is at most ~0.25 points, which is why they are still "
+          "shown rather than withheld.", "",
+          "## Singer takes", "",
+          f"Overall: min {take_stats.get('min', 'n/a')} · "
+          f"max {take_stats.get('max', 'n/a')} · "
+          f"mean {take_stats.get('mean', 'n/a')}. "
+          f"Dynamics component spreads {take_dynamics_stats.get('min', 'n/a')}–"
+          f"{take_dynamics_stats.get('max', 'n/a')} (was a flat 10.0 for every take in v3).", "",
+          f"Full coverage: {sum(1 for r in take_rows if r['coverage'] == 'full')}/{len(take_rows)} takes.", "",
+          f"| singer | song | notes | **{RUBRIC}** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |",
+          "|---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|"]
+    for r in take_rows:
+        if r["score_status"] == "withheld":
+            md.append(f"| {r['singer']} | {r['song']} | {r['n_notes']} | "
+                      "**withheld** | – | – | – | – | – | – | – | – | – |")
+        else:
+            md.append(f"| {r['singer']} | {r['song']} | {r['n_notes']} | "
+                      f"**{r['overall']}** | {r['capture_fair']} | {r['confidence']} | "
+                      f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
+                      f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} | "
+                      f"{comp(r,'breath_support')} |")
+    md += ["", "## Professional references (calibration sanity check)", "",
+           f"Overall: min {out['aggregate']['references']['overall'].get('min')} · "
+           f"max {out['aggregate']['references']['overall'].get('max')} · "
+           f"mean {out['aggregate']['references']['overall'].get('mean')} — pros should sit near the top.", "",
+           f"| reference | {RUBRIC} | cf | inton | pitch | voice | vib | dyn | phrase | breath |",
+           "|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|"]
+    for r in ref_rows:
+        if r["score_status"] == "withheld":
+            md.append(f"| {r['song']} | **withheld** | – | – | – | – | – | – | – | – |")
+        else:
+            md.append(f"| {r['song']} | **{r['overall']}** | {r['capture_fair']} | "
+                      f"{comp(r,'intonation_accuracy')} | {comp(r,'pitch_stability')} | {comp(r,'voice_quality')} | "
+                      f"{comp(r,'vibrato_control')} | {comp(r,'dynamics_expression')} | {comp(r,'phrase_control')} | "
+                      f"{comp(r,'breath_support')} |")
+    open(os.path.join(OUTDIR, f"all-takes-rescore-{RUBRIC}-{STAMP}.md"), "w").write("\n".join(md) + "\n")
+    print(f"takes={len(take_rows)} refs={len(ref_rows)}")
+    print("takes overall", out['aggregate']['takes']['overall'])
+    print("takes dynamics  ", out['aggregate']['takes']['dynamics'])
+    print("refs  overall", out['aggregate']['references']['overall'])
+
+
+if __name__ == "__main__":
+    main()
