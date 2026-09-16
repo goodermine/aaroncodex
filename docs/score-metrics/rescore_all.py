@@ -67,10 +67,14 @@ def singer(name):
 # nowhere near "All That She Wants"). Stripped here as whole trailing
 # hyphen-segments only, never a substring match -- a substring match would
 # wrongly eat "bay" out of Blue Bayou or "live" out of Live It Up.
+#
+# This list is maintained, not exhaustive -- a new tag word (e.g. "test",
+# caught via "All That She Wants Home Test" still not grouping with the
+# other two) needs adding here as it turns up, same whole-segment rule.
 DESCRIPTOR_SUFFIXES = (
     "captain-cook-tavern", "mango-hill-tavern", "zoom-h8-capture",
     "bramble-bay", "new-studio", "home-instamic", "zoom-h8", "instamic",
-    "home", "2yr",
+    "home", "test", "2yr",
 )
 
 
