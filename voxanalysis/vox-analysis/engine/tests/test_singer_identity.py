@@ -106,7 +106,10 @@ def test_a_duet_is_its_own_singer_not_either_half():
     ns = _rescore_module()
     name = "2026-07-30-aaron-and-rilda-burning-down-the-house-take-001"
     assert ns["singer"](name) == "aaron-and-rilda"
-    assert ns["song"](name) == "burning-down-the-house-take-001"
+    # song() strips the take number too (it resets per session, so keeping it
+    # fragments a repeated song into one bucket per take number) -- see
+    # docs/score-metrics/test_rescore_all.py for the grouping-key coverage.
+    assert ns["song"](name) == "burning-down-the-house"
 
     sys.path.insert(0, os.path.join(ROOT, "tools"))
     import ranked_takes
