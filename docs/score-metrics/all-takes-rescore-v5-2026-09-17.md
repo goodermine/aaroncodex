@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.4 · mean 7.35. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 243/257 takes.
+Full coverage: 241/255 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -210,10 +210,6 @@ Full coverage: 243/257 takes.
 | aaron | you-give-love-a-bad-name | 221 | **6.7** | 5.9 | high | 8.0 | 0.0 | 9.73 | 9.24 | 6.31 | 2.91 | 7.64 |
 | aaron | all-that-she-wants | 134 | **8.1** | 7.7 | high | 7.0 | 10.0 | 10.0 | 9.16 | 7.83 | 4.27 | 7.05 |
 | aaron | things-that-make-you-go-hmm-home-first | 317 | **7.2** | 6.0 | high | 6.0 | 0.0 | 9.49 | 9.83 | 9.99 | 10.0 | 5.29 |
-| aaron | all-that-she-wants-home-instamic-sep16220 | 144 | **7.3** | 6.5 | high | 10.0 | 0.0 | 10.0 | 8.88 | 7.25 | 4.52 | 6.07 |
-| aaron | tennessee-whiskey-home-instamic-first-take-sep16-226 | 175 | **7.1** | 6.1 | high | 8.0 | 0.0 | 10.0 | 8.66 | 8.28 | 7.0 | 6.12 |
-| aaron | to-be-with-you-home-instamic-sep16225 | 177 | **7.8** | 7.0 | high | 10.0 | 0.0 | 9.71 | 8.87 | 9.41 | 5.94 | 8.31 |
-| aaron | you-sexy-thing-home-instamic-brand-new | 230 | **6.8** | 5.6 | high | 8.0 | 0.0 | 10.0 | 8.32 | 8.96 | 5.0 | 4.32 |
 | aaron | carved-from-stone-bramble | 240 | **7.9** | 7.4 | high | 10.0 | 0.0 | 9.61 | 9.52 | 8.06 | 8.48 | 7.48 |
 | aaron | oh-what-a-night-bramble-instamic-first-live | 230 | **7.7** | 7.3 | high | 6.0 | 6.13 | 9.96 | 9.68 | 6.96 | 6.42 | 9.54 |
 | aaron | the-letter-bramble | 258 | **6.6** | 5.7 | high | 7.0 | 0.0 | 9.76 | 9.95 | 6.93 | 3.3 | 7.16 |
@@ -269,6 +265,8 @@ Full coverage: 243/257 takes.
 | rilda | ex-s-oh-s | 266 | **8.7** | 8.6 | high | 8.0 | 10.0 | 8.18 | 10.0 | 9.91 | 4.64 | 10.0 |
 | rilda | give-me-one-reason | 226 | **7.3** | 6.5 | high | 9.0 | 0.0 | 9.64 | 9.68 | 7.8 | 3.0 | 8.82 |
 | rilda | who-s-that-girl | 268 | **8.3** | 7.8 | high | 10.0 | 0.0 | 8.86 | 9.72 | 9.65 | 10.0 | 9.26 |
+| rilda | gimme-gimme-gimme-bramble | 203 | **7.8** | 8.8 | high | 10.0 | 10.0 | 4.08 | 10.0 | 7.7 | 1.76 | 8.91 |
+| rilda | little-lies-bramble | 208 | **7.1** | 7.0 | high | 9.0 | 0.0 | 5.34 | 10.0 | 9.92 | 7.79 | 7.53 |
 
 ## Professional references (calibration sanity check)
 
