@@ -29,12 +29,12 @@ ARCHIVE = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
 STATUS = "retired_legacy_score"     # the status every reader already refuses to quote
 
 
-def stub(old: dict, era: str) -> dict:
+def stub(old: dict, era: str, reason: str | None = None) -> dict:
     return {
         "status": STATUS,
         "retired_rubric": ((old or {}).get("provenance") or "unknown").split(" —")[0],
         "retired_measurement_era": era,
-        "reason": (
+        "reason": reason or (
             "Measured on a superseded measurement build (pre-16-Aug-2026 held-note "
             "drift) and its source audio is no longer available, so it cannot be "
             "re-measured on the current engine. The score was on a different scale "
@@ -53,6 +53,7 @@ def main() -> int:
                          "(with or without _analysis.json); '#' comments allowed")
     ap.add_argument("--archive", default=ARCHIVE)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--reason", help="Retirement reason recorded in each stub")
     args = ap.parse_args()
 
     sys.path.insert(0, os.path.join(ROOT, "voxanalysis/vox-analysis/engine"))
@@ -84,7 +85,7 @@ def main() -> int:
         if isinstance(score, dict) and score.get("status") == STATUS:
             skipped.append((name, "already retired"))
             continue
-        data["technical_score"] = stub(score if isinstance(score, dict) else {}, era)
+        data["technical_score"] = stub(score if isinstance(score, dict) else {}, era, args.reason)
         if not args.dry_run:
             tmp = path + ".tmp"
             with open(tmp, "w") as fh:

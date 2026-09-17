@@ -1,32 +1,13 @@
 {
-  "take_context": {
-    "intent": "learning",
-    "capture": "live",
-    "milestone": null,
-    "note": "Aaron performing Baby Got Back by Sir Mix-A-Lot live at Bramble Bay Bowls Club on 27 August 2026. Rap/style-confounded take: timing/pocket and raw voice-quality metrics are the valid interpretation lens. The sustained-singing rubric, aggregate score, pitch stability, phrase control, vibrato and intonation components are retained only for completeness and must not be ranked or trended against sung performances.",
-    "superseded": false
-  },
-  "file_name": "2026-08-27-aaron-baby-got-back-take-001.wav",
+  "file_name": "2026-08-27-aaron-baby-got-back-take-001_(vocals)_vocals_mel_band_roformer.flac",
   "analysis_input_file": "2026-08-27-aaron-baby-got-back-take-001_(vocals)_vocals_mel_band_roformer.flac",
-  "analysed_at": "2026-08-28T10:04:43",
+  "analysed_at": "2026-09-03T15:52:33",
   "artist_name": "Aaron",
   "duration_seconds": 254.27,
   "sample_rate": 44100,
   "engine": {
     "parselmouth_available": true,
     "measurement_policy": "voice-quality metrics restricted to sustained voiced notes; deterministic scoring rubric v5"
-  },
-  "stem_separation": {
-    "enabled": true,
-    "script_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/tools/stems/batch_stems.sh",
-    "output_dir": "output/stems/2026-08-27-aaron-baby-got-back-take-001_20260828-095731",
-    "vocals_path": "output/stems/2026-08-27-aaron-baby-got-back-take-001_20260828-095731/2026-08-27-aaron-baby-got-back-take-001_(vocals)_vocals_mel_band_roformer.flac",
-    "instrumental_path": "output/stems/2026-08-27-aaron-baby-got-back-take-001_20260828-095731/2026-08-27-aaron-baby-got-back-take-001_(other)_vocals_mel_band_roformer.flac",
-    "original_mix_path": "/home/rustwood/.openclaw/candi-workspace/openclaw-data/vox-coach/uploads/raw/2026-08-27-aaron-baby-got-back-take-001.wav",
-    "separator": "kimberleyjsn-melbandroformer",
-    "separator_model": "vocals_mel_band_roformer",
-    "separator_backend": "audio-separator",
-    "separator_license": "MIT"
   },
   "pitch": {
     "f0_contour": {
@@ -2759,7 +2740,7 @@
   "rhythm": {
     "measures": "onset density & regularity of the vocal delivery \u2014 NOT timing vs the backing (see groove)",
     "estimated_tempo_bpm": 129.2,
-    "tempo_confidence": "low (isolated vocal stem \u2014 beat tracking expects a full mix; indicative only)",
+    "tempo_confidence": "medium",
     "timing_vs_backing": "scored separately by analyse_groove (canonical)",
     "total_onsets": 1123,
     "onsets_per_second": 4.42,
@@ -7589,89 +7570,300 @@
     "h1_h2_read": "Balanced source",
     "note": "Numeric overtone profile. On separated stems, separation artifacts add noise to upper harmonics \u2014 read H5+ cautiously."
   },
-  "groove": {
-    "method": "vocal-stem onsets vs the half-beat grid of the backing (canonical timing scorer)",
-    "grid_source": "instrumental stem (mix \u2212 vocal, vocal-free)",
-    "tempo_bpm": 129.2,
-    "confidence": "high",
-    "cross_check": {
-      "mix_tempo_bpm": 129.2,
-      "instrumental_tempo_bpm": 129.2,
-      "agree": true,
-      "note": "Mix and instrumental agree on tempo."
-    },
-    "n_onsets": 1123,
-    "mean_offset_ms": -5.3,
-    "offset_spread_ms": 62.3,
-    "feel": "in the pocket",
-    "sections_20s": [
+  "word_drift": {
+    "method": "per held note >= 0.6 s: vibrato-smoothed contour spread over vowel frames vs largest excursion within \u00b180 ms of each energy-dip / voicing-gap boundary",
+    "n_notes_analysed": 20,
+    "n_notes_with_boundaries": 15,
+    "pct_notes_with_boundaries": 75.0,
+    "median_vowel_drift_cents": 33.2,
+    "median_boundary_excursion_cents": 54.6,
+    "read": "The vowels hold; the pitch is knocked off at the word boundaries. Coach the consonants (speaking volume and pitch, vowelised R/L/W/Y, unvoiced plosives), not the vowel.",
+    "worst_boundary_notes": [
       {
-        "time_range": "0:00-0:20",
-        "mean_offset_ms": -11.6,
-        "feel": "in the pocket"
+        "time": "1:07",
+        "start_s": 67.19,
+        "duration_s": 0.67,
+        "note": "A\u266f3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 103.8,
+        "boundary_excursion_cents": 195.4,
+        "worst_boundary_excursion_cents": 195.4
       },
       {
-        "time_range": "0:20-0:40",
-        "mean_offset_ms": 7.8,
-        "feel": "in the pocket"
+        "time": "0:10",
+        "start_s": 9.86,
+        "duration_s": 0.86,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 175.7,
+        "boundary_excursion_cents": 114.5,
+        "worst_boundary_excursion_cents": 114.5
       },
       {
-        "time_range": "0:40-1:00",
-        "mean_offset_ms": -6.4,
-        "feel": "in the pocket"
+        "time": "3:14",
+        "start_s": 193.57,
+        "duration_s": 1.25,
+        "note": "C4",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 91.0,
+        "boundary_excursion_cents": 93.4,
+        "worst_boundary_excursion_cents": 113.4
       },
       {
-        "time_range": "1:00-1:20",
-        "mean_offset_ms": -11.5,
-        "feel": "in the pocket"
+        "time": "2:18",
+        "start_s": 137.8,
+        "duration_s": 0.77,
+        "note": "A\u266f3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 66.9,
+        "worst_boundary_excursion_cents": 100.0
       },
       {
-        "time_range": "1:20-1:40",
-        "mean_offset_ms": -6.7,
-        "feel": "in the pocket"
+        "time": "2:52",
+        "start_s": 172.28,
+        "duration_s": 1.02,
+        "note": "A3",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 74.6,
+        "worst_boundary_excursion_cents": 92.3
       },
       {
-        "time_range": "1:40-2:00",
-        "mean_offset_ms": -8.0,
-        "feel": "in the pocket"
+        "time": "0:38",
+        "start_s": 37.66,
+        "duration_s": 0.8,
+        "note": "A3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 53.1,
+        "worst_boundary_excursion_cents": 88.1
       },
       {
-        "time_range": "2:00-2:20",
-        "mean_offset_ms": -3.9,
-        "feel": "in the pocket"
+        "time": "1:45",
+        "start_s": 104.65,
+        "duration_s": 0.74,
+        "note": "D\u266f3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 17.8,
+        "boundary_excursion_cents": 53.8,
+        "worst_boundary_excursion_cents": 70.8
       },
       {
-        "time_range": "2:20-2:40",
-        "mean_offset_ms": 9.6,
-        "feel": "in the pocket"
-      },
-      {
-        "time_range": "2:40-3:00",
-        "mean_offset_ms": -3.3,
-        "feel": "in the pocket"
-      },
-      {
-        "time_range": "3:00-3:20",
-        "mean_offset_ms": 0.1,
-        "feel": "in the pocket"
-      },
-      {
-        "time_range": "3:20-3:40",
-        "mean_offset_ms": -14.6,
-        "feel": "in the pocket"
-      },
-      {
-        "time_range": "3:40-4:00",
-        "mean_offset_ms": -10.2,
-        "feel": "in the pocket"
-      },
-      {
-        "time_range": "4:00-4:20",
-        "mean_offset_ms": -12.8,
-        "feel": "in the pocket"
+        "time": "2:44",
+        "start_s": 163.79,
+        "duration_s": 0.63,
+        "note": "F\u266f3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 63.1,
+        "worst_boundary_excursion_cents": 63.1
       }
     ],
-    "note": "Negative = ahead of the beat. Persistent |offset| under ~25 ms reads as tight; deliberate back-phrasing (soul/jazz) shows as consistent positive offsets \u2014 style, not error."
+    "notes": [
+      {
+        "time": "0:10",
+        "start_s": 9.86,
+        "duration_s": 0.86,
+        "note": "C\u266f4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 175.7,
+        "boundary_excursion_cents": 114.5,
+        "worst_boundary_excursion_cents": 114.5
+      },
+      {
+        "time": "0:26",
+        "start_s": 26.47,
+        "duration_s": 0.62,
+        "note": "C5",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 40.4,
+        "worst_boundary_excursion_cents": 46.2
+      },
+      {
+        "time": "0:38",
+        "start_s": 37.66,
+        "duration_s": 0.8,
+        "note": "A3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 53.1,
+        "worst_boundary_excursion_cents": 88.1
+      },
+      {
+        "time": "0:52",
+        "start_s": 51.62,
+        "duration_s": 0.68,
+        "note": "A\u266f3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 33.2,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:07",
+        "start_s": 67.19,
+        "duration_s": 0.67,
+        "note": "A\u266f3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 103.8,
+        "boundary_excursion_cents": 195.4,
+        "worst_boundary_excursion_cents": 195.4
+      },
+      {
+        "time": "1:09",
+        "start_s": 69.42,
+        "duration_s": 0.88,
+        "note": "G\u266f3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 26.4,
+        "worst_boundary_excursion_cents": 39.2
+      },
+      {
+        "time": "1:10",
+        "start_s": 70.3,
+        "duration_s": 0.66,
+        "note": "G\u266f3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 33.8,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:12",
+        "start_s": 71.53,
+        "duration_s": 0.64,
+        "note": "A\u266f3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 5.0,
+        "boundary_excursion_cents": 40.8,
+        "worst_boundary_excursion_cents": 40.8
+      },
+      {
+        "time": "1:12",
+        "start_s": 72.17,
+        "duration_s": 0.67,
+        "note": "B3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 13.3,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "1:45",
+        "start_s": 104.65,
+        "duration_s": 0.74,
+        "note": "D\u266f3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 17.8,
+        "boundary_excursion_cents": 53.8,
+        "worst_boundary_excursion_cents": 70.8
+      },
+      {
+        "time": "1:48",
+        "start_s": 107.52,
+        "duration_s": 0.64,
+        "note": "G\u266f3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 54.6,
+        "worst_boundary_excursion_cents": 54.6
+      },
+      {
+        "time": "2:04",
+        "start_s": 124.48,
+        "duration_s": 1.06,
+        "note": "C4",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 78.0,
+        "boundary_excursion_cents": 61.5,
+        "worst_boundary_excursion_cents": 61.5
+      },
+      {
+        "time": "2:18",
+        "start_s": 137.8,
+        "duration_s": 0.77,
+        "note": "A\u266f3",
+        "n_boundaries": 2,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 66.9,
+        "worst_boundary_excursion_cents": 100.0
+      },
+      {
+        "time": "2:19",
+        "start_s": 139.45,
+        "duration_s": 0.79,
+        "note": "B3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": 24.4,
+        "boundary_excursion_cents": 47.7,
+        "worst_boundary_excursion_cents": 47.7
+      },
+      {
+        "time": "2:30",
+        "start_s": 149.56,
+        "duration_s": 0.93,
+        "note": "D4",
+        "n_boundaries": 2,
+        "vowel_drift_cents": 30.2,
+        "boundary_excursion_cents": 28.8,
+        "worst_boundary_excursion_cents": 33.8
+      },
+      {
+        "time": "2:44",
+        "start_s": 163.79,
+        "duration_s": 0.63,
+        "note": "F\u266f3",
+        "n_boundaries": 1,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 63.1,
+        "worst_boundary_excursion_cents": 63.1
+      },
+      {
+        "time": "2:45",
+        "start_s": 165.4,
+        "duration_s": 0.6,
+        "note": "A\u266f3",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 29.0,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "2:49",
+        "start_s": 169.33,
+        "duration_s": 0.67,
+        "note": "C4",
+        "n_boundaries": 0,
+        "vowel_drift_cents": 61.9,
+        "boundary_excursion_cents": null,
+        "worst_boundary_excursion_cents": null
+      },
+      {
+        "time": "2:52",
+        "start_s": 172.28,
+        "duration_s": 1.02,
+        "note": "A3",
+        "n_boundaries": 3,
+        "vowel_drift_cents": null,
+        "boundary_excursion_cents": 74.6,
+        "worst_boundary_excursion_cents": 92.3
+      },
+      {
+        "time": "3:14",
+        "start_s": 193.57,
+        "duration_s": 1.25,
+        "note": "C4",
+        "n_boundaries": 4,
+        "vowel_drift_cents": 91.0,
+        "boundary_excursion_cents": 93.4,
+        "worst_boundary_excursion_cents": 113.4
+      }
+    ],
+    "reliability": "medium \u2014 boundaries are inferred from energy dips and voicing gaps inside a held note, not from lyrics; a breathy vowel can register as a boundary. Confirm at the timestamps.",
+    "note": "Diagnostic only \u2014 never scored, never part of the /10."
   },
   "time_diagnostics": {
     "energy_blocks_10s": [
@@ -7861,9 +8053,9 @@
     }
   },
   "visual_diagnostics": {
-    "plot_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-08-27-aaron-baby-got-back-take-001_diagnostic_plot.png",
-    "note_cards_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-08-27-aaron-baby-got-back-take-001_note_cards.png",
-    "notes_csv_path": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/output/2026-08-27-aaron-baby-got-back-take-001_notes.csv",
+    "plot_path": "/tmp/phase1/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-08-27-aaron-baby-got-back-take-001_(vocals)_vocals_mel_band_roformer_diagnostic_plot.png",
+    "note_cards_path": "/tmp/phase1/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-08-27-aaron-baby-got-back-take-001_(vocals)_vocals_mel_band_roformer_note_cards.png",
+    "notes_csv_path": "/tmp/phase1/voxanalysis/vox-analysis/engine/output/2026-08-27-aaron-baby-got-back-take-001_(vocals)_vocals_mel_band_roformer_notes.csv",
     "panels": [
       "section_health_ribbon",
       "waveform_amplitude",
@@ -7875,6 +8067,7 @@
     ],
     "note": "Supporting visual diagnostics. In karaoke/live-room recordings, backing track bleed and mic clipping can affect these traces."
   },
+  "measurement_fingerprint": "28e854af22ea",
   "technical_score": {
     "identity": {
       "contract": "voxai_score_v1",
@@ -7882,17 +8075,19 @@
       "rubric_fingerprint": "7cbd02df8f62",
       "calibrated": true,
       "calibration_references": 50,
-      "calibration_fingerprint": "1d3e2991f144",
+      "calibration_fingerprint": "4c52716b5aed",
       "stem_model": "RoFormer",
-      "take_fingerprint": "063de2ebe6f5"
+      "take_fingerprint": "6afad1c32b1a",
+      "measurement_fingerprint": "28e854af22ea",
+      "calibration_measurement_fingerprint": "28e854af22ea"
     },
-    "overall_score_0_to_10": 5.3,
-    "capture_fair_score_0_to_10": 5.8,
+    "overall_score_0_to_10": 5.5,
+    "capture_fair_score_0_to_10": 6.1,
     "capture_fair_note": "Rubric with the capture-sensitive components (voice_quality and dynamics_expression) excluded (weights renormalised). Jitter/shimmer/HNR and effective dynamic range partly measure the recording chain and stem-separation artefacts: vintage masters run through separation read far worse than clean modern captures of an equal voice. Use capture_fair on BOTH sides for any take-vs-original or cross-era comparison; use overall_score for a singer's absolute result and self-progress. Note breath_support is deliberately NOT excluded: phrase-ending sag is air running out, not the room, so it is scored on a phone or room take like any other.",
     "provenance": "deterministic_rubric_v5 \u2014 computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
     "calibration": {
       "active": true,
-      "file": "/home/rustwood/.openclaw/mary-workspace/aaroncodex/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
+      "file": "/tmp/phase1/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
       "n_references": 50,
       "note": null
     },
@@ -7911,9 +8106,9 @@
       },
       "pitch_stability": {
         "weight": 0.15,
-        "input": "median intra-note drift = 76.3 cents \u2014 matches or beats 2.0% of 50 pro references",
-        "formula": "10 at pro-reference median (24.25 cents), 0 at 80 cents, linear",
-        "score": 0.66
+        "input": "median intra-note drift = 76.3 cents \u2014 matches or beats 28.0% of 50 pro references",
+        "formula": "10 at pro-reference median (62.55 cents), 0 at 80 cents, linear",
+        "score": 2.12
       },
       "voice_quality": {
         "weight": 0.2,
@@ -7990,89 +8185,43 @@
     "library_hash_verified": true,
     "library_hash_note": null,
     "primary": {
-      "category": "breath_support",
-      "selector_heading": "If the main limiter is BREATH / SUPPORT",
+      "category": "breathy_leaky",
+      "selector_heading": "If the singer sounds BREATHY / LEAKY",
       "severity_0_to_100": 98.0,
       "evidence": [
-        "held notes drift 76.3 cents",
-        "52.1% of phrase endings sag (intentional fall-offs also register \u2014 confirm by ear)"
+        "jitter 2.5755% with HNR 8.19 dB on sustained notes"
       ],
       "exercises": [
         {
-          "num": 1,
-          "name": "The Farinelli Maneuver"
+          "num": 25,
+          "name": "Vocal Fry to Modal"
         },
         {
-          "num": 2,
-          "name": "Rib Cage Stationary Drill"
+          "num": 21,
+          "name": "Staccato Arpeggios"
         },
         {
-          "num": 3,
-          "name": "The Sibilant Hiss"
+          "num": 23,
+          "name": "Bratty \"Ney\" Scales"
         },
         {
-          "num": 4,
-          "name": "Pulsated Fricatives"
+          "num": 42,
+          "name": "The Voiced [v] Glide"
         },
         {
-          "num": 8,
-          "name": "The Tissue Flutter"
+          "num": 91,
+          "name": "VFE Sustain [i] (Warm-up)"
         },
         {
-          "num": 10,
-          "name": "Back-Breathing Expansion"
-        },
-        {
-          "num": 12,
-          "name": "Silent Inhalation Drill"
-        },
-        {
-          "num": 15,
-          "name": "Axial Alignment Scan"
+          "num": 94,
+          "name": "VFE Power Adductory Sustain"
         }
       ],
-      "primary_exercise_detail": "- Use when: suspended breath control and phrase stamina.\n- Pedagogical target: Suspended Breath Control.\n- How to do it: Inhale for 4 counts, suspend (hold with open glottis) for 4, exhale for 4; increase to 10+ counts.\n- How it should feel: Inhale low and wide, suspend without closing the throat, then release like a slow leak.\n- Common failure / safety note: Stop or reduce intensity if dizziness, shoulder lifting, throat gripping, or breath-holding appears.\n- Pass/Fail metric: Counts are even and the throat stays open during the suspension.\n- Song transfer: Apply the same sensation to one short phrase only; do not run the whole song until the cue holds.",
-      "next_take_cue": "Keep the ribs wide and let the air meter out slowly.",
-      "seven_day_template": "B"
+      "primary_exercise_detail": "- Use when: register blending, mix coordination, high-note access, chest/head balance.\n- Pedagogical target: Adductory Warm-up.\n- How to do it: Starting with a \"bubbly\" vocal fry and smoothly transitioning into a clear tone.\n- How it should feel: Feel the pitch change by thinning, widening, or releasing \u2014 not by squeezing the throat or lifting the chin.\n- Common failure / safety note: Stop if the singer pushes volume, jams the jaw, strains high notes, or loses easy speech-like release.\n- Pass/Fail metric: Transition feels smoother with less break, less throat pressure, and more stable tone.\n- Song transfer: Apply the same sensation to one short phrase only; do not run the whole song until the cue holds.",
+      "next_take_cue": "Find clean cord contact without squeezing.",
+      "seven_day_template": "A"
     },
     "supporting": [
-      {
-        "category": "breathy_leaky",
-        "selector_heading": "If the singer sounds BREATHY / LEAKY",
-        "severity_0_to_100": 98.0,
-        "evidence": [
-          "jitter 2.5755% with HNR 8.19 dB on sustained notes"
-        ],
-        "exercises": [
-          {
-            "num": 25,
-            "name": "Vocal Fry to Modal"
-          },
-          {
-            "num": 21,
-            "name": "Staccato Arpeggios"
-          },
-          {
-            "num": 23,
-            "name": "Bratty \"Ney\" Scales"
-          },
-          {
-            "num": 42,
-            "name": "The Voiced [v] Glide"
-          },
-          {
-            "num": 91,
-            "name": "VFE Sustain [i] (Warm-up)"
-          },
-          {
-            "num": 94,
-            "name": "VFE Power Adductory Sustain"
-          }
-        ],
-        "primary_exercise_detail": "- Use when: register blending, mix coordination, high-note access, chest/head balance.\n- Pedagogical target: Adductory Warm-up.\n- How to do it: Starting with a \"bubbly\" vocal fry and smoothly transitioning into a clear tone.\n- How it should feel: Feel the pitch change by thinning, widening, or releasing \u2014 not by squeezing the throat or lifting the chin.\n- Common failure / safety note: Stop if the singer pushes volume, jams the jaw, strains high notes, or loses easy speech-like release.\n- Pass/Fail metric: Transition feels smoother with less break, less throat pressure, and more stable tone.\n- Song transfer: Apply the same sensation to one short phrase only; do not run the whole song until the cue holds.",
-        "next_take_cue": "Find clean cord contact without squeezing.",
-        "seven_day_template": "A"
-      },
       {
         "category": "pitch_accuracy",
         "selector_heading": "If pitch accuracy is unstable",
@@ -8109,6 +8258,52 @@
         "primary_exercise_detail": "- Use when: pitch accuracy, riffs/runs, rhythmic precision, interval security, agility.\n- Pedagogical target: Mental Tonal Mapping.\n- How to do it: Singing specific intervals with perfect accuracy to \"map\" the range.\n- How it should feel: Hear the pattern first; keep the body loose and let the voice move in small, clean adjustments.\n- Common failure / safety note: Slow down if notes smear, rhythm rushes, neck tightens, or the singer guesses instead of hearing the target.\n- Pass/Fail metric: Pattern is accurate at slow speed before increasing tempo; timing and pitch stay clean.\n- Song transfer: Apply the same sensation to one short phrase only; do not run the whole song until the cue holds.",
         "next_take_cue": "Hear it first, then sing it. Do not fish for the note.",
         "seven_day_template": "D"
+      },
+      {
+        "category": "breath_support",
+        "selector_heading": "If the main limiter is BREATH / SUPPORT",
+        "severity_0_to_100": 72.0,
+        "evidence": [
+          "held notes drift 76.3 cents",
+          "52.1% of phrase endings sag (intentional fall-offs also register \u2014 confirm by ear)"
+        ],
+        "exercises": [
+          {
+            "num": 1,
+            "name": "The Farinelli Maneuver"
+          },
+          {
+            "num": 2,
+            "name": "Rib Cage Stationary Drill"
+          },
+          {
+            "num": 3,
+            "name": "The Sibilant Hiss"
+          },
+          {
+            "num": 4,
+            "name": "Pulsated Fricatives"
+          },
+          {
+            "num": 8,
+            "name": "The Tissue Flutter"
+          },
+          {
+            "num": 10,
+            "name": "Back-Breathing Expansion"
+          },
+          {
+            "num": 12,
+            "name": "Silent Inhalation Drill"
+          },
+          {
+            "num": 15,
+            "name": "Axial Alignment Scan"
+          }
+        ],
+        "primary_exercise_detail": "- Use when: suspended breath control and phrase stamina.\n- Pedagogical target: Suspended Breath Control.\n- How to do it: Inhale for 4 counts, suspend (hold with open glottis) for 4, exhale for 4; increase to 10+ counts.\n- How it should feel: Inhale low and wide, suspend without closing the throat, then release like a slow leak.\n- Common failure / safety note: Stop or reduce intensity if dizziness, shoulder lifting, throat gripping, or breath-holding appears.\n- Pass/Fail metric: Counts are even and the throat stays open during the suspension.\n- Song transfer: Apply the same sensation to one short phrase only; do not run the whole song until the cue holds.",
+        "next_take_cue": "Keep the ribs wide and let the air meter out slowly.",
+        "seven_day_template": "B"
       },
       {
         "category": "vibrato",
@@ -8178,5 +8373,12 @@
       "likely_cause": "Inconsistent breath onset or sub-optimal fold closure.",
       "intervention": "Mum 1-5-3-1 (forward mix onset)"
     }
-  ]
+  ],
+  "take_context": {
+    "intent": "learning",
+    "capture": "live",
+    "milestone": null,
+    "note": "Aaron performing Baby Got Back by Sir Mix-A-Lot live at Bramble Bay Bowls Club on 27 August 2026. Rap/style-confounded take: timing/pocket and raw voice-quality metrics are the valid interpretation lens. The sustained-singing rubric, aggregate score, pitch stability, phrase control, vibrato and intonation components are retained only for completeness and must not be ranked or trended against sung performances.",
+    "superseded": false
+  }
 }
