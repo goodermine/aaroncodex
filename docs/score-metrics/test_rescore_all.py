@@ -40,6 +40,12 @@ class SongGroupingTests(unittest.TestCase):
              "2026-07-10-aaron-danger-zone-take-001"),
             ("2026-09-15-aaron-all-that-she-wants-home-instamic-take-002",
              "2026-09-11-aaron-all-that-she-wants-take-001"),
+            ("2026-09-16-aaron-all-that-she-wants-home-test-take-003",
+             "2026-09-11-aaron-all-that-she-wants-take-001"),
+            ("2026-09-20-aaron-play-that-funky-music-tribe-take-001",
+             "2026-07-25-aaron-play-that-funky-music-take-001"),
+            ("2026-09-20-aaron-you-give-love-a-bad-name-bonnyview-take-001",
+             "2026-09-04-aaron-you-give-love-a-bad-name-take-001"),
         ]
         for tagged, plain in cases:
             self.assertEqual(song(tagged), song(plain), f"{tagged} vs {plain}")
