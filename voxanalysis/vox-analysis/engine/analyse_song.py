@@ -4189,12 +4189,6 @@ def main():
         help="Path to pro-reference calibration JSON (built by tools/build_calibration.py). "
              "Pass 'none' to force theoretical anchors.",
     )
-    parser.add_argument(
-        "--json-output",
-        default=None,
-        help="Explicit path for the analysis JSON. Batch/archive runners use this "
-             "to write directly to their controlled archive-side staging path.",
-    )
     args = parser.parse_args()
 
     if not os.path.exists(args.input_file):
@@ -4206,12 +4200,7 @@ def main():
     os.makedirs("temp", exist_ok=True)
 
     base_name = os.path.splitext(os.path.basename(args.input_file))[0]
-    json_output = (
-        resolve_repo_path(args.json_output)
-        if args.json_output
-        else os.path.join("output", f"{base_name}_analysis.json")
-    )
-    os.makedirs(os.path.dirname(os.path.abspath(json_output)), exist_ok=True)
+    json_output = os.path.join("output", f"{base_name}_analysis.json")
     report_output = os.path.join("reports", f"{base_name}_report.md")
     visual_output = os.path.join("reports", "diagnostics", f"{base_name}_diagnostic_plot.png")
 

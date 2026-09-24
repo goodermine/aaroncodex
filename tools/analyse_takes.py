@@ -133,41 +133,27 @@ def collect(dirs: list[str]) -> dict[str, dict]:
     return takes
 
 
-def run_engine(audio: str, artist: str, separate: bool, timeout: int, archive_target: str):
-    """Run the canonical engine into an archive-side staging file.
-
-    The engine's default ``output/`` is intentionally git-ignored scratch
-    space.  Batch publication must not depend on remembering to relocate the
-    JSON after the fact, so the runner gives the engine an explicit temporary
-    path beside the archive target and then atomically publishes the parsed
-    object to ``archive_target``.
-    """
-    out_json = f"{archive_target}.engine-tmp"
-    if os.path.exists(out_json):
-        os.unlink(out_json)
+def run_engine(audio: str, artist: str, separate: bool, timeout: int):
+    base = os.path.splitext(os.path.basename(audio))[0]
+    out_json = os.path.join(ENGINE_DIR, "output", f"{base}_analysis.json")
+    before = os.path.getmtime(out_json) if os.path.exists(out_json) else None
     cmd = [sys.executable, "analyse_song.py", audio, "--name", artist]
     if separate:
         cmd.append("--separate-stems")
-    cmd.extend(["--json-output", out_json])
     try:
         proc = subprocess.run(cmd, cwd=ENGINE_DIR, capture_output=True, text=True,
                               timeout=timeout)
     except subprocess.TimeoutExpired:
-        if os.path.exists(out_json):
-            os.unlink(out_json)
         return None, f"timed out after {timeout}s"
     if proc.returncode != 0:
-        if os.path.exists(out_json):
-            os.unlink(out_json)
         tail = (proc.stderr or proc.stdout or "").strip().splitlines()[-3:]
         return None, f"engine exited {proc.returncode}: {' / '.join(tail)}"
     if not os.path.exists(out_json):
-        return None, "engine wrote no archive-side analysis JSON"
-    try:
-        with open(out_json) as fh:
-            return json.load(fh), ""
-    finally:
-        os.unlink(out_json)
+        return None, "engine wrote no analysis JSON"
+    if before is not None and os.path.getmtime(out_json) == before:
+        return None, "engine did not refresh its output file"
+    with open(out_json) as fh:
+        return json.load(fh), ""
 
 
 def main() -> int:
@@ -255,7 +241,7 @@ def main() -> int:
     ok, failed = 0, []
     for i, (key, audio, target, artist, separate) in enumerate(work, 1):
         print(f"[{i}/{len(work)}] {key}" + ("  (separating first)" if separate else ""))
-        analysis, err = run_engine(audio, artist, separate, args.timeout, target)
+        analysis, err = run_engine(audio, artist, separate, args.timeout)
         if analysis is None:
             print(f"    FAILED: {err}")
             failed.append((key, err))
