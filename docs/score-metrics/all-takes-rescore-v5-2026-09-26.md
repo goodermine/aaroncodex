@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.4 · mean 7.35. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 251/265 takes.
+Full coverage: 252/266 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -277,6 +277,7 @@ Full coverage: 251/265 takes.
 | rilda | gimme-gimme-gimme-bramble | 203 | **7.8** | 8.8 | high | 10.0 | 10.0 | 4.08 | 10.0 | 7.7 | 1.76 | 8.91 |
 | rilda | little-lies-bramble | 208 | **7.1** | 7.0 | high | 9.0 | 0.0 | 5.34 | 10.0 | 9.92 | 7.79 | 7.53 |
 | rilda | you-sexy-thing-brighton | 245 | **7.3** | 7.3 | high | 10.0 | 0.0 | 5.65 | 9.87 | 9.94 | 6.7 | 7.95 |
+| rilda | dancing-queen | 211 | **7.5** | 7.9 | high | 10.0 | 2.81 | 4.2 | 9.86 | 9.56 | 7.91 | 7.3 |
 
 ## Professional references (calibration sanity check)
 
