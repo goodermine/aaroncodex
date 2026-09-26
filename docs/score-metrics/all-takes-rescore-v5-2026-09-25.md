@@ -1,4 +1,4 @@
-# All takes — re-scored with the current engine (rubric v5, 2026-09-24)
+# All takes — re-scored with the current engine (rubric v5, 2026-09-25)
 
 Every eligible archived take re-scored with **deterministic_rubric_v5** (calibration active, 50 pro references). Scores from superseded rubrics have been retired from the archive (retire_legacy_scores.py), so every numeric score here is a current recompute. Retired or source-blocked records remain visible as **withheld** rows and are not recomputed from contaminated stored measurements. `cf` = capture-fair (voice_quality **and** dynamics excluded — the capture-robust components; **breath** is deliberately kept in, because air running out is the singer, not the room).
 
