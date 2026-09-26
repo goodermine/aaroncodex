@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.4 · mean 7.35. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 256/270 takes.
+Full coverage: 257/271 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -222,6 +222,7 @@ Full coverage: 256/270 takes.
 | aaron | play-that-funky-music | 233 | **8.6** | 8.3 | high | 8.0 | 6.25 | 9.95 | 10.0 | 8.49 | 9.61 | 8.31 |
 | aaron | fireball | 233 | **6.8** | 6.3 | high | 6.0 | 5.04 | 6.34 | 8.95 | 9.9 | 4.85 | 6.72 |
 | aaron | hang-on-sloopy | 188 | **8.1** | 7.5 | high | 9.0 | 4.81 | 9.2 | 9.53 | 9.72 | 5.88 | 6.42 |
+| aaron | kung-fu-fighting | 238 | **8.0** | 7.6 | high | 8.0 | 5.5 | 9.49 | 9.96 | 8.48 | 7.82 | 5.7 |
 | aaron | lose-yourself | 285 | **7.2** | 6.8 | high | 10.0 | 0.0 | 7.21 | 7.97 | 9.3 | 6.76 | 7.05 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
