@@ -1,4 +1,4 @@
-# All takes — re-scored with the current engine (rubric v5, 2026-09-26)
+# All takes — re-scored with the current engine (rubric v5, 2026-09-27)
 
 Every eligible archived take re-scored with **deterministic_rubric_v5** (calibration active, 50 pro references). Scores from superseded rubrics have been retired from the archive (retire_legacy_scores.py), so every numeric score here is a current recompute. Retired or source-blocked records remain visible as **withheld** rows and are not recomputed from contaminated stored measurements. `cf` = capture-fair (voice_quality **and** dynamics excluded — the capture-robust components; **breath** is deliberately kept in, because air running out is the singer, not the room).
 
@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.4 · mean 7.35. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 253/267 takes.
+Full coverage: 258/272 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -221,6 +221,9 @@ Full coverage: 253/267 takes.
 | aaron | you-give-love-a-bad-name | 235 | **6.8** | 6.5 | high | 10.0 | 0.0 | 6.85 | 8.41 | 8.31 | 5.79 | 5.29 |
 | aaron | play-that-funky-music | 233 | **8.6** | 8.3 | high | 8.0 | 6.25 | 9.95 | 10.0 | 8.49 | 9.61 | 8.31 |
 | aaron | fireball | 233 | **6.8** | 6.3 | high | 6.0 | 5.04 | 6.34 | 8.95 | 9.9 | 4.85 | 6.72 |
+| aaron | hang-on-sloopy | 188 | **8.1** | 7.5 | high | 9.0 | 4.81 | 9.2 | 9.53 | 9.72 | 5.88 | 6.42 |
+| aaron | kung-fu-fighting | 238 | **8.0** | 7.6 | high | 8.0 | 5.5 | 9.49 | 9.96 | 8.48 | 7.82 | 5.7 |
+| aaron | lose-yourself | 285 | **7.2** | 6.8 | high | 10.0 | 0.0 | 7.21 | 7.97 | 9.3 | 6.76 | 7.05 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
@@ -279,6 +282,8 @@ Full coverage: 253/267 takes.
 | rilda | you-sexy-thing-brighton | 245 | **7.3** | 7.3 | high | 10.0 | 0.0 | 5.65 | 9.87 | 9.94 | 6.7 | 7.95 |
 | rilda | dancing-queen | 211 | **7.5** | 7.9 | high | 10.0 | 2.81 | 4.2 | 9.86 | 9.56 | 7.91 | 7.3 |
 | rilda | dont-get-me-wrong | 166 | **6.4** | 5.3 | high | 6.0 | 0.0 | 9.25 | 9.79 | 8.07 | 1.88 | 7.85 |
+| rilda | one-way-or-another | 192 | **7.3** | 6.5 | high | 10.0 | 0.0 | 10.0 | 7.72 | 8.12 | 1.94 | 10.0 |
+| rilda | whos-that-girl | 248 | **7.0** | 7.2 | high | 8.0 | 0.0 | 5.65 | 10.0 | 8.36 | 10.0 | 8.69 |
 
 ## Professional references (calibration sanity check)
 
