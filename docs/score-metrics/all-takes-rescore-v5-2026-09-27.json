@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 265,
+      "n": 266,
       "overall": {
         "min": 5.4,
         "max": 9.4,
@@ -19,7 +19,7 @@
       "capture_fair": {
         "min": 4.5,
         "max": 9.7,
-        "mean": 6.95,
+        "mean": 6.96,
         "spread": 5.2
       },
       "dynamics": {
@@ -10808,6 +10808,47 @@
         "onsets_pct_clean": 14.5,
         "onsets_pct_scooped": 45.7,
         "onsets_pct_overshot": 39.9,
+        "entry_accuracy_reliability": "reduced"
+      }
+    },
+    {
+      "take": "2026-09-26-rilda-dancing-queen-take-001",
+      "singer": "rilda",
+      "song": "dancing-queen",
+      "date": "2026-09-26",
+      "n_notes": 211,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 7.5,
+      "capture_fair": 7.9,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 2.81,
+        "voice_quality": 4.2,
+        "vibrato_control": 9.86,
+        "dynamics_expression": 9.56,
+        "phrase_control": 7.91,
+        "breath_support": 7.3
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 75.1,
+        "pct_within_25c": 52.6,
+        "jitter_pct": 1.8164,
+        "shimmer_pct": 16.9727,
+        "hnr_db": 10.32,
+        "vibrato_pct_notes": 54.3,
+        "dyn_phrase_spread_db": 19.9,
+        "dyn_effective_range_db": 23.89,
+        "median_phrase_s": 3.11,
+        "onsets_pct_clean": 23.7,
+        "onsets_pct_scooped": 43.0,
+        "onsets_pct_overshot": 33.3,
         "entry_accuracy_reliability": "reduced"
       }
     }
