@@ -1,4 +1,4 @@
-# All takes — re-scored with the current engine (rubric v5, 2026-09-17)
+# All takes — re-scored with the current engine (rubric v5, 2026-09-27)
 
 Every eligible archived take re-scored with **deterministic_rubric_v5** (calibration active, 50 pro references). Scores from superseded rubrics have been retired from the archive (retire_legacy_scores.py), so every numeric score here is a current recompute. Retired or source-blocked records remain visible as **withheld** rows and are not recomputed from contaminated stored measurements. `cf` = capture-fair (voice_quality **and** dynamics excluded — the capture-robust components; **breath** is deliberately kept in, because air running out is the singer, not the room).
 
@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.4 · mean 7.35. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 245/259 takes.
+Full coverage: 261/275 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -217,10 +217,18 @@ Full coverage: 245/259 takes.
 | aaron | carved-from-stone-bramble | 240 | **7.9** | 7.4 | high | 10.0 | 0.0 | 9.61 | 9.52 | 8.06 | 8.48 | 7.48 |
 | aaron | oh-what-a-night-bramble-instamic-first-live | 230 | **7.7** | 7.3 | high | 6.0 | 6.13 | 9.96 | 9.68 | 6.96 | 6.42 | 9.54 |
 | aaron | the-letter-bramble | 258 | **6.6** | 5.7 | high | 7.0 | 0.0 | 9.76 | 9.95 | 6.93 | 3.3 | 7.16 |
+| aaron | play-that-funky-music | 222 | **7.3** | 6.6 | high | 6.0 | 1.89 | 9.52 | 10.0 | 8.15 | 7.03 | 9.35 |
+| aaron | you-give-love-a-bad-name | 235 | **6.8** | 6.5 | high | 10.0 | 0.0 | 6.85 | 8.41 | 8.31 | 5.79 | 5.29 |
+| aaron | play-that-funky-music | 233 | **8.6** | 8.3 | high | 8.0 | 6.25 | 9.95 | 10.0 | 8.49 | 9.61 | 8.31 |
+| aaron | fireball | 233 | **6.8** | 6.3 | high | 6.0 | 5.04 | 6.34 | 8.95 | 9.9 | 4.85 | 6.72 |
+| aaron | hang-on-sloopy | 188 | **8.1** | 7.5 | high | 9.0 | 4.81 | 9.2 | 9.53 | 9.72 | 5.88 | 6.42 |
+| aaron | kung-fu-fighting | 238 | **8.0** | 7.6 | high | 8.0 | 5.5 | 9.49 | 9.96 | 8.48 | 7.82 | 5.7 |
+| aaron | lose-yourself | 285 | **7.2** | 6.8 | high | 10.0 | 0.0 | 7.21 | 7.97 | 9.3 | 6.76 | 7.05 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
 | aaron-g | vienna | 165 | **7.3** | 6.1 | high | 6.0 | 0.0 | 10.0 | 10.0 | 9.81 | 8.97 | 7.05 |
+| aaron-g | dont-stop-believing | 169 | **8.8** | 8.2 | high | 10.0 | 1.95 | 10.0 | 10.0 | 9.98 | 8.91 | 10.0 |
 | chris | feeling-good | 204 | **5.8** | 5.3 | high | 6.0 | 0.0 | 4.67 | 10.0 | 9.98 | 4.55 | 5.29 |
 | leo | chasin-that-neon-rainbow | 204 | **6.9** | 6.6 | high | 8.0 | 2.58 | 6.03 | 8.59 | 9.33 | 7.7 | 5.4 |
 | leo | livin-on-a-prayer | 191 | **7.9** | 7.8 | high | 10.0 | 2.23 | 6.72 | 9.41 | 9.86 | 7.18 | 9.08 |
@@ -271,6 +279,14 @@ Full coverage: 245/259 takes.
 | rilda | who-s-that-girl | 268 | **8.3** | 7.8 | high | 10.0 | 0.0 | 8.86 | 9.72 | 9.65 | 10.0 | 9.26 |
 | rilda | gimme-gimme-gimme-bramble | 203 | **7.8** | 8.8 | high | 10.0 | 10.0 | 4.08 | 10.0 | 7.7 | 1.76 | 8.91 |
 | rilda | little-lies-bramble | 208 | **7.1** | 7.0 | high | 9.0 | 0.0 | 5.34 | 10.0 | 9.92 | 7.79 | 7.53 |
+| rilda | you-sexy-thing-brighton | 245 | **7.3** | 7.3 | high | 10.0 | 0.0 | 5.65 | 9.87 | 9.94 | 6.7 | 7.95 |
+| rilda | dancing-queen | 211 | **7.5** | 7.9 | high | 10.0 | 2.81 | 4.2 | 9.86 | 9.56 | 7.91 | 7.3 |
+| rilda | dont-get-me-wrong | 166 | **6.4** | 5.3 | high | 6.0 | 0.0 | 9.25 | 9.79 | 8.07 | 1.88 | 7.85 |
+| rilda | one-way-or-another | 192 | **7.3** | 6.5 | high | 10.0 | 0.0 | 10.0 | 7.72 | 8.12 | 1.94 | 10.0 |
+| rilda | who-s-that-girl | 248 | **7.0** | 7.2 | high | 8.0 | 0.0 | 5.65 | 10.0 | 8.36 | 10.0 | 8.69 |
+| rilda | at-last | 147 | **8.4** | 8.1 | high | 8.0 | 4.01 | 10.0 | 9.95 | 8.09 | 10.0 | 9.74 |
+| rilda | back-to-black | 262 | **6.8** | 5.9 | high | 6.0 | 0.0 | 9.88 | 10.0 | 6.85 | 5.0 | 9.38 |
+| rilda | moonlight-serenade | 227 | **7.4** | 6.7 | high | 10.0 | 0.0 | 9.81 | 10.0 | 7.8 | 3.03 | 7.05 |
 
 ## Professional references (calibration sanity check)
 

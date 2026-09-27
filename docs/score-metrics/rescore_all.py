@@ -70,7 +70,7 @@ def singer(name):
 DESCRIPTOR_SUFFIXES = (
     "captain-cook-tavern", "mango-hill-tavern", "zoom-h8-capture",
     "bramble-bay", "new-studio", "home-instamic", "zoom-h8", "instamic",
-    "home", "2yr",
+    "home", "2yr", "test", "tribe", "bonnyview",
 )
 
 
@@ -89,6 +89,7 @@ def song(name):
                 b = b[: -(len(tok) + 1)]
                 changed = True
     b = re.sub(r"^lets-", "let-s-", b)   # apostrophe dropped vs. hyphenated across filenames
+    b = re.sub(r"^whos-", "who-s-", b)   # same issue, "Who's That Girl" ("whos-" vs "who-s-")
     return b.strip("-")
 
 
