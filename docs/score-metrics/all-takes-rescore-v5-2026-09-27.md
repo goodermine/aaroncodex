@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.4 · mean 7.35. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.4 · mean 7.36. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 262/276 takes.
+Full coverage: 262/277 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -221,6 +221,7 @@ Full coverage: 262/276 takes.
 | aaron | you-give-love-a-bad-name | 235 | **6.8** | 6.5 | high | 10.0 | 0.0 | 6.85 | 8.41 | 8.31 | 5.79 | 5.29 |
 | aaron | play-that-funky-music | 233 | **8.6** | 8.3 | high | 8.0 | 6.25 | 9.95 | 10.0 | 8.49 | 9.61 | 8.31 |
 | aaron | bust-a-move | 291 | **7.0** | 7.2 | high | 8.0 | 1.83 | 4.94 | 9.75 | 8.45 | 9.0 | 7.85 |
+| aaron | do-wah-diddy | 161 | **9.3** | 9.8 | high | 10.0 | 10.0 | 8.32 | 9.21 | 8.06 | 10.0 | – |
 | aaron | fireball | 233 | **6.8** | 6.3 | high | 6.0 | 5.04 | 6.34 | 8.95 | 9.9 | 4.85 | 6.72 |
 | aaron | hang-on-sloopy | 188 | **8.1** | 7.5 | high | 9.0 | 4.81 | 9.2 | 9.53 | 9.72 | 5.88 | 6.42 |
 | aaron | kung-fu-fighting | 238 | **8.0** | 7.6 | high | 8.0 | 5.5 | 9.49 | 9.96 | 8.48 | 7.82 | 5.7 |

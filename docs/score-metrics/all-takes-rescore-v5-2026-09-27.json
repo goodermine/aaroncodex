@@ -9,18 +9,18 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 276,
+      "n": 277,
       "overall": {
         "min": 5.4,
         "max": 9.4,
-        "mean": 7.35,
+        "mean": 7.36,
         "spread": 4.0
       },
       "capture_fair": {
         "min": 4.5,
-        "max": 9.7,
-        "mean": 6.95,
-        "spread": 5.2
+        "max": 9.8,
+        "mean": 6.96,
+        "spread": 5.3
       },
       "dynamics": {
         "min": 5.8,
@@ -8529,6 +8529,48 @@
         "onsets_pct_scooped": 19.8,
         "onsets_pct_overshot": 54.2,
         "entry_accuracy_reliability": "reduced"
+      }
+    },
+    {
+      "take": "2026-09-26-aaron-do-wah-diddy-take-001",
+      "singer": "aaron",
+      "song": "do-wah-diddy",
+      "date": "2026-09-26",
+      "n_notes": 161,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 9.3,
+      "capture_fair": 9.8,
+      "coverage": "partial",
+      "components_unscored": [
+        "breath_support"
+      ],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 10.0,
+        "voice_quality": 8.32,
+        "vibrato_control": 9.21,
+        "dynamics_expression": 8.06,
+        "phrase_control": 10.0
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 45.4,
+        "pct_within_25c": 60.2,
+        "jitter_pct": 0.9328,
+        "shimmer_pct": 11.0424,
+        "hnr_db": 16.06,
+        "vibrato_pct_notes": 57.6,
+        "dyn_phrase_spread_db": 37.3,
+        "dyn_effective_range_db": 20.22,
+        "median_phrase_s": 6.22,
+        "onsets_pct_clean": 25.4,
+        "onsets_pct_scooped": 43.7,
+        "onsets_pct_overshot": 31.0,
+        "entry_accuracy_reliability": "high"
       }
     },
     {
