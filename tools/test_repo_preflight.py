@@ -92,6 +92,9 @@ class RepositoryPreflightTests(unittest.TestCase):
         run("git", "add", "result.txt", cwd=self.repo)
         run("git", "commit", "-m", "result", cwd=self.repo)
         run("git", "push", "-u", "origin", "codex/preflight-test", cwd=self.repo)
+        # Narrow-fetch repositories may not have this local tracking ref. The
+        # guard must still verify the configured upstream via git ls-remote.
+        run("git", "update-ref", "-d", "refs/remotes/origin/codex/preflight-test", cwd=self.repo)
         outside_output = self.root / "generated.txt"
         outside_output.write_text("generated\n", encoding="utf-8")
         result = self.invoke(

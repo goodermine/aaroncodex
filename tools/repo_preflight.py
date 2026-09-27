@@ -136,12 +136,18 @@ def run_tests(root: Path, commands: Sequence[str]) -> list[Check]:
 
 def check_remote_sha(repo: Repository, branch: str) -> Check:
     try:
-        upstream = repo.git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}")
-        if "/" not in upstream:
-            return Check("remote SHA", False, f"unexpected upstream name {upstream!r}")
-        remote, remote_branch = upstream.split("/", 1)
-        if remote_branch != branch:
-            return Check("remote SHA", False, f"upstream is {upstream}, expected {remote}/{branch}")
+        # Do not use ``@{upstream}`` here. Some narrow-fetch repositories retain
+        # no local refs/remotes/origin/<task-branch>, even immediately after a
+        # successful push. Branch configuration plus ls-remote is authoritative
+        # and works in both narrow- and full-fetch repositories.
+        remote = repo.git("config", f"branch.{branch}.remote")
+        merge_ref = repo.git("config", f"branch.{branch}.merge")
+        expected_merge_ref = f"refs/heads/{branch}"
+        if merge_ref != expected_merge_ref:
+            return Check(
+                "remote SHA", False,
+                f"upstream is {remote}/{merge_ref}, expected {remote}/{expected_merge_ref}",
+            )
         local_sha = repo.git("rev-parse", "HEAD")
         remote_sha = repo.git("ls-remote", remote, f"refs/heads/{branch}").split()
     except RuntimeError as exc:
