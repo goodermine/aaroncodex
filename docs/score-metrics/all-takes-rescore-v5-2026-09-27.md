@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.4 · mean 7.36. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.4 · mean 7.35. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 260/274 takes.
+Full coverage: 261/275 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -285,6 +285,7 @@ Full coverage: 260/274 takes.
 | rilda | one-way-or-another | 192 | **7.3** | 6.5 | high | 10.0 | 0.0 | 10.0 | 7.72 | 8.12 | 1.94 | 10.0 |
 | rilda | who-s-that-girl | 248 | **7.0** | 7.2 | high | 8.0 | 0.0 | 5.65 | 10.0 | 8.36 | 10.0 | 8.69 |
 | rilda | at-last | 147 | **8.4** | 8.1 | high | 8.0 | 4.01 | 10.0 | 9.95 | 8.09 | 10.0 | 9.74 |
+| rilda | back-to-black | 262 | **6.8** | 5.9 | high | 6.0 | 0.0 | 9.88 | 10.0 | 6.85 | 5.0 | 9.38 |
 | rilda | moonlight-serenade | 227 | **7.4** | 6.7 | high | 10.0 | 0.0 | 9.81 | 10.0 | 7.8 | 3.03 | 7.05 |
 
 ## Professional references (calibration sanity check)
