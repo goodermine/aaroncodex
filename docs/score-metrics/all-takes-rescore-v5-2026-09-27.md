@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.4 · mean 7.35. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.5 · mean 7.36. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 261/275 takes.
+Full coverage: 261/279 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -280,9 +280,13 @@ Full coverage: 261/275 takes.
 | rilda | gimme-gimme-gimme-bramble | 203 | **7.8** | 8.8 | high | 10.0 | 10.0 | 4.08 | 10.0 | 7.7 | 1.76 | 8.91 |
 | rilda | little-lies-bramble | 208 | **7.1** | 7.0 | high | 9.0 | 0.0 | 5.34 | 10.0 | 9.92 | 7.79 | 7.53 |
 | rilda | you-sexy-thing-brighton | 245 | **7.3** | 7.3 | high | 10.0 | 0.0 | 5.65 | 9.87 | 9.94 | 6.7 | 7.95 |
+| rilda | black-velvet | 249 | **7.1** | 6.5 | medium | 8.0 | 0.0 | – | 9.88 | 9.89 | 4.15 | 10.0 |
 | rilda | dancing-queen | 211 | **7.5** | 7.9 | high | 10.0 | 2.81 | 4.2 | 9.86 | 9.56 | 7.91 | 7.3 |
 | rilda | dont-get-me-wrong | 166 | **6.4** | 5.3 | high | 6.0 | 0.0 | 9.25 | 9.79 | 8.07 | 1.88 | 7.85 |
+| rilda | flowers | 243 | **9.5** | 9.5 | medium | 10.0 | 10.0 | – | 10.0 | 9.44 | 10.0 | 5.96 |
+| rilda | happy-together | 182 | **6.5** | 6.3 | medium | 10.0 | 0.0 | – | 9.67 | 7.33 | 1.39 | – |
 | rilda | one-way-or-another | 192 | **7.3** | 6.5 | high | 10.0 | 0.0 | 10.0 | 7.72 | 8.12 | 1.94 | 10.0 |
+| rilda | smile | 148 | **7.3** | 7.0 | medium | 10.0 | 0.0 | – | 10.0 | 8.87 | 2.73 | 10.0 |
 | rilda | who-s-that-girl | 248 | **7.0** | 7.2 | high | 8.0 | 0.0 | 5.65 | 10.0 | 8.36 | 10.0 | 8.69 |
 | rilda | at-last | 147 | **8.4** | 8.1 | high | 8.0 | 4.01 | 10.0 | 9.95 | 8.09 | 10.0 | 9.74 |
 | rilda | back-to-black | 262 | **6.8** | 5.9 | high | 6.0 | 0.0 | 9.88 | 10.0 | 6.85 | 5.0 | 9.38 |
