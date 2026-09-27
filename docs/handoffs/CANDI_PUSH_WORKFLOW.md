@@ -63,6 +63,32 @@ Analyse → commit → push as **one motion**. Never batch "for later".
 > see. The `pull --rebase` first avoids the rejected-push stall when the branch
 > moved.
 
+### Mandatory repository guard
+
+Use the reusable guard before changing the branch and again after its push.
+It refuses an unexpected branch, a stale base, undeclared worktree residue,
+missing outputs, failed tests, or a local SHA that differs from the remote.
+
+```bash
+# Before changing files. This must say: STATUS: complete and verified
+python3 tools/repo_preflight.py start \
+  --branch codex/live-brighton-2026-07-31
+
+# After commit and `git push -u origin ...`. Supply the task's real outputs and
+# tests; finish refuses to report completion without both tests and remote SHA.
+python3 tools/repo_preflight.py finish \
+  --branch codex/live-brighton-2026-07-31 \
+  --expect-file voxanalysis/archive/scratch-analyses/2026-07-31-aaron-<song>-take-001_analysis.json \
+  --test "python3 tools/score_preflight.py" \
+  --test "python3 -m unittest tools/test_repo_preflight.py"
+```
+
+The guard fails on every untracked or modified file by default. Do not clear a
+dirty tree with a destructive command. If a known unrelated *untracked* file
+must remain, declare only that exact relative path with `--allow-untracked`;
+the final status will record the exception. Modified or staged files can never
+be bypassed.
+
 ## 4. Do NOT regenerate the score tables on the side branch
 
 Commit **only the analysis JSONs** (plus report/notes artefacts if wanted).
