@@ -55,6 +55,10 @@ class SongGroupingTests(unittest.TestCase):
             song("2026-07-11-aaron-lets-stay-together-new-studio-take-001"),
             song("2026-07-02-aaron-let-s-stay-together-take-001"),
         )
+        self.assertEqual(
+            song("2026-09-26-rilda-whos-that-girl-take-001"),
+            song("2026-07-29-rilda-who-s-that-girl-take-001"),
+        )
 
     def test_descriptor_stripping_never_eats_a_real_song_title_word(self):
         """'bay' is a whole word inside a real title here (Blue Bayou), not a
