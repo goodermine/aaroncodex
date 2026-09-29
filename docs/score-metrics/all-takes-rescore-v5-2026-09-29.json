@@ -9,17 +9,17 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 286,
+      "n": 287,
       "overall": {
         "min": 5.4,
         "max": 9.7,
-        "mean": 7.37,
+        "mean": 7.38,
         "spread": 4.3
       },
       "capture_fair": {
         "min": 4.5,
         "max": 10.0,
-        "mean": 6.98,
+        "mean": 6.99,
         "spread": 5.5
       },
       "dynamics": {
@@ -9393,6 +9393,48 @@
         "onsets_pct_scooped": 43.5,
         "onsets_pct_overshot": 29.0,
         "entry_accuracy_reliability": "reduced"
+      }
+    },
+    {
+      "take": "2026-09-27-leo-bat-out-of-hell-take-001",
+      "singer": "leo",
+      "song": "bat-out-of-hell",
+      "date": "2026-09-27",
+      "n_notes": 367,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 8.6,
+      "capture_fair": 8.6,
+      "coverage": "partial",
+      "components_unscored": [
+        "voice_quality"
+      ],
+      "confidence": "medium",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 10.0,
+        "vibrato_control": 9.88,
+        "dynamics_expression": 9.04,
+        "phrase_control": 3.58,
+        "breath_support": 5.8
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 45.7,
+        "pct_within_25c": 55.0,
+        "jitter_pct": 0.4,
+        "shimmer_pct": null,
+        "hnr_db": null,
+        "vibrato_pct_notes": 41.4,
+        "dyn_phrase_spread_db": 29.49,
+        "dyn_effective_range_db": 24.16,
+        "median_phrase_s": 1.68,
+        "onsets_pct_clean": 35.1,
+        "onsets_pct_scooped": 32.0,
+        "onsets_pct_overshot": 32.9,
+        "entry_accuracy_reliability": "high"
       }
     },
     {
