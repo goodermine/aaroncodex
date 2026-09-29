@@ -71,6 +71,7 @@ DESCRIPTOR_SUFFIXES = (
     "captain-cook-tavern", "mango-hill-tavern", "zoom-h8-capture",
     "bramble-bay", "new-studio", "home-instamic", "zoom-h8", "instamic",
     "home", "2yr", "test", "tribe", "bonnyview",
+    "redcliffe-leagues-club-open-mic", "redcliffe-leagues",
 )
 
 
