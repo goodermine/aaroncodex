@@ -1,4 +1,4 @@
-# All takes — re-scored with the current engine (rubric v5, 2026-09-27)
+# All takes — re-scored with the current engine (rubric v5, 2026-09-29)
 
 Every eligible archived take re-scored with **deterministic_rubric_v5** (calibration active, 50 pro references). Scores from superseded rubrics have been retired from the archive (retire_legacy_scores.py), so every numeric score here is a current recompute. Retired or source-blocked records remain visible as **withheld** rows and are not recomputed from contaminated stored measurements. `cf` = capture-fair (voice_quality **and** dynamics excluded — the capture-robust components; **breath** is deliberately kept in, because air running out is the singer, not the room).
 
@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.5 · mean 7.36. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.37. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 261/279 takes.
+Full coverage: 265/286 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -220,10 +220,17 @@ Full coverage: 261/279 takes.
 | aaron | play-that-funky-music | 222 | **7.3** | 6.6 | high | 6.0 | 1.89 | 9.52 | 10.0 | 8.15 | 7.03 | 9.35 |
 | aaron | you-give-love-a-bad-name | 235 | **6.8** | 6.5 | high | 10.0 | 0.0 | 6.85 | 8.41 | 8.31 | 5.79 | 5.29 |
 | aaron | play-that-funky-music | 233 | **8.6** | 8.3 | high | 8.0 | 6.25 | 9.95 | 10.0 | 8.49 | 9.61 | 8.31 |
+| aaron | bust-a-move | 291 | **7.0** | 7.2 | high | 8.0 | 1.83 | 4.94 | 9.75 | 8.45 | 9.0 | 7.85 |
+| aaron | do-wah-diddy | 161 | **9.3** | 9.8 | high | 10.0 | 10.0 | 8.32 | 9.21 | 8.06 | 10.0 | – |
 | aaron | fireball | 233 | **6.8** | 6.3 | high | 6.0 | 5.04 | 6.34 | 8.95 | 9.9 | 4.85 | 6.72 |
 | aaron | hang-on-sloopy | 188 | **8.1** | 7.5 | high | 9.0 | 4.81 | 9.2 | 9.53 | 9.72 | 5.88 | 6.42 |
+| aaron | kryptonite | 167 | **7.7** | 7.1 | high | 8.0 | 2.12 | 8.96 | 9.43 | 9.15 | 10.0 | 6.07 |
+| aaron | kung-fu-fighting | 214 | **6.8** | 6.4 | medium | 10.0 | 0.0 | – | 8.99 | 8.94 | 2.06 | 7.69 |
 | aaron | kung-fu-fighting | 238 | **8.0** | 7.6 | high | 8.0 | 5.5 | 9.49 | 9.96 | 8.48 | 7.82 | 5.7 |
 | aaron | lose-yourself | 285 | **7.2** | 6.8 | high | 10.0 | 0.0 | 7.21 | 7.97 | 9.3 | 6.76 | 7.05 |
+| aaron | my-babe | 151 | **7.6** | 7.1 | high | 10.0 | 0.0 | 9.73 | 9.92 | 7.08 | 3.33 | 10.0 |
+| aaron | things-that-make-you-go-hmm | 311 | **7.2** | 7.7 | high | 10.0 | 0.69 | 5.5 | 9.61 | 7.13 | 10.0 | 7.05 |
+| aaron | you-give-love-a-bad-name | 218 | **9.7** | 10.0 | medium | 10.0 | 10.0 | – | 10.0 | 8.23 | 10.0 | 10.0 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
