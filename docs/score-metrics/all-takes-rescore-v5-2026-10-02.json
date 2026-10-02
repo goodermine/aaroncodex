@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 289,
+      "n": 290,
       "overall": {
         "min": 5.4,
         "max": 9.7,
@@ -19,7 +19,7 @@
       "capture_fair": {
         "min": 4.5,
         "max": 10.0,
-        "mean": 7.0,
+        "mean": 6.99,
         "spread": 5.5
       },
       "dynamics": {
@@ -8983,6 +8983,48 @@
         "onsets_pct_clean": 29.7,
         "onsets_pct_scooped": 32.8,
         "onsets_pct_overshot": 37.5,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-10-02-aaron-you-give-love-a-bad-name-take-001",
+      "singer": "aaron",
+      "song": "you-give-love-a-bad-name",
+      "date": "2026-10-02",
+      "n_notes": 217,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 6.5,
+      "capture_fair": 6.0,
+      "coverage": "partial",
+      "components_unscored": [
+        "voice_quality"
+      ],
+      "confidence": "medium",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 8.0,
+        "pitch_stability": 0.0,
+        "vibrato_control": 8.99,
+        "dynamics_expression": 8.78,
+        "phrase_control": 6.48,
+        "breath_support": 4.99
+      },
+      "raw": {
+        "median_abs_dev_cents": 25.0,
+        "median_intra_note_drift_cents": 80.5,
+        "pct_within_25c": 56.2,
+        "jitter_pct": 0.4197,
+        "shimmer_pct": null,
+        "hnr_db": null,
+        "vibrato_pct_notes": 31.0,
+        "dyn_phrase_spread_db": 11.55,
+        "dyn_effective_range_db": 23.48,
+        "median_phrase_s": 2.64,
+        "onsets_pct_clean": 23.3,
+        "onsets_pct_scooped": 40.8,
+        "onsets_pct_overshot": 35.8,
         "entry_accuracy_reliability": "high"
       }
     },
