@@ -62,6 +62,10 @@ class EditDocument:
     # signal louder into the limiter; `ceiling_dbtp` is the guaranteed true-peak
     # ceiling. Applied last, after tuning.
     master: dict = field(default_factory=lambda: {"on": True, "ceiling_dbtp": -3.0, "drive_db": 0.0})
+    # Mix (Phase 2, opt-in): tone/compress/de-ess/space decisions for the
+    # vocal, the backing pocket, balance mode and bus glue — see stages/mix.py.
+    # Empty = no Mix layer (the Phase 1 output, unchanged).
+    mix: dict = field(default_factory=dict)
     # Analysis context useful to a UI / for debugging, not used by render.
     analysis: dict = field(default_factory=dict)
 
@@ -86,6 +90,7 @@ class EditDocument:
             pitch=raw.get("pitch", {}),
             denoise=raw.get("denoise", {"amount": 0.0, "backend": "none"}),
             master={"on": True, "ceiling_dbtp": -3.0, "drive_db": 0.0, **raw.get("master", {})},
+            mix=raw.get("mix", {}),
             analysis=raw.get("analysis", {}),
         )
         for name in ("pauses", "breaths", "sibilants"):

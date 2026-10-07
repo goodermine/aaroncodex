@@ -192,6 +192,91 @@ high detector confidence; sibilance cuts scale with evidence (no forced
 minimum). Reports include `gain_range_db`, `max_slope_db_per_s`, and
 `neutrality_residual_lu`.
 
+## Mix — make it sound produced (Phase 2)
+
+Clean *repairs* a vocal; Mix *shapes* it. Opt-in, so a plain run is unchanged.
+
+```bash
+# The one-command polish for a home take: Mix on, vocal seated in the track
+# at a commercial record's balance, mastered to social-media loudness
+# (-14 LUFS, -1 dBTP).
+voxpolish process take.wav --mode song --produce --trim-start 16 -o out/
+
+# Best result: also hand it the karaoke track you sang to. It replaces the
+# backing your mic heard through the room, aligned automatically.
+voxpolish process take.wav --mode song --produce --trim-start 16 \
+    --backing karaoke.mp3 -o out/
+
+# Pieces, if you want them separately:
+voxpolish process take.wav --mode song --mix -o out/          # Mix, Phase 1 balance/targets
+voxpolish process take.wav --mode song --produce --reverb-db -15 --no-delay -o out/
+voxpolish process take.wav --mode song --produce --mix-bypass space,glue -o out/
+```
+
+Vocal chain, in order — each step measured, bounded, reported, bypassable:
+
+| Step | What it does |
+|---|---|
+| Compress | 4:1 soft-knee RMS compressor, threshold 4 dB under the vocal's own median active level (radio-style control); loudness-neutral (steadier, not louder; makeup bounded at 10 dB, reported). First, because compression shifts tonal balance. |
+| Tone | high-pass 85 Hz + **measured** EQ: mud cut (300 Hz), presence (3.2 kHz), air shelf (8 kHz), set from the vocal's long-term spectrum vs a produced-vocal target. Bounds: mud −4, presence +6/−3, air +5/−2 dB. Bandwidth-limited sources (MP3/phone low-pass) get the air shelf capped at +1.5 dB. |
+| De-ess | split-band, level-independent; after the EQ so a presence/air lift can't bring the "s" back. |
+| Space | plate-style reverb (seeded synthetic IR — renders bit-identically) and a slapback timed to the song (eighth note from the backing's tempo, else 120 ms). Send levels are set relative to the dry vocal: −16 / −22 dB. |
+
+Backing: a −2 dB **pocket** at 2.8 kHz where the vocal's clarity lives.
+Balance: `--balance forward` (set by `--produce`) places the vocal
+`--vocal-forward-db` LU relative to the backing while it sings — default
+**−1.3**, i.e. slightly *under* the music, the balance measured on a
+commercial record (The Weeknd's Blinding Lights, separated stems). On the A/B
+that set this default, vocal-on-top (+3) sounded like karaoke floating over
+the track, level (0) was close, and −1.3 "sounded perfect". The backing moves
+first (±9 dB), the vocal covers any remainder (±3 dB), a miss is reported,
+never forced. `restore` (the plain default) keeps the Phase 1 behaviour. Bus:
+2:1 **glue** at the mix's median level, loudness-neutral, then mastering.
+
+Outputs add `vocal_produced.wav` (the shaped vocal); `vocal_cleaned.wav`
+stays the repaired-only stem. Every decision is in `edit_document.json` under
+`mix` (edit it and re-render with `--from-doc`); what was applied is under
+`analysis.mix`, `analysis.balance`, `analysis.glue`, `analysis.master`.
+`--trim-start/--trim-end` cut spoken intros before anything is measured; the
+trim is stored in the document so a re-render lines up.
+
+### Clean backing swap (`--backing`)
+
+A home take is usually sung over a karaoke track played through a speaker,
+so the separated backing is that speaker heard through the room: dull, thin,
+roomy. Turning it up for a radio balance only makes that more obvious.
+`--backing FILE` replaces it with the clean track:
+
+1. **Coarse** — onset-strength cross-correlation of the whole tracks
+   (100 frames/s); works whether the track started before or after the
+   recording.
+2. **Fine** — 1 ms envelope correlation within ±60 ms of the coarse answer,
+   summed over 10 s windows across the song. Constraining matters: a looping
+   synth makes independent windows land a bar or more away.
+3. **Drift check** — per-window offsets; a spread over 50 ms is reported as a
+   warning (a different speed or edit of the track).
+
+The offset is stored under `analysis.backing` (re-renders reuse it);
+`--backing-offset S` skips alignment. On Aaron's Blinding Lights take the
+automatic offset (9.965 s, 28 ms spread) matched the hand-aligned mix he
+approved to the sample. The clean track also drives the tempo-synced
+slapback and the bleed suppressor. Some of the room backing stays in the
+vocal stem (the mic heard it): recording with headphones removes it at the
+source.
+
+### Tone targets
+
+The tone targets come from a separated professional pop vocal (presence −6 dB,
+air −14.6 dB relative to the 500–1000 Hz body), set slightly short of it so a
+home vocal moves toward "produced" without being forced there. Treat them as
+starting values to tune by ear.
+
+> Polish output is for listening and sharing. VOX **scores** always come from
+> the raw take through the analysis engine — never from a polished file.
+
+Not yet in the browser editor: the Mix layer is CLI/pipeline only in this
+phase.
+
 ## The six modules
 
 | Module | Phase 0 status |
