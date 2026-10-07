@@ -192,6 +192,55 @@ high detector confidence; sibilance cuts scale with evidence (no forced
 minimum). Reports include `gain_range_db`, `max_slope_db_per_s`, and
 `neutrality_residual_lu`.
 
+## Mix — make it sound produced (Phase 2)
+
+Clean *repairs* a vocal; Mix *shapes* it. Opt-in, so a plain run is unchanged.
+
+```bash
+# The one-command polish for a home take: Mix on, vocal seated forward,
+# mastered to social-media loudness (-14 LUFS, -1 dBTP).
+voxpolish process take.wav --mode song --produce --trim-start 16 -o out/
+
+# Pieces, if you want them separately:
+voxpolish process take.wav --mode song --mix -o out/          # Mix, Phase 1 balance/targets
+voxpolish process take.wav --mode song --produce --reverb-db -15 --no-delay -o out/
+voxpolish process take.wav --mode song --produce --mix-bypass space,glue -o out/
+```
+
+Vocal chain, in order — each step measured, bounded, reported, bypassable:
+
+| Step | What it does |
+|---|---|
+| Compress | 3:1 soft-knee RMS compressor, threshold from the vocal's own active level; loudness-neutral (steadier, not louder). First, because compression shifts tonal balance. |
+| Tone | high-pass 85 Hz + **measured** EQ: mud cut (300 Hz), presence (3.2 kHz), air shelf (8 kHz), set from the vocal's long-term spectrum vs a produced-vocal target. Bounds: mud −4, presence +6/−3, air +5/−2 dB. Bandwidth-limited sources (MP3/phone low-pass) get the air shelf capped at +1.5 dB. |
+| De-ess | split-band, level-independent; after the EQ so a presence/air lift can't bring the "s" back. |
+| Space | plate-style reverb (seeded synthetic IR — renders bit-identically) and a slapback timed to the song (eighth note from the backing's tempo, else 120 ms). Send levels are set relative to the dry vocal: −18 / −22 dB. |
+
+Backing: a −2 dB **pocket** at 2.8 kHz where the vocal's clarity lives.
+Balance: `--balance forward` seats the vocal `--vocal-forward-db` (default 3)
+LU above the backing while it sings — the backing moves first (±9 dB), the
+vocal covers any remainder (±3 dB), a miss is reported, never forced.
+`restore` (the default) keeps the Phase 1 behaviour. Bus: gentle 1.6:1
+**glue**, loudness-neutral, then mastering.
+
+Outputs add `vocal_produced.wav` (the shaped vocal); `vocal_cleaned.wav`
+stays the repaired-only stem. Every decision is in `edit_document.json` under
+`mix` (edit it and re-render with `--from-doc`); what was applied is under
+`analysis.mix`, `analysis.balance`, `analysis.glue`, `analysis.master`.
+`--trim-start/--trim-end` cut spoken intros before anything is measured; the
+trim is stored in the document so a re-render lines up.
+
+The tone targets come from a separated professional pop vocal (presence −6 dB,
+air −14.6 dB relative to the 500–1000 Hz body), set slightly short of it so a
+home vocal moves toward "produced" without being forced there. Treat them as
+starting values to tune by ear.
+
+> Polish output is for listening and sharing. VOX **scores** always come from
+> the raw take through the analysis engine — never from a polished file.
+
+Not yet in the browser editor: the Mix layer is CLI/pipeline only in this
+phase.
+
 ## The six modules
 
 | Module | Phase 0 status |

@@ -54,6 +54,29 @@ def main(argv: list[str] | None = None) -> int:
                    help="Mastering loudness target, LUFS integrated (default -15)")
     p.add_argument("--true-peak-db", type=float, default=None,
                    help="Final true-peak ceiling, dBTP (default -3)")
+    p.add_argument("--trim-start", type=float, default=None, metavar="S",
+                   help="Drop the first S seconds (spoken intros, dead air)")
+    p.add_argument("--trim-end", type=float, default=None, metavar="S",
+                   help="Stop at S seconds into the ORIGINAL file")
+    m = p.add_argument_group("mix (Phase 2: make it sound produced)")
+    m.add_argument("--produce", action="store_true",
+                   help="Preset: Mix on, vocal seated forward, mastered to -14 LUFS / -1 dBTP")
+    m.add_argument("--mix", action="store_true",
+                   help="Mix on (tone EQ, compression, de-ess, reverb/delay, pocket, glue) "
+                        "without changing balance or mastering targets")
+    m.add_argument("--balance", choices=["restore", "forward"], default=None,
+                   help="restore: the recording's own vocal/backing ratio; "
+                        "forward: vocal seated --vocal-forward-db above the backing")
+    m.add_argument("--vocal-forward-db", type=float, default=None,
+                   help="How far the vocal sits above the backing while singing, LU (default 3)")
+    m.add_argument("--reverb-db", type=float, default=None,
+                   help="Reverb level relative to the dry vocal, dB (default -18)")
+    m.add_argument("--delay-db", type=float, default=None,
+                   help="Slapback level relative to the dry vocal, dB (default -22)")
+    m.add_argument("--no-reverb", action="store_true")
+    m.add_argument("--no-delay", action="store_true")
+    m.add_argument("--mix-bypass", default="", metavar="MODULES",
+                   help="Comma list of Mix modules to bypass: tone,compress,deess,space,pocket,glue")
 
     t = sub.add_parser("pitch", help="Analyze pitch and propose gentle corrections (no audio changes)")
     t.add_argument("input", help="A clean vocal recording or stem")
@@ -113,8 +136,35 @@ def main(argv: list[str] | None = None) -> int:
         settings.remix_vocal_db = args.remix_vocal_db
     if args.target_lufs is not None:
         settings.target_lufs = args.target_lufs
+    if args.produce:
+        settings.produce()
+    if args.mix:
+        settings.enable_mix = True
+    if args.balance is not None:
+        settings.balance_mode = args.balance
+    if args.vocal_forward_db is not None:
+        settings.vocal_forward_db = args.vocal_forward_db
+    if args.reverb_db is not None:
+        settings.mix_reverb_db = args.reverb_db
+    if args.delay_db is not None:
+        settings.mix_delay_db = args.delay_db
+    if args.no_reverb:
+        settings.mix_reverb_db = None
+    if args.no_delay:
+        settings.mix_delay_db = None
+    settings.mix_bypass = {m.strip() for m in args.mix_bypass.split(",") if m.strip()}
+    unknown = settings.mix_bypass - {"tone", "compress", "deess", "space", "pocket", "glue"}
+    if unknown:
+        parser.error(f"unknown --mix-bypass module(s): {', '.join(sorted(unknown))}")
+    # Explicit targets win over the --produce preset.
+    if args.target_lufs is not None:
+        settings.target_lufs = args.target_lufs
     if args.true_peak_db is not None:
         settings.true_peak_db = args.true_peak_db
+    if args.trim_start is not None:
+        settings.trim_start_s = args.trim_start
+    if args.trim_end is not None:
+        settings.trim_end_s = args.trim_end
 
     edit_doc = EditDocument.load(args.from_doc) if args.from_doc else None
 

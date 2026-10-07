@@ -9,7 +9,7 @@ import numpy as np
 
 from . import audio_io, measure
 from .document import EditDocument
-from .stages import bleed, breath, clean, dynamics, gate, master, render, separation, sibilance
+from .stages import bleed, breath, clean, dynamics, gate, master, mix, render, separation, sibilance
 
 
 def mix_remix(
@@ -88,6 +88,16 @@ def _r(v):
     return None if v is None else round(float(v), 2)
 
 
+def trim_audio(audio: np.ndarray, sr: int, trim: dict) -> np.ndarray:
+    """Cut (channels, samples) audio to [start_s, end_s); end None = to the end."""
+    start = max(0, int(round(float(trim.get("start_s") or 0.0) * sr)))
+    end = trim.get("end_s")
+    stop = audio.shape[1] if end is None else min(audio.shape[1], int(round(float(end) * sr)))
+    if stop - start < sr:
+        raise ValueError(f"trim leaves less than 1 s of audio ({trim})")
+    return audio[:, start:stop]
+
+
 # A detector must clear this confidence to override the speech guards.
 GUARD_OVERRIDE_CONFIDENCE = 0.5
 
@@ -137,7 +147,40 @@ class Settings:
     # correction) and maximum automation slope.
     max_boost_db: float = 6.0
     max_slope_db_s: float = 6.0
+    # Phase 2 Mix (opt-in): tone / compression / de-ess / space on the vocal,
+    # a pocket on the backing, glue on the bus. Off by default, so a plain
+    # Clean run is unchanged. See stages/mix.py.
+    enable_mix: bool = False
+    mix_highpass_hz: float = 85.0
+    mix_comp_ratio: float = 3.0
+    mix_comp_threshold_offset_db: float = 0.0
+    # Send levels relative to the dry vocal's loudness, dB; None = send off.
+    mix_reverb_db: float | None = -18.0
+    mix_delay_db: float | None = -22.0
+    mix_pocket_db: float = 2.0
+    # Mix modules to start bypassed (names from stages/mix.py), e.g. {"space"}.
+    mix_bypass: set = field(default_factory=set)
+    # Remix balance: "restore" puts back the recording's own vocal/backing
+    # ratio (the Phase 1 behaviour); "forward" seats the vocal
+    # `vocal_forward_db` LU above the backing while it sings.
+    balance_mode: str = "restore"
+    vocal_forward_db: float = 3.0
+    max_forward_instr_db: float = 9.0
+    # Trim the input before anything else (spoken intros, dead air), seconds.
+    trim_start_s: float = 0.0
+    trim_end_s: float | None = None
     extra: dict = field(default_factory=dict)
+
+    def produce(self) -> "Settings":
+        """The "make it sound produced" preset: Mix on, vocal forward, and
+        mastered to social-media loudness (-14 LUFS, -1 dBTP)."""
+        self.enable_mix = True
+        self.balance_mode = "forward"
+        self.target_lufs = -14.0
+        self.true_peak_db = -1.0
+        self.max_limiter_gr_db = 4.0
+        self.max_master_gain_db = 12.0
+        return self
 
     @classmethod
     def for_mode(cls, mode: str) -> "Settings":
@@ -232,6 +275,17 @@ def process(
         )
     else:
         vocal, sr = audio_io.load(input_path)
+
+    # Trim after separation (the model sees the whole file), before anything
+    # measures. A re-render from a document reuses the document's own trim so
+    # its timings still line up.
+    trim = (edit_doc.analysis.get("trim") if edit_doc is not None else None) or {
+        "start_s": settings.trim_start_s, "end_s": settings.trim_end_s}
+    trimmed = bool(trim.get("start_s")) or trim.get("end_s") is not None
+    if trimmed:
+        vocal = trim_audio(vocal, sr, trim)
+        if instrumental is not None:
+            instrumental = trim_audio(instrumental, sr, trim)
     raw_vocal = vocal.copy()
 
     # Bleed suppression: runs after the raw copy so what it removes shows up
@@ -255,12 +309,28 @@ def process(
         doc.analysis["bleed"] = bleed_info
     else:
         doc = edit_doc
+    if trimmed:
+        doc.analysis["trim"] = trim
 
     # Stage C: deterministic render.
     cleaned = render.render(vocal, sr, doc)
 
     audio_io.save(out_dir / "vocal_cleaned.wav", cleaned, sr)
     outputs["vocal_cleaned"] = str(out_dir / "vocal_cleaned.wav")
+
+    # Stage D (opt-in): Mix — shape the cleaned vocal so it sounds produced.
+    # vocal_cleaned.wav stays the repaired-only stem; the shaped one is
+    # written alongside it and is what the remix uses.
+    active = doc.analysis.get("vocal_active", [])
+    if edit_doc is None and settings.enable_mix:
+        doc.mix = mix.analyze(cleaned, sr, instrumental, active, settings)
+        for name in settings.mix_bypass:
+            doc.mix["bypass"][name] = True
+    produced = cleaned
+    if doc.mix:
+        produced, doc.analysis["mix"] = mix.render_vocal(cleaned, sr, doc.mix, active)
+        audio_io.save(out_dir / "vocal_produced.wav", produced, sr)
+        outputs["vocal_produced"] = str(out_dir / "vocal_produced.wav")
 
     # Diagnostic delta contract, two distinct outputs:
     #
@@ -281,21 +351,33 @@ def process(
         audio_io.save(out_dir / "instrumental.wav", instrumental, sr)
         outputs["instrumental"] = str(out_dir / "instrumental.wav")
 
-        # Balance: restore the recording's own vocal-to-backing relationship
-        # (or honor an explicit manual trim), then master within bounds.
+        backing = mix.render_backing(instrumental, sr, doc.mix) if doc.mix else instrumental
+
+        # Balance: restore the recording's own vocal-to-backing relationship,
+        # seat the vocal forward (Mix), or honor an explicit manual trim; then
+        # master within bounds.
+        forward = doc.mix and (doc.mix.get("balance") or {}).get("mode") == "forward"
         if settings.remix_vocal_db is not None:
             balance = {"method": "manual", "vocal_gain_db": settings.remix_vocal_db,
                        "instr_gain_db": 0.0}
+        elif forward:
+            balance = mix.compute_forward_balance(
+                produced, backing, sr, active,
+                float(doc.mix["balance"]["vocal_forward_db"]),
+                max_instr_db=settings.max_forward_instr_db,
+                max_vocal_db=settings.max_vocal_correction_db,
+            )
         else:
             balance = compute_balance(
-                raw_vocal, cleaned, instrumental, sr,
-                doc.analysis.get("vocal_active", []),
+                raw_vocal, produced, instrumental, sr, active,
                 max_vocal_db=settings.max_vocal_correction_db,
                 max_instr_db=settings.max_instr_correction_db,
             )
         remix = mix_remix(
-            cleaned, instrumental, balance["vocal_gain_db"], balance["instr_gain_db"]
+            produced, backing, balance["vocal_gain_db"], balance["instr_gain_db"]
         )
+        if doc.mix:
+            remix, doc.analysis["glue"] = mix.glue(remix, sr, doc.mix, active)
         remix, master_report = master.master(
             remix, sr,
             target_lufs=settings.target_lufs,
