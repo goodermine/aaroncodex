@@ -58,6 +58,11 @@ def main(argv: list[str] | None = None) -> int:
                    help="Drop the first S seconds (spoken intros, dead air)")
     p.add_argument("--trim-end", type=float, default=None, metavar="S",
                    help="Stop at S seconds into the ORIGINAL file")
+    p.add_argument("--backing", default=None, metavar="FILE",
+                   help="Song mode: a clean instrumental (e.g. the karaoke track you sang to) "
+                        "that replaces the backing captured in the room; aligned automatically")
+    p.add_argument("--backing-offset", type=float, default=None, metavar="S",
+                   help="Skip auto-alignment: the clean track starts S seconds into the recording")
     m = p.add_argument_group("mix (Phase 2: make it sound produced)")
     m.add_argument("--produce", action="store_true",
                    help="Preset: Mix on, vocal seated forward, mastered to -14 LUFS / -1 dBTP")
@@ -68,9 +73,10 @@ def main(argv: list[str] | None = None) -> int:
                    help="restore: the recording's own vocal/backing ratio; "
                         "forward: vocal seated --vocal-forward-db above the backing")
     m.add_argument("--vocal-forward-db", type=float, default=None,
-                   help="How far the vocal sits above the backing while singing, LU (default 3)")
+                   help="Vocal level relative to the backing while singing, LU: + above, "
+                        "- below (default -1.3, a commercial record's balance)")
     m.add_argument("--reverb-db", type=float, default=None,
-                   help="Reverb level relative to the dry vocal, dB (default -18)")
+                   help="Reverb level relative to the dry vocal, dB (default -16)")
     m.add_argument("--delay-db", type=float, default=None,
                    help="Slapback level relative to the dry vocal, dB (default -22)")
     m.add_argument("--no-reverb", action="store_true")
@@ -165,6 +171,10 @@ def main(argv: list[str] | None = None) -> int:
         settings.trim_start_s = args.trim_start
     if args.trim_end is not None:
         settings.trim_end_s = args.trim_end
+    if args.backing_offset is not None and not args.backing:
+        parser.error("--backing-offset needs --backing")
+    settings.backing_path = args.backing
+    settings.backing_offset_s = args.backing_offset
 
     edit_doc = EditDocument.load(args.from_doc) if args.from_doc else None
 

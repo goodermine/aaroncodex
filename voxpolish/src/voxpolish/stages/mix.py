@@ -53,6 +53,7 @@ TONE_BOUNDS = {"mud_cut_db": 4.0, "presence_boost_db": 6.0, "presence_cut_db": 3
 # -12 to -25 dB.
 HF_LIMITED_DB = -30.0
 AIR_LIMITED_MAX_BOOST_DB = 1.5
+VOCAL_MAKEUP_MAX_DB = 10.0
 
 
 # --------------------------------------------------------------------- filters
@@ -396,8 +397,8 @@ def analyze(vocal: np.ndarray, sr: int, instrumental: np.ndarray | None,
         "pocket": {"hz": 2800.0, "gain_db": -abs(settings.mix_pocket_db), "q": 0.9},
         "balance": {"mode": settings.balance_mode,
                     "vocal_forward_db": settings.vocal_forward_db},
-        "glue": {"ratio": 1.6, "attack_ms": 30.0, "release_ms": 250.0, "knee_db": 8.0,
-                 "threshold_offset_db": 2.0},
+        "glue": {"ratio": settings.mix_glue_ratio, "attack_ms": 30.0, "release_ms": 250.0,
+                 "knee_db": 8.0, "threshold_offset_db": settings.mix_glue_threshold_offset_db},
     }
 
 
@@ -423,8 +424,12 @@ def render_vocal(vocal: np.ndarray, sr: int, mix: dict, intervals: list) -> tupl
         x, report["deess"] = deess(x, sr, d["split_hz"], d["threshold_db"], d["amount"],
                                    d["max_reduction_db"])
     # Loudness-neutral: the chain changes tone and steadiness, not level.
-    x, makeup = _loudness_match(x, reference, sr, intervals)
+    # 4:1 radio-style compression plus EQ cuts can take ~6.5 dB off; the
+    # bound guards against a runaway, and hitting it is reported.
+    x, makeup = _loudness_match(x, reference, sr, intervals, max_db=VOCAL_MAKEUP_MAX_DB)
     report["makeup_db"] = round(makeup, 2)
+    if abs(makeup) >= VOCAL_MAKEUP_MAX_DB - 1e-6:
+        report["makeup_note"] = f"makeup bounded at {VOCAL_MAKEUP_MAX_DB:g} dB; vocal not fully level-matched"
     if not bypass.get("space"):
         x, report["space"] = space(x, sr, mix["space"], intervals)
     return x.astype(np.float32), report

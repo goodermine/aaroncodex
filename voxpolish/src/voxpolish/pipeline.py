@@ -9,7 +9,8 @@ import numpy as np
 
 from . import audio_io, measure
 from .document import EditDocument
-from .stages import bleed, breath, clean, dynamics, gate, master, mix, render, separation, sibilance
+from .stages import (align, bleed, breath, clean, dynamics, gate, master, mix, render,
+                     separation, sibilance)
 
 
 def mix_remix(
@@ -152,23 +153,38 @@ class Settings:
     # Clean run is unchanged. See stages/mix.py.
     enable_mix: bool = False
     mix_highpass_hz: float = 85.0
-    mix_comp_ratio: float = 3.0
-    mix_comp_threshold_offset_db: float = 0.0
+    # Radio-style vocal control: 4:1 with the threshold 4 dB under the
+    # vocal's median active level. Chosen by ear on Aaron's Blinding Lights
+    # A/B (version 8, 8 Oct 2026) over a gentler 3:1 at the median.
+    mix_comp_ratio: float = 4.0
+    mix_comp_threshold_offset_db: float = -4.0
     # Send levels relative to the dry vocal's loudness, dB; None = send off.
-    mix_reverb_db: float | None = -18.0
+    mix_reverb_db: float | None = -16.0
     mix_delay_db: float | None = -22.0
     mix_pocket_db: float = 2.0
+    # Bus glue that seats the vocal "in the pocket" of the track.
+    mix_glue_ratio: float = 2.0
+    mix_glue_threshold_offset_db: float = 0.0
     # Mix modules to start bypassed (names from stages/mix.py), e.g. {"space"}.
     mix_bypass: set = field(default_factory=set)
     # Remix balance: "restore" puts back the recording's own vocal/backing
     # ratio (the Phase 1 behaviour); "forward" seats the vocal
-    # `vocal_forward_db` LU above the backing while it sings.
+    # `vocal_forward_db` LU relative to the backing while it sings (+ above,
+    # - below). Default -1.3: the balance measured on a commercial record
+    # (The Weeknd, Blinding Lights, separated stems), which Aaron picked by
+    # ear over level (0) and vocal-on-top (+3). A home "karaoke" mix with the
+    # vocal on top is what made the vocal float rather than sit in the track.
     balance_mode: str = "restore"
-    vocal_forward_db: float = 3.0
+    vocal_forward_db: float = -1.3
     max_forward_instr_db: float = 9.0
     # Trim the input before anything else (spoken intros, dead air), seconds.
     trim_start_s: float = 0.0
     trim_end_s: float | None = None
+    # Swap in a clean instrumental (e.g. the karaoke track) for the backing
+    # captured in the room. Aligned automatically against the separated
+    # backing unless backing_offset_s is given. See stages/align.py.
+    backing_path: str | None = None
+    backing_offset_s: float | None = None
     extra: dict = field(default_factory=dict)
 
     def produce(self) -> "Settings":
@@ -276,6 +292,20 @@ def process(
     else:
         vocal, sr = audio_io.load(input_path)
 
+    # Backing swap: replace the room-captured backing with the clean track,
+    # aligned on the full-length recording (before any trim). A re-render
+    # from a document reuses its measured offset; an explicit offset wins.
+    backing_report = None
+    if settings.backing_path:
+        if instrumental is None:
+            raise ValueError("a clean backing track needs --mode song (the vocal must be "
+                             "separated from the backing it replaces)")
+        offset = settings.backing_offset_s
+        if offset is None and edit_doc is not None:
+            offset = (edit_doc.analysis.get("backing") or {}).get("offset_s")
+        instrumental, backing_report = align.swap_backing(
+            instrumental, sr, settings.backing_path, offset)
+
     # Trim after separation (the model sees the whole file), before anything
     # measures. A re-render from a document reuses the document's own trim so
     # its timings still line up.
@@ -311,6 +341,8 @@ def process(
         doc = edit_doc
     if trimmed:
         doc.analysis["trim"] = trim
+    if backing_report is not None:
+        doc.analysis["backing"] = backing_report
 
     # Stage C: deterministic render.
     cleaned = render.render(vocal, sr, doc)
