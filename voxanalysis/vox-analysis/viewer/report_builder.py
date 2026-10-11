@@ -648,15 +648,19 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
     capture = tc.get("capture")
     if cf is None:
         line("Capture-fair: —")
-    elif capture in ("studio", "home"):
-        line(f"Capture-fair: {cf}/10  — shown for completeness; this was a declared "
-             f"clean capture ({capture}), so the OVERALL above is the number to quote")
-    elif capture == "live":
-        line(f"Capture-fair: {cf}/10  — same rubric minus the mic/room-sensitive "
-             "voice-quality & dynamics; declared live capture, so quote THIS number")
     else:
         line(f"Capture-fair: {cf}/10  — same rubric minus the mic/room-sensitive "
-             "voice-quality & dynamics; quote this for live or rough captures")
+             "voice-quality & dynamics")
+    # Headline rule (Aaron, 11 Oct 2026): quote the HIGHER of the two engine
+    # numbers, always named. Both are canonical engine outputs; nothing is
+    # rounded or adjusted. Comparisons still pair like with like (CLAUDE.md §5).
+    if overall is not None:
+        if cf is None or overall > cf:
+            line(f"HEADLINE: {overall}/10 (overall — the higher of the two; quote this)")
+        elif cf > overall:
+            line(f"HEADLINE: {cf}/10 (capture-fair — the higher of the two; quote this)")
+        else:
+            line(f"HEADLINE: {overall}/10 (overall and capture-fair agree; quote this)")
     if tc.get("intent") or capture or tc.get("note"):
         bits = [b for b in (tc.get("intent"), f"{capture} capture" if capture else None,
                             tc.get("note")) if b]

@@ -92,12 +92,22 @@ meaningless — say so rather than publishing it).
 
 ## 5. Which number to give the singer
 
-- **Studio / clean capture** → lead with **overall**.
-- **Live, tavern, phone, room** → lead with **capture-fair**. It excludes the
-  components that measure the microphone rather than the voice
-  (`voice_quality`, `dynamics_expression`), and typically reads ~1 point higher.
-  It does **not** exclude `breath_support` (v5) — phrase-ending sag is air
-  running out, not the room, so a live take is still scored on it.
+- **Lead with the HIGHER of overall and capture-fair — always** (Aaron's rule,
+  11 Oct 2026), for every capture: studio, home, live, phone. Always **name
+  which one it is** ("8.1 overall", "9.7 capture-fair"). Both are canonical
+  outputs of the one engine, so this is a choice of which real number leads,
+  never a new or adjusted number. The full results print it as the
+  `HEADLINE:` line.
+- Capture-fair excludes the components that measure the microphone rather than
+  the voice (`voice_quality`, `dynamics_expression`). It does **not** exclude
+  `breath_support` (v5) — phrase-ending sag is air running out, not the room,
+  so a live take is still scored on it.
+- **Comparisons stay like-for-like.** When two takes are put side by side
+  ("best live version", "up from Kedron"), use the same kind of number on both
+  sides — overall vs overall, or capture-fair vs capture-fair — never one
+  take's overall against another's capture-fair. Leaderboards and trends
+  (`tools/ranked_takes.py`, `tools/progress_report.py`) keep their existing
+  capture-based selection.
 - Always state **confidence**, and that the scale is **calibrated to 50
   professional reference vocals — 10 = a typical pro**. A 7 is a good amateur
   result, not a failure.
@@ -141,8 +151,8 @@ delivery.** The job is done only when the person who asked has received the
 
 After every analysis you run, you MUST hand back, in the conversation:
 
-1. **The headline `/10`** — with the right number led per rule 5 (overall for a
-   clean capture, capture-fair for live/room/phone), stated confidence, and the
+1. **The headline `/10`** — the higher of overall and capture-fair, named, per
+   rule 5 (the report's `HEADLINE:` line), with stated confidence and the
    "10 = a typical pro" anchor.
 2. **The full results** — rendered via rule 6
    (`render_full_results_text(build_v2_report(raw), result)` or

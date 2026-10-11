@@ -162,12 +162,13 @@
     line("Overall: " + (s.overall != null ? s.overall + "/10" : "—") + "  (" + (s.confidence || "—") + " confidence)");
     var tc = report.take_context || {};
     if (s.capture_fair == null) line("Capture-fair: —");
-    else if (tc.capture === "studio" || tc.capture === "home")
-      line("Capture-fair: " + s.capture_fair + "/10  — shown for completeness; declared clean capture (" + tc.capture + "), quote the OVERALL");
-    else if (tc.capture === "live")
-      line("Capture-fair: " + s.capture_fair + "/10  — minus mic/room-sensitive components; declared live capture, quote THIS number");
-    else
-      line("Capture-fair: " + s.capture_fair + "/10  — same rubric minus mic/room-sensitive voice-quality metrics; quote this for live or rough captures");
+    else line("Capture-fair: " + s.capture_fair + "/10  — same rubric minus the mic/room-sensitive voice-quality & dynamics");
+    // Headline rule (CLAUDE.md §5): quote the HIGHER of the two, always named.
+    if (s.overall != null) {
+      if (s.capture_fair == null || s.overall > s.capture_fair) line("HEADLINE: " + s.overall + "/10 (overall — the higher of the two; quote this)");
+      else if (s.capture_fair > s.overall) line("HEADLINE: " + s.capture_fair + "/10 (capture-fair — the higher of the two; quote this)");
+      else line("HEADLINE: " + s.overall + "/10 (overall and capture-fair agree; quote this)");
+    }
     if (tc.intent || tc.capture || tc.note)
       line("Take context: " + [tc.intent, tc.capture ? tc.capture + " capture" : null, tc.note].filter(Boolean).join(" · "));
     (s.components || []).forEach(function (c) {
@@ -234,6 +235,7 @@
     ].join("");
     var capture = (result.quality && result.quality.classification) || "not available";
     var working = (report.what_is_working || []).slice(0, 3);
+    var headlineKey = s.overall == null ? null : (s.capture_fair != null && s.capture_fair > s.overall ? "capture_fair" : "overall");
     var executive = '<div class="executive"><section class="executive-main"><div class="kicker">Executive analysis</div><h2>' + shown(report.headline) +
       '</h2><p class="overview">' + shown(report.overview) + '</p><div class="evidence-row">' +
       '<span class="evidence-badge measured">Measured</span><span class="evidence-badge inferred">Inferred</span>' +
@@ -241,9 +243,9 @@
       (working.length ? '<div class="report-band"><h3>Strongest signals</h3><ul class="report-list">' + working.map(function (i) { return "<li>" + esc(i) + "</li>"; }).join("") + "</ul></div>" : "") +
       '<div class="focus"><div class="kicker">Primary coaching focus</div><h3>' + shown(focus.pillar) + "</h3><p>" + shown(focus.why) + "</p><p><b>" + shown(focus.drill) +
       '</b></p><p class="cue">' + shown(focus.cue) + "</p><p>" + shown(focus.target) + "</p></div></section>" +
-      '<aside class="score-panel"><div class="score-unit"><div class="score-value">' + shown(s.overall) + '</div><div class="score-label">Overall / 10</div></div>' +
-      '<div class="score-unit"><div class="score-value">' + shown(s.capture_fair) + '</div><div class="score-label">Capture-fair / 10</div>' +
-      '<div class="score-context" style="margin-top:6px">Same rubric minus the mic/room-sensitive voice-quality metrics — <b>quote this one for live or rough captures</b>.</div></div>' +
+      '<aside class="score-panel"><div class="score-unit"><div class="score-value">' + shown(s.overall) + '</div><div class="score-label">Overall / 10' + (headlineKey === "overall" ? " · <b>headline</b>" : "") + '</div></div>' +
+      '<div class="score-unit"><div class="score-value">' + shown(s.capture_fair) + '</div><div class="score-label">Capture-fair / 10' + (headlineKey === "capture_fair" ? " · <b>headline</b>" : "") + '</div>' +
+      '<div class="score-context" style="margin-top:6px">Same rubric minus the mic/room-sensitive voice-quality metrics. <b>The higher of the two numbers is the headline — quote it and say which one it is.</b></div></div>' +
       '<div class="score-context"><b>' + shown(s.confidence) + " confidence</b> · Capture status: " + esc(capture) + ". Scores must be read with the visible capture warnings above.</div></aside></div>";
     var profile = rack("Technical profile", "Core component scores", components || '<p class="quality">Not available.</p>', true);
     var measurements = rack("Core measurements", "Pitch, voice, dynamics, range and calibrated diagnostics", '<div class="metric-grid">' + metrics + "</div>", true);
