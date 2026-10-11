@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.38. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.39. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 265/289 takes.
+Full coverage: 265/290 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -231,6 +231,7 @@ Full coverage: 265/289 takes.
 | aaron | my-babe | 151 | **7.6** | 7.1 | high | 10.0 | 0.0 | 9.73 | 9.92 | 7.08 | 3.33 | 10.0 |
 | aaron | things-that-make-you-go-hmm | 311 | **7.2** | 7.7 | high | 10.0 | 0.69 | 5.5 | 9.61 | 7.13 | 10.0 | 7.05 |
 | aaron | you-give-love-a-bad-name | 199 | **6.9** | 6.4 | medium | 10.0 | 0.0 | – | 9.21 | 9.22 | 3.55 | 5.59 |
+| aaron | do-wah-diddy | 178 | **9.2** | 9.1 | medium | 10.0 | 10.0 | – | 9.45 | 9.59 | 10.0 | 4.11 |
 | aaron | let-s-stay-together | 194 | **7.0** | 6.5 | medium | 8.0 | 0.0 | – | 10.0 | 9.65 | 8.24 | 5.47 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
