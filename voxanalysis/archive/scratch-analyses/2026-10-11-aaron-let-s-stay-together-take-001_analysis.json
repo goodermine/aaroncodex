@@ -1,12 +1,12 @@
 {
   "file_name": "2026-10-11-aaron-let-s-stay-together-take-001_(Vocals)_vocals_mel_band_roformer.flac",
   "analysis_input_file": "2026-10-11-aaron-let-s-stay-together-take-001_(Vocals)_vocals_mel_band_roformer.flac",
-  "analysed_at": "2026-10-11T22:20:52",
+  "analysed_at": "2026-10-12T09:01:42",
   "artist_name": "Aaron",
   "duration_seconds": 189.8,
   "sample_rate": 44100,
   "engine": {
-    "parselmouth_available": false,
+    "parselmouth_available": true,
     "measurement_policy": "voice-quality metrics restricted to sustained voiced notes; deterministic scoring rubric v5"
   },
   "pitch": {
@@ -2001,15 +2001,57 @@
     ]
   },
   "voice_quality": {
-    "method": "frame_f0_approximation",
-    "reliability": "low",
-    "note": "parselmouth is not installed — this is a coarse frame-level approximation, not clinical jitter. Install praat-parselmouth for real cycle-to-cycle measurements. Shimmer and HNR are intentionally omitted rather than guessed.",
-    "n_notes_measured": 184,
+    "method": "praat_parselmouth_per_sustained_note",
+    "reliability": "high",
+    "n_notes_measured": 171,
     "n_sustained_notes_found": 184,
-    "jitter_local_percent_median": 0.4815,
-    "shimmer_local_percent_median": null,
-    "hnr_db_median": null,
-    "interpretation": "Unavailable at full reliability (parselmouth missing)."
+    "jitter_local_percent_median": 0.59,
+    "jitter_rap_percent_median": 0.2355,
+    "jitter_ppq5_percent_median": 0.2972,
+    "shimmer_local_percent_median": 5.5694,
+    "shimmer_apq3_percent_median": 1.8417,
+    "shimmer_local_db_median": 0.5792,
+    "hnr_db_median": 22.68,
+    "hnr_db_p25": 19.97,
+    "hnr_db_p75": 24.96,
+    "cpps_db": 15.49,
+    "cpps_note": "Cepstral Peak Prominence (smoothed, Praat). Research-standard clarity measure. SCORED: one of the four voice_quality sub-scores, anchored to the pro reference pack (10 at the pack median) when a calibration file is loaded.",
+    "strain": {
+      "n_top_quartile_notes": 42,
+      "n_strained": 3,
+      "pct_top_notes_strained": 7.1,
+      "method": "high pitch + above-median loudness + HNR >=4 dB below this take's own median",
+      "reliability": "medium — heuristic; intentional grit also trips it, confirm by ear at the timestamps"
+    },
+    "strained_notes": [
+      {
+        "time": "2:21",
+        "start_s": 141.2,
+        "note": "F♯4",
+        "duration_s": 0.43,
+        "hnr_drop_db": 5.6
+      },
+      {
+        "time": "2:22",
+        "start_s": 142.44,
+        "note": "F♯4",
+        "duration_s": 0.38,
+        "hnr_drop_db": 7.3
+      },
+      {
+        "time": "2:23",
+        "start_s": 142.84,
+        "note": "G4",
+        "duration_s": 0.51,
+        "hnr_drop_db": 8.6
+      }
+    ],
+    "interpretation": "Clean, well-supported phonation; normal sung-note perturbation.",
+    "reference": {
+      "speech_pathology_jitter_pct": 1.04,
+      "speech_pathology_shimmer_pct": 3.81,
+      "note": "Speech norms are for sustained spoken vowels; sung notes with vibrato run naturally higher. Interpretation above uses singing-oriented bands."
+    }
   },
   "harmonic_balance": {
     "harmonic_residual_db": 18.03,
@@ -2056,13 +2098,971 @@
     "rhythmic_regularity": -0.3351
   },
   "formants": {
-    "method": "lpc_downsampled_11kHz_voiced_only",
-    "reliability": "medium",
-    "note": "LPC fallback. Install praat-parselmouth for Burg-method formants.",
-    "F1_median_hz": 518.0,
-    "F2_median_hz": 1145.1,
-    "F3_median_hz": 1886.5,
-    "n_samples": 1998
+    "method": "praat_burg_sustained_notes",
+    "reliability": "high",
+    "formant_ceiling_hz": 5500.0,
+    "n_samples": 582,
+    "F1_median_hz": 550.9,
+    "F1_iqr_hz": 260.3,
+    "F2_median_hz": 1503.0,
+    "F2_iqr_hz": 479.3,
+    "F3_median_hz": 2474.2,
+    "F3_iqr_hz": 332.0,
+    "vowel_space": {
+      "n_notes_mapped": 156,
+      "n_notes_excluded_high_pitch": 38,
+      "vowel_distribution": {
+        "er (bird)": 41,
+        "uh (cut)": 25,
+        "uh (book)": 24,
+        "ae (cat)": 19,
+        "oo (boot)": 17,
+        "ih (hit)": 14,
+        "ee (heat)": 7,
+        "eh (bet)": 4,
+        "aw (bought)": 3,
+        "ah (father)": 2
+      },
+      "notes": [
+        {
+          "time": "0:01",
+          "F1": 676,
+          "F2": 1452,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "0:02",
+          "F1": 788,
+          "F2": 1581,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "0:04",
+          "F1": 444,
+          "F2": 916,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "0:05",
+          "F1": 570,
+          "F2": 1382,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "0:06",
+          "F1": 403,
+          "F2": 1459,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "0:09",
+          "F1": 578,
+          "F2": 1133,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "0:09",
+          "F1": 386,
+          "F2": 1011,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "0:11",
+          "F1": 399,
+          "F2": 1059,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "0:13",
+          "F1": 502,
+          "F2": 1101,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "0:15",
+          "F1": 452,
+          "F2": 1368,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "0:15",
+          "F1": 376,
+          "F2": 2462,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "0:16",
+          "F1": 455,
+          "F2": 1974,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "0:17",
+          "F1": 340,
+          "F2": 2314,
+          "vowel": "ee (heat)"
+        },
+        {
+          "time": "0:21",
+          "F1": 634,
+          "F2": 1852,
+          "vowel": "eh (bet)"
+        },
+        {
+          "time": "0:22",
+          "F1": 408,
+          "F2": 1852,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "0:22",
+          "F1": 372,
+          "F2": 1616,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "0:23",
+          "F1": 476,
+          "F2": 983,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "0:24",
+          "F1": 475,
+          "F2": 1578,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "0:25",
+          "F1": 348,
+          "F2": 938,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "0:29",
+          "F1": 706,
+          "F2": 1739,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "0:31",
+          "F1": 710,
+          "F2": 991,
+          "vowel": "aw (bought)"
+        },
+        {
+          "time": "0:32",
+          "F1": 505,
+          "F2": 1534,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "0:34",
+          "F1": 349,
+          "F2": 1054,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "0:38",
+          "F1": 376,
+          "F2": 2046,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "0:39",
+          "F1": 337,
+          "F2": 2053,
+          "vowel": "ee (heat)"
+        },
+        {
+          "time": "0:40",
+          "F1": 361,
+          "F2": 1383,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "0:41",
+          "F1": 354,
+          "F2": 1693,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "0:43",
+          "F1": 481,
+          "F2": 1967,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "0:44",
+          "F1": 662,
+          "F2": 1612,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "0:44",
+          "F1": 537,
+          "F2": 1247,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "0:46",
+          "F1": 435,
+          "F2": 976,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "0:47",
+          "F1": 477,
+          "F2": 1333,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "0:48",
+          "F1": 463,
+          "F2": 1860,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "0:48",
+          "F1": 549,
+          "F2": 1584,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "0:49",
+          "F1": 537,
+          "F2": 1417,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "0:50",
+          "F1": 301,
+          "F2": 1039,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "0:52",
+          "F1": 458,
+          "F2": 1624,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "0:52",
+          "F1": 672,
+          "F2": 1169,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "0:54",
+          "F1": 335,
+          "F2": 1724,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "0:55",
+          "F1": 281,
+          "F2": 2228,
+          "vowel": "ee (heat)"
+        },
+        {
+          "time": "0:58",
+          "F1": 347,
+          "F2": 1048,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "0:59",
+          "F1": 452,
+          "F2": 1682,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:00",
+          "F1": 567,
+          "F2": 1356,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:00",
+          "F1": 414,
+          "F2": 1151,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "1:01",
+          "F1": 267,
+          "F2": 1744,
+          "vowel": "ee (heat)"
+        },
+        {
+          "time": "1:01",
+          "F1": 287,
+          "F2": 1278,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "1:02",
+          "F1": 389,
+          "F2": 1375,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "1:02",
+          "F1": 356,
+          "F2": 994,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "1:09",
+          "F1": 611,
+          "F2": 1628,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:10",
+          "F1": 321,
+          "F2": 2298,
+          "vowel": "ee (heat)"
+        },
+        {
+          "time": "1:11",
+          "F1": 546,
+          "F2": 1077,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "1:12",
+          "F1": 343,
+          "F2": 985,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "1:15",
+          "F1": 532,
+          "F2": 1060,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "1:16",
+          "F1": 642,
+          "F2": 1785,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "1:18",
+          "F1": 631,
+          "F2": 1684,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "1:20",
+          "F1": 563,
+          "F2": 1478,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:21",
+          "F1": 595,
+          "F2": 1673,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:21",
+          "F1": 505,
+          "F2": 1373,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:22",
+          "F1": 651,
+          "F2": 1313,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "1:25",
+          "F1": 548,
+          "F2": 1193,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "1:25",
+          "F1": 520,
+          "F2": 1735,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:26",
+          "F1": 351,
+          "F2": 837,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "1:26",
+          "F1": 687,
+          "F2": 1478,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "1:27",
+          "F1": 577,
+          "F2": 1382,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:28",
+          "F1": 706,
+          "F2": 1596,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "1:29",
+          "F1": 574,
+          "F2": 1278,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:30",
+          "F1": 715,
+          "F2": 1259,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "1:31",
+          "F1": 575,
+          "F2": 1151,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "1:32",
+          "F1": 680,
+          "F2": 1671,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "1:32",
+          "F1": 621,
+          "F2": 1573,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:33",
+          "F1": 772,
+          "F2": 1536,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "1:33",
+          "F1": 465,
+          "F2": 1589,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:34",
+          "F1": 653,
+          "F2": 1659,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "1:34",
+          "F1": 555,
+          "F2": 1654,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:35",
+          "F1": 485,
+          "F2": 1713,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:43",
+          "F1": 333,
+          "F2": 1043,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "1:43",
+          "F1": 477,
+          "F2": 1987,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "1:43",
+          "F1": 479,
+          "F2": 2048,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "1:48",
+          "F1": 519,
+          "F2": 1323,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:49",
+          "F1": 766,
+          "F2": 1512,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "1:49",
+          "F1": 650,
+          "F2": 1281,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "1:50",
+          "F1": 575,
+          "F2": 1191,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "1:50",
+          "F1": 690,
+          "F2": 1658,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "1:51",
+          "F1": 625,
+          "F2": 1656,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:51",
+          "F1": 825,
+          "F2": 1535,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "1:52",
+          "F1": 496,
+          "F2": 1732,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:53",
+          "F1": 660,
+          "F2": 1596,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "1:53",
+          "F1": 571,
+          "F2": 1663,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:53",
+          "F1": 503,
+          "F2": 1744,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:54",
+          "F1": 737,
+          "F2": 1450,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "1:56",
+          "F1": 552,
+          "F2": 1605,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:57",
+          "F1": 718,
+          "F2": 1366,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "1:58",
+          "F1": 399,
+          "F2": 2008,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "1:59",
+          "F1": 533,
+          "F2": 1340,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "1:59",
+          "F1": 534,
+          "F2": 1272,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "2:01",
+          "F1": 503,
+          "F2": 1018,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "2:02",
+          "F1": 392,
+          "F2": 905,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "2:02",
+          "F1": 449,
+          "F2": 1207,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "2:03",
+          "F1": 432,
+          "F2": 1575,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "2:04",
+          "F1": 433,
+          "F2": 1410,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "2:06",
+          "F1": 270,
+          "F2": 1795,
+          "vowel": "ee (heat)"
+        },
+        {
+          "time": "2:08",
+          "F1": 571,
+          "F2": 2135,
+          "vowel": "eh (bet)"
+        },
+        {
+          "time": "2:10",
+          "F1": 333,
+          "F2": 2297,
+          "vowel": "ee (heat)"
+        },
+        {
+          "time": "2:14",
+          "F1": 657,
+          "F2": 1790,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "2:15",
+          "F1": 278,
+          "F2": 1225,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "2:16",
+          "F1": 439,
+          "F2": 1216,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "2:16",
+          "F1": 717,
+          "F2": 1612,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "2:17",
+          "F1": 297,
+          "F2": 1375,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "2:18",
+          "F1": 359,
+          "F2": 1816,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "2:20",
+          "F1": 503,
+          "F2": 886,
+          "vowel": "aw (bought)"
+        },
+        {
+          "time": "2:21",
+          "F1": 498,
+          "F2": 1888,
+          "vowel": "eh (bet)"
+        },
+        {
+          "time": "2:23",
+          "F1": 340,
+          "F2": 1049,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "2:24",
+          "F1": 521,
+          "F2": 1147,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "2:24",
+          "F1": 360,
+          "F2": 1285,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "2:25",
+          "F1": 349,
+          "F2": 1416,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "2:26",
+          "F1": 511,
+          "F2": 1247,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "2:27",
+          "F1": 365,
+          "F2": 1443,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "2:30",
+          "F1": 748,
+          "F2": 1275,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "2:30",
+          "F1": 604,
+          "F2": 974,
+          "vowel": "aw (bought)"
+        },
+        {
+          "time": "2:31",
+          "F1": 882,
+          "F2": 1042,
+          "vowel": "ah (father)"
+        },
+        {
+          "time": "2:34",
+          "F1": 872,
+          "F2": 2018,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "2:34",
+          "F1": 492,
+          "F2": 1773,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "2:35",
+          "F1": 438,
+          "F2": 1780,
+          "vowel": "ih (hit)"
+        },
+        {
+          "time": "2:36",
+          "F1": 542,
+          "F2": 1988,
+          "vowel": "eh (bet)"
+        },
+        {
+          "time": "2:37",
+          "F1": 661,
+          "F2": 1276,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "2:40",
+          "F1": 518,
+          "F2": 1236,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "2:40",
+          "F1": 459,
+          "F2": 1416,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "2:41",
+          "F1": 683,
+          "F2": 1451,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "2:42",
+          "F1": 614,
+          "F2": 1362,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "2:43",
+          "F1": 693,
+          "F2": 1590,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "2:44",
+          "F1": 578,
+          "F2": 1345,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "2:45",
+          "F1": 634,
+          "F2": 1279,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "2:46",
+          "F1": 587,
+          "F2": 1191,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "2:47",
+          "F1": 703,
+          "F2": 1666,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "2:47",
+          "F1": 675,
+          "F2": 1615,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "2:48",
+          "F1": 859,
+          "F2": 1621,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "2:49",
+          "F1": 556,
+          "F2": 1665,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "2:49",
+          "F1": 746,
+          "F2": 1614,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "2:50",
+          "F1": 609,
+          "F2": 1209,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "2:52",
+          "F1": 1001,
+          "F2": 1530,
+          "vowel": "ah (father)"
+        },
+        {
+          "time": "2:55",
+          "F1": 335,
+          "F2": 1184,
+          "vowel": "oo (boot)"
+        },
+        {
+          "time": "2:56",
+          "F1": 639,
+          "F2": 1232,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "3:00",
+          "F1": 725,
+          "F2": 1395,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "3:01",
+          "F1": 601,
+          "F2": 1358,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "3:02",
+          "F1": 683,
+          "F2": 1527,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "3:03",
+          "F1": 602,
+          "F2": 1264,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "3:04",
+          "F1": 754,
+          "F2": 1272,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "3:05",
+          "F1": 685,
+          "F2": 1339,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "3:05",
+          "F1": 572,
+          "F2": 1160,
+          "vowel": "uh (book)"
+        },
+        {
+          "time": "3:05",
+          "F1": 714,
+          "F2": 1430,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "3:06",
+          "F1": 629,
+          "F2": 1629,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "3:07",
+          "F1": 829,
+          "F2": 1576,
+          "vowel": "ae (cat)"
+        },
+        {
+          "time": "3:07",
+          "F1": 602,
+          "F2": 1485,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "3:08",
+          "F1": 683,
+          "F2": 1575,
+          "vowel": "uh (cut)"
+        },
+        {
+          "time": "3:08",
+          "F1": 582,
+          "F2": 1702,
+          "vowel": "er (bird)"
+        },
+        {
+          "time": "3:09",
+          "F1": 540,
+          "F2": 1582,
+          "vowel": "er (bird)"
+        }
+      ],
+      "reliability": "medium — vowel identity from F1/F2 is approximate on sung (vs spoken) vowels; excluded above F0 350 Hz where formant tracking breaks down"
+    }
   },
   "vibrato": {
     "method": "per_note_fft_of_detrended_cents_contour",
@@ -7917,9 +8917,9 @@
     }
   },
   "visual_diagnostics": {
-    "plot_path": "/home/user/aaroncodex/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-10-11-aaron-let-s-stay-together-take-001_(Vocals)_vocals_mel_band_roformer_diagnostic_plot.png",
-    "note_cards_path": "/home/user/aaroncodex/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-10-11-aaron-let-s-stay-together-take-001_(Vocals)_vocals_mel_band_roformer_note_cards.png",
-    "notes_csv_path": "/home/user/aaroncodex/voxanalysis/vox-analysis/engine/output/2026-10-11-aaron-let-s-stay-together-take-001_(Vocals)_vocals_mel_band_roformer_notes.csv",
+    "plot_path": "/tmp/claude-0/-home-user-aaroncodex/779bc529-6d36-543d-9ec0-66bbb7d1c6af/scratchpad/wt_rerun/codex_redcliffe-leagues-lst-2026-10-11/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-10-11-aaron-let-s-stay-together-take-001_(Vocals)_vocals_mel_band_roformer_diagnostic_plot.png",
+    "note_cards_path": "/tmp/claude-0/-home-user-aaroncodex/779bc529-6d36-543d-9ec0-66bbb7d1c6af/scratchpad/wt_rerun/codex_redcliffe-leagues-lst-2026-10-11/voxanalysis/vox-analysis/engine/reports/diagnostics/2026-10-11-aaron-let-s-stay-together-take-001_(Vocals)_vocals_mel_band_roformer_note_cards.png",
+    "notes_csv_path": "/tmp/claude-0/-home-user-aaroncodex/779bc529-6d36-543d-9ec0-66bbb7d1c6af/scratchpad/wt_rerun/codex_redcliffe-leagues-lst-2026-10-11/voxanalysis/vox-analysis/engine/output/2026-10-11-aaron-let-s-stay-together-take-001_(Vocals)_vocals_mel_band_roformer_notes.csv",
     "panels": [
       "section_health_ribbon",
       "waveform_amplitude",
@@ -7945,19 +8945,19 @@
       "measurement_fingerprint": "28e854af22ea",
       "calibration_measurement_fingerprint": "28e854af22ea"
     },
-    "overall_score_0_to_10": 7.0,
+    "overall_score_0_to_10": 7.6,
     "capture_fair_score_0_to_10": 6.5,
     "capture_fair_note": "Rubric with the capture-sensitive components (voice_quality and dynamics_expression) excluded (weights renormalised). Jitter/shimmer/HNR and effective dynamic range partly measure the recording chain and stem-separation artefacts: vintage masters run through separation read far worse than clean modern captures of an equal voice. Use capture_fair on BOTH sides for any take-vs-original or cross-era comparison; use overall_score for a singer's absolute result and self-progress. Note breath_support is deliberately NOT excluded: phrase-ending sag is air running out, not the room, so it is scored on a phone or room take like any other.",
     "provenance": "deterministic_rubric_v5 — computed from measured audio features; identical audio yields an identical score; no LLM involvement; anchored to professional reference distribution",
     "calibration": {
       "active": true,
-      "file": "/home/user/aaroncodex/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
+      "file": "/tmp/claude-0/-home-user-aaroncodex/779bc529-6d36-543d-9ec0-66bbb7d1c6af/scratchpad/wt_rerun/codex_redcliffe-leagues-lst-2026-10-11/voxanalysis/vox-analysis/engine/calibration/pro_reference.json",
       "n_references": 50,
       "note": null
     },
-    "confidence": "medium",
+    "confidence": "high",
     "confidence_basis": {
-      "praat_metrics_available": false,
+      "praat_metrics_available": true,
       "n_sustained_notes": 194,
       "capture_risk_elevated": false
     },
@@ -7973,6 +8973,12 @@
         "input": "median intra-note drift = 103.6 cents — matches or beats 4.0% of 50 pro references",
         "formula": "10 at pro-reference median (62.55 cents), 0 at 80 cents, linear",
         "score": 0.0
+      },
+      "voice_quality": {
+        "weight": 0.2,
+        "input": "jitter = 0.59% — matches or beats 92.0% of 50 pro references; shimmer = 5.5694% — matches or beats 90.0% of 50 pro references; HNR = 22.68 dB — matches or beats 100.0% of 50 pro references; CPPS = 15.49 dB — matches or beats 54.0% of 50 pro references",
+        "formula": "mean of jitter/shimmer/HNR/CPPS sub-scores (Praat, per sustained note)",
+        "score": 10.0
       },
       "vibrato_control": {
         "weight": 0.15,
@@ -8009,13 +9015,12 @@
       "intonation_accuracy",
       "phrase_control",
       "pitch_stability",
-      "vibrato_control"
-    ],
-    "components_unscored": [
+      "vibrato_control",
       "voice_quality"
     ],
-    "coverage": "partial",
-    "coverage_note": "Scored on 6 of 7 components (voice_quality not measurable in this analysis; weights renormalised over the rest). Raw metrics are unaffected. Deliberately NOT treated as a provenance conflict: on the 50-reference pack the full-vs-partial difference is at most ~0.25 points, so refusing to compare would cost more than the distortion it avoids. Re-analyse the take with the current engine to close the gap.",
+    "components_unscored": [],
+    "coverage": "full",
+    "coverage_note": null,
     "scope_note": "Technical execution only. Artistry, emotion, interpretation and style-appropriateness are human judgements and are not part of this number. Any 'listener impact' figure elsewhere in a report is a subjective estimate, not a measurement."
   },
   "entry_accuracy": {
