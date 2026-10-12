@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.7 · mean 7.39. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 266/291 takes.
+Full coverage: 268/291 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -231,7 +231,7 @@ Full coverage: 266/291 takes.
 | aaron | my-babe | 151 | **7.6** | 7.1 | high | 10.0 | 0.0 | 9.73 | 9.92 | 7.08 | 3.33 | 10.0 |
 | aaron | things-that-make-you-go-hmm | 311 | **7.2** | 7.7 | high | 10.0 | 0.69 | 5.5 | 9.61 | 7.13 | 10.0 | 7.05 |
 | aaron | you-give-love-a-bad-name | 199 | **6.9** | 6.4 | medium | 10.0 | 0.0 | – | 9.21 | 9.22 | 3.55 | 5.59 |
-| aaron | let-s-stay-together | 206 | **7.9** | 7.5 | medium | 10.0 | 0.0 | – | 8.99 | 9.77 | 10.0 | 7.97 |
+| aaron | let-s-stay-together | 206 | **8.2** | 7.5 | high | 10.0 | 0.0 | 9.72 | 8.99 | 9.77 | 10.0 | 7.97 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
@@ -245,7 +245,7 @@ Full coverage: 266/291 takes.
 | leo | good-riddance-time-of-your-life | 117 | **8.3** | 9.2 | high | 10.0 | 10.0 | 5.87 | 9.79 | 7.2 | 3.94 | 10.0 |
 | leo | bat-out-of-hell | 367 | **8.6** | 8.6 | medium | 10.0 | 10.0 | – | 9.88 | 9.04 | 3.58 | 5.8 |
 | leo | american-trilogy | 200 | **7.5** | 8.0 | high | 8.0 | 10.0 | 6.29 | 8.64 | 6.98 | 4.36 | 7.64 |
-| leo | bat-out-of-hell | 424 | **9.1** | 9.3 | medium | 10.0 | 7.91 | – | 10.0 | 8.35 | 10.0 | 7.95 |
+| leo | bat-out-of-hell | 424 | **9.0** | 9.3 | high | 10.0 | 7.91 | 8.3 | 10.0 | 8.35 | 10.0 | 7.95 |
 | rilda | blue-bayou | 225 | **6.8** | 6.7 | high | 10.0 | 0.0 | 6.06 | 10.0 | 8.47 | 4.45 | 5.8 |
 | rilda | on-the-radio | 226 | **7.9** | 7.9 | high | 10.0 | 0.0 | 7.1 | 10.0 | 8.66 | 10.0 | 9.54 |
 | rilda | flowers | 182 | **withheld** | – | – | – | – | – | – | – | – | – |
