@@ -310,7 +310,7 @@ Full coverage: 272/295 takes.
 
 ## Professional references (calibration sanity check)
 
-Overall: min 7.1 · max 9.8 · mean 8.45 — pros should sit near the top.
+Overall: min 6.8 · max 9.8 · mean 8.34 — pros should sit near the top.
 
 | reference | v5 | cf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
@@ -326,6 +326,7 @@ Overall: min 7.1 · max 9.8 · mean 8.45 — pros should sit near the top.
 | athea-fireflies | **7.8** | 9.6 | 10.0 | 10.0 | 2.67 | 9.08 | 5.38 | 8.48 | 10.0 |
 | carpenters-this-masquerade | **9.8** | 9.9 | 10.0 | 9.63 | 10.0 | 10.0 | 8.81 | 10.0 | 10.0 |
 | glenn-frey-the-heat-is-on | **7.7** | 7.7 | 10.0 | 2.12 | 6.28 | 9.9 | 9.57 | 5.09 | 10.0 |
+| guns-n-roses-you-could-be-mine | **6.8** | 6.6 | 9.96 | 0.0 | 6.52 | 8.84 | 8.55 | 3.03 | 7.94 |
 | james-blunt-1973 | **8.7** | 9.6 | 10.0 | 10.0 | 6.0 | 10.0 | 8.02 | 7.15 | 10.0 |
 | joe-cocker-the-letter | **8.4** | 9.1 | 10.0 | 10.0 | 6.14 | 9.85 | 7.97 | 3.48 | 9.79 |
 | joe-cocker-you-can-leave-your-hat-on | **7.5** | 7.1 | 10.0 | 0.0 | 7.59 | 10.0 | 9.76 | 3.06 | 10.0 |

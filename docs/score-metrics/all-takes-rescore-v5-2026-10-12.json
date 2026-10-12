@@ -30,12 +30,12 @@
       }
     },
     "references": {
-      "n": 19,
+      "n": 20,
       "overall": {
-        "min": 7.1,
+        "min": 6.8,
         "max": 9.8,
-        "mean": 8.45,
-        "spread": 2.7
+        "mean": 8.34,
+        "spread": 3.0
       }
     }
   },
@@ -12509,6 +12509,47 @@
         "onsets_pct_clean": 23.1,
         "onsets_pct_scooped": 45.4,
         "onsets_pct_overshot": 31.5,
+        "entry_accuracy_reliability": "reduced"
+      }
+    },
+    {
+      "take": "guns-n-roses-you-could-be-mine-reference",
+      "singer": "reference",
+      "song": "guns-n-roses-you-could-be-mine",
+      "date": "0000-00-00",
+      "n_notes": 133,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 6.8,
+      "capture_fair": 6.6,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 9.96,
+        "pitch_stability": 0.0,
+        "voice_quality": 6.52,
+        "vibrato_control": 8.84,
+        "dynamics_expression": 8.55,
+        "phrase_control": 3.03,
+        "breath_support": 7.94
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.1,
+        "median_intra_note_drift_cents": 82.2,
+        "pct_within_25c": 57.1,
+        "jitter_pct": 0.7371,
+        "shimmer_pct": 12.3127,
+        "hnr_db": 10.96,
+        "vibrato_pct_notes": 37.5,
+        "dyn_phrase_spread_db": 33.41,
+        "dyn_effective_range_db": 15.71,
+        "median_phrase_s": 1.5,
+        "onsets_pct_clean": 34.9,
+        "onsets_pct_scooped": 27.9,
+        "onsets_pct_overshot": 37.2,
         "entry_accuracy_reliability": "reduced"
       }
     },
