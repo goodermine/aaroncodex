@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.4. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.41. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 265/294 takes.
+Full coverage: 272/295 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -231,12 +231,13 @@ Full coverage: 265/294 takes.
 | aaron | my-babe | 151 | **7.6** | 7.1 | high | 10.0 | 0.0 | 9.73 | 9.92 | 7.08 | 3.33 | 10.0 |
 | aaron | things-that-make-you-go-hmm | 311 | **7.2** | 7.7 | high | 10.0 | 0.69 | 5.5 | 9.61 | 7.13 | 10.0 | 7.05 |
 | aaron | you-give-love-a-bad-name | 199 | **6.9** | 6.4 | medium | 10.0 | 0.0 | – | 9.21 | 9.22 | 3.55 | 5.59 |
-| aaron | do-wah-diddy | 178 | **9.2** | 9.1 | medium | 10.0 | 10.0 | – | 9.45 | 9.59 | 10.0 | 4.11 |
-| aaron | kryptonite | 150 | **9.0** | 8.9 | medium | 10.0 | 7.39 | – | 9.13 | 9.9 | 10.0 | 6.6 |
-| aaron | kung-fu-fighting | 219 | **8.1** | 7.9 | medium | 6.0 | 7.51 | – | 8.9 | 8.98 | 10.0 | 10.0 |
-| aaron | let-s-stay-together | 194 | **7.0** | 6.5 | medium | 8.0 | 0.0 | – | 10.0 | 9.65 | 8.24 | 5.47 |
-| aaron | let-s-stay-together | 189 | **7.8** | 7.7 | medium | 10.0 | 0.0 | – | 8.72 | 8.23 | 10.0 | 9.7 |
-| aaron | play-that-funky-music | 347 | **8.5** | 8.3 | medium | 10.0 | 2.81 | – | 8.88 | 9.55 | 10.0 | 9.45 |
+| aaron | do-wah-diddy | 178 | **9.3** | 9.1 | high | 10.0 | 10.0 | 10.0 | 9.45 | 9.59 | 10.0 | 4.11 |
+| aaron | kryptonite | 150 | **9.2** | 8.9 | high | 10.0 | 7.39 | 10.0 | 9.13 | 9.9 | 10.0 | 6.6 |
+| aaron | kung-fu-fighting | 219 | **8.5** | 7.9 | high | 6.0 | 7.51 | 9.95 | 8.9 | 8.98 | 10.0 | 10.0 |
+| aaron | let-s-stay-together | 194 | **7.6** | 6.5 | high | 8.0 | 0.0 | 10.0 | 10.0 | 9.65 | 8.24 | 5.47 |
+| aaron | let-s-stay-together | 189 | **8.2** | 7.7 | high | 10.0 | 0.0 | 10.0 | 8.72 | 8.23 | 10.0 | 9.7 |
+| aaron | play-that-funky-music | 347 | **8.7** | 8.3 | high | 10.0 | 2.81 | 9.94 | 8.88 | 9.55 | 10.0 | 9.45 |
+| aaron | you-could-be-mine | 225 | **7.4** | 6.4 | high | 8.04 | 0.0 | 10.0 | 9.7 | 9.23 | 10.0 | 3.28 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
