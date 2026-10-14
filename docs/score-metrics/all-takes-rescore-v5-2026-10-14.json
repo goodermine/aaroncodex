@@ -9,17 +9,17 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 290,
+      "n": 291,
       "overall": {
         "min": 5.4,
         "max": 9.7,
-        "mean": 7.38,
+        "mean": 7.39,
         "spread": 4.3
       },
       "capture_fair": {
         "min": 4.5,
         "max": 10.0,
-        "mean": 6.99,
+        "mean": 7.0,
         "spread": 5.5
       },
       "dynamics": {
@@ -8982,6 +8982,47 @@
         "onsets_pct_clean": 15.6,
         "onsets_pct_scooped": 62.3,
         "onsets_pct_overshot": 22.1,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-10-14-aaron-play-that-funky-music-take-001",
+      "singer": "aaron",
+      "song": "play-that-funky-music",
+      "date": "2026-10-14",
+      "n_notes": 332,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 9.4,
+      "capture_fair": 9.3,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 8.94,
+        "voice_quality": 9.95,
+        "vibrato_control": 9.61,
+        "dynamics_expression": 9.32,
+        "phrase_control": 9.39,
+        "breath_support": 7.39
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 64.4,
+        "pct_within_25c": 53.3,
+        "jitter_pct": 0.7853,
+        "shimmer_pct": 7.9839,
+        "hnr_db": 17.39,
+        "vibrato_pct_notes": 35.3,
+        "dyn_phrase_spread_db": 18.88,
+        "dyn_effective_range_db": 32.34,
+        "median_phrase_s": 3.6,
+        "onsets_pct_clean": 22.3,
+        "onsets_pct_scooped": 41.1,
+        "onsets_pct_overshot": 36.5,
         "entry_accuracy_reliability": "high"
       }
     },
