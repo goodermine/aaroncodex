@@ -1,5 +1,5 @@
 ---
-id: 036
+id: 037
 slug: polish-keep-full-opening
 status: active
 learned: 2026-10-13

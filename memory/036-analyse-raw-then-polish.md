@@ -1,5 +1,5 @@
 ---
-id: 035
+id: 036
 slug: analyse-raw-then-polish
 status: active
 learned: 2026-10-14

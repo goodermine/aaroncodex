@@ -1,5 +1,5 @@
 ---
-id: 030
+id: 031
 slug: frankie-local-claude
 status: active
 learned: 2026-10-13

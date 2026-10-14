@@ -48,18 +48,20 @@ Rules (mirrored in the skill):
 - `027-exploring-aaroncodex-sale.md` — exploring a sale of aaroncodex; valuation/buyer/pitch conclusions
 - `028-parselmouth-gpl-constraint.md` — GPL parselmouth blocks off-server builds; de-link to the Praat CLI
 - `029-machine-and-artist-name.md` — artist name Rustwood; own machine Windows, home C:\Users\Rustwood
-- `030-frankie-local-claude.md` — Frankie = Aaron's local Claude Code: Dropbox, Storage-repo pulls, CD burning
-- `031-frankie-side-task-handoffs.md` — Frankie handoffs open with the SIDE TASK paragraph — never disturb his background job
-- `032-never-delete-originals.md` — refresh deliverables by deleting old polished copies only — never original recordings
-- `033-no-venue-on-covers.md` — no venue name on cover art or in track tags
-- `034-cover-art-style.md` — covers: one per track, bold thumbnail-readable title, singer shot; no Leagues video frames
-- `035-analyse-raw-then-polish.md` — new take: remove all talking → analyse raw → then polish
-- `036-polish-keep-full-opening.md` — polishes keep the full intro and the quiet first sung word
-- `037-ptfm-album-version.md` — PTFM is now the album version (~4:45 sung); pre-11-Oct takes are the single
-- `038-gig-day-vocal-load.md` — gig days: Aaron can over-sing without noticing — warm-up only at home
-- `039-same-backing-not-same-take.md` — same karaoke backing ≠ same performance; confirm on the vocal, trust Aaron's date
-- `040-rilda-bonus-recordings-rejected.md` — Rilda's At Last and Who's That Girl recordings rejected as not release quality
+- `030-lead-with-the-higher-score.md` — always lead with the higher of overall / capture-fair, the other beside it
+- `031-frankie-local-claude.md` — Frankie = Aaron's local Claude Code: Dropbox, Storage-repo pulls, CD burning
+- `032-frankie-side-task-handoffs.md` — Frankie handoffs open with the SIDE TASK paragraph — never disturb his background job
+- `033-never-delete-originals.md` — refresh deliverables by deleting old polished copies only — never original recordings
+- `034-no-venue-on-covers.md` — no venue name on cover art or in track tags
+- `035-cover-art-style.md` — covers: one per track, bold thumbnail-readable title, singer shot; no Leagues video frames
+- `036-analyse-raw-then-polish.md` — new take: remove all talking → analyse raw → then polish
+- `037-polish-keep-full-opening.md` — polishes keep the full intro and the quiet first sung word
+- `038-ptfm-album-version.md` — PTFM is now the album version (~4:45 sung); pre-11-Oct takes are the single
+- `039-gig-day-vocal-load.md` — gig days: Aaron can over-sing without noticing — warm-up only at home
+- `040-same-backing-not-same-take.md` — same karaoke backing ≠ same performance; confirm on the vocal, trust Aaron's date
+- `041-rilda-bonus-recordings-rejected.md` — Rilda's At Last and Who's That Girl recordings rejected as not release quality
 
 *(approved from /dream runs of 2026-08-04 and 2026-08-05)*
 *(021–029 mirrored from the Claude Code session memory, approved 2026-08-09)*
-*(030–040 and edits to 004/006, retirement of 017: approved via /dream apply all, 2026-10-14)*
+*(030 given directly by Aaron, 2026-10-14)*
+*(031–041 and edits to 004/006, retirement of 017: approved via /dream apply all, 2026-10-14)*

@@ -1,5 +1,5 @@
 ---
-id: 031
+id: 032
 slug: frankie-side-task-handoffs
 status: active
 learned: 2026-10-13

@@ -1,5 +1,5 @@
 ---
-id: 032
+id: 033
 slug: never-delete-originals
 status: active
 learned: 2026-10-13

@@ -1,5 +1,5 @@
 ---
-id: 034
+id: 035
 slug: cover-art-style
 status: active
 learned: 2026-10-13

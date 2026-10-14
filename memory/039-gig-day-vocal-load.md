@@ -1,5 +1,5 @@
 ---
-id: 038
+id: 039
 slug: gig-day-vocal-load
 status: active
 learned: 2026-10-14
