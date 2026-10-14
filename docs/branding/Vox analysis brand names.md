@@ -1,5 +1,78 @@
 # Retire VOX and build a name you own
 
+> **Update, 14 Oct 2026: Aaron chose Singnexa.** The product formerly called
+> VOX Analysis is now presented publicly as **Singnexa**, starting with promos.
+> The repositories and internal folder names (`aaroncodex`, `voxanalysis/`,
+> `voxsuite/`) do not change. Nothing has been registered yet; that is a
+> deliberate later step. See "Chosen name: Singnexa" below.
+
+## Chosen name: Singnexa
+
+**What it is.** Singnexa is a coined word: "sing" plus "-nexa", which suggests
+*next* (next-level singing) and *nexus*. It was not on the screened shortlist;
+Aaron proposed it, and it was screened separately on 14 Oct 2026.
+
+**Screening results** (web searches and domain-registry lookups only; not legal
+clearance):
+
+| Check | Result |
+|---|---|
+| Exact-name web search ("Singnexa", "Sing Nexa") | No company, app, product or person found. The nearest results were unrelated look-alikes, such as TD Synnex (an IT distributor) and Singapore shell companies named Nexa / SNEX. |
+| Singing / karaoke app search | No app or service with this name |
+| singnexa.com | Unregistered (registry returned "not found") |
+| singnexa.app | Unregistered |
+| singnexa.com.au | Unregistered (registration needs an ABN) |
+| getsingnexa.com | Unregistered |
+| singnexa.ai, singnexa.io | Not checked; the registries were unreachable from the research environment. Check them at a registrar. |
+| Trademark registers (IP Australia, USPTO, EUIPO) | Not searched; still the key gap, as for every name in this report |
+
+**Strengths**
+- **A strong mark.** As a whole it's an invented word, the strongest category for
+  trademark protection. "Sing" alone is descriptive, but the full word is not.
+  That's a big improvement on "VOX + generic word".
+- **Clear and friendly.** "Sing" says who it's for; "-nexa" gives it a modern
+  tech feel without sounding clinical.
+- **A good umbrella** for the brand structure recommended below: **Singnexa
+  Analyze**, **Singnexa Polish**, **Singnexa Monitor**.
+- **An uncluttered search space.** Nothing currently ranks for the word, so
+  discovery is easy.
+
+**Watch-outs**
+- **Radio test.** The "-ng n-" join can be lost when spoken, so people may hear
+  or type "Signexa" or "Sinexa". When registering, also secure a common
+  misspelling (e.g. signexa.com) to redirect, and always show the name in
+  writing in promos.
+- **"Nexa" is a common fragment** in other industries, for example Maruti
+  Suzuki's NEXA car showrooms and assorted "Nexa" tech companies. None was found
+  in singing or vocal software, and an examiner assesses the whole word. Still,
+  "NEXA" should be part of the formal knockout search.
+- **No measurement in the name itself.** Singnexa sounds like a consumer
+  singing brand rather than a scientific instrument. Let the tagline carry the
+  benchmark: Singnexa's differentiator, "10 = a typical pro", is still unclaimed
+  by any competitor.
+
+**Tagline options**
+- "Every song, measured against the pros."
+- "Sing it. Measure it. Level up."
+- "Your voice, measured note by note."
+- "The coach's report for every song you sing."
+
+**Before registering** (when Aaron decides to):
+1. Buy singnexa.com and singnexa.app, a misspelling redirect, and singnexa.ai if
+   it's free.
+2. Claim @singnexa on Instagram, TikTok, YouTube and X now. It's free and
+   prevents squatting once promos run.
+3. Run knockout searches for SINGNEXA and NEXA in Classes 9, 41 and 42 (IP
+   Australia, USPTO, EUIPO / TMview).
+4. Get an Australian trade marks attorney's clearance opinion, then file in
+   Australia and extend through Madrid if a sale or overseas launch is likely.
+
+Using the name in promos before registering is common. The risk is that someone
+registers the .com or the handles once the promos are public, so the cheap
+items in steps 1–2 are worth doing early even if filing waits.
+
+---
+
 **Recommendation: stop building on "VOX". Move the whole suite to one distinctive master brand, and use plain words under it: [Master] Analyze, [Master] Polish, [Master] Monitor.** The research supports three front-runners:
 
 - **Vocent** (voice + *cent*, the 1/100-semitone unit the engine measures in). It is the best all-round master brand, if a clearance search comes back clean.
