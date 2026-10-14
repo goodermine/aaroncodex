@@ -67,9 +67,9 @@ python3 tools/show_results.py <the-new-take-name>
 ```
 
 That prints the full report from the single source of truth (rule 6). Also state
-the headline `/10` led per rule 5 — **overall** for a clean/studio capture,
-**capture-fair** for live/room/phone — with confidence and the "10 = a typical
-pro" anchor.
+the headline `/10` led per rule 5 — the **higher** of overall and capture-fair
+first, the other beside it (the report's `Lead with:` line) — with confidence and
+the "10 = a typical pro" anchor.
 
 **If the song has a scored reference in the archive**, the same command now also
 renders `Onset-Map-<take>.png` — the "how each note starts" figure, singer vs

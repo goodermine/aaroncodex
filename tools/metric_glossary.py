@@ -191,9 +191,9 @@ def main() -> int:
         "number here ever disagrees with a fresh report, re-run the script.",
         "2. **Some metrics measure the microphone, not the voice.** HNR, CPPS, "
         "jitter and shimmer get dragged down by a room or phone recording — which "
-        "is why live takes lead with the **capture-fair** score, which sets those "
-        "aside. A low voice-quality number on a tavern take is usually the room, "
-        "not you.",
+        "is why every take also gets a **capture-fair** score, which sets those "
+        "aside. You're always given the higher of the two first. A low "
+        "voice-quality number on a tavern take is usually the room, not you.",
         "",
     ]
 

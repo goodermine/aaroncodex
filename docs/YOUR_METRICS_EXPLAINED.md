@@ -122,5 +122,5 @@ A cluster of energy around 2–4 kHz that lets a voice cut through without extra
 ## The two honest caveats
 
 1. **These ranges move when the pack is rebuilt.** The *meanings* above never change; the *numbers* are read live from the calibration pack, so re-running this script after a re-calibration keeps them true. If a number here ever disagrees with a fresh report, re-run the script.
-2. **Some metrics measure the microphone, not the voice.** HNR, CPPS, jitter and shimmer get dragged down by a room or phone recording — which is why live takes lead with the **capture-fair** score, which sets those aside. A low voice-quality number on a tavern take is usually the room, not you.
+2. **Some metrics measure the microphone, not the voice.** HNR, CPPS, jitter and shimmer get dragged down by a room or phone recording — which is why every take also gets a **capture-fair** score, which sets those aside. You're always given the higher of the two first. A low voice-quality number on a tavern take is usually the room, not you.
 
