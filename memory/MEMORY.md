@@ -48,6 +48,8 @@ Rules (mirrored in the skill):
 - `027-exploring-aaroncodex-sale.md` — exploring a sale of aaroncodex; valuation/buyer/pitch conclusions
 - `028-parselmouth-gpl-constraint.md` — GPL parselmouth blocks off-server builds; de-link to the Praat CLI
 - `029-machine-and-artist-name.md` — artist name Rustwood; own machine Windows, home C:\Users\Rustwood
+- `030-lead-with-the-higher-score.md` — always lead with the higher of overall / capture-fair, the other beside it
 
 *(approved from /dream runs of 2026-08-04 and 2026-08-05)*
 *(021–029 mirrored from the Claude Code session memory, approved 2026-08-09)*
+*(030 given directly by Aaron, 2026-10-14)*
