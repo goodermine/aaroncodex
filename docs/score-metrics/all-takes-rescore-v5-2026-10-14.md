@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.39. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.41. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 267/290 takes.
+Full coverage: 273/296 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -300,6 +300,12 @@ Full coverage: 267/290 takes.
 | rilda | at-last | 147 | **8.4** | 8.1 | high | 8.0 | 4.01 | 10.0 | 9.95 | 8.09 | 10.0 | 9.74 |
 | rilda | back-to-black | 262 | **6.8** | 5.9 | high | 6.0 | 0.0 | 9.88 | 10.0 | 6.85 | 5.0 | 9.38 |
 | rilda | moonlight-serenade | 227 | **7.4** | 6.7 | high | 10.0 | 0.0 | 9.81 | 10.0 | 7.8 | 3.03 | 7.05 |
+| rilda | flowers | 237 | **6.7** | 6.1 | high | 6.0 | 0.0 | 6.71 | 10.0 | 9.63 | 10.0 | 5.54 |
+| rilda | ex-s-oh-s | 254 | **9.6** | 9.9 | high | 10.0 | 10.0 | 10.0 | 9.89 | 7.71 | 10.0 | 9.08 |
+| rilda | bow-river | 258 | **8.1** | 7.6 | high | 7.0 | 5.27 | 10.0 | 9.95 | 7.84 | 8.94 | 7.94 |
+| rilda | ex-s-oh-s | 249 | **9.2** | 9.0 | high | 8.0 | 10.0 | 10.0 | 10.0 | 9.05 | 10.0 | 7.48 |
+| rilda | flowers | 208 | **7.7** | 6.7 | high | 9.0 | 0.0 | 10.0 | 10.0 | 9.37 | 9.33 | 3.28 |
+| rilda | gimme-gimme-gimme | 194 | **8.4** | 7.7 | high | 10.0 | 0.0 | 10.0 | 9.99 | 9.66 | 10.0 | 7.51 |
 | rilda | on-the-radio | 214 | **7.9** | 7.2 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.31 | 4.82 | 9.49 |
 | rilda | who-s-that-girl | 240 | **8.0** | 7.3 | high | 7.0 | 1.66 | 10.0 | 10.0 | 8.99 | 10.0 | 10.0 |
 
