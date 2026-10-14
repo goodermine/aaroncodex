@@ -93,3 +93,91 @@ full F0 contour, so the data is sitting there.
 - **Moves:** onset + phrasing imitation in the most direct way possible;
   also just delightful, which keeps practice happening.
 - **Size:** days; the risk is UI busy-ness — prototype on one song first.
+
+---
+
+*(D3 — new evidence, 2026-10-14: Aaron asked "what's all the recent good results
+of good songs that I've got now as a selection?" — answered by hand from
+`ranked_takes.py` plus a temporary merge of an unmerged branch. A per-song
+best/consistency page would have answered it at a glance. Status unchanged:
+parked, re-surfaced for Aaron's call.)*
+
+## D7 — Sung-window finder (talk trimmer) · `status: proposed` *(2026-10-14)*
+
+A `tools/find_sung_window.py` that takes a vocal stem and proposes the sung
+window plus mute masks for spoken bits inside it (MC, pre-song chat, spoken
+titles, asides in instrumental breaks), using stem energy + pitch steadiness +
+word timings. It prints a review table (time, kind, confidence) and writes the
+cut/mask so the same edges drive both the analysis and the polish.
+
+- **Seed:** every take on 13–14 Oct was cut by hand: You Could Be Mine (Tribe,
+  plus the 4:16 aside), Let's Stay Together (spoken title), Play That Funky Music
+  (MC + TikTok chat), the 11 Oct "he's still going" and the mis-muted opening "I"
+  that Aaron caught.
+- **Moves:** turnaround per take, and fewer wrong cuts reaching Aaron.
+- **Size:** ~1 day. No scoring change.
+
+## D8 — Take identity guard · `status: proposed` *(2026-10-14)*
+
+Before a new take is archived, compare its **vocal stem** against same-song
+takes already in the archive (sample-level / contour correlation on the voice,
+never the mix) and flag: (a) same performance from another mic, (b) exact
+duplicates (same length + identical scores), (c) "same backing, different night"
+— so dates and duplicates are never decided by backing alignment.
+
+- **Seed:** I wrongly called the 14 Oct Let's Stay Together the 11 Oct
+  performance because the karaoke backing lined up (Aaron: "The ones that I've
+  uploaded today were from today"); and the 25 Feb / 7 May PTFM takes look like
+  one recording scored twice (both 3:50, identical 7.4 / 8.1).
+- **Moves:** archive integrity; trend lines without double-counted takes.
+- **Size:** ~half a day; extends `check_take_integrity.py`. No scoring change.
+
+## D9 — Arrangement as a first-class field · `status: proposed` *(2026-10-14)*
+
+Make `take_context.arrangement` (single / album / extended / acoustic …) a
+recognised field in `tools/take_context.py`, and have `ranked_takes.py` and the
+progress tools group and trend by song **and** arrangement, saying so when a
+comparison crosses versions.
+
+- **Seed:** Aaron: "all ... except for the last two takes of Play That Funky
+  Music were ... the single version" — the 14 Oct jump partly reflects a longer
+  arrangement with longer lines. Tagged by hand today.
+- **Moves:** honest like-for-like song trends.
+- **Size:** a few hours. Grouping only — scores untouched.
+
+## D10 — Breath map generator · `status: proposed` *(2026-10-14)*
+
+From any analysed take, auto-build the phone breath cheat sheet: phrase runs,
+endings that sag, the longest no-breath stretches, mapped to lyric line openers
+from word timings — then, after the next take of the same song, a "did the plan
+work?" before/after per spot.
+
+- **Seed:** the You Could Be Mine breath map and the Tribe follow-up check were
+  built by hand on 14 Oct; Aaron used the sheet on stage the same day and the
+  plan measurably worked (breath 3.3 → 6.8).
+- **Moves:** breath support — the PRIMARY FOCUS on Play That Funky Music tonight.
+- **Size:** ~1–2 days. Reads existing measures; no scoring change.
+
+## D11 — Gig-day vocal load log · `status: proposed` *(2026-10-14)*
+
+A one-line log per day — warm-up, songs sung at home (full voice or marked),
+gig songs — entered from the phone, shown beside each take in reports, and
+later checked against breath / pitch dips across many days.
+
+- **Seed:** Aaron: "I probably was a little bit taxed, maybe, but I didn't
+  realise it" — nine full songs on 14 Oct; the last song of the night was his
+  lowest Let's Stay Together.
+- **Moves:** gig-day preparation; explains dips instead of guessing.
+- **Size:** ~1 day for log + display. Never feeds the score.
+
+## D12 — Applause meter · `status: proposed` *(2026-10-14)* · **wildcard**
+
+Measure the crowd: from the separated backing/room stem, score the cheer and
+applause after each song (level, length, how fast it starts) and print it next
+to the technical score as "room response" — never blended into the /10. Over a
+season it would show which songs land with an audience versus which score well
+technically.
+
+- **Seed:** none — the night's wildcard. (Adjacent: Aaron's "everyone's saying
+  it sounds pretty good" about You Could Be Mine, which scored modestly.)
+- **Size:** ~1 day prototype. Explicitly not a scoring change.
