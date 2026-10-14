@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.7 · mean 7.41. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 273/296 takes.
+Full coverage: 272/296 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -257,7 +257,7 @@ Full coverage: 273/296 takes.
 | rilda | this-masquerade | 181 | **8.0** | 7.3 | high | 8.0 | 0.0 | 10.0 | 10.0 | 8.79 | 10.0 | 9.81 |
 | rilda | she-s-not-there | 143 | **7.3** | 7.3 | high | 8.0 | 0.0 | 5.9 | 10.0 | 9.23 | 10.0 | 10.0 |
 | rilda | make-it-with-you | 132 | **7.7** | 7.1 | high | 9.0 | 0.0 | 9.01 | 10.0 | 8.35 | 6.58 | 9.54 |
-| rilda | make-it-with-you | 132 | **7.7** | 7.1 | high | 9.0 | 0.0 | 9.01 | 10.0 | 8.35 | 6.58 | 9.54 |
+| rilda | make-it-with-you | 132 | **withheld** | – | – | – | – | – | – | – | – | – |
 | rilda | hot-stuff | 235 | **6.3** | 5.9 | high | 8.0 | 0.0 | 5.63 | 8.93 | 9.0 | 4.21 | 6.91 |
 | rilda | at-last | 186 | **7.1** | 7.5 | high | 6.0 | 6.3 | 4.73 | 10.0 | 8.47 | 8.03 | 8.92 |
 | rilda | black-velvet | 264 | **6.9** | 6.7 | high | 8.6 | 0.0 | 5.62 | 10.0 | 9.63 | 6.33 | 7.72 |
