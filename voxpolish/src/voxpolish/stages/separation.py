@@ -13,6 +13,7 @@ the instrumental-referenced bleed suppressor both rely on that.
 
 from __future__ import annotations
 
+import re
 import tempfile
 from pathlib import Path
 
@@ -44,12 +45,31 @@ def _run_separator(path: str | Path, model: str, out_dir: Path) -> Path:
     outputs = separator.separate(str(path))
     # Resolve output paths (audio-separator may return names relative to out_dir).
     files = [out_dir / Path(name).name for name in outputs]
-    vocal_files = [f for f in files if "vocal" in f.name.lower()]
-    if not vocal_files:
+    vocal_file = _pick_vocal_stem(files)
+    if vocal_file is None:
         raise RuntimeError(
             f"separation produced no vocals stem (outputs: {[f.name for f in files]})"
         )
-    return vocal_files[0]
+    return vocal_file
+
+
+# audio-separator names each output `<input>_(<Stem>)_<model>.<ext>`.
+_STEM_LABEL = re.compile(r"_\(([^)]+)\)_")
+
+
+def _pick_vocal_stem(files: list[Path]) -> Path | None:
+    """The output whose stem label is "Vocals", matched on the label alone.
+
+    The pinned model's own name contains "vocals", so it appears in EVERY output
+    filename (`song_(Other)_vocals_mel_band_roformer.flac` too); a substring
+    match on the whole name picks whichever file comes first and can hand the
+    backing track on as the vocal. Only the bracketed label tells them apart.
+    """
+    for f in files:
+        labels = _STEM_LABEL.findall(f.name)
+        if labels and labels[-1].strip().lower() == "vocals":
+            return f
+    return None
 
 
 def separate(
