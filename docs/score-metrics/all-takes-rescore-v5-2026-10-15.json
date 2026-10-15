@@ -9,17 +9,17 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 307,
+      "n": 308,
       "overall": {
         "min": 5.4,
         "max": 9.7,
-        "mean": 7.44,
+        "mean": 7.43,
         "spread": 4.3
       },
       "capture_fair": {
         "min": 4.5,
         "max": 10.0,
-        "mean": 7.04,
+        "mean": 7.03,
         "spread": 5.5
       },
       "dynamics": {
@@ -9351,6 +9351,47 @@
         "onsets_pct_clean": 17.1,
         "onsets_pct_scooped": 51.3,
         "onsets_pct_overshot": 31.6,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-10-15-aaron-i-feel-good-take-001",
+      "singer": "aaron",
+      "song": "i-feel-good",
+      "date": "2026-10-15",
+      "n_notes": 154,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 6.8,
+      "capture_fair": 5.4,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 8.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 10.0,
+        "vibrato_control": 8.41,
+        "dynamics_expression": 9.52,
+        "phrase_control": 6.21,
+        "breath_support": 1.85
+      },
+      "raw": {
+        "median_abs_dev_cents": 25.0,
+        "median_intra_note_drift_cents": 131.4,
+        "pct_within_25c": 48.7,
+        "jitter_pct": 0.5905,
+        "shimmer_pct": 6.077,
+        "hnr_db": 20.17,
+        "vibrato_pct_notes": 26.2,
+        "dyn_phrase_spread_db": 19.72,
+        "dyn_effective_range_db": 36.21,
+        "median_phrase_s": 2.55,
+        "onsets_pct_clean": 16.0,
+        "onsets_pct_scooped": 41.0,
+        "onsets_pct_overshot": 43.0,
         "entry_accuracy_reliability": "high"
       }
     },

@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.44. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.43. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 283/307 takes.
+Full coverage: 284/308 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -241,6 +241,7 @@ Full coverage: 283/307 takes.
 | aaron | let-s-stay-together | 208 | **7.1** | 6.1 | high | 6.0 | 0.0 | 9.95 | 9.69 | 8.28 | 10.0 | 6.07 |
 | aaron | play-that-funky-music | 332 | **9.4** | 9.3 | high | 10.0 | 8.94 | 9.95 | 9.61 | 9.32 | 9.39 | 7.39 |
 | aaron | you-could-be-mine | 269 | **6.7** | 5.3 | high | 6.0 | 0.0 | 10.0 | 9.53 | 9.08 | 3.79 | 6.79 |
+| aaron | i-feel-good | 154 | **6.8** | 5.4 | high | 8.0 | 0.0 | 10.0 | 8.41 | 9.52 | 6.21 | 1.85 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
