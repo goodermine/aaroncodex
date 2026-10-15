@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.39. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.41. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 268/291 takes.
+Full coverage: 273/296 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -25,7 +25,7 @@ Full coverage: 268/291 takes.
 | aaron | mustang-sally | 199 | **7.1** | 5.9 | high | 6.0 | 0.0 | 10.0 | 7.9 | 9.4 | 10.0 | 7.05 |
 | aaron | stand-by-me | 148 | **7.7** | 7.1 | high | 6.0 | 2.35 | 10.0 | 9.74 | 7.64 | 10.0 | 10.0 |
 | aaron | the-letter | 171 | **7.5** | 6.5 | high | 6.0 | 0.0 | 10.0 | 9.25 | 9.34 | 9.85 | 10.0 |
-| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | 0.0 |
+| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | -0.0 |
 | aaron | play-that-funky-music | 206 | **7.4** | 8.1 | high | 10.0 | 6.99 | 3.23 | 8.43 | 9.61 | 5.12 | 7.41 |
 | aaron | beggin | 225 | **6.9** | 7.3 | high | 10.0 | 0.0 | 4.65 | 8.68 | 8.22 | 10.0 | 6.38 |
 | aaron | lonely-boy | 141 | **7.5** | 6.7 | high | 8.0 | 0.0 | 10.0 | 9.41 | 8.48 | 10.0 | 6.17 |
@@ -231,9 +231,6 @@ Full coverage: 268/291 takes.
 | aaron | my-babe | 151 | **7.6** | 7.1 | high | 10.0 | 0.0 | 9.73 | 9.92 | 7.08 | 3.33 | 10.0 |
 | aaron | things-that-make-you-go-hmm | 311 | **7.2** | 7.7 | high | 10.0 | 0.69 | 5.5 | 9.61 | 7.13 | 10.0 | 7.05 |
 | aaron | you-give-love-a-bad-name | 199 | **6.9** | 6.4 | medium | 10.0 | 0.0 | – | 9.21 | 9.22 | 3.55 | 5.59 |
-| aaron | let-s-stay-together | 208 | **7.1** | 6.1 | high | 6.0 | 0.0 | 9.95 | 9.69 | 8.28 | 10.0 | 6.07 |
-| aaron | play-that-funky-music | 332 | **9.4** | 9.3 | high | 10.0 | 8.94 | 9.95 | 9.61 | 9.32 | 9.39 | 7.39 |
-| aaron | you-could-be-mine | 269 | **6.7** | 5.3 | high | 6.0 | 0.0 | 10.0 | 9.53 | 9.08 | 3.79 | 6.79 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
@@ -267,7 +264,7 @@ Full coverage: 268/291 takes.
 | rilda | dreams | 260 | **7.6** | 7.6 | high | 10.0 | 2.98 | 6.94 | 10.0 | 8.13 | 4.39 | 8.48 |
 | rilda | you-sexy-thing | 204 | **7.1** | 6.7 | high | 8.0 | 0.0 | 7.48 | 9.69 | 9.07 | 10.0 | 5.54 |
 | rilda | bow-river | 205 | **7.6** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.8 | 7.86 | 5.79 | 6.23 |
-| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | 0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
+| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | -0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
 | rilda | bring-me-some-water | 192 | **7.9** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.71 | 9.74 | 7.15 | 5.04 |
 | rilda | ex-s-oh-s | 204 | **7.9** | 7.3 | high | 10.0 | 0.0 | 10.0 | 9.98 | 8.07 | 10.0 | 4.41 |
 | rilda | who-s-that-girl | 215 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.65 | 10.0 | 8.82 |
@@ -303,6 +300,14 @@ Full coverage: 268/291 takes.
 | rilda | at-last | 147 | **8.4** | 8.1 | high | 8.0 | 4.01 | 10.0 | 9.95 | 8.09 | 10.0 | 9.74 |
 | rilda | back-to-black | 262 | **6.8** | 5.9 | high | 6.0 | 0.0 | 9.88 | 10.0 | 6.85 | 5.0 | 9.38 |
 | rilda | moonlight-serenade | 227 | **7.4** | 6.7 | high | 10.0 | 0.0 | 9.81 | 10.0 | 7.8 | 3.03 | 7.05 |
+| rilda | flowers | 237 | **6.7** | 6.1 | high | 6.0 | 0.0 | 6.71 | 10.0 | 9.63 | 10.0 | 5.54 |
+| rilda | ex-s-oh-s | 254 | **9.6** | 9.9 | high | 10.0 | 10.0 | 10.0 | 9.89 | 7.71 | 10.0 | 9.08 |
+| rilda | bow-river | 258 | **8.1** | 7.6 | high | 7.0 | 5.27 | 10.0 | 9.95 | 7.84 | 8.94 | 7.94 |
+| rilda | ex-s-oh-s | 249 | **9.2** | 9.0 | high | 8.0 | 10.0 | 10.0 | 10.0 | 9.05 | 10.0 | 7.48 |
+| rilda | flowers | 208 | **7.7** | 6.7 | high | 9.0 | 0.0 | 10.0 | 10.0 | 9.37 | 9.33 | 3.28 |
+| rilda | gimme-gimme-gimme | 194 | **8.4** | 7.7 | high | 10.0 | 0.0 | 10.0 | 9.99 | 9.66 | 10.0 | 7.51 |
+| rilda | on-the-radio | 214 | **7.9** | 7.2 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.31 | 4.82 | 9.49 |
+| rilda | who-s-that-girl | 240 | **8.0** | 7.3 | high | 7.0 | 1.66 | 10.0 | 10.0 | 8.99 | 10.0 | 10.0 |
 
 ## Professional references (calibration sanity check)
 

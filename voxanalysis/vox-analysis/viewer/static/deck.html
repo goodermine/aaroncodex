@@ -424,7 +424,7 @@ function TOKRGB(n){var v=TOK(n),m=/^#([0-9a-fA-F]{6})$/.exec(v);return m?[parseI
     var hint=$("#scoreHint");
     // A stale-rubric score must never be read as current — that warning wins.
     if(sc.legacy){hint.textContent="This score came from a superseded rubric. Don't quote or compare it — re-run the analysis to get a current score.";hint.removeAttribute("hidden");}
-    else if(risk){hint.textContent="Room / live capture detected — trust the capture-fair score; the recording chain drags voice-quality & dynamics.";hint.removeAttribute("hidden");}
+    else if(risk){hint.textContent="Room / live capture detected — the recording chain drags voice-quality & dynamics, which capture-fair sets aside. Lead with whichever score is higher.";hint.removeAttribute("hidden");}
     else hint.setAttribute("hidden","");
     badge.removeAttribute("hidden");
   }
