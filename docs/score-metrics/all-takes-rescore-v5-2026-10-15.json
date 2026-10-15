@@ -9,11 +9,11 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 308,
+      "n": 309,
       "overall": {
         "min": 5.4,
         "max": 9.7,
-        "mean": 7.43,
+        "mean": 7.44,
         "spread": 4.3
       },
       "capture_fair": {
@@ -9392,6 +9392,47 @@
         "onsets_pct_clean": 16.0,
         "onsets_pct_scooped": 41.0,
         "onsets_pct_overshot": 43.0,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-10-15-aaron-my-girl-take-001",
+      "singer": "aaron",
+      "song": "my-girl",
+      "date": "2026-10-15",
+      "n_notes": 150,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 8.2,
+      "capture_fair": 7.6,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 10.0,
+        "vibrato_control": 9.3,
+        "dynamics_expression": 9.06,
+        "phrase_control": 8.82,
+        "breath_support": 9.26
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 82.9,
+        "pct_within_25c": 52.0,
+        "jitter_pct": 0.524,
+        "shimmer_pct": 5.244,
+        "hnr_db": 22.38,
+        "vibrato_pct_notes": 31.8,
+        "dyn_phrase_spread_db": 17.73,
+        "dyn_effective_range_db": 30.61,
+        "median_phrase_s": 3.41,
+        "onsets_pct_clean": 16.7,
+        "onsets_pct_scooped": 50.9,
+        "onsets_pct_overshot": 32.4,
         "entry_accuracy_reliability": "high"
       }
     },
