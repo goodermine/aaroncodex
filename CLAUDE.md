@@ -39,11 +39,9 @@ that the archive, the reference pack and the running engine are on **one
 measurement era** (`measurement_fingerprint`). A stale engine scores **~2.5–3
 points too harshly** — that is the single most damaging failure mode here.
 
-**While the measurement-era check fails** (it will, until the references and
-the pre-fix archive are re-analysed on the fixed engine — see
-`docs/VOX_SYSTEM_REVIEW_2026-09-02.md` §3.1): no leaderboard, trend, average or
-cross-era comparison. A single take may still be delivered in full under the
-interim reading rule in rule 5.
+**If the measurement-era check fails** (it passes now: the references and
+archive are on one era, `28e854af22ea`): no leaderboard, trend, average or
+cross-era comparison. The interim reading rule in rule 5 is retired.
 
 ## 3. Never quote a score without current provenance
 
@@ -109,15 +107,12 @@ meaningless — say so rather than publishing it).
   result, not a failure.
 - Never substitute a rounded, "listener-impact", legacy or manually adjusted
   number.
-- **Interim reading rule (from 2 Sep 2026, until the pack is rebuilt):** on any
-  take analysed on the post-16-Aug engine (its `intonation` block carries
-  `drift_measurable_notes`, or its identity carries a `measurement_fingerprint`
-  the calibration pack does not match), **do not quote the `pitch_stability`
-  component or a PRIMARY FOCUS derived from it.** Its anchor was built on the
-  pre-fix measurement and reads ~2.5× too strict. `report_builder` withholds it
-  automatically and prints the held-drift median against the professional band
-  instead (`HELD-NOTE STABILITY (interim reading)`); quote that line. Every
-  other component and the full results are delivered as normal.
+- **Interim reading rule: retired (2026-10-15).** It applied while the
+  calibration pack was on the pre-16-Aug drift measurement. The pack was rebuilt
+  on 3 Sep 2026 (fingerprint `28e854af22ea`, held-drift median 62.55 cents across
+  the 50 pros). `pitch_stability` and any PRIMARY FOCUS built from it are quoted
+  normally. `report_builder` withholds it only when a take's measurement
+  fingerprint differs from the pack's, so it withholds nothing today.
 
 ## 6. Always send the FULL results, never a summary
 

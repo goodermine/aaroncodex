@@ -110,6 +110,13 @@ What limits it, ranked by how much it distorts what a singer is told:
 ## 3. Findings
 
 ### 3.1 The drift fix changed the measurement scale, and the calibration pack was never rebuilt — so pitch-stability is now scored against the wrong ruler
+> **Status (2026-10-15): resolved.** The calibration pack was rebuilt on 3 Sep 2026
+> (fingerprint `28e854af22ea`). The 50 references now carry the post-fix drift
+> measurement, and the pro held-drift median is 62.55 cents (p10 44.45, p90 90.11),
+> matching the emulation below. Preflight's measurement-era check passes, and the
+> interim reading rule has been retired in `CLAUDE.md`. The text below is the
+> 2 Sep finding, kept as the record of what was wrong.
+
 
 **What happened.** On 16 Aug the engine stopped fabricating a drift of exactly
 0.0 cents for any note shorter than the ~0.36 s smoothing window (commit
