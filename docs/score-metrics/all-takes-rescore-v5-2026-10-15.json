@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 330,
+      "n": 331,
       "overall": {
         "min": 5.4,
         "max": 9.7,
@@ -563,7 +563,7 @@
         "vibrato_control": 8.43,
         "dynamics_expression": 7.26,
         "phrase_control": 10.0,
-        "breath_support": 0.0
+        "breath_support": -0.0
       },
       "raw": {
         "median_abs_dev_cents": 20.0,
@@ -9970,6 +9970,47 @@
       }
     },
     {
+      "take": "2026-10-15-aaron-my-girl-bramble-take-001",
+      "singer": "aaron",
+      "song": "my-girl-bramble",
+      "date": "2026-10-15",
+      "n_notes": 183,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 9.2,
+      "capture_fair": 9.4,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 10.0,
+        "voice_quality": 8.78,
+        "vibrato_control": 9.6,
+        "dynamics_expression": 8.75,
+        "phrase_control": 7.24,
+        "breath_support": 9.05
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 51.2,
+        "pct_within_25c": 61.7,
+        "jitter_pct": 0.8201,
+        "shimmer_pct": 10.6273,
+        "hnr_db": 15.96,
+        "vibrato_pct_notes": 41.2,
+        "dyn_phrase_spread_db": 40.9,
+        "dyn_effective_range_db": 30.85,
+        "median_phrase_s": 2.89,
+        "onsets_pct_clean": 36.0,
+        "onsets_pct_scooped": 36.0,
+        "onsets_pct_overshot": 28.0,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
       "take": "2026-10-15-aaron-my-girl-take-001",
       "singer": "aaron",
       "song": "my-girl",
@@ -11685,7 +11726,7 @@
       "provenance": "deterministic_rubric_v5",
       "components": {
         "intonation_accuracy": 8.0,
-        "pitch_stability": 0.0,
+        "pitch_stability": -0.0,
         "voice_quality": 10.0,
         "vibrato_control": 9.74,
         "dynamics_expression": 7.95,
