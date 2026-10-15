@@ -9,17 +9,17 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 306,
+      "n": 307,
       "overall": {
         "min": 5.4,
         "max": 9.7,
-        "mean": 7.43,
+        "mean": 7.44,
         "spread": 4.3
       },
       "capture_fair": {
         "min": 4.5,
         "max": 10.0,
-        "mean": 7.03,
+        "mean": 7.04,
         "spread": 5.5
       },
       "dynamics": {
@@ -9848,6 +9848,47 @@
       }
     },
     {
+      "take": "2024-04-22-rilda-flowers-take-001",
+      "singer": "rilda",
+      "song": "flowers",
+      "date": "2024-04-22",
+      "n_notes": 204,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 7.9,
+      "capture_fair": 7.2,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 10.0,
+        "vibrato_control": 9.82,
+        "dynamics_expression": 8.6,
+        "phrase_control": 7.94,
+        "breath_support": 6.61
+      },
+      "raw": {
+        "median_abs_dev_cents": 17.5,
+        "median_intra_note_drift_cents": 133.8,
+        "pct_within_25c": 65.7,
+        "jitter_pct": 0.573,
+        "shimmer_pct": 3.8375,
+        "hnr_db": 19.14,
+        "vibrato_pct_notes": 57.9,
+        "dyn_phrase_spread_db": 41.59,
+        "dyn_effective_range_db": 31.31,
+        "median_phrase_s": 3.12,
+        "onsets_pct_clean": 12.5,
+        "onsets_pct_scooped": 41.9,
+        "onsets_pct_overshot": 45.6,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
       "take": "2026-06-25-rilda-blue-bayou-take-001",
       "singer": "rilda",
       "song": "blue-bayou",
@@ -10411,24 +10452,16 @@
       "song": "make-it-with-you",
       "date": "2026-07-16",
       "n_notes": 132,
-      "prior_score_status": "current",
-      "score_status": "current",
-      "withheld_reason": null,
-      "overall": 7.7,
-      "capture_fair": 7.1,
-      "coverage": "full",
+      "prior_score_status": "retired_legacy",
+      "score_status": "withheld",
+      "withheld_reason": "Duplicate record of 2026-07-16-rilda-make-it-with-you-take-001: every measurement is identical to it, including the full 1861-frame pitch contour, which two separate performances cannot produce. It is the same audio archived twice, so it must not create a second score or trend point.",
+      "overall": null,
+      "capture_fair": null,
+      "coverage": null,
       "components_unscored": [],
-      "confidence": "high",
-      "provenance": "deterministic_rubric_v5",
-      "components": {
-        "intonation_accuracy": 9.0,
-        "pitch_stability": 0.0,
-        "voice_quality": 9.01,
-        "vibrato_control": 10.0,
-        "dynamics_expression": 8.35,
-        "phrase_control": 6.58,
-        "breath_support": 9.54
-      },
+      "confidence": null,
+      "provenance": "",
+      "components": {},
       "raw": {
         "median_abs_dev_cents": 22.5,
         "median_intra_note_drift_cents": 90.6,
