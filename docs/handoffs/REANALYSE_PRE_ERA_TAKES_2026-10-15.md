@@ -92,11 +92,21 @@ In priority order. Source audio is the untouched original WAV in Dropbox;
 
 ## Related, not in scope
 
-The other 28 quotable takes from the sweep (including Play That Funky Music
-14 Oct, 9.4; Kryptonite 11 Oct, 9.2; Do Wah Diddy 10 Oct, 9.7) are spread across
-about 10 unmerged branches, so the official score table on `main` doesn't
-include them yet. Merging those branches and running `rescore_all.py` is a
-separate job, waiting on Aaron's go-ahead.
+The sweep's other 28 takes all pass provenance. As of 15 Oct, **10 are on
+`main`**: the 11 Oct set via PR #117 (including Kryptonite, 9.2) and the 14 Oct
+set via PR #120 (including Play That Funky Music, 9.4), with the current score
+table rebuilt as `all-takes-rescore-v5-2026-10-15.*`.
+
+**18 are still on unmerged branches**, so the official table doesn't include
+them yet — among them Do Wah Diddy 10 Oct (9.7, `codex/redcliffe-tavern-2026-10-10`)
+and the 10 Sep Fireball / This Is How We Do It takes
+(`codex/split-and-analyse-2026-09-10`). The other branches are
+`codex/aaron-fireball-heroes`, `codex/all-that-she-wants-home-instamic-20260915`,
+`codex/bramble-you-give-love-a-bad-name-20260924`, `codex/greshmans-fcm-2026-10-10`,
+`codex/home-2026-10-09`, `codex/home-blinding-lights-2026-10-07`,
+`codex/kedron-2026-10-09`, `codex/kedron-yglabn-2026-10-09` and
+`codex/live-redcliffe-tavern-2026-10-10`. Merging them (then `rescore_all.py`
+and preflight) is a separate job.
 
 ## Paste-ready prompt for Frankie
 
