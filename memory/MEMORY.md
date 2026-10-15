@@ -22,9 +22,9 @@ Rules (mirrored in the skill):
 - `001-zoom-h8-no-capsule.md` — H8 has no capsule mic; never recommend it as a recorder as-is
 - `002-completeness-over-stability.md` — fold new research into coaching docs; full rewrites licensed
 - `003-first-timer-drills.md` — first structured drills ever: step-by-step + a "doing it right" check
-- `004-phone-is-the-recorder.md` — two recording paths: phone (raw/live) and TazCam mixer (clean but dynamics-compressed)
+- `004-phone-is-the-recorder.md` — recording paths: phone (raw/live), TazCam mixer (dynamics-compressed), lapel mic (preferred at gigs)
 - `005-deliverables-as-pdfs.md` — substantial docs delivered as house-styled PDFs in conversation
-- `006-brisbane-venues-timezone.md` — Brisbane/Redcliffe, AEST (UTC+10); venue list incl. Sunday open mic
+- `006-brisbane-venues-timezone.md` — Brisbane/Redcliffe, AEST (UTC+10); venue list incl. Leagues open mic and The Tribe karaoke
 - `007-water-jar-rig.md` — the home-built water-jar SOVT rig specs
 - `008-headphone-discomfort.md` — sings worse with closed headphones at the stand; records without
 - `009-loop-earplugs.md` — Loop Experience 2 earplugs: 17 dB SNR, hearing protection + self-monitoring test
@@ -35,7 +35,7 @@ Rules (mirrored in the skill):
 - `014-no-throat-strain.md` — no strain after consecutive songs from cold; good vocal health baseline
 - `015-archetype-pitch-slider.md` — "Pitch Slider" on most songs, but shifts to "Hybrid" when song sits in M2/mixed zone
 - `016-m2-mixed-strongest-zone.md` — M2/mixed (A3–B4) is Aaron's strongest zone; top scores all come from there
-- `017-oh-what-a-night-best-take.md` — Oh What A Night is best-measured take: 9.4/10, 9.5 capture-fair (TazCam)
+- `017-oh-what-a-night-best-take.md` — ~~Oh What A Night is best-measured take: 9.4/10~~ **retired 2026-10-14** (pre-v5 score; now 8.5 / 8.3)
 - `018-rebel-yell-preferred-not-suited.md` — prefers Rebel Yell stylistically but poor technical fit (6.4/10)
 - `019-tazcam-compresses-dynamics.md` — TazCam mixer compresses dynamics (11 dB vs 44 dB phone); don't coach on it
 - `020-andy-gibb-reference.md` — "I Just Want To Be Your Everything" is Andy Gibb reference, not Aaron's take
@@ -49,7 +49,21 @@ Rules (mirrored in the skill):
 - `028-parselmouth-gpl-constraint.md` — GPL parselmouth blocks off-server builds; de-link to the Praat CLI
 - `029-machine-and-artist-name.md` — artist name Rustwood; own machine Windows, home C:\Users\Rustwood
 - `030-lead-with-the-higher-score.md` — always lead with the higher of overall / capture-fair, the other beside it
+- `031-frankie-local-claude.md` — Frankie = Aaron's local Claude Code: Dropbox, Storage-repo pulls, CD burning
+- `032-frankie-side-task-handoffs.md` — Frankie handoffs open with the SIDE TASK paragraph — never disturb his background job
+- `033-never-delete-originals.md` — refresh deliverables by deleting old polished copies only — never original recordings
+- `034-no-venue-on-covers.md` — no venue name on cover art or in track tags
+- `035-cover-art-style.md` — covers: one per track, bold thumbnail-readable title, singer shot; no Leagues video frames
+- `036-analyse-raw-then-polish.md` — new take: remove all talking → analyse raw → then polish
+- `037-polish-keep-full-opening.md` — polishes keep the full intro and the quiet first sung word
+- `038-ptfm-album-version.md` — PTFM is now the album version (~4:45 sung); pre-11-Oct takes are the single
+- `039-gig-day-vocal-load.md` — gig days: Aaron can over-sing without noticing — warm-up only at home
+- `040-same-backing-not-same-take.md` — same karaoke backing ≠ same performance; confirm on the vocal, trust Aaron's date
+- `041-rilda-bonus-recordings-rejected.md` — Rilda's At Last and Who's That Girl recordings rejected as not release quality
+- `042-brand-name-singnexa.md` — public brand is Singnexa (was VOX Analysis); repos/folders keep their vox names
 
 *(approved from /dream runs of 2026-08-04 and 2026-08-05)*
 *(021–029 mirrored from the Claude Code session memory, approved 2026-08-09)*
 *(030 given directly by Aaron, 2026-10-14)*
+*(031–041 and edits to 004/006, retirement of 017: approved via /dream apply all, 2026-10-14)*
+*(042 given directly by Aaron, 2026-10-15)*
