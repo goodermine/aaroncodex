@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 330,
+      "n": 331,
       "overall": {
         "min": 5.4,
         "max": 9.7,
@@ -563,7 +563,7 @@
         "vibrato_control": 8.43,
         "dynamics_expression": 7.26,
         "phrase_control": 10.0,
-        "breath_support": 0.0
+        "breath_support": -0.0
       },
       "raw": {
         "median_abs_dev_cents": 20.0,
@@ -11685,7 +11685,7 @@
       "provenance": "deterministic_rubric_v5",
       "components": {
         "intonation_accuracy": 8.0,
-        "pitch_stability": 0.0,
+        "pitch_stability": -0.0,
         "voice_quality": 10.0,
         "vibrato_control": 9.74,
         "dynamics_expression": 7.95,
@@ -13474,6 +13474,48 @@
         "onsets_pct_clean": 23.3,
         "onsets_pct_scooped": 50.3,
         "onsets_pct_overshot": 26.4,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-10-15-rilda-before-he-cheats-take-001",
+      "singer": "rilda",
+      "song": "before-he-cheats",
+      "date": "2026-10-15",
+      "n_notes": 224,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 9.4,
+      "capture_fair": 9.3,
+      "coverage": "partial",
+      "components_unscored": [
+        "voice_quality"
+      ],
+      "confidence": "medium",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 8.0,
+        "pitch_stability": 10.0,
+        "vibrato_control": 10.0,
+        "dynamics_expression": 9.74,
+        "phrase_control": 10.0,
+        "breath_support": 10.0
+      },
+      "raw": {
+        "median_abs_dev_cents": 25.0,
+        "median_intra_note_drift_cents": 61.8,
+        "pct_within_25c": 50.9,
+        "jitter_pct": 0.5463,
+        "shimmer_pct": null,
+        "hnr_db": null,
+        "vibrato_pct_notes": 54.2,
+        "dyn_phrase_spread_db": 38.03,
+        "dyn_effective_range_db": 26.21,
+        "median_phrase_s": 7.65,
+        "onsets_pct_clean": 23.7,
+        "onsets_pct_scooped": 44.6,
+        "onsets_pct_overshot": 31.7,
         "entry_accuracy_reliability": "high"
       }
     }
