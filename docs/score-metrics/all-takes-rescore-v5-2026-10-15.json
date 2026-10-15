@@ -9,17 +9,17 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 307,
+      "n": 308,
       "overall": {
         "min": 5.4,
         "max": 9.7,
-        "mean": 7.44,
+        "mean": 7.43,
         "spread": 4.3
       },
       "capture_fair": {
         "min": 4.5,
         "max": 10.0,
-        "mean": 7.04,
+        "mean": 7.03,
         "spread": 5.5
       },
       "dynamics": {
@@ -9351,6 +9351,47 @@
         "onsets_pct_clean": 17.1,
         "onsets_pct_scooped": 51.3,
         "onsets_pct_overshot": 31.6,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-10-15-aaron-let-s-stay-together-take-001",
+      "singer": "aaron",
+      "song": "let-s-stay-together",
+      "date": "2026-10-15",
+      "n_notes": 180,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 7.1,
+      "capture_fair": 6.3,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 7.04,
+        "pitch_stability": 0.0,
+        "voice_quality": 10.0,
+        "vibrato_control": 9.14,
+        "dynamics_expression": 7.54,
+        "phrase_control": 9.42,
+        "breath_support": 6.3
+      },
+      "raw": {
+        "median_abs_dev_cents": 27.4,
+        "median_intra_note_drift_cents": 104.3,
+        "pct_within_25c": 48.3,
+        "jitter_pct": 0.5504,
+        "shimmer_pct": 4.664,
+        "hnr_db": 23.64,
+        "vibrato_pct_notes": 33.3,
+        "dyn_phrase_spread_db": 11.12,
+        "dyn_effective_range_db": 38.45,
+        "median_phrase_s": 3.61,
+        "onsets_pct_clean": 12.2,
+        "onsets_pct_scooped": 65.5,
+        "onsets_pct_overshot": 22.3,
         "entry_accuracy_reliability": "high"
       }
     },
