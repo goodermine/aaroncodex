@@ -72,35 +72,58 @@ def test_length_mismatch_is_aligned(monkeypatch, tmp_path):
     assert v.shape[1] == vocal.shape[1] - 137
 
 
-def test_no_vocals_output_is_a_clear_error(tmp_path):
-    """_run_separator must fail loudly if the backend yields no vocals file —
-    exercised by injecting a fake audio_separator.separator module."""
+@pytest.fixture
+def fake_separator(monkeypatch):
+    """Inject a fake audio_separator.separator module whose separate() returns
+    the given output names, in the given order."""
     import sys
     import types
 
-    out_dir = tmp_path / "out"
-    out_dir.mkdir()
-    (out_dir / "song_(Instrumental)_melband.wav").write_bytes(b"")
+    def install(outputs):
+        class FakeSep:
+            def __init__(self, *a, **k):
+                pass
 
-    class FakeSep:
-        def __init__(self, *a, **k):
-            pass
+            def load_model(self, *a, **k):
+                pass
 
-        def load_model(self, *a, **k):
-            pass
+            def separate(self, *a, **k):
+                return list(outputs)
 
-        def separate(self, *a, **k):
-            return ["song_(Instrumental)_melband.wav"]  # no vocals
+        pkg = types.ModuleType("audio_separator")
+        mod = types.ModuleType("audio_separator.separator")
+        mod.Separator = FakeSep
+        pkg.separator = mod
+        monkeypatch.setitem(sys.modules, "audio_separator", pkg)
+        monkeypatch.setitem(sys.modules, "audio_separator.separator", mod)
 
-    pkg = types.ModuleType("audio_separator")
-    mod = types.ModuleType("audio_separator.separator")
-    mod.Separator = FakeSep
-    pkg.separator = mod
-    sys.modules["audio_separator"] = pkg
-    sys.modules["audio_separator.separator"] = mod
-    try:
-        with pytest.raises(RuntimeError, match="no vocals stem"):
-            separation._run_separator("song.wav", separation.SEPARATION_MODEL, out_dir)
-    finally:
-        del sys.modules["audio_separator.separator"]
-        del sys.modules["audio_separator"]
+    return install
+
+
+def test_no_vocals_output_is_a_clear_error(tmp_path, fake_separator):
+    """_run_separator must fail loudly if the backend yields no vocals file."""
+    fake_separator(["song_(Instrumental)_melband.wav"])  # no vocals
+    with pytest.raises(RuntimeError, match="no vocals stem"):
+        separation._run_separator("song.wav", separation.SEPARATION_MODEL, tmp_path)
+
+
+@pytest.mark.parametrize("outputs", [
+    # backing listed FIRST: a bare "vocal" substring match picked this one,
+    # because the pinned model's own name contains "vocals"
+    ["song_(Other)_vocals_mel_band_roformer.flac", "song_(Vocals)_vocals_mel_band_roformer.flac"],
+    ["song_(Instrumental)_vocals_mel_band_roformer.wav", "song_(Vocals)_vocals_mel_band_roformer.wav"],
+    # lower-case labels, and an input name that has its own brackets
+    ["take (live)_(other)_vocals_mel_band_roformer.flac", "take (live)_(vocals)_vocals_mel_band_roformer.flac"],
+])
+def test_vocal_stem_is_picked_by_its_label_not_the_model_name(tmp_path, fake_separator, outputs):
+    fake_separator(outputs)
+    picked = separation._run_separator("song.wav", separation.SEPARATION_MODEL, tmp_path)
+    assert picked == tmp_path / outputs[1]
+
+
+def test_model_name_alone_is_not_a_vocals_stem(tmp_path, fake_separator):
+    """Only the backing came out: its name contains "vocals" (the model), but
+    its label is (Other), so it must NOT be handed on as the vocal."""
+    fake_separator(["song_(Other)_vocals_mel_band_roformer.flac"])
+    with pytest.raises(RuntimeError, match="no vocals stem"):
+        separation._run_separator("song.wav", separation.SEPARATION_MODEL, tmp_path)

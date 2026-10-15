@@ -468,7 +468,7 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
         "overview": overview,
         "archetype": raw.get("archetype"),
         # Declarative take context (intent/capture/note) — metadata stamped at
-        # upload, never a score input. Lets renderers say which number to quote.
+        # upload, never a score input. Echoed so it travels with the results.
         "take_context": raw.get("take_context"),
         # ENTRY ACCURACY — a measured diagnostic that is deliberately NOT a
         # score and lives OUTSIDE "score" below so nothing can average it into
@@ -648,15 +648,14 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
     capture = tc.get("capture")
     if cf is None:
         line("Capture-fair: —")
-    elif capture in ("studio", "home"):
-        line(f"Capture-fair: {cf}/10  — shown for completeness; this was a declared "
-             f"clean capture ({capture}), so the OVERALL above is the number to quote")
-    elif capture == "live":
-        line(f"Capture-fair: {cf}/10  — same rubric minus the mic/room-sensitive "
-             "voice-quality & dynamics; declared live capture, so quote THIS number")
     else:
         line(f"Capture-fair: {cf}/10  — same rubric minus the mic/room-sensitive "
-             "voice-quality & dynamics; quote this for live or rough captures")
+             "voice-quality & dynamics")
+    if overall is not None and cf is not None:
+        # House rule (CLAUDE.md rule 5): lead with the HIGHER of the two, the other beside it.
+        (lead, lv), (other, ov) = ((("overall", overall), ("capture-fair", cf)) if overall >= cf
+                                   else (("capture-fair", cf), ("overall", overall)))
+        line(f"Lead with: {lv}/10 {lead} — the higher of the two; give {ov}/10 {other} beside it")
     if tc.get("intent") or capture or tc.get("note"):
         bits = [b for b in (tc.get("intent"), f"{capture} capture" if capture else None,
                             tc.get("note")) if b]
@@ -677,8 +676,8 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
              + (f" · stem {identity['stem_model']}" if identity.get("stem_model") else "")
              + "  (only compare with scores carrying this same identity)")
     if s.get("capture_risk"):
-        line("! Room / live capture detected — trust the capture-fair score; "
-             "the recording chain drags voice-quality & dynamics.")
+        line("! Room / live capture detected — the recording chain drags voice-quality "
+             "& dynamics, which capture-fair sets aside.")
     for c in (s.get("components") or []):
         label = c.get("label") or c.get("key") or "?"
         val = c.get("score")

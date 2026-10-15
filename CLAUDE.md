@@ -92,12 +92,18 @@ meaningless — say so rather than publishing it).
 
 ## 5. Which number to give the singer
 
-- **Studio / clean capture** → lead with **overall**.
-- **Live, tavern, phone, room** → lead with **capture-fair**. It excludes the
-  components that measure the microphone rather than the voice
-  (`voice_quality`, `dynamics_expression`), and typically reads ~1 point higher.
-  It does **not** exclude `breath_support` (v5) — phrase-ending sag is air
-  running out, not the room, so a live take is still scored on it.
+- **Always lead with the HIGHER of overall and capture-fair**, on every capture
+  (studio, live, tavern, phone, room), and give the other number beside it. Both
+  are the same engine's numbers for the same take, so this never substitutes a
+  number; it only decides which one goes first. `report_builder` prints the line
+  for you (`Lead with: …`). This is Aaron's standing rule (14 Oct 2026).
+  > It replaced "studio → overall, live → capture-fair", which on Rilda's
+  > On The Radio (14 Oct 2026, live) led with 7.2 capture-fair over a 7.9 overall.
+- What capture-fair is: it excludes the components that measure the microphone
+  rather than the voice (`voice_quality`, `dynamics_expression`), and on room or
+  phone captures it typically reads ~1 point higher. It does **not** exclude
+  `breath_support` (v5) — phrase-ending sag is air running out, not the room,
+  so a live take is still scored on it.
 - Always state **confidence**, and that the scale is **calibrated to 50
   professional reference vocals — 10 = a typical pro**. A 7 is a good amateur
   result, not a failure.
@@ -141,8 +147,8 @@ delivery.** The job is done only when the person who asked has received the
 
 After every analysis you run, you MUST hand back, in the conversation:
 
-1. **The headline `/10`** — with the right number led per rule 5 (overall for a
-   clean capture, capture-fair for live/room/phone), stated confidence, and the
+1. **The headline `/10`** — led per rule 5 (the higher of overall and
+   capture-fair, the other beside it), stated confidence, and the
    "10 = a typical pro" anchor.
 2. **The full results** — rendered via rule 6
    (`render_full_results_text(build_v2_report(raw), result)` or

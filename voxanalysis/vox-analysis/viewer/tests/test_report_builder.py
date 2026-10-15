@@ -185,26 +185,28 @@ if __name__ == "__main__":
     unittest.main()
 
 
-def test_capture_fair_line_is_capture_aware():
-    """Declared clean captures say to quote the OVERALL; declared live says to
-    quote capture-fair; undeclared keeps the neutral wording. The take context
-    itself is echoed so it travels with the results."""
-    base = {"technical_score": {"overall_score_0_to_10": 8.7,
-                                "capture_fair_score_0_to_10": 8.1,
-                                "confidence": "high"}}
-    def text_for(ctx):
-        raw = dict(base)
+def test_lead_with_the_higher_score():
+    """House rule: lead with whichever of overall / capture-fair is HIGHER, on any
+    capture, and give the other beside it. The take context is echoed so it
+    travels with the results."""
+    def text_for(overall, cf, ctx=None):
+        raw = {"technical_score": {"overall_score_0_to_10": overall,
+                                   "capture_fair_score_0_to_10": cf,
+                                   "confidence": "high"}}
         if ctx:
             raw["take_context"] = ctx
         return render_full_results_text(build_v2_report(raw))
-    home = text_for({"intent": "performance", "capture": "home"})
-    assert "shown for completeness" in home and "OVERALL" in home
-    assert "Take context: performance · home capture" in home
-    live = text_for({"capture": "live", "note": "tavern set"})
-    assert "declared live capture, so quote THIS number" in live
+    # live take where overall is the higher number (Rilda, On The Radio)
+    live = text_for(7.9, 7.2, {"capture": "live", "note": "tavern set"})
+    assert "Lead with: 7.9/10 overall — the higher of the two; give 7.2/10 capture-fair beside it" in live
+    assert "quote THIS number" not in live
     assert "tavern set" in live
-    plain = text_for(None)
-    assert "quote this for live or rough captures" in plain
+    # studio take where capture-fair is the higher number
+    home = text_for(8.1, 8.7, {"intent": "performance", "capture": "home"})
+    assert "Lead with: 8.7/10 capture-fair — the higher of the two; give 8.1/10 overall beside it" in home
+    assert "Take context: performance · home capture" in home
+    plain = text_for(8.7, 8.1)
+    assert "Lead with: 8.7/10 overall" in plain
     assert "Take context:" not in plain
 
 
