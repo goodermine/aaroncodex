@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.44. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.46. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 288/312 takes.
+Full coverage: 306/330 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -25,7 +25,7 @@ Full coverage: 288/312 takes.
 | aaron | mustang-sally | 199 | **7.1** | 5.9 | high | 6.0 | 0.0 | 10.0 | 7.9 | 9.4 | 10.0 | 7.05 |
 | aaron | stand-by-me | 148 | **7.7** | 7.1 | high | 6.0 | 2.35 | 10.0 | 9.74 | 7.64 | 10.0 | 10.0 |
 | aaron | the-letter | 171 | **7.5** | 6.5 | high | 6.0 | 0.0 | 10.0 | 9.25 | 9.34 | 9.85 | 10.0 |
-| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | -0.0 |
+| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | 0.0 |
 | aaron | play-that-funky-music | 206 | **7.4** | 8.1 | high | 10.0 | 6.99 | 3.23 | 8.43 | 9.61 | 5.12 | 7.41 |
 | aaron | beggin | 225 | **6.9** | 7.3 | high | 10.0 | 0.0 | 4.65 | 8.68 | 8.22 | 10.0 | 6.38 |
 | aaron | lonely-boy | 141 | **7.5** | 6.7 | high | 8.0 | 0.0 | 10.0 | 9.41 | 8.48 | 10.0 | 6.17 |
@@ -220,6 +220,7 @@ Full coverage: 288/312 takes.
 | aaron | play-that-funky-music | 222 | **7.3** | 6.6 | high | 6.0 | 1.89 | 9.52 | 10.0 | 8.15 | 7.03 | 9.35 |
 | aaron | you-give-love-a-bad-name | 235 | **6.8** | 6.5 | high | 10.0 | 0.0 | 6.85 | 8.41 | 8.31 | 5.79 | 5.29 |
 | aaron | play-that-funky-music | 233 | **8.6** | 8.3 | high | 8.0 | 6.25 | 9.95 | 10.0 | 8.49 | 9.61 | 8.31 |
+| aaron | you-give-love-a-bad-name | 204 | **7.6** | 7.0 | high | 10.0 | 0.0 | 10.0 | 8.89 | 7.53 | 10.0 | 4.11 |
 | aaron | bust-a-move | 291 | **7.0** | 7.2 | high | 8.0 | 1.83 | 4.94 | 9.75 | 8.45 | 9.0 | 7.85 |
 | aaron | do-wah-diddy | 161 | **9.3** | 9.8 | high | 10.0 | 10.0 | 8.32 | 9.21 | 8.06 | 10.0 | – |
 | aaron | fireball | 233 | **6.8** | 6.3 | high | 6.0 | 5.04 | 6.34 | 8.95 | 9.9 | 4.85 | 6.72 |
@@ -231,6 +232,16 @@ Full coverage: 288/312 takes.
 | aaron | my-babe | 151 | **7.6** | 7.1 | high | 10.0 | 0.0 | 9.73 | 9.92 | 7.08 | 3.33 | 10.0 |
 | aaron | things-that-make-you-go-hmm | 311 | **7.2** | 7.7 | high | 10.0 | 0.69 | 5.5 | 9.61 | 7.13 | 10.0 | 7.05 |
 | aaron | you-give-love-a-bad-name | 199 | **6.9** | 6.4 | medium | 10.0 | 0.0 | – | 9.21 | 9.22 | 3.55 | 5.59 |
+| aaron | fireball | 132 | **5.9** | 6.6 | high | 9.0 | 1.72 | 2.01 | 9.64 | 7.68 | 2.06 | 8.01 |
+| aaron | you-give-love-a-bad-name | 217 | **6.1** | 6.0 | high | 8.0 | 0.0 | 4.45 | 8.99 | 8.78 | 6.48 | 4.99 |
+| aaron | you-give-love-a-bad-name | 214 | **6.8** | 7.4 | high | 10.0 | 2.75 | 2.96 | 9.11 | 8.96 | 5.88 | 7.05 |
+| aaron | blinding-lights | 165 | **8.9** | 8.8 | high | 10.0 | 9.57 | 10.0 | 10.0 | 8.22 | 5.58 | 6.01 |
+| aaron | let-s-stay-together | 206 | **8.2** | 7.5 | high | 10.0 | 0.0 | 9.72 | 8.99 | 9.77 | 10.0 | 7.97 |
+| aaron | let-s-stay-together | 182 | **7.8** | 7.0 | high | 10.0 | 0.0 | 10.0 | 9.73 | 9.1 | 7.42 | 5.38 |
+| aaron | you-give-love-a-bad-name | 208 | **6.8** | 6.2 | high | 10.0 | 0.0 | 8.02 | 8.04 | 8.15 | 2.61 | 6.81 |
+| aaron | do-wah-diddy | 187 | **9.7** | 9.7 | high | 10.0 | 10.0 | 9.88 | 9.54 | 9.29 | 10.0 | 8.52 |
+| aaron | funky-cold-medina | 163 | **6.9** | 6.0 | high | 8.0 | 0.0 | 8.56 | 8.96 | 9.61 | 3.21 | 8.17 |
+| aaron | let-s-stay-together | 204 | **8.7** | 8.4 | high | 10.0 | 3.61 | 9.88 | 10.0 | 9.07 | 10.0 | 7.35 |
 | aaron | do-wah-diddy | 178 | **9.3** | 9.1 | high | 10.0 | 10.0 | 10.0 | 9.45 | 9.59 | 10.0 | 4.11 |
 | aaron | kryptonite | 150 | **9.2** | 8.9 | high | 10.0 | 7.39 | 10.0 | 9.13 | 9.9 | 10.0 | 6.6 |
 | aaron | kung-fu-fighting | 219 | **8.5** | 7.9 | high | 6.0 | 7.51 | 9.95 | 8.9 | 8.98 | 10.0 | 10.0 |
@@ -243,9 +254,12 @@ Full coverage: 288/312 takes.
 | aaron | you-could-be-mine | 269 | **6.7** | 5.3 | high | 6.0 | 0.0 | 10.0 | 9.53 | 9.08 | 3.79 | 6.79 |
 | aaron | brown-eyed-girl | 134 | **7.1** | 5.9 | high | 8.0 | 0.0 | 10.0 | 9.67 | 9.19 | 5.82 | 3.81 |
 | aaron | i-feel-good | 154 | **6.8** | 5.4 | high | 8.0 | 0.0 | 10.0 | 8.41 | 9.52 | 6.21 | 1.85 |
+| aaron | let-s-stay-together | 180 | **7.1** | 6.3 | high | 7.04 | 0.0 | 10.0 | 9.14 | 7.54 | 9.42 | 6.3 |
 | aaron | let-s-stay-together | 185 | **6.8** | 5.6 | high | 6.0 | 0.0 | 9.91 | 8.99 | 8.29 | 8.03 | 5.86 |
 | aaron | my-girl | 150 | **8.2** | 7.6 | high | 10.0 | 0.0 | 10.0 | 9.3 | 9.06 | 8.82 | 9.26 |
+| aaron | my-girl | 146 | **8.5** | 7.8 | high | 10.0 | 0.0 | 10.0 | 9.72 | 9.6 | 9.15 | 10.0 |
 | aaron | the-wanderer | 155 | **8.8** | 8.3 | high | 10.0 | 5.21 | 10.0 | 9.79 | 9.73 | 10.0 | 4.46 |
+| aaron | the-wanderer | 148 | **8.8** | 8.4 | high | 10.0 | 6.25 | 10.0 | 9.94 | 9.46 | 9.33 | 4.41 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
@@ -257,8 +271,12 @@ Full coverage: 288/312 takes.
 | leo | sunshine-smile | 176 | **8.2** | 7.6 | high | 10.0 | 1.03 | 10.0 | 10.0 | 8.9 | 9.88 | 5.8 |
 | leo | sunshine-smile | 183 | **8.2** | 7.4 | high | 10.0 | 2.58 | 10.0 | 10.0 | 9.65 | 8.52 | 3.42 |
 | leo | good-riddance-time-of-your-life | 117 | **8.3** | 9.2 | high | 10.0 | 10.0 | 5.87 | 9.79 | 7.2 | 3.94 | 10.0 |
+| leo | bat-out-of-hell | 374 | **8.6** | 8.9 | high | 10.0 | 10.0 | 7.22 | 10.0 | 9.08 | 4.67 | 6.9 |
 | leo | bat-out-of-hell | 367 | **8.6** | 8.6 | medium | 10.0 | 10.0 | – | 9.88 | 9.04 | 3.58 | 5.8 |
+| leo | american-trilogy | 200 | **7.5** | 8.0 | high | 8.0 | 10.0 | 6.29 | 8.64 | 6.98 | 4.36 | 7.64 |
+| leo | bat-out-of-hell | 424 | **9.0** | 9.3 | high | 10.0 | 7.91 | 8.3 | 10.0 | 8.35 | 10.0 | 7.95 |
 | rilda | flowers | 204 | **7.9** | 7.2 | high | 10.0 | 0.0 | 10.0 | 9.82 | 8.6 | 7.94 | 6.61 |
+| rilda | nutbush-city-limits | 120 | **7.5** | 6.5 | high | 8.0 | 0.0 | 10.0 | 10.0 | 9.19 | 5.64 | 7.81 |
 | rilda | blue-bayou | 225 | **6.8** | 6.7 | high | 10.0 | 0.0 | 6.06 | 10.0 | 8.47 | 4.45 | 5.8 |
 | rilda | on-the-radio | 226 | **7.9** | 7.9 | high | 10.0 | 0.0 | 7.1 | 10.0 | 8.66 | 10.0 | 9.54 |
 | rilda | flowers | 182 | **withheld** | – | – | – | – | – | – | – | – | – |
@@ -280,7 +298,7 @@ Full coverage: 288/312 takes.
 | rilda | dreams | 260 | **7.6** | 7.6 | high | 10.0 | 2.98 | 6.94 | 10.0 | 8.13 | 4.39 | 8.48 |
 | rilda | you-sexy-thing | 204 | **7.1** | 6.7 | high | 8.0 | 0.0 | 7.48 | 9.69 | 9.07 | 10.0 | 5.54 |
 | rilda | bow-river | 205 | **7.6** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.8 | 7.86 | 5.79 | 6.23 |
-| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | -0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
+| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | 0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
 | rilda | bring-me-some-water | 192 | **7.9** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.71 | 9.74 | 7.15 | 5.04 |
 | rilda | ex-s-oh-s | 204 | **7.9** | 7.3 | high | 10.0 | 0.0 | 10.0 | 9.98 | 8.07 | 10.0 | 4.41 |
 | rilda | who-s-that-girl | 215 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.65 | 10.0 | 8.82 |
@@ -327,7 +345,7 @@ Full coverage: 288/312 takes.
 
 ## Professional references (calibration sanity check)
 
-Overall: min 6.8 · max 9.8 · mean 8.26 — pros should sit near the top.
+Overall: min 6.8 · max 9.8 · mean 8.28 — pros should sit near the top.
 
 | reference | v5 | cf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
@@ -341,6 +359,8 @@ Overall: min 6.8 · max 9.8 · mean 8.26 — pros should sit near the top.
 | suno-ai-sunshine-smile | **withheld** | – | – | – | – | – | – | – | – |
 | alex-live-it-up | **7.1** | 7.4 | 8.0 | 1.95 | 3.7 | 9.79 | 9.89 | 8.24 | 10.0 |
 | athea-fireflies | **7.8** | 9.6 | 10.0 | 10.0 | 2.67 | 9.08 | 5.38 | 8.48 | 10.0 |
+| the-weeknd-blinding-lights | **9.1** | 9.4 | 10.0 | 10.0 | 8.17 | 9.53 | 8.43 | 6.39 | 10.0 |
+| original-my-girl | **7.9** | 8.0 | 7.0 | 10.0 | 6.19 | 10.0 | 9.73 | 5.48 | 7.27 |
 | wild-cherry-play-that-funky-music | **6.9** | 7.0 | 10.0 | 0.0 | 4.71 | 8.77 | 9.79 | 4.58 | 9.56 |
 | carpenters-this-masquerade | **9.8** | 9.9 | 10.0 | 9.63 | 10.0 | 10.0 | 8.81 | 10.0 | 10.0 |
 | glenn-frey-the-heat-is-on | **7.7** | 7.7 | 10.0 | 2.12 | 6.28 | 9.9 | 9.57 | 5.09 | 10.0 |
