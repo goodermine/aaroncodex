@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.43. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.44. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 283/306 takes.
+Full coverage: 283/307 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -253,6 +253,7 @@ Full coverage: 283/306 takes.
 | leo | sunshine-smile | 183 | **8.2** | 7.4 | high | 10.0 | 2.58 | 10.0 | 10.0 | 9.65 | 8.52 | 3.42 |
 | leo | good-riddance-time-of-your-life | 117 | **8.3** | 9.2 | high | 10.0 | 10.0 | 5.87 | 9.79 | 7.2 | 3.94 | 10.0 |
 | leo | bat-out-of-hell | 367 | **8.6** | 8.6 | medium | 10.0 | 10.0 | – | 9.88 | 9.04 | 3.58 | 5.8 |
+| rilda | flowers | 204 | **7.9** | 7.2 | high | 10.0 | 0.0 | 10.0 | 9.82 | 8.6 | 7.94 | 6.61 |
 | rilda | blue-bayou | 225 | **6.8** | 6.7 | high | 10.0 | 0.0 | 6.06 | 10.0 | 8.47 | 4.45 | 5.8 |
 | rilda | on-the-radio | 226 | **7.9** | 7.9 | high | 10.0 | 0.0 | 7.1 | 10.0 | 8.66 | 10.0 | 9.54 |
 | rilda | flowers | 182 | **withheld** | – | – | – | – | – | – | – | – | – |
@@ -267,7 +268,7 @@ Full coverage: 283/306 takes.
 | rilda | this-masquerade | 181 | **8.0** | 7.3 | high | 8.0 | 0.0 | 10.0 | 10.0 | 8.79 | 10.0 | 9.81 |
 | rilda | she-s-not-there | 143 | **7.3** | 7.3 | high | 8.0 | 0.0 | 5.9 | 10.0 | 9.23 | 10.0 | 10.0 |
 | rilda | make-it-with-you | 132 | **7.7** | 7.1 | high | 9.0 | 0.0 | 9.01 | 10.0 | 8.35 | 6.58 | 9.54 |
-| rilda | make-it-with-you | 132 | **7.7** | 7.1 | high | 9.0 | 0.0 | 9.01 | 10.0 | 8.35 | 6.58 | 9.54 |
+| rilda | make-it-with-you | 132 | **withheld** | – | – | – | – | – | – | – | – | – |
 | rilda | hot-stuff | 235 | **6.3** | 5.9 | high | 8.0 | 0.0 | 5.63 | 8.93 | 9.0 | 4.21 | 6.91 |
 | rilda | at-last | 186 | **7.1** | 7.5 | high | 6.0 | 6.3 | 4.73 | 10.0 | 8.47 | 8.03 | 8.92 |
 | rilda | black-velvet | 264 | **6.9** | 6.7 | high | 8.6 | 0.0 | 5.62 | 10.0 | 9.63 | 6.33 | 7.72 |
