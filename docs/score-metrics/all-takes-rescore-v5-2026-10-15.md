@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.46. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.48. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 306/331 takes.
+Full coverage: 309/334 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -256,10 +256,12 @@ Full coverage: 306/331 takes.
 | aaron | i-feel-good | 154 | **6.8** | 5.4 | high | 8.0 | 0.0 | 10.0 | 8.41 | 9.52 | 6.21 | 1.85 |
 | aaron | let-s-stay-together | 180 | **7.1** | 6.3 | high | 7.04 | 0.0 | 10.0 | 9.14 | 7.54 | 9.42 | 6.3 |
 | aaron | let-s-stay-together | 185 | **6.8** | 5.6 | high | 6.0 | 0.0 | 9.91 | 8.99 | 8.29 | 8.03 | 5.86 |
+| aaron | my-girl-bramble | 183 | **9.2** | 9.4 | high | 10.0 | 10.0 | 8.43 | 9.6 | 8.75 | 7.24 | 9.05 |
 | aaron | my-girl | 150 | **8.2** | 7.6 | high | 10.0 | 0.0 | 10.0 | 9.3 | 9.06 | 8.82 | 9.26 |
 | aaron | my-girl | 146 | **8.5** | 7.8 | high | 10.0 | 0.0 | 10.0 | 9.72 | 9.6 | 9.15 | 10.0 |
 | aaron | the-wanderer | 155 | **8.8** | 8.3 | high | 10.0 | 5.21 | 10.0 | 9.79 | 9.73 | 10.0 | 4.46 |
 | aaron | the-wanderer | 148 | **8.8** | 8.4 | high | 10.0 | 6.25 | 10.0 | 9.94 | 9.46 | 9.33 | 4.41 |
+| aaron | the-wanderer | 162 | **9.4** | 9.6 | high | 10.0 | 10.0 | 9.71 | 10.0 | 8.49 | 10.0 | 6.7 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
@@ -343,6 +345,7 @@ Full coverage: 306/331 takes.
 | rilda | on-the-radio | 214 | **7.9** | 7.2 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.31 | 4.82 | 9.49 |
 | rilda | who-s-that-girl | 240 | **8.0** | 7.3 | high | 7.0 | 1.66 | 10.0 | 10.0 | 8.99 | 10.0 | 10.0 |
 | rilda | before-he-cheats | 224 | **9.4** | 9.3 | medium | 8.0 | 10.0 | – | 10.0 | 9.74 | 10.0 | 10.0 |
+| rilda | valerie-bramble | 213 | **7.4** | 6.7 | high | 8.0 | 0.0 | 9.89 | 9.32 | 7.38 | 8.27 | 7.94 |
 
 ## Professional references (calibration sanity check)
 
