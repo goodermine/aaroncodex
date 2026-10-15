@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.47. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.48. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 309/333 takes.
+Full coverage: 309/334 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -344,6 +344,7 @@ Full coverage: 309/333 takes.
 | rilda | gimme-gimme-gimme | 194 | **8.4** | 7.7 | high | 10.0 | 0.0 | 10.0 | 9.99 | 9.66 | 10.0 | 7.51 |
 | rilda | on-the-radio | 214 | **7.9** | 7.2 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.31 | 4.82 | 9.49 |
 | rilda | who-s-that-girl | 240 | **8.0** | 7.3 | high | 7.0 | 1.66 | 10.0 | 10.0 | 8.99 | 10.0 | 10.0 |
+| rilda | before-he-cheats | 224 | **9.4** | 9.3 | medium | 8.0 | 10.0 | – | 10.0 | 9.74 | 10.0 | 10.0 |
 | rilda | valerie-bramble | 213 | **7.4** | 6.7 | high | 8.0 | 0.0 | 9.89 | 9.32 | 7.38 | 8.27 | 7.94 |
 
 ## Professional references (calibration sanity check)
