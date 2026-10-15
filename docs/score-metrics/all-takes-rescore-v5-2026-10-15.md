@@ -322,7 +322,7 @@ Full coverage: 283/307 takes.
 
 ## Professional references (calibration sanity check)
 
-Overall: min 6.8 · max 9.8 · mean 8.34 — pros should sit near the top.
+Overall: min 6.8 · max 9.8 · mean 8.32 — pros should sit near the top.
 
 | reference | v5 | cf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
@@ -336,6 +336,7 @@ Overall: min 6.8 · max 9.8 · mean 8.34 — pros should sit near the top.
 | suno-ai-sunshine-smile | **withheld** | – | – | – | – | – | – | – | – |
 | alex-live-it-up | **7.1** | 7.4 | 8.0 | 1.95 | 3.7 | 9.79 | 9.89 | 8.24 | 10.0 |
 | athea-fireflies | **7.8** | 9.6 | 10.0 | 10.0 | 2.67 | 9.08 | 5.38 | 8.48 | 10.0 |
+| original-my-girl_(vocals) | **7.9** | 8.0 | 7.0 | 10.0 | 6.19 | 10.0 | 9.73 | 5.48 | 7.27 |
 | carpenters-this-masquerade | **9.8** | 9.9 | 10.0 | 9.63 | 10.0 | 10.0 | 8.81 | 10.0 | 10.0 |
 | glenn-frey-the-heat-is-on | **7.7** | 7.7 | 10.0 | 2.12 | 6.28 | 9.9 | 9.57 | 5.09 | 10.0 |
 | guns-n-roses-you-could-be-mine | **6.8** | 6.6 | 9.96 | 0.0 | 6.52 | 8.84 | 8.55 | 3.03 | 7.94 |
