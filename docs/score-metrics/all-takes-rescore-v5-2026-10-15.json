@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 331,
+      "n": 332,
       "overall": {
         "min": 5.4,
         "max": 9.7,
@@ -25,7 +25,7 @@
       "dynamics": {
         "min": 5.8,
         "max": 10.0,
-        "mean": 8.83,
+        "mean": 8.82,
         "spread": 4.2
       }
     },
@@ -563,7 +563,7 @@
         "vibrato_control": 8.43,
         "dynamics_expression": 7.26,
         "phrase_control": 10.0,
-        "breath_support": 0.0
+        "breath_support": -0.0
       },
       "raw": {
         "median_abs_dev_cents": 20.0,
@@ -11726,7 +11726,7 @@
       "provenance": "deterministic_rubric_v5",
       "components": {
         "intonation_accuracy": 8.0,
-        "pitch_stability": 0.0,
+        "pitch_stability": -0.0,
         "voice_quality": 10.0,
         "vibrato_control": 9.74,
         "dynamics_expression": 7.95,
@@ -13515,6 +13515,47 @@
         "onsets_pct_clean": 23.3,
         "onsets_pct_scooped": 50.3,
         "onsets_pct_overshot": 26.4,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-10-15-rilda-valerie-bramble-take-001",
+      "singer": "rilda",
+      "song": "valerie-bramble",
+      "date": "2026-10-15",
+      "n_notes": 213,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 7.4,
+      "capture_fair": 6.7,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 8.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 9.89,
+        "vibrato_control": 9.32,
+        "dynamics_expression": 7.38,
+        "phrase_control": 8.27,
+        "breath_support": 7.94
+      },
+      "raw": {
+        "median_abs_dev_cents": 25.0,
+        "median_intra_note_drift_cents": 82.1,
+        "pct_within_25c": 51.2,
+        "jitter_pct": 0.5664,
+        "shimmer_pct": 6.6454,
+        "hnr_db": 19.5,
+        "vibrato_pct_notes": 39.0,
+        "dyn_phrase_spread_db": 47.32,
+        "dyn_effective_range_db": 35.13,
+        "median_phrase_s": 3.23,
+        "onsets_pct_clean": 24.3,
+        "onsets_pct_scooped": 42.3,
+        "onsets_pct_overshot": 33.3,
         "entry_accuracy_reliability": "high"
       }
     }
