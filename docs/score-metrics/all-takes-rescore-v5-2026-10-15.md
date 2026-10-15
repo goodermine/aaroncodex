@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.7 · mean 7.44. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 287/311 takes.
+Full coverage: 288/312 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -243,6 +243,7 @@ Full coverage: 287/311 takes.
 | aaron | you-could-be-mine | 269 | **6.7** | 5.3 | high | 6.0 | 0.0 | 10.0 | 9.53 | 9.08 | 3.79 | 6.79 |
 | aaron | brown-eyed-girl | 134 | **7.1** | 5.9 | high | 8.0 | 0.0 | 10.0 | 9.67 | 9.19 | 5.82 | 3.81 |
 | aaron | i-feel-good | 154 | **6.8** | 5.4 | high | 8.0 | 0.0 | 10.0 | 8.41 | 9.52 | 6.21 | 1.85 |
+| aaron | let-s-stay-together | 185 | **6.8** | 5.6 | high | 6.0 | 0.0 | 9.91 | 8.99 | 8.29 | 8.03 | 5.86 |
 | aaron | my-girl | 150 | **8.2** | 7.6 | high | 10.0 | 0.0 | 10.0 | 9.3 | 9.06 | 8.82 | 9.26 |
 | aaron | the-wanderer | 155 | **8.8** | 8.3 | high | 10.0 | 5.21 | 10.0 | 9.79 | 9.73 | 10.0 | 4.46 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
