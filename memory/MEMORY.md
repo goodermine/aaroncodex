@@ -60,8 +60,10 @@ Rules (mirrored in the skill):
 - `039-gig-day-vocal-load.md` — gig days: Aaron can over-sing without noticing — warm-up only at home
 - `040-same-backing-not-same-take.md` — same karaoke backing ≠ same performance; confirm on the vocal, trust Aaron's date
 - `041-rilda-bonus-recordings-rejected.md` — Rilda's At Last and Who's That Girl recordings rejected as not release quality
+- `042-brand-name-singnexa.md` — public brand is Singnexa (was VOX Analysis); repos/folders keep their vox names
 
 *(approved from /dream runs of 2026-08-04 and 2026-08-05)*
 *(021–029 mirrored from the Claude Code session memory, approved 2026-08-09)*
 *(030 given directly by Aaron, 2026-10-14)*
 *(031–041 and edits to 004/006, retirement of 017: approved via /dream apply all, 2026-10-14)*
+*(042 given directly by Aaron, 2026-10-15)*
