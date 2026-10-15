@@ -9,11 +9,11 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 309,
+      "n": 310,
       "overall": {
         "min": 5.4,
         "max": 9.7,
-        "mean": 7.44,
+        "mean": 7.43,
         "spread": 4.3
       },
       "capture_fair": {
@@ -9351,6 +9351,47 @@
         "onsets_pct_clean": 17.1,
         "onsets_pct_scooped": 51.3,
         "onsets_pct_overshot": 31.6,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-10-15-aaron-brown-eyed-girl-take-001",
+      "singer": "aaron",
+      "song": "brown-eyed-girl",
+      "date": "2026-10-15",
+      "n_notes": 134,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 7.1,
+      "capture_fair": 5.9,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 8.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 10.0,
+        "vibrato_control": 9.67,
+        "dynamics_expression": 9.19,
+        "phrase_control": 5.82,
+        "breath_support": 3.81
+      },
+      "raw": {
+        "median_abs_dev_cents": 25.0,
+        "median_intra_note_drift_cents": 168.4,
+        "pct_within_25c": 44.0,
+        "jitter_pct": 0.7222,
+        "shimmer_pct": 7.2085,
+        "hnr_db": 19.96,
+        "vibrato_pct_notes": 36.0,
+        "dyn_phrase_spread_db": 18.29,
+        "dyn_effective_range_db": 32.55,
+        "median_phrase_s": 2.42,
+        "onsets_pct_clean": 8.9,
+        "onsets_pct_scooped": 57.4,
+        "onsets_pct_overshot": 33.7,
         "entry_accuracy_reliability": "high"
       }
     },
