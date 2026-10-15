@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.43. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.44. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 286/310 takes.
+Full coverage: 287/311 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -244,6 +244,7 @@ Full coverage: 286/310 takes.
 | aaron | brown-eyed-girl | 134 | **7.1** | 5.9 | high | 8.0 | 0.0 | 10.0 | 9.67 | 9.19 | 5.82 | 3.81 |
 | aaron | i-feel-good | 154 | **6.8** | 5.4 | high | 8.0 | 0.0 | 10.0 | 8.41 | 9.52 | 6.21 | 1.85 |
 | aaron | my-girl | 150 | **8.2** | 7.6 | high | 10.0 | 0.0 | 10.0 | 9.3 | 9.06 | 8.82 | 9.26 |
+| aaron | the-wanderer | 155 | **8.8** | 8.3 | high | 10.0 | 5.21 | 10.0 | 9.79 | 9.73 | 10.0 | 4.46 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
