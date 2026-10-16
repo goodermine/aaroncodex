@@ -189,6 +189,17 @@ def find_first_stem_match(patterns, exclude_substrings=()):
     return None
 
 
+# Imported lazily (only when the plots are drawn, at the very end of a run), so
+# a missing one would otherwise surface only after a full stem separation —
+# 13 minutes into the Aaron G retry on Candi's host.
+LAZY_RUNTIME_MODULES = ("matplotlib",)
+
+
+def missing_runtime_modules():
+    import importlib.util
+    return [name for name in LAZY_RUNTIME_MODULES if importlib.util.find_spec(name) is None]
+
+
 def write_failure_record(record, base_name):
     """Persist a structured failure where the caller can find it: the path in
     VOX_FAILURE_RECORD (set by orchestrators such as candi_phase1.py), else
@@ -4244,6 +4255,19 @@ def main():
     os.makedirs(os.path.dirname(os.path.abspath(json_output)), exist_ok=True)
     report_output = os.path.join("reports", f"{base_name}_report.md")
     visual_output = os.path.join("reports", "diagnostics", f"{base_name}_diagnostic_plot.png")
+
+    missing = missing_runtime_modules()
+    if missing:
+        summary = (f"{sys.executable} is missing required module(s): {', '.join(missing)}. "
+                   "Install engine/requirements.txt into this interpreter, or run "
+                   "engine/install.sh (it creates engine/voxai_env, which candi_phase1.py "
+                   "uses automatically).")
+        write_failure_record(managed_process.failure_record(
+            stage="dependency_check", command=[sys.executable], kind="dependency",
+            summary=summary, extra={"python": sys.executable, "missing_modules": missing}),
+            base_name)
+        print(f"  Error: {summary}")
+        sys.exit(1)
 
     print(f"\n{'='*60}")
     print(f"  VOXAI Analysis: {args.name} — {os.path.basename(args.input_file)}")

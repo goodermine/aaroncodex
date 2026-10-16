@@ -141,6 +141,16 @@ def extract_audio(source_path: Path, destination_path: Path) -> None:
         raise RuntimeError(result.stderr.strip() or "Audio extraction failed.")
 
 
+def backend_interpreter() -> str:
+    """VOXAI_BACKEND_PYTHON if set, else the engine's own voxai_env (made by
+    engine/install.sh), else python3 on PATH. The engine checks its own
+    dependencies first, so a wrong choice fails in seconds, not after separation."""
+    override = os.environ.get("VOXAI_BACKEND_PYTHON")
+    if override:
+        return str(Path(override).expanduser())
+    return str(BACKEND_PYTHON) if BACKEND_PYTHON.exists() else PYTHON_BIN
+
+
 class BackendFailure(RuntimeError):
     """The backend did not produce an analysis. ``record`` says why."""
 
@@ -161,7 +171,7 @@ def run_backend(input_path: Path, singer_name: str, base_name: str) -> tuple[Pat
     """
     if not BACKEND_SCRIPT.exists():
         raise RuntimeError(f"Missing backend script: {BACKEND_SCRIPT}")
-    backend_python = str(BACKEND_PYTHON) if BACKEND_PYTHON.exists() else PYTHON_BIN
+    backend_python = backend_interpreter()
     cmd = [
         backend_python,
         str(BACKEND_SCRIPT),
