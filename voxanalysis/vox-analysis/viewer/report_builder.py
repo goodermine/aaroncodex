@@ -23,15 +23,16 @@ def _number(value, digits=1):
 # ---------------------------------------------------------------------------
 # INTERIM READING RULE — held-note stability on a mismatched measurement scale.
 #
-# The 16 Aug 2026 drift fix moved the drift measurement ~2.5x for every take
-# analysed afterwards, while the 50-reference pack stayed on the old measurement
-# (docs/VOX_SYSTEM_REVIEW_2026-09-02.md §3.1). Until the references are
-# re-analysed and the pack rebuilt, a post-fix take's pitch_stability is scored
-# against anchors from another scale and reads ~0 regardless of the singing.
-# This is a READING rule at the report layer: the engine's number is untouched
-# (rule 1), it is simply not quoted, and the raw held-drift median is shown
-# against the professional band instead. It switches itself off the moment the
-# pack carries a measurement_fingerprint matching the take's.
+# RETIRED IN PRACTICE (2026-10-15): the calibration pack was rebuilt on 3 Sep
+# 2026 (fingerprint 28e854af22ea), so take and pack now match and this never
+# triggers. The code is kept because the tests still exercise it; it is the
+# mismatch path only. See docs/VOX_SYSTEM_REVIEW_2026-09-02.md §3.1 (resolved).
+#
+# Background: the 16 Aug 2026 drift fix moved the drift measurement ~2.5x for
+# takes analysed afterwards, and the pack then stayed on the old measurement.
+# While they mismatch, pitch_stability reads ~0 regardless of the singing. This
+# is a READING rule at the report layer: the engine's number is untouched
+# (rule 1), not quoted, and the raw held-drift median is shown instead.
 #
 # The band is an EMULATION from the stored per-note data of the 50 references
 # (median held_drift_cents over notes >= 0.6 s), not a calibration value — see
