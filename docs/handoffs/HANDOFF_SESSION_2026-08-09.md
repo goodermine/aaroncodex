@@ -69,6 +69,22 @@ polish: ~2.5–4 GB of torch and friends). Recommended sequence:
 
 Aaron has approved starting at step 1.
 
+> **Update, later the same day — step 1 is already built.** `Dockerfile`,
+> `.dockerignore`, `docker-compose.yml` and `docs/DEPLOYMENT.md` landed on
+> `claude/voiceassist-plugin-planning-krhz0d` (**PR #46**), explicitly
+> implementing Option C, with full and lean image variants. **Merged to `main`
+> on 13 Aug 2026.**
+>
+> Two facts from **PR #50** (memory 021–029, also open) change the plan and are
+> now folded into it:
+> - **`praat-parselmouth` is GPLv3 linked in-process**, so any desktop /
+>   on-prem / embeddable build is a licensing blocker, not just an expensive
+>   option. Hosted-only neutralises it. This is now the *strongest* argument for
+>   cloud-first (`memory/028`).
+> - **A sale of aaroncodex is being explored** (`memory/027`), which makes
+>   "the engine never leaves the server" a commercial argument as well as a
+>   technical one, and lists resolving the GPL constraint as a pre-sale lever.
+
 ## 4. Open threads
 
 ### Needs Candi
@@ -82,10 +98,10 @@ Aaron has approved starting at step 1.
 - **You Can Leave Your Hat On** — its F5 was backing-vocal bleed, not Aaron
   (Joe Cocker's own lead is only B3–A4). Needs a clean solo-vocal re-analysis
   before it can be ranked.
-- **`docs/handoffs/TIMBERTONES_HANDOFF.md`** still describes `vox-tokens.css` as
-  "vendored suite design tokens". That file lives only on
-  `claude/voiceassist-plugin-planning-krhz0d` (PR #46), not `main`, so it could
-  not be corrected from here — drop that line when the PR lands.
+- ~~**`docs/handoffs/TIMBERTONES_HANDOFF.md`** still describes `vox-tokens.css`
+  as "vendored suite design tokens".~~ **Resolved.** PR #46 merged on 13 Aug
+  2026 and the line now correctly records that TimberTones carries no
+  `vox-tokens.css` and that `design/sync.sh` excludes it deliberately.
 
 ### Untested experiments worth recording
 - **Single-plug earplug config** — one plug in the speaker-facing ear. Keeps most
@@ -93,6 +109,12 @@ Aaron has approved starting at step 1.
   configuration the A/B did not cover.
 - **Rebel Yell up 2–3 semitones** — follows from the M2/mixed model (raise it
   toward A3–B4). Nobody has tried it; the sheet flags it as untested.
+
+### Numbering collision, caught before it landed
+`/dream`'s memory proposals were first written as **021–024**; PR #50 claims
+**021–029** for a different set of facts. The proposals were renumbered to
+**030–033** on PR #49. Same class of silent clash as the D7–D10 loss below —
+idea **D11** proposes a check that would catch both automatically.
 
 ### Parked
 Dream ideas **D7–D10** are `status: parked` in `memory/dream-ideas.md` at Aaron's
