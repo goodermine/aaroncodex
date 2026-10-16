@@ -9,8 +9,9 @@ topics: [packaging, deployment, docker, pwa, distribution, hosting, licensing]
 
 # Plan — packaging & deployment: how VOX ships
 
-**Status:** in progress — **step 1 (Docker) is built** on
-`claude/voiceassist-plugin-planning-krhz0d` (PR #46), not yet merged.
+**Status:** in progress — **step 1 (Docker) is built and merged**. It landed on
+`main` via PR #46 on 13 Aug 2026; `Dockerfile`, `.dockerignore`,
+`docker-compose.yml` and `docs/DEPLOYMENT.md` are all on `main` today.
 
 > ### Update — 9 Aug, later the same day
 >
@@ -19,6 +20,8 @@ topics: [packaging, deployment, docker, pwa, distribution, hosting, licensing]
 >
 > **1. Docker is built.** `Dockerfile`, `.dockerignore`, `docker-compose.yml` and
 > `docs/DEPLOYMENT.md` landed on PR #46, explicitly implementing Option C below.
+> (PR #46 was merged on 13 Aug 2026, so these are on `main` — the "not yet
+> merged" wording this plan originally carried is itself now superseded.)
 > It ships two variants — a full heavy image (RoFormer separation + auto-tune)
 > and a `--build-arg WITH_SEPARATION=0 WITH_PITCH=0` lean image — plus a GPU note
 > and build-commit stamping for `/api/build`. The claim below that "no deployment
@@ -58,6 +61,10 @@ The first half is largely **already answered**: `voxsuite/server/unified.py`
 serves Analyze, Polish, Fused, `/monitor`, `/timbertones` and `/hub` from **one
 FastAPI app on one origin**, and `systems.py` is a single registry that the hub
 directory reads. Unification is not the gap.
+
+> **[SUPERSEDED — 13 Aug 2026]** The paragraph immediately below was true when
+> written (9 Aug). `Dockerfile`, `.dockerignore`, `docker-compose.yml` and
+> `docs/DEPLOYMENT.md` are now on `main` via PR #46. Read it as history.
 
 The gap is **distribution**. There is no `Dockerfile`, no `docker-compose.yml`,
 no `fly.toml`/`render.yaml`, no systemd unit, no PyInstaller spec anywhere in
@@ -120,8 +127,9 @@ the heavy engine. `VISION.md` already lists "PWA install" as a known gap.
 
 They build on each other rather than competing:
 
-1. **Docker the unified server** (C) — ✅ **built** on PR #46; needs review and
-   merge. Makes deployment repeatable and unblocks everything else.
+1. **Docker the unified server** (C) — ✅ **done** — built on PR #46 and merged
+   to `main` on 13 Aug 2026. Makes deployment repeatable and unblocks
+   everything else.
 2. **Ship the light half as a PWA** (D) — small; gives Aaron a real installable
    practice app on his phone now. **Note:** the light half (monitor,
    TimberTones, recorder) touches no parselmouth, so it is unaffected by the GPL

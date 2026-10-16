@@ -71,8 +71,9 @@ Aaron has approved starting at step 1.
 
 > **Update, later the same day — step 1 is already built.** `Dockerfile`,
 > `.dockerignore`, `docker-compose.yml` and `docs/DEPLOYMENT.md` landed on
-> `claude/voiceassist-plugin-planning-krhz0d` (**PR #46**, draft), explicitly
-> implementing Option C, with full and lean image variants. Not yet merged.
+> `claude/voiceassist-plugin-planning-krhz0d` (**PR #46**), explicitly
+> implementing Option C, with full and lean image variants. **Merged to `main`
+> on 13 Aug 2026.**
 >
 > Two facts from **PR #50** (memory 021–029, also open) change the plan and are
 > now folded into it:
@@ -97,10 +98,10 @@ Aaron has approved starting at step 1.
 - **You Can Leave Your Hat On** — its F5 was backing-vocal bleed, not Aaron
   (Joe Cocker's own lead is only B3–A4). Needs a clean solo-vocal re-analysis
   before it can be ranked.
-- **`docs/handoffs/TIMBERTONES_HANDOFF.md`** still describes `vox-tokens.css` as
-  "vendored suite design tokens". That file lives only on
-  `claude/voiceassist-plugin-planning-krhz0d` (PR #46), not `main`, so it could
-  not be corrected from here — drop that line when the PR lands.
+- ~~**`docs/handoffs/TIMBERTONES_HANDOFF.md`** still describes `vox-tokens.css`
+  as "vendored suite design tokens".~~ **Resolved.** PR #46 merged on 13 Aug
+  2026 and the line now correctly records that TimberTones carries no
+  `vox-tokens.css` and that `design/sync.sh` excludes it deliberately.
 
 ### Untested experiments worth recording
 - **Single-plug earplug config** — one plug in the speaker-facing ear. Keeps most
