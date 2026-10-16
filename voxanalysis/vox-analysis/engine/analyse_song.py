@@ -49,6 +49,9 @@ import scipy.signal
 import librosa
 import soundfile as sf
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import managed_process  # noqa: E402  (process groups, separation lock, heartbeat)
+
 
 def _get_plt():
     """Import the plotting stack only when a plot is actually drawn.
@@ -186,6 +189,22 @@ def find_first_stem_match(patterns, exclude_substrings=()):
     return None
 
 
+def write_failure_record(record, base_name):
+    """Persist a structured failure where the caller can find it: the path in
+    VOX_FAILURE_RECORD (set by orchestrators such as candi_phase1.py), else
+    output/failures/<base>_failure.json. The record keeps the command, stage,
+    exit code, elapsed time and stdout/stderr tails, so the reason survives."""
+    path = os.environ.get("VOX_FAILURE_RECORD") or os.path.join(
+        "output", "failures", f"{base_name}_failure.json")
+    try:
+        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(record, handle, indent=2)
+        print(f"  Failure record: {path}")
+    except OSError as exc:
+        print(f"  Could not write failure record {path}: {exc}")
+
+
 def run_stem_separation(input_path, script_path="tools/stems/batch_stems.sh"):
     """
     Runs the dedicated stem-separation script and returns the detected
@@ -210,13 +229,24 @@ def run_stem_separation(input_path, script_path="tools/stems/batch_stems.sh"):
         "--output",
         run_output_dir,
     ]
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        if result.stdout:
-            print(result.stdout)
-        if result.stderr:
-            print(result.stderr)
-        raise RuntimeError("Stem separation failed. Check the command output above.")
+    # One separation per host, in its own process group, with the repository's
+    # timeout and a heartbeat (see managed_process.py). The lock descriptor is
+    # handed to the separator so an orphaned RoFormer keeps the slot instead of
+    # a second job competing with it. Raises managed_process.StageFailure.
+    status_path = os.path.join(run_output_dir, "separation-status.json")
+    with managed_process.separation_lock(label=os.path.basename(input_path),
+                                         status_path=status_path) as slot:
+        run_record = managed_process.run_managed(
+            cmd,
+            stage="separation",
+            timeout_s=managed_process.separation_timeout_s(),
+            log_dir=run_output_dir,
+            status_path=status_path,
+            progress_parser=managed_process.tqdm_progress,
+            pass_fds=slot.fds,
+            on_start=slot.note_child,
+        )
+    print(f"  Separation finished in {run_record['elapsed_s']:.0f} s")
 
     vocals_path = find_first_stem_match(
         [
@@ -4244,7 +4274,15 @@ def main():
         try:
             stem_metadata = run_stem_separation(args.input_file, script_path=args.stems_script)
             analysis_input_path = stem_metadata["vocals_path"]
+        except managed_process.StageFailure as stem_failure:
+            write_failure_record(stem_failure.record, base_name)
+            print(f"  Stem separation error: {stem_failure}")
+            print(stem_failure.record.get("stderr_tail", "")[-4000:], file=sys.stderr)
+            sys.exit(1)
         except Exception as stem_error:
+            write_failure_record(managed_process.failure_record(
+                stage="separation", command=None, kind="error",
+                summary=f"separation failed: {stem_error}"), base_name)
             print(f"  Stem separation error: {stem_error}")
             sys.exit(1)
 

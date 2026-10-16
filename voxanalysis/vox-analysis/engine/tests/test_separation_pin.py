@@ -14,7 +14,6 @@ import os
 import re
 import sys
 from pathlib import Path
-from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import analyse_song as A  # noqa: E402
@@ -89,13 +88,14 @@ def test_lowercase_roformer_outputs_select_vocals_and_other_correctly(
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(A, "resolve_repo_path", lambda _path: str(script))
 
-    def fake_run(cmd, capture_output, text):
+    def fake_run(cmd, **_kwargs):
         output_dir = Path(cmd[cmd.index("--output") + 1])
         (output_dir / "take_(other)_vocals_mel_band_roformer.flac").touch()
         (output_dir / "take_(vocals)_vocals_mel_band_roformer.flac").touch()
-        return SimpleNamespace(returncode=0, stdout="", stderr="")
+        return {"status": "succeeded", "exit_code": 0, "elapsed_s": 0.0}
 
-    monkeypatch.setattr(A.subprocess, "run", fake_run)
+    monkeypatch.setenv("VOX_STATE_DIR", str(tmp_path / "state"))
+    monkeypatch.setattr(A.managed_process, "run_managed", fake_run)
     result = A.run_stem_separation(str(input_path), script_path=str(script))
 
     assert Path(result["vocals_path"]).name == (

@@ -96,10 +96,35 @@ setup_env() {
   fi
 }
 
+# The separator runs in the background and this shell waits on it, so a signal
+# sent to this script (even to its PID alone) reaches the trap and the child is
+# stopped with it. A foreground child would outlive a killed parent: bash only
+# runs traps after the foreground command ends. That is how a RoFormer job was
+# left running in the Aaron G incident (see engine/managed_process.py).
+SEP_PID=""
+stop_separator() {
+  if [[ -n "$SEP_PID" ]] && kill -0 "$SEP_PID" 2>/dev/null; then
+    log "Stopping separator (pid $SEP_PID)"
+    kill -TERM "$SEP_PID" 2>/dev/null || true
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      kill -0 "$SEP_PID" 2>/dev/null || break
+      sleep 1
+    done
+    kill -KILL "$SEP_PID" 2>/dev/null || true
+  fi
+}
+trap 'stop_separator; exit 143' TERM
+trap 'stop_separator; exit 130' INT
+trap 'stop_separator; exit 129' HUP
+
 run_file() {
-  local file="$1"
+  local file="$1" rc=0
   log "Separating: $file"
-  audio-separator -m "$SEP_MODEL" --output_dir "$OUTPUT_DIR" "$file"
+  audio-separator -m "$SEP_MODEL" --output_dir "$OUTPUT_DIR" "$file" &
+  SEP_PID=$!
+  wait "$SEP_PID" || rc=$?
+  SEP_PID=""
+  return "$rc"
 }
 
 main() {
