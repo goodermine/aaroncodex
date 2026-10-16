@@ -17,6 +17,14 @@ singer/song memory, coaching replies, drill history and progress logs. Telegram
 transport configuration, chat identifiers and private runtime data do not
 belong in the web application.
 
+Long-running stages (stem separation, the backend run) go through
+`vox-analysis/engine/managed_process.py`: one separation per host, process
+groups with tree-safe cancellation, repository-owned timeouts, a heartbeat
+status file and structured failure records. `prepare` reports a failure as
+`status: backend_failed` with the failed stage and kind, and suggests a
+shorter clip only for a confirmed timeout or resource limit. See
+`docs/handoffs/CANDI_ANALYSIS_ORCHESTRATION.md` at the repository root.
+
 ## VOXAI-Alpha web
 
 `vox-analysis/viewer/` owns browser uploads, asynchronous local jobs, audio

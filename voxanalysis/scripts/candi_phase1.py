@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import re
@@ -31,6 +32,11 @@ BACKEND_DIR = Path(
 BACKEND_SCRIPT = BACKEND_DIR / "analyse_song.py"
 BACKEND_PYTHON = BACKEND_DIR / "voxai_env" / "bin" / "python"
 PYTHON_BIN = shutil.which("python3") or sys.executable
+
+# Process groups, the host's single separation slot, heartbeats and structured
+# failures live with the engine (stdlib only), so both entry points share them.
+sys.path.insert(0, str(BACKEND_DIR))
+import managed_process  # noqa: E402
 
 AUDIO_EXTENSIONS = {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aac"}
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".webm"}
@@ -135,7 +141,24 @@ def extract_audio(source_path: Path, destination_path: Path) -> None:
         raise RuntimeError(result.stderr.strip() or "Audio extraction failed.")
 
 
-def run_backend(input_path: Path, singer_name: str) -> tuple[Path, Path]:
+class BackendFailure(RuntimeError):
+    """The backend did not produce an analysis. ``record`` says why."""
+
+    def __init__(self, record: dict):
+        self.record = record
+        super().__init__(record.get("summary") or "Backend analysis failed.")
+
+
+def run_backend(input_path: Path, singer_name: str, base_name: str) -> tuple[Path, Path]:
+    """Run analyse_song.py --separate-stems under the repository's own timeout.
+
+    The backend runs in its own process group (so a cancel stops the whole
+    tree, separator included), with a heartbeat in
+    ``temp/metric-json/<base>-backend-status.json`` and full logs in
+    ``temp/logs/<base>/``. On failure a ``BackendFailure`` carries a structured
+    record: the stage that failed (separation, analysis, ...), its kind,
+    command, exit code, elapsed time and stdout/stderr tails.
+    """
     if not BACKEND_SCRIPT.exists():
         raise RuntimeError(f"Missing backend script: {BACKEND_SCRIPT}")
     backend_python = str(BACKEND_PYTHON) if BACKEND_PYTHON.exists() else PYTHON_BIN
@@ -147,15 +170,44 @@ def run_backend(input_path: Path, singer_name: str) -> tuple[Path, Path]:
         singer_name,
         "--separate-stems",
     ]
-    result = subprocess.run(
-        cmd,
-        cwd=str(BACKEND_DIR),
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "Backend analysis failed.")
+    metric_dir = TEMP_DIR / "metric-json"
+    metric_dir.mkdir(parents=True, exist_ok=True)
+    inner_failure_path = metric_dir / f"{base_name}-stage-failure.json"
+    with contextlib.suppress(FileNotFoundError):
+        inner_failure_path.unlink()
+    env = dict(os.environ, VOX_FAILURE_RECORD=str(inner_failure_path))
+    try:
+        managed_process.run_managed(
+            cmd,
+            stage="backend_analysis",
+            timeout_s=managed_process.backend_timeout_s(),
+            cwd=str(BACKEND_DIR),
+            env=env,
+            log_dir=TEMP_DIR / "logs" / base_name,
+            status_path=metric_dir / f"{base_name}-backend-status.json",
+            progress_parser=managed_process.heartbeat_line_progress("[separation]"),
+        )
+    except managed_process.StageFailure as failure:
+        record = dict(failure.record)
+        inner = None
+        if inner_failure_path.exists():
+            try:
+                inner = json.loads(inner_failure_path.read_text(encoding="utf-8"))
+            except ValueError:
+                inner = None
+        if inner:
+            # The engine named the stage that really failed; let it decide the
+            # kind (a separation timeout, not "the backend exited 1").
+            record.update({
+                "failed_stage": inner.get("stage"),
+                "kind": inner.get("kind", record["kind"]),
+                "summary": inner.get("summary", record["summary"]),
+                "shorter_clip_may_help": bool(inner.get("shorter_clip_may_help")),
+                "stage_record": inner,
+            })
+        else:
+            record["failed_stage"] = record["stage"]
+        raise BackendFailure(record) from failure
     json_output = BACKEND_DIR / "output" / f"{input_path.stem}_analysis.json"
     report_output = BACKEND_DIR / "reports" / f"{input_path.stem}_report.md"
     if not json_output.exists():
@@ -163,6 +215,32 @@ def run_backend(input_path: Path, singer_name: str) -> tuple[Path, Path]:
     if not report_output.exists():
         raise RuntimeError(f"Expected backend report not found: {report_output}")
     return json_output, report_output
+
+
+def backend_failure_payload(record: dict, failure_path: Path) -> dict:
+    """What Candi tells the singer. A shorter clip is suggested ONLY when the
+    structured failure confirms a genuine timeout or resource limit; every
+    other failure is a system problem to report, not the singer's to fix."""
+    shorter = bool(record.get("shorter_clip_may_help"))
+    if shorter:
+        reply = ("The analysis ran out of time or memory on this recording. A shorter "
+                 "section (60–90 seconds) of the song will fit within the limit.")
+    else:
+        reply = ("The analysis hit a system error on our side, not a problem with the "
+                 "recording. Do not ask the singer for a shorter clip: report the failed "
+                 "stage and retry once the cause is fixed.")
+    return {
+        "status": "backend_failed",
+        "failure_path": str(failure_path),
+        "failed_stage": record.get("failed_stage"),
+        "kind": record.get("kind"),
+        "summary": record.get("summary"),
+        "exit_code": record.get("exit_code"),
+        "elapsed_s": record.get("elapsed_s"),
+        "suggest_shorter_clip": shorter,
+        "reply_guidance": reply,
+        "stderr_tail": (record.get("stage_record") or record).get("stderr_tail", "")[-2000:],
+    }
 
 
 def fetch_reference_track(target: str, quality: str = "320") -> dict:
@@ -330,7 +408,15 @@ def prepare_command(args: argparse.Namespace) -> int:
         extract_audio(raw_destination, processed_audio_path)
         analysis_input_path = processed_audio_path
 
-    backend_json_path, backend_report_path = run_backend(analysis_input_path, metadata.singer)
+    try:
+        backend_json_path, backend_report_path = run_backend(analysis_input_path, metadata.singer, base_name)
+    except BackendFailure as failure:
+        failure_path = TEMP_DIR / "metric-json" / f"{base_name}-backend-failure.json"
+        write_json(failure_path, failure.record)
+        append_log(f"{metadata.recording_date} backend failed for {metadata.singer} / "
+                   f"{metadata.song} take {take_number}: {failure.record.get('summary')}")
+        print(json.dumps(backend_failure_payload(failure.record, failure_path), indent=2))
+        return 2
     raw_metrics = json.loads(backend_json_path.read_text(encoding="utf-8"))
     normalised_metrics = normalise_backend_metrics(raw_metrics)
     normalised_metrics_path = TEMP_DIR / "metric-json" / f"{base_name}-normalised.json"

@@ -434,19 +434,32 @@ def separate_stems(input_path: Path, job_dir: Path) -> tuple[Path, Path]:
         raise PitchTrackError("stem_separation_failed: VOXAI stem helper is unavailable")
     stem_dir = job_dir / "stems"
     stem_dir.mkdir(parents=True, exist_ok=True)
+    # Same guarantees as the Candi path: the host's single separation slot, its
+    # own process group, a heartbeat and a structured failure record.
+    if str(Path(__file__).parent) not in sys.path:
+        sys.path.insert(0, str(Path(__file__).parent))
+    import managed_process
+
+    status_path = stem_dir / "separation-status.json"
     try:
-        result = subprocess.run(
-            ["bash", str(STEM_SCRIPT), "--input", str(input_path), "--output", str(stem_dir)],
-            capture_output=True,
-            text=True,
-            timeout=STEM_TIMEOUT_SECONDS,
-        )
-    except subprocess.TimeoutExpired as exc:
-        raise PitchTrackError("stem_separation_failed: vocal isolation timed out") from exc
-    if result.returncode:
-        detail = (result.stderr or result.stdout).strip().splitlines()
-        message = detail[-1] if detail else "UVR stem separation failed"
-        raise PitchTrackError(f"stem_separation_failed: {message}")
+        with managed_process.separation_lock(label=f"web job {job_dir.name}",
+                                             status_path=status_path) as slot:
+            managed_process.run_managed(
+                ["bash", str(STEM_SCRIPT), "--input", str(input_path), "--output", str(stem_dir)],
+                stage="separation",
+                timeout_s=STEM_TIMEOUT_SECONDS,
+                log_dir=stem_dir,
+                status_path=status_path,
+                progress_parser=managed_process.tqdm_progress,
+                pass_fds=slot.fds,
+                on_start=slot.note_child,
+            )
+    except managed_process.StageFailure as failure:
+        record = failure.record
+        (job_dir / "separation-failure.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
+        if record["kind"] == "timeout":
+            raise PitchTrackError("stem_separation_failed: vocal isolation timed out") from failure
+        raise PitchTrackError(f"stem_separation_failed: {record['summary']}") from failure
     vocals = _find_stem(stem_dir, "vocals")
     instrumental = _find_stem(stem_dir, "instrumental")
     if not vocals or not instrumental:
