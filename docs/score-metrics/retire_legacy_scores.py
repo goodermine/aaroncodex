@@ -14,7 +14,7 @@ Idempotent — safe to re-run. Run after pulling new analyses:
     python3 docs/score-metrics/retire_legacy_scores.py            # apply
     python3 docs/score-metrics/retire_legacy_scores.py --dry-run  # report only
 """
-import json, glob, os, sys
+import json, glob, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "voxanalysis/vox-analysis/engine"))
@@ -44,8 +44,39 @@ def retired_stub(old: dict) -> dict:
     }
 
 
+def _rubric_number(name):
+    m = re.fullmatch(r"deterministic_rubric_v(\d+)", str(name or ""))
+    return int(m.group(1)) if m else None
+
+
+def newer_than_engine(files):
+    """Archived scores from a NEWER rubric than this engine. Any at all means
+    this checkout is stale: is_legacy_score() would call every current score
+    "legacy" and this script would wipe them. Refuse instead."""
+    running = _rubric_number(RUBRIC_NAME)
+    newer = []
+    for path in files:
+        try:
+            with open(path) as fh:
+                score = (json.load(fh) or {}).get("technical_score") or {}
+        except (OSError, ValueError):
+            continue
+        stored = _rubric_number((score.get("identity") or {}).get("rubric"))
+        if running is not None and stored is not None and stored > running:
+            newer.append((os.path.basename(path), stored))
+    return newer
+
+
 def main() -> int:
     files = sorted(glob.glob(os.path.join(ARCHIVE, "*_analysis.json")))
+    newer = newer_than_engine(files)
+    if newer:
+        print(f"REFUSING: {len(newer)} archived score(s) come from a newer rubric than this "
+              f"engine ({RUBRIC_NAME}), e.g. {newer[0][0]} (v{newer[0][1]}).")
+        print("This checkout is stale; retiring now would destroy current scores.")
+        print("Fix: git fetch origin main && git merge --ff-only origin/main, then "
+              "python3 tools/score_preflight.py, then re-run this script.")
+        return 1
     retired, already, current = [], 0, 0
     for path in files:
         with open(path) as fh:

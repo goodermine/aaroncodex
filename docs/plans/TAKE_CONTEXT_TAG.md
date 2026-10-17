@@ -64,6 +64,16 @@ judged flat against their better, heavily-practised performance takes.
    score — only which one is shown first. This also corrects a mislabel we hit:
    "home" is a clean capture, NOT a degraded "room", so a home take leads overall.
 
+3c. **A `vocal_source` for takes that needed no separation** (added 17 Oct 2026).
+   A score from audio that was never separated measures the backing as well as
+   the voice (CLAUDE.md rule 4). Such a score's headline is withheld by
+   `report_builder` and flagged by preflight, unless the take declares one of:
+   - `vocal_source: "dry"`: sung with no backing in the recording.
+   - `vocal_source: "isolated_stem"`: supplied as a vocal stem isolated elsewhere.
+
+   A run with `--instrumental` (supply-your-own-backing) counts as dry
+   automatically. The tag never changes a score.
+
 4. **How ranking honours it:**
    - **Performance** takes form the leaderboard, the per-song best-of, and the
      "mean of your takes" stat.

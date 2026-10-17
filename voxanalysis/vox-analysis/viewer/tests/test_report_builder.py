@@ -8,11 +8,16 @@ sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from report_builder import build_v2_report, render_full_results_text
 
+# A current-era score identity. A score with no identity is legacy under
+# CLAUDE.md rule 3 and the report withholds its headline.
+CURRENT_IDENTITY = {"contract": "voxai_score_v1", "rubric": "deterministic_rubric_v5"}
+
 
 class ReportBuilderTests(unittest.TestCase):
     def fixture(self):
         return {
             "technical_score": {
+                "identity": dict(CURRENT_IDENTITY),
                 "overall_score_0_to_10": 8.4,
                 "capture_fair_score_0_to_10": 8.8,
                 "confidence": "high",
@@ -190,7 +195,8 @@ def test_lead_with_the_higher_score():
     capture, and give the other beside it. The take context is echoed so it
     travels with the results."""
     def text_for(overall, cf, ctx=None):
-        raw = {"technical_score": {"overall_score_0_to_10": overall,
+        raw = {"technical_score": {"identity": dict(CURRENT_IDENTITY),
+                                   "overall_score_0_to_10": overall,
                                    "capture_fair_score_0_to_10": cf,
                                    "confidence": "high"}}
         if ctx:
@@ -271,3 +277,67 @@ class InterimStabilityRuleTests(unittest.TestCase):
         report = build_v2_report(raw)
         self.assertIsNone(report["interim_stability"])
         self.assertFalse({c["key"]: c for c in report["score"]["components"]}["pitch_stability"]["withheld"])
+
+
+# ---- scoring-engine review fixes, 17 Oct 2026 ----
+
+def _scored(overall=8.0, cf=8.5, identity=None, components=None, **extra):
+    raw = {"technical_score": {"identity": identity if identity is not None else dict(CURRENT_IDENTITY),
+                               "overall_score_0_to_10": overall,
+                               "capture_fair_score_0_to_10": cf,
+                               "confidence": "high",
+                               "components": components or {}}}
+    raw.update(extra)
+    return raw
+
+
+def test_an_older_rubric_with_a_contract_is_legacy_and_withheld():
+    raw = _scored(identity={"contract": "voxai_score_v1", "rubric": "deterministic_rubric_v4"})
+    report = build_v2_report(raw)
+    assert report["score"]["legacy"] is True
+    assert report["score"]["overall"] is None and report["score"]["capture_fair"] is None
+    text = render_full_results_text(report)
+    assert "8.0/10" not in text and "withheld: legacy score" in text
+    assert "LEGACY SCORE" in text
+
+
+def test_an_unseparated_score_is_withheld_unless_it_declares_a_dry_source():
+    identity = dict(CURRENT_IDENTITY, stem_model=None)
+    report = build_v2_report(_scored(identity=identity))
+    assert report["score"]["overall"] is None
+    assert "stem separation did not run" in render_full_results_text(report)
+
+    for source in ("dry", "isolated_stem"):
+        ok = build_v2_report(_scored(identity=dict(identity), take_context={"vocal_source": source}))
+        assert ok["score"]["overall"] == 8.0
+    supplied = build_v2_report(_scored(identity=dict(identity),
+                                       stem_separation={"source": "supplied_backing"}))
+    assert supplied["score"]["overall"] == 8.0
+    separated = build_v2_report(_scored(identity=dict(CURRENT_IDENTITY, stem_model="RoFormer")))
+    assert separated["score"]["overall"] == 8.0
+
+
+def test_voice_quality_is_never_the_focus_on_an_elevated_room_capture():
+    components = {"voice_quality": {"score": 3.0, "input": "room"},
+                  "breath_support": {"score": 6.0, "input": "measured"},
+                  "intonation_accuracy": {"score": 9.0, "input": "measured"}}
+    raw = _scored(components=components,
+                  time_diagnostics={"environment_risk": {"karaoke_or_room_contamination_risk": "elevated"}},
+                  breath={"n_phrases_measured": 10, "n_sagging_endings": 6, "pct_sagging_endings": 60.0})
+    report = build_v2_report(raw)
+    rows = {c["key"]: c for c in report["score"]["components"]}
+    assert rows["voice_quality"]["capture_sensitive"] is True
+    assert report["main_focus"]["pillar"] != "Voice quality"
+
+
+def test_breath_support_focus_gets_a_breath_practice_plan():
+    components = {"breath_support": {"score": 2.0, "input": "measured"},
+                  "intonation_accuracy": {"score": 9.0, "input": "measured"}}
+    # Sag under the 50% "Phrase endings" shortcut, so the weakest-component path
+    # names the pillar "Breath support" — the path that fell back to pitch drills.
+    raw = _scored(components=components,
+                  breath={"n_phrases_measured": 10, "n_sagging_endings": 4, "pct_sagging_endings": 40.0})
+    report = build_v2_report(raw)
+    assert report["main_focus"]["pillar"] == "Breath support"
+    steps = " ".join(report["practice_plan"]["immediate"]["steps"])
+    assert "ribs" in steps and "drone" not in steps

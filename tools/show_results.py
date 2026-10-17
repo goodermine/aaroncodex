@@ -52,15 +52,10 @@ def render(path: str) -> str:
     import report_builder as R
 
     rep = R.build_v2_report(raw)
-    # signature has varied; the current one takes (report, raw_result)
-    for call in (lambda: R.render_full_results_text(rep, raw),
-                 lambda: R.render_full_results_text(rep),
-                 lambda: R.render_full_results_text(raw)):
-        try:
-            return call()
-        except TypeError:
-            continue
-    raise RuntimeError("render_full_results_text: no known signature matched")
+    # One signature, called once. Trying fallbacks on TypeError used to turn a
+    # real bug inside the renderer into render_full_results_text(raw): a report
+    # with no score and no metrics, printed with exit code 0 (CLAUDE.md rule 8).
+    return R.render_full_results_text(rep, raw)
 
 
 def onset_map_for(path: str) -> str | None:
