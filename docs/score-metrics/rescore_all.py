@@ -72,7 +72,16 @@ DESCRIPTOR_SUFFIXES = (
     "bramble-bay", "new-studio", "home-instamic", "zoom-h8", "instamic",
     "home", "2yr", "test", "tribe", "bonnyview",
     "redcliffe-leagues-club-open-mic", "redcliffe-leagues",
+    # capture-session notes seen on the archive (Sep 2026)
+    "first-take", "first-live", "brand-new", "bramble",
 )
+# A trailing capture-session stamp such as "-sep16220" or "-sep16-226".
+SESSION_STAMP = re.compile(r"-sep\d+(?:-\d+)?$")
+# Same song filed under two spellings.
+SONG_ALIASES = {
+    "do-wah-diddy-diddy": "do-wah-diddy",
+    "goodbyes-been-good-to-you": "goodbye-s-been-good-to-you",
+}
 
 
 def song(name):
@@ -85,13 +94,18 @@ def song(name):
     changed = True
     while changed:                       # trailing venue/capture tags, one at a time
         changed = False
+        stamp = SESSION_STAMP.search(b)
+        if stamp:
+            b = b[: stamp.start()]
+            changed = True
         for tok in DESCRIPTOR_SUFFIXES:
             if b.endswith("-" + tok):
                 b = b[: -(len(tok) + 1)]
                 changed = True
     b = re.sub(r"^lets-", "let-s-", b)   # apostrophe dropped vs. hyphenated across filenames
     b = re.sub(r"^whos-", "who-s-", b)   # same issue, "Who's That Girl" ("whos-" vs "who-s-")
-    return b.strip("-")
+    b = b.strip("-")
+    return SONG_ALIASES.get(b, b)
 
 
 def score_row(f):

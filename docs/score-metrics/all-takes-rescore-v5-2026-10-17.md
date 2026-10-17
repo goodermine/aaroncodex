@@ -56,8 +56,8 @@ Full coverage: 318/343 takes.
 | aaron | living-on-a-prayer | 211 | **6.8** | 5.6 | high | 6.0 | 0.0 | 9.62 | 8.63 | 8.9 | 5.94 | 7.81 |
 | aaron | you-sexy-thing | 223 | **6.5** | 5.6 | high | 8.0 | 0.0 | 7.71 | 7.96 | 9.56 | 6.36 | 3.53 |
 | aaron | you-sexy-thing | 222 | **6.5** | 5.6 | high | 8.0 | 0.0 | 7.56 | 7.79 | 9.77 | 7.58 | 2.84 |
-| aaron | do-wah-diddy-diddy | 201 | **9.2** | 9.7 | high | 10.0 | 10.0 | 7.95 | 8.83 | 8.56 | 10.0 | 9.58 |
-| aaron | do-wah-diddy-diddy | 201 | **9.1** | 9.5 | high | 10.0 | 10.0 | 7.95 | 8.87 | 8.33 | 8.7 | 9.26 |
+| aaron | do-wah-diddy | 201 | **9.2** | 9.7 | high | 10.0 | 10.0 | 7.95 | 8.83 | 8.56 | 10.0 | 9.58 |
+| aaron | do-wah-diddy | 201 | **9.1** | 9.5 | high | 10.0 | 10.0 | 7.95 | 8.87 | 8.33 | 8.7 | 9.26 |
 | aaron | funky-cold-medina | 119 | **6.4** | 5.0 | high | 6.0 | 0.0 | 9.2 | 8.92 | 9.86 | 3.45 | 5.84 |
 | aaron | let-s-stay-together | 186 | **7.9** | 7.0 | high | 10.0 | 0.0 | 9.98 | 9.39 | 9.64 | 8.24 | 4.97 |
 | aaron | living-on-a-prayer | 209 | **6.9** | 5.6 | high | 6.0 | 0.0 | 10.0 | 9.52 | 9.32 | 7.82 | 5.2 |
@@ -186,7 +186,7 @@ Full coverage: 318/343 takes.
 | aaron | fireball | 230 | **6.9** | 6.8 | high | 10.0 | 0.0 | 5.58 | 9.41 | 9.06 | 2.7 | 9.44 |
 | aaron | you-give-love-a-bad-name | 234 | **8.8** | 9.4 | high | 10.0 | 10.0 | 5.78 | 8.9 | 9.98 | 10.0 | 7.05 |
 | aaron | get-back | 185 | **6.1** | 5.9 | high | 8.0 | 0.0 | 3.97 | 8.79 | 9.92 | 2.85 | 8.24 |
-| aaron | goodbyes-been-good-to-you | 242 | **7.6** | 7.1 | high | 10.0 | 4.01 | 8.58 | 9.99 | 8.57 | 2.64 | 4.8 |
+| aaron | goodbye-s-been-good-to-you | 242 | **7.6** | 7.1 | high | 10.0 | 4.01 | 8.58 | 9.99 | 8.57 | 2.64 | 4.8 |
 | aaron | let-s-go | 148 | **7.2** | 7.8 | high | 10.0 | 8.94 | 3.72 | 7.77 | 8.88 | 2.39 | 6.23 |
 | aaron | this-is-how-we-do-it | 388 | **7.9** | 7.2 | high | 8.0 | 3.27 | 9.68 | 10.0 | 8.8 | 5.27 | 8.82 |
 | aaron | all-that-she-wants | 218 | **6.7** | 5.6 | high | 6.0 | 0.4 | 9.92 | 9.68 | 8.12 | 4.39 | 7.28 |
@@ -205,18 +205,18 @@ Full coverage: 318/343 takes.
 | aaron | to-be-with-you | 192 | **8.1** | 7.3 | high | 10.0 | 0.0 | 9.7 | 9.12 | 9.85 | 10.0 | 5.91 |
 | aaron | a-bar-song-tipsy | 199 | **6.3** | 5.5 | high | 6.0 | 2.06 | 7.56 | 9.19 | 9.01 | 5.24 | 3.88 |
 | aaron | fireball | 213 | **7.4** | 6.7 | high | 10.0 | 0.0 | 9.58 | 9.86 | 7.74 | 2.55 | 7.95 |
-| aaron | goodbyes-been-good-to-you | 237 | **7.6** | 6.7 | high | 10.0 | 0.0 | 9.91 | 8.66 | 8.52 | 5.94 | 6.54 |
+| aaron | goodbye-s-been-good-to-you | 237 | **7.6** | 6.7 | high | 10.0 | 0.0 | 9.91 | 8.66 | 8.52 | 5.94 | 6.54 |
 | aaron | kung-fu-fighting | 238 | **9.0** | 8.8 | high | 9.0 | 10.0 | 9.48 | 9.42 | 9.6 | 7.67 | 6.54 |
 | aaron | you-give-love-a-bad-name | 221 | **6.7** | 5.9 | high | 8.0 | 0.0 | 9.73 | 9.24 | 6.31 | 2.91 | 7.64 |
 | aaron | all-that-she-wants | 134 | **8.1** | 7.7 | high | 7.0 | 10.0 | 10.0 | 9.16 | 7.83 | 4.27 | 7.05 |
 | aaron | things-that-make-you-go-hmm-home-first | 317 | **7.2** | 6.0 | high | 6.0 | 0.0 | 9.49 | 9.83 | 9.99 | 10.0 | 5.29 |
-| aaron | all-that-she-wants-home-instamic-sep16220 | 144 | **7.3** | 6.5 | high | 10.0 | 0.0 | 10.0 | 8.88 | 7.25 | 4.52 | 6.07 |
-| aaron | tennessee-whiskey-home-instamic-first-take-sep16-226 | 175 | **7.1** | 6.1 | high | 8.0 | 0.0 | 10.0 | 8.66 | 8.28 | 7.0 | 6.12 |
-| aaron | to-be-with-you-home-instamic-sep16225 | 177 | **7.8** | 7.0 | high | 10.0 | 0.0 | 9.71 | 8.87 | 9.41 | 5.94 | 8.31 |
-| aaron | you-sexy-thing-home-instamic-brand-new | 230 | **6.8** | 5.6 | high | 8.0 | 0.0 | 10.0 | 8.32 | 8.96 | 5.0 | 4.32 |
-| aaron | carved-from-stone-bramble | 240 | **7.9** | 7.4 | high | 10.0 | 0.0 | 9.61 | 9.52 | 8.06 | 8.48 | 7.48 |
-| aaron | oh-what-a-night-bramble-instamic-first-live | 230 | **7.7** | 7.3 | high | 6.0 | 6.13 | 9.96 | 9.68 | 6.96 | 6.42 | 9.54 |
-| aaron | the-letter-bramble | 258 | **6.6** | 5.7 | high | 7.0 | 0.0 | 9.76 | 9.95 | 6.93 | 3.3 | 7.16 |
+| aaron | all-that-she-wants | 144 | **7.3** | 6.5 | high | 10.0 | 0.0 | 10.0 | 8.88 | 7.25 | 4.52 | 6.07 |
+| aaron | tennessee-whiskey | 175 | **7.1** | 6.1 | high | 8.0 | 0.0 | 10.0 | 8.66 | 8.28 | 7.0 | 6.12 |
+| aaron | to-be-with-you | 177 | **7.8** | 7.0 | high | 10.0 | 0.0 | 9.71 | 8.87 | 9.41 | 5.94 | 8.31 |
+| aaron | you-sexy-thing | 230 | **6.8** | 5.6 | high | 8.0 | 0.0 | 10.0 | 8.32 | 8.96 | 5.0 | 4.32 |
+| aaron | carved-from-stone | 240 | **7.9** | 7.4 | high | 10.0 | 0.0 | 9.61 | 9.52 | 8.06 | 8.48 | 7.48 |
+| aaron | oh-what-a-night | 230 | **7.7** | 7.3 | high | 6.0 | 6.13 | 9.96 | 9.68 | 6.96 | 6.42 | 9.54 |
+| aaron | the-letter | 258 | **6.6** | 5.7 | high | 7.0 | 0.0 | 9.76 | 9.95 | 6.93 | 3.3 | 7.16 |
 | aaron | play-that-funky-music | 222 | **7.3** | 6.6 | high | 6.0 | 1.89 | 9.52 | 10.0 | 8.15 | 7.03 | 9.35 |
 | aaron | you-give-love-a-bad-name | 235 | **6.8** | 6.5 | high | 10.0 | 0.0 | 6.85 | 8.41 | 8.31 | 5.79 | 5.29 |
 | aaron | play-that-funky-music | 233 | **8.6** | 8.3 | high | 8.0 | 6.25 | 9.95 | 10.0 | 8.49 | 9.61 | 8.31 |
@@ -256,7 +256,7 @@ Full coverage: 318/343 takes.
 | aaron | i-feel-good | 154 | **6.8** | 5.4 | high | 8.0 | 0.0 | 10.0 | 8.41 | 9.52 | 6.21 | 1.85 |
 | aaron | let-s-stay-together | 180 | **7.1** | 6.3 | high | 7.04 | 0.0 | 10.0 | 9.14 | 7.54 | 9.42 | 6.3 |
 | aaron | let-s-stay-together | 185 | **6.8** | 5.6 | high | 6.0 | 0.0 | 9.91 | 8.99 | 8.29 | 8.03 | 5.86 |
-| aaron | my-girl-bramble | 183 | **9.2** | 9.4 | high | 10.0 | 10.0 | 8.43 | 9.6 | 8.75 | 7.24 | 9.05 |
+| aaron | my-girl | 183 | **9.2** | 9.4 | high | 10.0 | 10.0 | 8.43 | 9.6 | 8.75 | 7.24 | 9.05 |
 | aaron | my-girl | 150 | **8.2** | 7.6 | high | 10.0 | 0.0 | 10.0 | 9.3 | 9.06 | 8.82 | 9.26 |
 | aaron | my-girl | 146 | **8.5** | 7.8 | high | 10.0 | 0.0 | 10.0 | 9.72 | 9.6 | 9.15 | 10.0 |
 | aaron | the-wanderer | 155 | **8.8** | 8.3 | high | 10.0 | 5.21 | 10.0 | 9.79 | 9.73 | 10.0 | 4.46 |
@@ -330,8 +330,8 @@ Full coverage: 318/343 takes.
 | rilda | ex-s-oh-s | 266 | **8.7** | 8.6 | high | 8.0 | 10.0 | 8.18 | 10.0 | 9.91 | 4.64 | 10.0 |
 | rilda | give-me-one-reason | 226 | **7.3** | 6.5 | high | 9.0 | 0.0 | 9.64 | 9.68 | 7.8 | 3.0 | 8.82 |
 | rilda | who-s-that-girl | 268 | **8.3** | 7.8 | high | 10.0 | 0.0 | 8.86 | 9.72 | 9.65 | 10.0 | 9.26 |
-| rilda | gimme-gimme-gimme-bramble | 203 | **7.8** | 8.8 | high | 10.0 | 10.0 | 4.08 | 10.0 | 7.7 | 1.76 | 8.91 |
-| rilda | little-lies-bramble | 208 | **7.1** | 7.0 | high | 9.0 | 0.0 | 5.34 | 10.0 | 9.92 | 7.79 | 7.53 |
+| rilda | gimme-gimme-gimme | 203 | **7.8** | 8.8 | high | 10.0 | 10.0 | 4.08 | 10.0 | 7.7 | 1.76 | 8.91 |
+| rilda | little-lies | 208 | **7.1** | 7.0 | high | 9.0 | 0.0 | 5.34 | 10.0 | 9.92 | 7.79 | 7.53 |
 | rilda | you-sexy-thing-brighton | 245 | **7.3** | 7.3 | high | 10.0 | 0.0 | 5.65 | 9.87 | 9.94 | 6.7 | 7.95 |
 | rilda | black-velvet | 249 | **7.1** | 6.5 | medium | 8.0 | 0.0 | – | 9.88 | 9.89 | 4.15 | 10.0 |
 | rilda | dancing-queen | 211 | **7.5** | 7.9 | high | 10.0 | 2.81 | 4.2 | 9.86 | 9.56 | 7.91 | 7.3 |
@@ -354,7 +354,7 @@ Full coverage: 318/343 takes.
 | rilda | on-the-radio | 214 | **7.9** | 7.2 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.31 | 4.82 | 9.49 |
 | rilda | who-s-that-girl | 240 | **8.0** | 7.3 | high | 7.0 | 1.66 | 10.0 | 10.0 | 8.99 | 10.0 | 10.0 |
 | rilda | before-he-cheats | 224 | **9.4** | 9.3 | medium | 8.0 | 10.0 | – | 10.0 | 9.74 | 10.0 | 10.0 |
-| rilda | valerie-bramble | 213 | **7.4** | 6.7 | high | 8.0 | 0.0 | 9.89 | 9.32 | 7.38 | 8.27 | 7.94 |
+| rilda | valerie | 213 | **7.4** | 6.7 | high | 8.0 | 0.0 | 9.89 | 9.32 | 7.38 | 8.27 | 7.94 |
 
 ## Professional references (calibration sanity check)
 
