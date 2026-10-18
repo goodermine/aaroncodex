@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.48. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.49. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 319/344 takes.
+Full coverage: 330/355 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -270,6 +270,12 @@ Full coverage: 319/344 takes.
 | aaron | smells-like-teen-spirit | 218 | **7.1** | 6.3 | high | 8.0 | 4.07 | 10.0 | 9.1 | 7.42 | 4.18 | 3.53 |
 | aaron | the-door | 231 | **7.8** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.85 | 9.08 | 7.64 | 4.23 |
 | aaron | the-sex-is-good | 184 | **6.7** | 5.4 | high | 6.0 | 0.0 | 10.0 | 8.65 | 9.13 | 8.94 | 3.42 |
+| aaron | cry-in-shame | 223 | **7.7** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.81 | 9.06 | 8.7 | 3.05 |
+| aaron | let-s-stay-together | 225 | **8.2** | 7.9 | high | 10.0 | 1.89 | 8.04 | 9.41 | 9.67 | 10.0 | 7.34 |
+| aaron | let-s-stay-together | 185 | **6.8** | 5.3 | high | 6.0 | 0.0 | 9.97 | 10.0 | 9.76 | 7.03 | 2.65 |
+| aaron | play-that-funky-music | 223 | **7.2** | 6.3 | high | 8.0 | 0.0 | 9.04 | 8.96 | 9.57 | 7.48 | 6.03 |
+| aaron | the-wanderer | 174 | **8.2** | 7.7 | high | 10.0 | 5.27 | 9.44 | 10.0 | 9.05 | 2.7 | 6.83 |
+| aaron | tutti-frutti | 159 | **8.5** | 7.9 | high | 8.0 | 6.88 | 9.71 | 9.39 | 9.82 | 9.88 | 4.73 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
@@ -356,6 +362,11 @@ Full coverage: 319/344 takes.
 | rilda | who-s-that-girl | 240 | **8.0** | 7.3 | high | 7.0 | 1.66 | 10.0 | 10.0 | 8.99 | 10.0 | 10.0 |
 | rilda | before-he-cheats | 224 | **9.4** | 9.3 | medium | 8.0 | 10.0 | – | 10.0 | 9.74 | 10.0 | 10.0 |
 | rilda | valerie | 213 | **7.4** | 6.7 | high | 8.0 | 0.0 | 9.89 | 9.32 | 7.38 | 8.27 | 7.94 |
+| rilda | at-last | 112 | **8.0** | 7.3 | high | 8.0 | 0.0 | 10.0 | 9.93 | 8.43 | 10.0 | 10.0 |
+| rilda | black-velvet | 292 | **7.8** | 7.2 | high | 8.04 | 0.0 | 9.51 | 10.0 | 8.14 | 10.0 | 9.21 |
+| rilda | bring-me-some-water | 220 | **7.0** | 5.9 | high | 6.0 | 0.0 | 9.62 | 9.7 | 8.81 | 7.94 | 6.88 |
+| rilda | dreams | 274 | **7.9** | 7.7 | high | 10.0 | 0.0 | 7.12 | 9.98 | 9.79 | 10.0 | 7.6 |
+| rilda | one-way-or-another | 172 | **8.2** | 7.7 | high | 10.0 | 0.0 | 10.0 | 8.45 | 8.25 | 10.0 | 10.0 |
 
 ## Professional references (calibration sanity check)
 
