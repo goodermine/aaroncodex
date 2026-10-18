@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.7 · mean 7.48. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 319/344 takes.
+Full coverage: 325/350 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -25,7 +25,7 @@ Full coverage: 319/344 takes.
 | aaron | mustang-sally | 199 | **7.1** | 5.9 | high | 6.0 | 0.0 | 10.0 | 7.9 | 9.4 | 10.0 | 7.05 |
 | aaron | stand-by-me | 148 | **7.7** | 7.1 | high | 6.0 | 2.35 | 10.0 | 9.74 | 7.64 | 10.0 | 10.0 |
 | aaron | the-letter | 171 | **7.5** | 6.5 | high | 6.0 | 0.0 | 10.0 | 9.25 | 9.34 | 9.85 | 10.0 |
-| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | 0.0 |
+| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | -0.0 |
 | aaron | play-that-funky-music | 206 | **7.4** | 8.1 | high | 10.0 | 6.99 | 3.23 | 8.43 | 9.61 | 5.12 | 7.41 |
 | aaron | beggin | 225 | **6.9** | 7.3 | high | 10.0 | 0.0 | 4.65 | 8.68 | 8.22 | 10.0 | 6.38 |
 | aaron | lonely-boy | 141 | **7.5** | 6.7 | high | 8.0 | 0.0 | 10.0 | 9.41 | 8.48 | 10.0 | 6.17 |
@@ -270,6 +270,12 @@ Full coverage: 319/344 takes.
 | aaron | smells-like-teen-spirit | 218 | **7.1** | 6.3 | high | 8.0 | 4.07 | 10.0 | 9.1 | 7.42 | 4.18 | 3.53 |
 | aaron | the-door | 231 | **7.8** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.85 | 9.08 | 7.64 | 4.23 |
 | aaron | the-sex-is-good | 184 | **6.7** | 5.4 | high | 6.0 | 0.0 | 10.0 | 8.65 | 9.13 | 8.94 | 3.42 |
+| aaron | dream-lover | 149 | **6.6** | 5.3 | high | 6.0 | 0.0 | 10.0 | 9.2 | 8.18 | 8.12 | 2.95 |
+| aaron | great-balls-of-fire | 99 | **6.3** | 4.9 | high | 6.0 | 0.0 | 10.0 | 9.58 | 7.98 | 2.27 | 5.29 |
+| aaron | johnny-b-goode | 124 | **6.3** | 5.0 | high | 6.0 | 0.0 | 10.0 | 9.47 | 7.33 | 5.97 | 2.65 |
+| aaron | my-girl | 150 | **8.0** | 7.3 | high | 9.0 | 0.0 | 10.0 | 9.89 | 8.61 | 10.0 | 7.39 |
+| aaron | wake-up-little-susie | 130 | **7.9** | 7.1 | high | 10.0 | 0.0 | 10.0 | 9.14 | 9.19 | 9.15 | 5.13 |
+| aaron | you-give-love-a-bad-name | 171 | **6.5** | 5.1 | high | 6.0 | 0.0 | 10.0 | 9.59 | 8.52 | 9.18 | 0.05 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
 | aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
@@ -310,7 +316,7 @@ Full coverage: 319/344 takes.
 | rilda | dreams | 260 | **7.6** | 7.6 | high | 10.0 | 2.98 | 6.94 | 10.0 | 8.13 | 4.39 | 8.48 |
 | rilda | you-sexy-thing | 204 | **7.1** | 6.7 | high | 8.0 | 0.0 | 7.48 | 9.69 | 9.07 | 10.0 | 5.54 |
 | rilda | bow-river | 205 | **7.6** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.8 | 7.86 | 5.79 | 6.23 |
-| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | 0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
+| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | -0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
 | rilda | bring-me-some-water | 192 | **7.9** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.71 | 9.74 | 7.15 | 5.04 |
 | rilda | ex-s-oh-s | 204 | **7.9** | 7.3 | high | 10.0 | 0.0 | 10.0 | 9.98 | 8.07 | 10.0 | 4.41 |
 | rilda | who-s-that-girl | 215 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.65 | 10.0 | 8.82 |
