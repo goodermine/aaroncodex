@@ -26,8 +26,31 @@ Singnexa is the public name of the analysis system (memory 042). This is the
   and the playback MP3s. Only the measured analysis JSON, the job result and
   the engine's technical report are kept. Users can delete a result themselves.
 - **Privacy:** users see only their own results. Admins see everyone's.
+- **Talking is cut out before scoring** (`engine/talk_cut.py`, on by default):
+  - What it removes: the MC, chat before and after the song, thank-yous, and
+    stage talk over an instrumental break.
+  - How it decides: it transcribes the vocal stem with Whisper and checks
+    which phrases hold notes (singing) and which glide (speech). Lyrics stay
+    in, shouted outros included.
+  - It crops rather than silences. Silencing moved a hand-trimmed archive
+    score from 8.8 to 9.3; cropping at the same window reproduced it exactly.
+  - Results list what was cut, with the words heard, and say where the
+    singing starts in the singer's recording.
+  - A singer can tick "Keep everything" to skip the cut.
+  - Checked against six hand-trimmed live and home takes: its start and end
+    times land within about 4 s of the hand trims. The two bigger differences
+    are both talk the hand trim had kept: a "thank you", and MC chatter after a
+    song.
+- **Coaching notes** (`singnexa/writeup.py`): a plain-English write-up above
+  the full results, written by Claude from the results text. No audio is sent.
+  - It can't invent a score: any /10 or listen-back time that isn't in the
+    results gets one retry, then the write-up is dropped and the page shows
+    the full results alone.
+  - The notes appear about a minute after the results.
+  - With no `ANTHROPIC_API_KEY` the feature is simply off.
 
-Code: `voxsuite/src/voxsuite/singnexa/`. Tests: `voxsuite/tests/test_singnexa.py`.
+Code: `voxsuite/src/voxsuite/singnexa/`. Tests: `voxsuite/tests/test_singnexa.py`,
+`voxsuite/tests/test_singnexa_writeup.py`, `engine/tests/test_talk_cut.py`.
 
 ---
 
@@ -169,6 +192,16 @@ off on CPU.
 | `SINGNEXA_WORKERS` | 1 | analyses run at once (separation is one-at-a-time per host anyway) |
 | `SINGNEXA_COOKIE_SECURE` | 1 | `0` only for plain-http local testing |
 | `VOX_PITCH_TIMEOUT` / `VOX_STEM_TIMEOUT` | 5400 / 4500 s | per-job and separation time limits |
+| `SINGNEXA_CUT_TALK` | 1 | `0` turns talk cutting off for everyone |
+| `VOX_TALK_MODEL` | small.en | the Whisper model talk cutting uses |
+| `ANTHROPIC_API_KEY` | unset | turns the coaching notes on. Put it in an untracked `.env` beside `docker-compose.yml` (git ignores `.env`), never in the compose file |
+| `SINGNEXA_WRITEUP_MODEL` | claude-opus-5-5 | which Claude model writes the notes. Each request is about 2,500 tokens in and 1,500–2,500 out, so roughly 9c a song on Opus 5.5, 4–5c on Sonnet 5.5 and under 1c on Haiku 5.5 (estimates at Oct 2026 prices) |
+| `SINGNEXA_WRITEUP_EFFORT` | medium | how hard it thinks (low / medium / high) |
+| `SINGNEXA_WRITEUP` | 1 | `0` turns the notes off even with a key |
+
+The coaching notes use the refusal fallback (`fallbacks: "default"`) on Opus
+and Sonnet, so a request the first model declines is re-run on its
+recommended fallback inside the same call.
 
 ## Back-ups
 

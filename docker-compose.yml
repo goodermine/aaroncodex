@@ -75,6 +75,11 @@ services:
       SINGNEXA_TRUSTED_PROXIES: "*"        # only the local tunnel can reach the port
       SINGNEXA_MAX_UPLOAD_MB: "300"
       SINGNEXA_DAILY_LIMIT: "10"
+      # Coaching write-up (Claude API). Put the key in an untracked .env next to
+      # this file, never here; unset means the write-up is simply switched off.
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      SINGNEXA_WRITEUP_MODEL: "${SINGNEXA_WRITEUP_MODEL:-claude-opus-5-5}"
+      SINGNEXA_CUT_TALK: "1"               # cut MC/chat/thank-yous before scoring
       # CPU-only separation is slow: give long songs room before a timeout.
       VOX_PITCH_TIMEOUT: "5400"
       VOX_STEM_TIMEOUT: "4500"

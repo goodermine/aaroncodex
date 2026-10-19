@@ -48,3 +48,6 @@ docker-compose.yml
 # image). Docker Desktop's Windows docker.exe cannot follow it from a WSL
 # checkout and the build fails, so keep it out of the context.
 AGENTS.md
+
+# Local secrets (docker compose .env) never go into the image
+.env
