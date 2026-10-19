@@ -252,6 +252,43 @@ class PitchMathTests(unittest.TestCase):
         self.assertFalse(result["metadata"]["comparison_enabled"])
         self.assertNotIn("spectral", result)
 
+    def test_analysed_wav_keeps_the_separator_marker(self):
+        # The engine reads identity.stem_model from the analysed file's name; a
+        # plain "analysis.wav" made every web take look unseparated (headline
+        # withheld, no comparison with the archive).
+        minimal_pitch = {
+            "contour": {"rate_hz": 10, "values": [0.0], "confidence": [0.9]},
+            "quality": {"classification": "reliable", "flags": []},
+        }
+        with tempfile.TemporaryDirectory() as folder:
+            job_dir = Path(folder) / "job"
+            stems = Path(folder) / "stems"
+            stems.mkdir()
+            vocals = stems / "upload_(Vocals)_vocals_mel_band_roformer.flac"
+            instrumental = stems / "upload_(other)_vocals_mel_band_roformer.flac"
+            vocals.touch()
+            instrumental.touch()
+            with patch.object(pitch_track, "probe_duration", return_value=5.0), patch.object(
+                pitch_track, "separate_stems", return_value=(vocals, instrumental)
+            ), patch.object(pitch_track, "_run"), patch.object(
+                pitch_track, "analyze_wav", return_value=minimal_pitch
+            ), patch.object(
+                pitch_track, "run_v2_analysis", return_value=("v2/output/take_analysis.json", "v2/reports/analysis_report.md")
+            ) as run_v2:
+                result = pitch_track.analyze(
+                    Path(folder) / "take.wav", job_dir, comparison_enabled=False,
+                )
+        analysed = run_v2.call_args.args[0]
+        self.assertIn("vocals_mel_band_roformer", analysed.name)
+        self.assertEqual(result["stem_separation"], {"enabled": True, "model": "RoFormer"})
+
+    def test_supplied_backing_wav_never_overwrites_the_upload(self):
+        with tempfile.TemporaryDirectory() as folder:
+            job_dir = Path(folder)
+            upload = job_dir / "upload.wav"
+            self.assertNotEqual(pitch_track._analysis_wav_path(job_dir, upload), upload)
+            self.assertIsNone(pitch_track._separator_label(upload))
+
     def test_fixed_input_spectral_export_is_strictly_additive_and_score_neutral(self):
         analyzer_path = TRACKER_PATH.with_name("analyse_song.py")
         analyzer_spec = importlib.util.spec_from_file_location(

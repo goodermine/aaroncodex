@@ -326,6 +326,46 @@ class ApiTests(unittest.TestCase):
             self.module._process(job_dir.name)
         self.assertNotIn("--export-spectral", popen.call_args.args[0])
 
+    def test_completed_job_stamps_separation_provenance_into_the_analysis(self):
+        """The tracker's stem_separation block must reach the archived analysis,
+        or report_builder (rule 4) withholds the headline of a dry vocal that
+        brought its own backing."""
+        job_dir = Path(self.temp.name) / str(uuid.uuid4())
+        job_dir.mkdir()
+        (job_dir / "upload.wav").touch()
+        self.module._write_manifest(job_dir, {
+            "id": job_dir.name, "status": "queued", "stage": "queued",
+            "upload_file": "upload.wav", "comparison_enabled": False,
+            "export_spectral": False,
+        })
+        archive = Path(__file__).parents[2].parent / "archive" / "scratch-analyses"
+        raw = json.loads((archive / "2026-10-18-aaron-my-girl-take-001_analysis.json").read_text())
+        raw.pop("take_context", None)
+        raw.pop("stem_separation", None)
+        raw["technical_score"]["identity"]["stem_model"] = None   # a dry vocal
+        (job_dir / "v2" / "output").mkdir(parents=True)
+        (job_dir / "v2" / "reports").mkdir(parents=True)
+        (job_dir / "v2" / "output" / "take_analysis.json").write_text(json.dumps(raw))
+        (job_dir / "v2" / "reports" / "take_report.md").write_text("report")
+        (job_dir / "result.json").write_text(json.dumps({
+            "audio_files": {"vocals": "vocals.mp3", "instrumental": "instrumental.mp3"},
+            "v2_analysis_file": "v2/output/take_analysis.json",
+            "v2_report_file": "v2/reports/take_report.md",
+            "stem_separation": {"enabled": False, "model": None, "source": "supplied_backing"},
+            "reference": {"status": "skipped"},
+        }))
+        done = type("Proc", (), {
+            "returncode": 0, "pid": 12345,
+            "communicate": lambda self, timeout=None: ("ok", None),
+        })()
+        with patch.object(self.module.subprocess, "Popen", return_value=done):
+            self.module._process(job_dir.name)
+        manifest = json.loads((job_dir / "job.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["status"], "complete")
+        stored = json.loads((job_dir / "v2" / "output" / "take_analysis.json").read_text())
+        self.assertEqual(stored["stem_separation"]["source"], "supplied_backing")
+        self.assertIsNotNone(manifest["result"]["v2_analysis"]["score"]["overall"])
+
     def test_timeout_finalises_the_manifest_as_failed(self):
         """A tracker timeout must mark the job failed/analysis_timeout — the old
         handler crashed on TimeoutExpired's bytes stdout and left it 'processing'
