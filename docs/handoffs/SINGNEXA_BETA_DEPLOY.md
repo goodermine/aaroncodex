@@ -140,8 +140,11 @@ Whichever you choose:
 ## Timing (what to expect on CPU)
 
 The dev container used for testing had 4 CPUs and no GPU:
-- A **60 s clip** (24-bit / 48 kHz stereo WAV) took **≈ 9 min** end to end.
-- Separation alone took ≈ 30 s per 10 s of audio.
+- A **full 3 min 05 s song** (32-bit float, 48 kHz stereo WAV, 71 MB) took
+  **≈ 12 min** end to end.
+- A 60 s clip (24-bit) took ≈ 9 min. That run also exported spectrograms and
+  shared the CPU with another job, so it was slower than usual.
+- Separation alone took ≈ 2 min 50 s per minute of audio.
 
 **Measure Howard's box with a full song (Step 4.2).** Only one job runs at a
 time, and the queue holds the rest. The compose file raises the time limits
