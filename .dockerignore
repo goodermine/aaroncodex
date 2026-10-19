@@ -43,3 +43,8 @@ voxsuite/dist/
 Dockerfile
 .dockerignore
 docker-compose.yml
+
+# AGENTS.md is a symlink to CLAUDE.md (agent instructions, not used by the
+# image). Docker Desktop's Windows docker.exe cannot follow it from a WSL
+# checkout and the build fails, so keep it out of the context.
+AGENTS.md
