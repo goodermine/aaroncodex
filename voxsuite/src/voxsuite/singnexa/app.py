@@ -32,11 +32,13 @@ import sys
 import time
 import uuid
 from collections import defaultdict, deque
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response
 
+from . import writeup
 from .pipeline import ERROR_TEXT, CanonicalPipeline, analysis_root
 from .store import Store
 
@@ -112,7 +114,8 @@ class Throttle:
         self.hits.pop(key, None)
 
 
-def create_app(data_dir, pipeline=None, *, cookie_secure: bool | None = None) -> FastAPI:
+def create_app(data_dir, pipeline=None, *, cookie_secure: bool | None = None,
+               writeup_client=None) -> FastAPI:
     data = Path(data_dir)
     data.mkdir(parents=True, exist_ok=True)
     results_dir = data / "results"
@@ -127,6 +130,10 @@ def create_app(data_dir, pipeline=None, *, cookie_secure: bool | None = None) ->
     per_user_active = _env_int("SINGNEXA_USER_ACTIVE", 2)
     max_queue = _env_int("SINGNEXA_MAX_QUEUE", 20)
     rb = _report_builder()
+    # Write-ups wait on the network, so they get their own thread and never hold
+    # an analysis worker.
+    writeup_on = writeup_client is not None or writeup.enabled()
+    writer = ThreadPoolExecutor(max_workers=2) if writeup_on else None
 
     # Jobs the previous process never finished: its queue lived in memory.
     for job in store.interrupted_jobs():
@@ -221,7 +228,33 @@ def create_app(data_dir, pipeline=None, *, cookie_secure: bool | None = None) ->
             report, result = build_report(job)
             view["report"], view["result"] = report, result
             view["lead"] = lead_score(report.get("score") or {})
+            view["writeup"] = read_writeup(job["id"])
         return view
+
+    def read_writeup(job_id: str) -> dict:
+        try:
+            saved = json.loads((results_dir / job_id / "writeup.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {"status": "pending" if writeup_on else "disabled"}
+        return {k: saved[k] for k in ("status", "markdown") if k in saved}
+
+    def write_up(job_id: str) -> None:
+        """Runs on the writer thread; a failure only means no write-up."""
+        folder = results_dir / job_id
+        try:
+            job = store.job(job_id) or {}
+            singer = store.user_by_id(job["user_id"]) or {}
+            report, result = build_report(job)
+            text = rb.render_full_results_text(report, result)
+            raw = json.loads((folder / "analysis.json").read_text(encoding="utf-8"))
+            outcome = writeup.generate(
+                text, client=writeup_client, singer=singer.get("display_name") or singer.get("username") or "",
+                song=job.get("song") or "", artist=job.get("artist") or "",
+                take_context=raw.get("take_context"))
+        except Exception as exc:
+            outcome = {"status": "failed", "reason": exc.__class__.__name__}
+        if folder.is_dir():   # the singer may have deleted the result meanwhile
+            (folder / "writeup.json").write_text(json.dumps(outcome), encoding="utf-8")
 
     def on_finish(job_id: str, outcome: dict) -> None:
         if outcome.get("status") != "complete":
@@ -242,6 +275,8 @@ def create_app(data_dir, pipeline=None, *, cookie_secure: bool | None = None) ->
         s = report.get("score") or {}
         store.update_job(job_id, overall=s.get("overall"), capture_fair=s.get("capture_fair"),
                          confidence=s.get("confidence"))
+        if writer is not None:
+            writer.submit(write_up, job_id)
 
     # ---- pages ----------------------------------------------------------
     def page(name: str) -> HTMLResponse:
@@ -358,7 +393,7 @@ def create_app(data_dir, pipeline=None, *, cookie_secure: bool | None = None) ->
     @app.post("/api/jobs", status_code=202)
     async def create_job(request: Request, file: UploadFile = File(...), song: str = Form(""),
                          artist: str = Form(""), capture: str = Form(""), intent: str = Form(""),
-                         note: str = Form("")):
+                         note: str = Form(""), keep_talk: str = Form("")):
         user = require_user(request)
         try:
             capture = capture.strip().lower()
@@ -408,8 +443,9 @@ def create_app(data_dir, pipeline=None, *, cookie_secure: bool | None = None) ->
             ctx = {"capture": capture, **({"intent": meta["intent"]} if meta["intent"] else {}),
                    **({"note": meta["note"]} if meta["note"] else {})}
             try:
+                cut_talk = keep_talk.strip() != "1" and os.environ.get("SINGNEXA_CUT_TALK", "1") != "0"
                 pipeline.submit(job_id, dest, {**meta, "performer_name": user["display_name"],
-                                               "take_context": ctx}, on_finish,
+                                               "take_context": ctx, "cut_talk": cut_talk}, on_finish,
                                 on_start=lambda jid: store.update_job(jid, status="processing",
                                                                       stage="separating_vocals"))
             except Exception:

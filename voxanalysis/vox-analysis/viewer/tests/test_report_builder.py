@@ -139,6 +139,26 @@ class ReportBuilderTests(unittest.TestCase):
         text = render_full_results_text(build_v2_report(raw))
         self.assertIn("score withheld", text.lower())
 
+    def test_talk_cut_is_listed_with_recording_times_and_never_scored(self):
+        raw = self.fixture()
+        raw["audio_prep"] = {"talk_cut": {
+            "method": "talk_cut_v1", "status": "cut", "offset_s": 41.87, "kept": [[41.87, 230.0]],
+            "removed": [{"start": 0.0, "end": 41.87, "kind": "before_singing", "text": "thank you"},
+                        {"start": 230.0, "end": 236.5, "kind": "after_singing", "text": ""}]}}
+        report = build_v2_report(raw)
+        self.assertEqual(report["audio_prep"]["starts_at"], "0:41.9")
+        self.assertEqual(report["score"]["overall"], 8.4)            # unchanged: prep is not an input
+        text = render_full_results_text(report)
+        self.assertIn("AUDIO PREP", text)
+        self.assertIn("0:00.0–0:41.9 before the singing (heard: “thank you”)", text)
+        self.assertIn("3:50.0–3:56.5 after the singing", text)
+        self.assertIn("0:41.9 into your recording", text)
+
+    def test_no_talk_cut_means_no_audio_prep_section(self):
+        report = build_v2_report(self.fixture())
+        self.assertIsNone(report["audio_prep"])
+        self.assertNotIn("AUDIO PREP", render_full_results_text(report))
+
     def test_strain_is_labelled_as_coaching_focus(self):
         raw = self.fixture()
         raw["voice_quality"]["strain"]["pct_top_notes_strained"] = 25

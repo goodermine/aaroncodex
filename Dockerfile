@@ -80,6 +80,13 @@ RUN python -m pip install --upgrade pip wheel "setuptools>=68,<70" \
     && if [ "$WITH_PITCH" = "1" ]; then pip install "pyworld>=0.3" "setuptools>=68,<70" cython \
          && python -c "import pkg_resources; print('pkg_resources OK — WORLD vocoder can load')"; fi
 
+# Talk cutting (Whisper, via engine/talk_cut.py) and the Singnexa coaching
+# write-up (Claude API). Both are optional at runtime: without them the talk is
+# left in and the write-up is switched off. Own layer, so the big one above
+# stays cached. Model caches live in HF_HOME, readable by the runtime user.
+ENV HF_HOME=/opt/hf-cache
+RUN pip install "faster-whisper>=1.0" "anthropic>=1.0"
+
 # --- app code + local packages ---------------------------------------------
 COPY . /app
 
@@ -114,12 +121,17 @@ RUN if [ "$WITH_SEPARATION" = "1" ] && [ "$PREFETCH_MODEL" = "1" ]; then \
         python -c "from audio_separator.separator import Separator; s=Separator(); s.load_model(model_filename='vocals_mel_band_roformer.ckpt')" \
         || echo 'NOTE: separation model not prefetched (no network at build) — it will download on first analysis.'; \
     fi
+# Same for the Whisper model talk_cut uses (VOX_TALK_MODEL, default small.en).
+RUN if [ "$PREFETCH_MODEL" = "1" ]; then \
+        python -c "from faster_whisper import WhisperModel; WhisperModel('small.en', device='cpu', compute_type='int8')" \
+        || echo 'NOTE: Whisper model not prefetched — it will download on first talk cut.'; \
+    fi
 
 # --- runtime ----------------------------------------------------------------
 # Job state / uploads / new analyses land here — mount a volume so they persist.
 RUN useradd --create-home --home-dir /home/vox --uid 10001 vox \
-    && mkdir -p /data \
-    && chown -R vox:vox /data /home/vox /app
+    && mkdir -p /data /opt/hf-cache \
+    && chown -R vox:vox /data /home/vox /app /opt/hf-cache
 VOLUME ["/data"]
 USER vox
 

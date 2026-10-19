@@ -49,6 +49,21 @@ Presentation code may transform the shared JSON into Telegram coaching or a
 browser payload. It must not recompute acoustic metrics or invent replacement
 scores.
 
+**Talk cutting** (`engine/talk_cut.py`) is audio preparation before scoring,
+not part of the score. It finds the MC, chat, thank-yous and stage talk in a
+vocal stem and crops them out. The web path runs it with
+`pitch_track.py --cut-talk`, and the Singnexa beta has it on by default. A hand
+workflow can use it in place of trimming from a transcript:
+
+```bash
+python3 engine/talk_cut.py "<take>_(Vocals)_vocals_mel_band_roformer.flac" \
+    --out "<take>_(Vocals)_vocals_mel_band_roformer.wav" --plan <take>-talk-cut.json
+```
+
+Keep the separator marker in the output name; `identity.stem_model` is read
+from it. The plan lists what was cut, with the words heard, and where the
+singing starts in the recording.
+
 ## Deployment boundary
 
 The two entry points may eventually run as separate cloud services or

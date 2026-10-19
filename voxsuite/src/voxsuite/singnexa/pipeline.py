@@ -132,6 +132,7 @@ class CanonicalPipeline:
             "recording_conditions": meta.get("conditions", ""),
             "comparison_enabled": False,          # no YouTube lookup on the public service
             "export_spectral": False,             # display-only tiles; deleted anyway
+            "cut_talk": bool(meta.get("cut_talk", True)),   # MC, chat, thank-yous out before scoring
             "created_at": time.time(),
         }
         if meta.get("take_context"):

@@ -450,6 +450,37 @@ def _unseparated_reason(raw: dict, score: dict) -> str | None:
             "has no backing.")
 
 
+def _mmss(seconds: float) -> str:
+    return f"{int(seconds // 60)}:{seconds % 60:04.1f}"
+
+
+_CUT_KINDS = {"before_singing": "before the singing", "after_singing": "after the singing",
+              "talk": "talking inside the song"}
+
+
+def _audio_prep(raw: dict) -> dict | None:
+    """What talk_cut removed before scoring, in the singer's recording time.
+    Audio preparation, never a score input (CLAUDE.md rule 1)."""
+    plan = (raw.get("audio_prep") or {}).get("talk_cut")
+    if not isinstance(plan, dict):
+        return None
+    removed = [
+        {"from": _mmss(r["start"]), "to": _mmss(r["end"]), "kind": r.get("kind"),
+         "label": _CUT_KINDS.get(r.get("kind"), "talking"), "text": r.get("text") or ""}
+        for r in plan.get("removed") or [] if isinstance(r, dict) and "start" in r and "end" in r
+    ]
+    offset = plan.get("offset_s") or 0.0
+    inner = [r for r in removed if r["kind"] == "talk"]
+    return {
+        "status": plan.get("status"),
+        "reason": plan.get("reason"),
+        "removed": removed,
+        "starts_at": _mmss(offset) if removed and offset else None,
+        "inner_cuts": len(inner),
+        "transcript": plan.get("transcript"),
+    }
+
+
 def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = None) -> dict:
     components = _component_rows(raw)
     focus = _primary_focus(raw, components)
@@ -530,6 +561,8 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
         # Declarative take context (intent/capture/note) — metadata stamped at
         # upload, never a score input. Echoed so it travels with the results.
         "take_context": raw.get("take_context"),
+        # What was cut before scoring (talk_cut), so the singer can check it.
+        "audio_prep": _audio_prep(raw),
         # ENTRY ACCURACY — a measured diagnostic that is deliberately NOT a
         # score and lives OUTSIDE "score" below so nothing can average it into
         # one. Onsets are the largest measured gap for this singer and were the
@@ -748,6 +781,24 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
         val = c.get("score")
         basis = c.get("basis")
         line(f"- {label}: {val if val is not None else '—'}" + (f"  [{basis}]" if basis else ""))
+
+    # ---- audio prep: talking cut out before scoring (never a score input) ----
+    prep = report.get("audio_prep")
+    if prep:
+        line("")
+        line("AUDIO PREP  (before scoring — not part of the score)")
+        if prep.get("removed"):
+            line("Talking cut out before scoring:")
+            for r in prep["removed"]:
+                line(f"- {r['from']}–{r['to']} {r['label']}" + (f" (heard: “{r['text']}”)" if r.get("text") else ""))
+            if prep.get("starts_at"):
+                line(f"Times in these results start at the first sung note, {prep['starts_at']} into your "
+                     "recording: add that to find a moment in your file"
+                     + (", plus the length of any cut inside the song before it." if prep.get("inner_cuts") else "."))
+        elif prep.get("status") == "failed":
+            line("The talk check could not run, so the whole recording was analysed.")
+        else:
+            line("Nothing was cut: " + (prep.get("reason") or "no talking was found") + ".")
 
     # ---- interim reading rule: held-note stability on a mismatched scale ----
     interim = report.get("interim_stability")

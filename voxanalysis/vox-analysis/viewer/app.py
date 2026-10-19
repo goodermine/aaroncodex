@@ -237,6 +237,8 @@ def _process(job_id: str) -> None:
             command.append("--skip-comparison")
         if manifest.get("backing_file"):
             command += ["--backing", str(job_dir / manifest["backing_file"])]
+        if manifest.get("cut_talk"):
+            command.append("--cut-talk")
         # Run the tracker in its own process group so a timeout can kill the whole
         # tree (audio-separator/ffmpeg grandchildren used to survive as GPU-eating
         # orphans). The timeout is handled locally: TimeoutExpired.stdout is *bytes*
@@ -290,6 +292,10 @@ def _process(job_id: str) -> None:
                 # How the analysed vocal was obtained, so the report (rule 4) and
                 # the archive can tell a separated take from a dry one.
                 raw_v2["stem_separation"] = analysis["stem_separation"]
+                stamped = True
+            if analysis.get("audio_prep"):
+                # What was cut before scoring (talk_cut), so the singer can check it.
+                raw_v2["audio_prep"] = analysis["audio_prep"]
                 stamped = True
             if stamped:
                 (job_dir / v2_analysis_file).write_text(

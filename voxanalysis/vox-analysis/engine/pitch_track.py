@@ -204,6 +204,31 @@ def _analysis_wav_path(out_dir: Path, vocals_path: Path) -> Path:
     return out_dir / f"analysis__{vocals_path.stem}.wav"
 
 
+def _cut_talk(vocals_path: Path, instrumental_path: Path, job_dir: Path) -> tuple[Path, Path, dict]:
+    """Cut the talking out of the vocal (and the backing, to stay aligned).
+
+    Audio preparation only: it runs before scoring and never reads a score.
+    Fails open: any problem leaves the stems uncut and says so in the plan."""
+    if str(Path(__file__).parent) not in sys.path:
+        sys.path.insert(0, str(Path(__file__).parent))
+    try:
+        import talk_cut
+
+        out_dir = job_dir / "talkcut"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        # Same names as the stems, so the separator marker survives (stem_model).
+        cut_vocals = out_dir / f"{vocals_path.stem}.wav"
+        plan = talk_cut.cut_talk(vocals_path, cut_vocals)
+        if plan.get("status") != "cut":
+            return vocals_path, instrumental_path, plan
+        cut_backing = out_dir / f"{instrumental_path.stem}.wav"
+        talk_cut.apply_plan(instrumental_path, cut_backing, plan)
+        return cut_vocals, cut_backing, plan
+    except Exception as exc:  # never fail an analysis over the optional cut
+        return vocals_path, instrumental_path, {"method": "talk_cut_v1", "status": "failed",
+                                                "reason": exc.__class__.__name__}
+
+
 def _unlink_temporary_audio(path: Path) -> None:
     """Never fail a completed analysis because optional cleanup was denied."""
     try:
@@ -700,6 +725,7 @@ def analyze(
     export_spectral_enabled: bool = False,
     analysis_deadline: float | None = None,
     backing_path: Path | None = None,
+    cut_talk_enabled: bool = False,
 ) -> dict:
     job_dir.mkdir(parents=True, exist_ok=True)
     duration = probe_duration(input_path)
@@ -714,6 +740,13 @@ def analyze(
         _write_stage(stage_file, "separating_vocals")
         vocals_path, instrumental_path = separate_stems(input_path, job_dir)
         supplied_backing = False
+    separated_vocals = vocals_path
+    talk_plan = None
+    if cut_talk_enabled:
+        _write_stage(stage_file, "cutting_talk")
+        vocals_path, instrumental_path, talk_plan = _cut_talk(vocals_path, instrumental_path, job_dir)
+        if talk_plan.get("status") == "cut":
+            duration = sum(b - a for a, b in talk_plan["kept"])   # what is analysed and played back
     wav_path = _analysis_wav_path(job_dir, vocals_path)
     _write_stage(stage_file, "preparing_audio")
     vocal_playback = job_dir / "vocals.mp3"
@@ -730,7 +763,9 @@ def analyze(
     pending_original_spectral_input = None
     result["stem_separation"] = ({"enabled": False, "model": None, "source": "supplied_backing"}
                                  if supplied_backing else
-                                 {"enabled": True, "model": _separator_label(vocals_path)})
+                                 {"enabled": True, "model": _separator_label(separated_vocals)})
+    if talk_plan is not None:
+        result["audio_prep"] = {"talk_cut": talk_plan}
     result["audio_files"] = {"vocals": vocal_playback.name, "instrumental": instrumental_playback.name}
     result["v2_analysis_file"] = v2_analysis_file
     result["v2_report_file"] = v2_report_file
@@ -841,6 +876,8 @@ def main() -> int:
                         help="Vocal-free backing track. Skips separation: the input "
                              "is treated as a clean dry vocal, this as the beat grid.")
     parser.add_argument("--export-spectral", action="store_true")
+    parser.add_argument("--cut-talk", action="store_true",
+                        help="Cut talking (MC, chat, thank-yous) out of the vocal before scoring.")
     parser.add_argument("--analysis-deadline-monotonic", type=float)
     args = parser.parse_args()
     try:
@@ -856,6 +893,7 @@ def main() -> int:
             export_spectral_enabled=args.export_spectral,
             backing_path=args.backing.resolve() if args.backing else None,
             analysis_deadline=args.analysis_deadline_monotonic,
+            cut_talk_enabled=args.cut_talk,
         )
     except PitchTrackError as exc:
         print(str(exc))
