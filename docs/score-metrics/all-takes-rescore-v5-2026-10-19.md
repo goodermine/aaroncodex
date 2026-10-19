@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.5. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.49. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 331/356 takes.
+Full coverage: 337/362 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -276,6 +276,12 @@ Full coverage: 331/356 takes.
 | aaron | play-that-funky-music | 223 | **7.2** | 6.3 | high | 8.0 | 0.0 | 9.04 | 8.96 | 9.57 | 7.48 | 6.03 |
 | aaron | the-wanderer | 174 | **8.2** | 7.7 | high | 10.0 | 5.27 | 9.44 | 10.0 | 9.05 | 2.7 | 6.83 |
 | aaron | tutti-frutti | 159 | **8.5** | 7.9 | high | 8.0 | 6.88 | 9.71 | 9.39 | 9.82 | 9.88 | 4.73 |
+| aaron | dream-lover | 149 | **6.6** | 5.3 | high | 6.0 | 0.0 | 10.0 | 9.2 | 8.18 | 8.12 | 2.95 |
+| aaron | great-balls-of-fire | 99 | **6.3** | 4.9 | high | 6.0 | 0.0 | 10.0 | 9.58 | 7.98 | 2.27 | 5.29 |
+| aaron | johnny-b-goode | 124 | **6.3** | 5.0 | high | 6.0 | 0.0 | 10.0 | 9.47 | 7.33 | 5.97 | 2.65 |
+| aaron | my-girl | 150 | **8.0** | 7.3 | high | 9.0 | 0.0 | 10.0 | 9.89 | 8.61 | 10.0 | 7.39 |
+| aaron | wake-up-little-susie | 130 | **7.9** | 7.1 | high | 10.0 | 0.0 | 10.0 | 9.14 | 9.19 | 9.15 | 5.13 |
+| aaron | you-give-love-a-bad-name | 171 | **6.5** | 5.1 | high | 6.0 | 0.0 | 10.0 | 9.59 | 8.52 | 9.18 | 0.05 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | chris | feeling-good | 204 | **5.8** | 5.3 | high | 6.0 | 0.0 | 4.67 | 10.0 | 9.98 | 4.55 | 5.29 |
 | gresh | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
