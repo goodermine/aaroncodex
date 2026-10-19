@@ -9,24 +9,24 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 369,
+      "n": 375,
       "overall": {
         "min": 5.4,
         "max": 9.7,
-        "mean": 7.5,
+        "mean": 7.49,
         "spread": 4.3
       },
       "capture_fair": {
         "min": 4.5,
         "max": 10.0,
-        "mean": 7.07,
+        "mean": 7.08,
         "spread": 5.5
       },
       "dynamics": {
-        "min": 5.8,
+        "min": 5.0,
         "max": 10.0,
-        "mean": 8.83,
-        "spread": 4.2
+        "mean": 8.82,
+        "spread": 5.0
       }
     },
     "references": {
@@ -563,7 +563,7 @@
         "vibrato_control": 8.43,
         "dynamics_expression": 7.26,
         "phrase_control": 10.0,
-        "breath_support": 0.0
+        "breath_support": -0.0
       },
       "raw": {
         "median_abs_dev_cents": 20.0,
@@ -6933,6 +6933,88 @@
       }
     },
     {
+      "take": "2026-08-31-aaron-fireball-take-001",
+      "singer": "aaron",
+      "song": "fireball",
+      "date": "2026-08-31",
+      "n_notes": 203,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 6.5,
+      "capture_fair": 7.1,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 2.12,
+        "voice_quality": 2.83,
+        "vibrato_control": 8.94,
+        "dynamics_expression": 8.12,
+        "phrase_control": 3.61,
+        "breath_support": 7.97
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 76.3,
+        "pct_within_25c": 51.7,
+        "jitter_pct": 2.1604,
+        "shimmer_pct": 18.0774,
+        "hnr_db": 7.95,
+        "vibrato_pct_notes": 40.7,
+        "dyn_phrase_spread_db": 13.66,
+        "dyn_effective_range_db": 18.18,
+        "median_phrase_s": 1.69,
+        "onsets_pct_clean": 26.5,
+        "onsets_pct_scooped": 28.8,
+        "onsets_pct_overshot": 44.7,
+        "entry_accuracy_reliability": "reduced"
+      }
+    },
+    {
+      "take": "2026-08-31-aaron-fly-like-an-eagle-take-001",
+      "singer": "aaron",
+      "song": "fly-like-an-eagle",
+      "date": "2026-08-31",
+      "n_notes": 173,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 8.2,
+      "capture_fair": 8.5,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 10.0,
+        "voice_quality": 5.84,
+        "vibrato_control": 7.58,
+        "dynamics_expression": 9.58,
+        "phrase_control": 7.24,
+        "breath_support": 5.4
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 58.7,
+        "pct_within_25c": 52.0,
+        "jitter_pct": 1.391,
+        "shimmer_pct": 13.7139,
+        "hnr_db": 13.6,
+        "vibrato_pct_notes": 18.6,
+        "dyn_phrase_spread_db": 25.15,
+        "dyn_effective_range_db": 28.48,
+        "median_phrase_s": 2.89,
+        "onsets_pct_clean": 27.0,
+        "onsets_pct_scooped": 39.1,
+        "onsets_pct_overshot": 33.9,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
       "take": "2026-08-31-aaron-let-s-go-take-001",
       "singer": "aaron",
       "song": "let-s-go",
@@ -6970,6 +7052,47 @@
         "onsets_pct_clean": 23.7,
         "onsets_pct_scooped": 37.6,
         "onsets_pct_overshot": 38.7,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-09-01-aaron-let-s-go-take-002",
+      "singer": "aaron",
+      "song": "let-s-go",
+      "date": "2026-09-01",
+      "n_notes": 131,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 7.3,
+      "capture_fair": 6.2,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 10.0,
+        "vibrato_control": 8.4,
+        "dynamics_expression": 9.24,
+        "phrase_control": 6.27,
+        "breath_support": 2.56
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 159.1,
+        "pct_within_25c": 55.0,
+        "jitter_pct": 0.5175,
+        "shimmer_pct": 4.0318,
+        "hnr_db": 22.48,
+        "vibrato_pct_notes": 30.8,
+        "dyn_phrase_spread_db": 27.88,
+        "dyn_effective_range_db": 32.84,
+        "median_phrase_s": 2.57,
+        "onsets_pct_clean": 11.1,
+        "onsets_pct_scooped": 41.4,
+        "onsets_pct_overshot": 47.5,
         "entry_accuracy_reliability": "high"
       }
     },
@@ -12915,7 +13038,7 @@
       "provenance": "deterministic_rubric_v5",
       "components": {
         "intonation_accuracy": 8.0,
-        "pitch_stability": 0.0,
+        "pitch_stability": -0.0,
         "voice_quality": 10.0,
         "vibrato_control": 9.74,
         "dynamics_expression": 7.95,
@@ -13551,6 +13674,129 @@
         "onsets_pct_clean": 22.7,
         "onsets_pct_scooped": 33.1,
         "onsets_pct_overshot": 44.2,
+        "entry_accuracy_reliability": "reduced"
+      }
+    },
+    {
+      "take": "2026-08-31-rilda-before-he-cheats-take-001",
+      "singer": "rilda",
+      "song": "before-he-cheats",
+      "date": "2026-08-31",
+      "n_notes": 218,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 7.1,
+      "capture_fair": 7.6,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 9.04,
+        "pitch_stability": 2.81,
+        "voice_quality": 3.73,
+        "vibrato_control": 9.66,
+        "dynamics_expression": 9.41,
+        "phrase_control": 7.3,
+        "breath_support": 8.13
+      },
+      "raw": {
+        "median_abs_dev_cents": 22.4,
+        "median_intra_note_drift_cents": 75.1,
+        "pct_within_25c": 52.3,
+        "jitter_pct": 1.8827,
+        "shimmer_pct": 17.5843,
+        "hnr_db": 8.89,
+        "vibrato_pct_notes": 39.5,
+        "dyn_phrase_spread_db": 30.41,
+        "dyn_effective_range_db": 25.29,
+        "median_phrase_s": 2.91,
+        "onsets_pct_clean": 24.3,
+        "onsets_pct_scooped": 50.0,
+        "onsets_pct_overshot": 25.7,
+        "entry_accuracy_reliability": "reduced"
+      }
+    },
+    {
+      "take": "2026-08-31-rilda-blue-bayou-take-002",
+      "singer": "rilda",
+      "song": "blue-bayou",
+      "date": "2026-08-31",
+      "n_notes": 239,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 6.3,
+      "capture_fair": 6.8,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 8.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 2.92,
+        "vibrato_control": 9.99,
+        "dynamics_expression": 8.35,
+        "phrase_control": 6.79,
+        "breath_support": 9.26
+      },
+      "raw": {
+        "median_abs_dev_cents": 25.0,
+        "median_intra_note_drift_cents": 81.7,
+        "pct_within_25c": 45.2,
+        "jitter_pct": 2.3223,
+        "shimmer_pct": 18.5836,
+        "hnr_db": 9.27,
+        "vibrato_pct_notes": 47.6,
+        "dyn_phrase_spread_db": 14.67,
+        "dyn_effective_range_db": 19.44,
+        "median_phrase_s": 2.74,
+        "onsets_pct_clean": 21.1,
+        "onsets_pct_scooped": 42.1,
+        "onsets_pct_overshot": 36.8,
+        "entry_accuracy_reliability": "reduced"
+      }
+    },
+    {
+      "take": "2026-08-31-rilda-jolene-take-001",
+      "singer": "rilda",
+      "song": "jolene",
+      "date": "2026-08-31",
+      "n_notes": 148,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 7.3,
+      "capture_fair": 9.1,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 10.0,
+        "pitch_stability": 10.0,
+        "voice_quality": 2.4,
+        "vibrato_control": 9.9,
+        "dynamics_expression": 4.98,
+        "phrase_control": 3.79,
+        "breath_support": 9.74
+      },
+      "raw": {
+        "median_abs_dev_cents": 20.0,
+        "median_intra_note_drift_cents": 58.6,
+        "pct_within_25c": 53.4,
+        "jitter_pct": 2.4481,
+        "shimmer_pct": 18.1582,
+        "hnr_db": 7.34,
+        "vibrato_pct_notes": 48.4,
+        "dyn_phrase_spread_db": 4.39,
+        "dyn_effective_range_db": 10.13,
+        "median_phrase_s": 1.75,
+        "onsets_pct_clean": 34.7,
+        "onsets_pct_scooped": 35.7,
+        "onsets_pct_overshot": 29.6,
         "entry_accuracy_reliability": "reduced"
       }
     },

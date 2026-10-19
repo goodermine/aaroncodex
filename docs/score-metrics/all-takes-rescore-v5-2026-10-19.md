@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.5. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.49. Dynamics component spreads 5.0–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 344/369 takes.
+Full coverage: 350/375 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -25,7 +25,7 @@ Full coverage: 344/369 takes.
 | aaron | mustang-sally | 199 | **7.1** | 5.9 | high | 6.0 | 0.0 | 10.0 | 7.9 | 9.4 | 10.0 | 7.05 |
 | aaron | stand-by-me | 148 | **7.7** | 7.1 | high | 6.0 | 2.35 | 10.0 | 9.74 | 7.64 | 10.0 | 10.0 |
 | aaron | the-letter | 171 | **7.5** | 6.5 | high | 6.0 | 0.0 | 10.0 | 9.25 | 9.34 | 9.85 | 10.0 |
-| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | 0.0 |
+| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | -0.0 |
 | aaron | play-that-funky-music | 206 | **7.4** | 8.1 | high | 10.0 | 6.99 | 3.23 | 8.43 | 9.61 | 5.12 | 7.41 |
 | aaron | beggin | 225 | **6.9** | 7.3 | high | 10.0 | 0.0 | 4.65 | 8.68 | 8.22 | 10.0 | 6.38 |
 | aaron | lonely-boy | 141 | **7.5** | 6.7 | high | 8.0 | 0.0 | 10.0 | 9.41 | 8.48 | 10.0 | 6.17 |
@@ -182,7 +182,10 @@ Full coverage: 344/369 takes.
 | aaron | lose-control | 207 | **7.2** | 7.3 | high | 8.0 | 4.87 | 5.83 | 9.46 | 8.86 | 10.0 | 3.05 |
 | aaron | to-be-with-you | 159 | **6.2** | 5.4 | high | 6.0 | 0.0 | 7.46 | 9.2 | 8.58 | 6.3 | 5.4 |
 | aaron | cry-in-shame | 291 | **7.8** | 8.5 | high | 10.0 | 7.51 | 4.43 | 8.29 | 9.23 | 7.18 | 7.57 |
+| aaron | fireball | 203 | **6.5** | 7.1 | high | 10.0 | 2.12 | 2.83 | 8.94 | 8.12 | 3.61 | 7.97 |
+| aaron | fly-like-an-eagle | 173 | **8.2** | 8.5 | high | 10.0 | 10.0 | 5.84 | 7.58 | 9.58 | 7.24 | 5.4 |
 | aaron | let-s-go | 129 | **7.4** | 6.9 | high | 10.0 | 0.0 | 10.0 | 8.54 | 6.66 | 5.24 | 8.75 |
+| aaron | let-s-go | 131 | **7.3** | 6.2 | high | 10.0 | 0.0 | 10.0 | 8.4 | 9.24 | 6.27 | 2.56 |
 | aaron | fireball | 230 | **6.9** | 6.8 | high | 10.0 | 0.0 | 5.58 | 9.41 | 9.06 | 2.7 | 9.44 |
 | aaron | you-give-love-a-bad-name | 234 | **8.8** | 9.4 | high | 10.0 | 10.0 | 5.78 | 8.9 | 9.98 | 10.0 | 7.05 |
 | aaron | get-back | 185 | **6.1** | 5.9 | high | 8.0 | 0.0 | 3.97 | 8.79 | 9.92 | 2.85 | 8.24 |
@@ -328,7 +331,7 @@ Full coverage: 344/369 takes.
 | rilda | dreams | 260 | **7.6** | 7.6 | high | 10.0 | 2.98 | 6.94 | 10.0 | 8.13 | 4.39 | 8.48 |
 | rilda | you-sexy-thing | 204 | **7.1** | 6.7 | high | 8.0 | 0.0 | 7.48 | 9.69 | 9.07 | 10.0 | 5.54 |
 | rilda | bow-river | 205 | **7.6** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.8 | 7.86 | 5.79 | 6.23 |
-| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | 0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
+| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | -0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
 | rilda | bring-me-some-water | 192 | **7.9** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.71 | 9.74 | 7.15 | 5.04 |
 | rilda | ex-s-oh-s | 204 | **7.9** | 7.3 | high | 10.0 | 0.0 | 10.0 | 9.98 | 8.07 | 10.0 | 4.41 |
 | rilda | who-s-that-girl | 215 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.65 | 10.0 | 8.82 |
@@ -344,6 +347,9 @@ Full coverage: 344/369 takes.
 | rilda | i-love-to-love | 147 | **8.0** | 7.9 | high | 10.0 | 0.0 | 7.71 | 9.98 | 8.86 | 8.91 | 10.0 |
 | rilda | sexy-eyes | 206 | **6.0** | 6.0 | high | 8.0 | 0.0 | 4.46 | 9.88 | 7.66 | 1.73 | 8.82 |
 | rilda | bow-river | 247 | **6.2** | 6.0 | high | 6.0 | 1.83 | 4.6 | 10.0 | 9.6 | 7.42 | 4.48 |
+| rilda | before-he-cheats | 218 | **7.1** | 7.6 | high | 9.04 | 2.81 | 3.73 | 9.66 | 9.41 | 7.3 | 8.13 |
+| rilda | blue-bayou | 239 | **6.3** | 6.8 | high | 8.0 | 0.0 | 2.92 | 9.99 | 8.35 | 6.79 | 9.26 |
+| rilda | jolene | 148 | **7.3** | 9.1 | high | 10.0 | 10.0 | 2.4 | 9.9 | 4.98 | 3.79 | 9.74 |
 | rilda | to-sir-with-love | 165 | **7.3** | 7.5 | high | 10.0 | 0.17 | 4.63 | 10.0 | 9.75 | 10.0 | 6.26 |
 | rilda | tainted-love | 227 | **6.4** | 6.2 | high | 8.0 | 0.0 | 4.53 | 9.85 | 9.58 | 8.48 | 3.53 |
 | rilda | moon-river | 136 | **7.1** | 6.8 | high | 9.0 | 0.0 | 6.17 | 10.0 | 9.7 | 5.33 | 7.94 |
