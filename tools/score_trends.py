@@ -43,7 +43,7 @@ OUT_HTML = os.path.join(ROOT, "docs/score-metrics/score-trends.html")
 
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 from take_context import read_context  # noqa: E402
-from ranked_takes import _singer, _song, _lead  # noqa: E402
+from ranked_takes import _singer, _song, _lead, canonical_singer  # noqa: E402
 
 # Same provenance predicate progress_report.py uses — imported from the engine
 # so there is exactly one definition of "is this score legacy?" in the repo.
@@ -257,7 +257,7 @@ def main() -> int:
                     help="print the data JSON to stdout instead of writing files")
     a = ap.parse_args()
 
-    data = build(a.singer)
+    data = build(canonical_singer(a.singer))   # old slug aaron-g -> gresh
     if a.stdout:
         print(json.dumps(data, indent=2))
         return 0

@@ -52,7 +52,7 @@ _spec.loader.exec_module(_pair)
 # the Andy Gibb case was actually resolved. The tight band below is where a match
 # is close enough to be worth a listen; the Andy Gibb original matched at 0.02s.
 CONFIRM_S = 0.25
-SINGERS = ("aaron-g", "aaron", "rilda", "chris", "leo")
+SINGERS = ("aaron-g", "aaron", "rilda", "chris", "leo", "gresh")  # aaron-g = old slug for gresh
 
 
 def _is_singer_take(name: str) -> bool:
@@ -63,7 +63,7 @@ def _is_singer_take(name: str) -> bool:
 
 def _song_tokens(take_name: str) -> set[str]:
     s = re.sub(r"^20\d\d-\d\d-\d\d-", "", take_name)
-    s = re.sub(r"^(aaron-g-|aaron-|rilda-|chris-|leo-)", "", s)
+    s = re.sub(r"^(aaron-g-|aaron-|rilda-|chris-|leo-|gresh-)", "", s)
     s = re.sub(r"-take-\d+.*$", "", s)
     s = re.sub(r"-20\d\d.*$", "", s)
     return _pair.norm_tokens(s)

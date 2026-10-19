@@ -75,9 +75,11 @@ PIPELINE_SUFFIX = re.compile(
     r"(_\(Vocals\)_.*|_\(Instrumental\)_.*|_converted|_vocals|_Vocals)+$", re.IGNORECASE)
 LOOSE_NOISE = re.compile(r"(-normalized|-song-cut|-converted)+", re.IGNORECASE)
 
-ARTIST_NAMES = {"aaron-g": "Aaron G", "aaron": "Aaron", "rilda": "Rilda",
+# "aaron-g" is the old slug for Gresh (renamed 19 Oct 2026); it maps to the same
+# artist so a stem still carrying the old name is never filed under Aaron.
+ARTIST_NAMES = {"aaron-g": "Gresh", "aaron": "Aaron", "rilda": "Rilda",
                 "chris": "Chris", "leo": "Leo", "alex": "Alex", "athea": "Athea",
-                "jack": "Jack", "teagan": "Teagan"}
+                "jack": "Jack", "teagan": "Teagan", "gresh": "Gresh"}
 
 
 def take_key(filename: str) -> str:

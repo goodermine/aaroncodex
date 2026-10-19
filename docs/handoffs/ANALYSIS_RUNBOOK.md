@@ -56,7 +56,10 @@ git push -u origin codex/<task-name>
 ```
 
 Name files `20YY-MM-DD-<singer>-<song>-take-001_analysis.json` (singer =
-aaron / aaron-g / rilda / chris / leo) so they group correctly.
+aaron / gresh / rilda / chris / leo) so they group correctly.
+`aaron-g` is the old name for `gresh` (same singer, renamed 19 Oct 2026): use
+`gresh` for new takes; old `aaron-g` names still resolve to Gresh. Files named
+"... - Aaron - Greshmans" are Aaron singing at Gresh's place, so they are `aaron`.
 
 ## 5. **DELIVER THE RESULT — the analysis is not done until you do this**
 

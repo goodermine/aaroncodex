@@ -34,7 +34,12 @@ ARCHIVE = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
 # before "aaron-and-rilda" would swallow the duet into Aaron's solo stats. A
 # duet is its own singer, not either half of it: one stem carries two voices,
 # so every per-voice measurement in it describes neither of them cleanly.
-SINGERS = ("aaron-and-rilda", "aaron-g", "aaron", "rilda", "chris", "leo")
+SINGERS = ("aaron-and-rilda", "aaron-g", "aaron", "rilda", "chris", "leo", "gresh")
+# "aaron-g" is the OLD slug for Gresh (renamed 19 Oct 2026 at Aaron's request).
+# It stays in the match list -- longest first, so an old "aaron-g-*" name can
+# never fall through to "aaron" -- and resolves to the canonical "gresh".
+SINGER_ALIASES = {"aaron-g": "gresh"}
+CANONICAL_SINGERS = tuple(s for s in SINGERS if s not in SINGER_ALIASES)
 
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 from take_context import read_context, leads_capture_fair  # noqa: E402
@@ -42,11 +47,19 @@ from take_context import read_context, leads_capture_fair  # noqa: E402
 
 def _singer(name: str) -> str | None:
     m = re.match(r"20\d\d-\d\d-\d\d-(" + "|".join(SINGERS) + r")-", name)
-    return m.group(1) if m else None
+    return SINGER_ALIASES.get(m.group(1), m.group(1)) if m else None
+
+
+def canonical_singer(singer: str | None) -> str | None:
+    """Resolve an old slug (aaron-g) to its canonical singer (gresh)."""
+    return SINGER_ALIASES.get(singer, singer) if singer else singer
 
 
 def _song(name: str, singer: str) -> str:
-    s = re.sub(r"^20\d\d-\d\d-\d\d-" + re.escape(singer) + r"-", "", name)
+    # Strip whichever slug the NAME carries (an old aaron-g name resolves to
+    # singer "gresh" but still has "aaron-g-" in it).
+    tokens = sorted({singer, *[a for a, c in SINGER_ALIASES.items() if c == singer]}, key=len, reverse=True)
+    s = re.sub(r"^20\d\d-\d\d-\d\d-(" + "|".join(map(re.escape, tokens)) + r")-", "", name)
     s = re.sub(r"-take-\d+.*$", "", s)
     s = re.sub(r"_analysis\.json$", "", s)
     return s.replace("-", " ").strip().title()
@@ -124,14 +137,14 @@ def _print_block(title: str, rows: list, best_of: bool):
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("singer", nargs="?", help="aaron / aaron-g / rilda / chris / leo")
+    ap.add_argument("singer", nargs="?", help="aaron / gresh (old name aaron-g) / rilda / chris / leo")
     ap.add_argument("--best-of", action="store_true", help="one row per song (its best take)")
     a = ap.parse_args()
-    rows, superseded = collect(a.singer)
+    rows, superseded = collect(canonical_singer(a.singer))
     if not rows:
         print("no takes found")
         return 1
-    for singer in SINGERS:
+    for singer in CANONICAL_SINGERS:
         srows = [r for r in rows if r["singer"] == singer]
         if not srows:
             continue

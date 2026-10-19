@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.48. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.49. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 336/361 takes.
+Full coverage: 337/362 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -283,12 +283,13 @@ Full coverage: 336/361 takes.
 | aaron | wake-up-little-susie | 130 | **7.9** | 7.1 | high | 10.0 | 0.0 | 10.0 | 9.14 | 9.19 | 9.15 | 5.13 |
 | aaron | you-give-love-a-bad-name | 171 | **6.5** | 5.1 | high | 6.0 | 0.0 | 10.0 | 9.59 | 8.52 | 9.18 | 0.05 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
-| aaron-g | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
-| aaron-g | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
-| aaron-g | vienna | 165 | **7.3** | 6.1 | high | 6.0 | 0.0 | 10.0 | 10.0 | 9.81 | 8.97 | 7.05 |
-| aaron-g | dont-stop-believing | 169 | **8.8** | 8.2 | high | 10.0 | 1.95 | 10.0 | 10.0 | 9.98 | 8.91 | 10.0 |
-| aaron-g | we-are | 226 | **9.7** | 9.7 | high | 10.0 | 10.0 | 10.0 | 8.55 | 9.11 | 10.0 | 10.0 |
 | chris | feeling-good | 204 | **5.8** | 5.3 | high | 6.0 | 0.0 | 4.67 | 10.0 | 9.98 | 4.55 | 5.29 |
+| gresh | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
+| gresh | if-you-could-read-my-mind | 201 | **8.8** | 8.3 | high | 6.0 | 10.0 | 10.0 | 10.0 | 9.75 | 7.67 | 9.84 |
+| gresh | vienna | 165 | **7.3** | 6.1 | high | 6.0 | 0.0 | 10.0 | 10.0 | 9.81 | 8.97 | 7.05 |
+| gresh | dont-stop-believing | 169 | **8.8** | 8.2 | high | 10.0 | 1.95 | 10.0 | 10.0 | 9.98 | 8.91 | 10.0 |
+| gresh | we-are | 226 | **9.7** | 9.7 | high | 10.0 | 10.0 | 10.0 | 8.55 | 9.11 | 10.0 | 10.0 |
+| gresh | easy | 222 | **8.1** | 7.3 | high | 8.0 | 0.0 | 10.0 | 9.74 | 9.79 | 10.0 | 9.86 |
 | leo | chasin-that-neon-rainbow | 204 | **6.9** | 6.6 | high | 8.0 | 2.58 | 6.03 | 8.59 | 9.33 | 7.7 | 5.4 |
 | leo | livin-on-a-prayer | 191 | **7.9** | 7.8 | high | 10.0 | 2.23 | 6.72 | 9.41 | 9.86 | 7.18 | 9.08 |
 | leo | sunshine-smile | 176 | **8.2** | 7.6 | high | 10.0 | 1.03 | 10.0 | 10.0 | 8.9 | 9.88 | 5.8 |

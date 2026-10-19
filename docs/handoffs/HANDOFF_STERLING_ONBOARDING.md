@@ -97,7 +97,7 @@ git push -u origin codex/<task-name>
 ```
 
 Filename convention: `20YY-MM-DD-<singer>-<song>-take-001_analysis.json`,
-singer = `aaron`/`aaron-g`/`rilda`/`chris`/`leo`. Getting this wrong breaks
+singer = `aaron`/`gresh`/`rilda`/`chris`/`leo` (`aaron-g` = old name for `gresh`). Getting this wrong breaks
 the "songs sung more than once" grouping — and if the recording came from a
 new venue or session tag that isn't already handled, check
 `docs/score-metrics/rescore_all.py`'s `DESCRIPTOR_SUFFIXES` list and add it
