@@ -21,6 +21,9 @@ test = ["pytest>=8", "httpx>=0.27"]
 [project.scripts]
 # One command runs the whole suite (Analyze + Polish + Fused) on one port.
 vox = "voxsuite.server.unified:main"
+# The public, login-gated Singnexa beta (Analyze only) and its account tool.
+singnexa = "voxsuite.singnexa.app:main"
+singnexa-admin = "voxsuite.singnexa.admin:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

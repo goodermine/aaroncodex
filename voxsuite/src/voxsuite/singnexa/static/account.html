@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Account · Singnexa</title>
+<link rel="icon" href="/static/vox-icon-192.png">
+<link rel="apple-touch-icon" href="/static/vox-icon-180.png">
+<link rel="stylesheet" href="/static/vox-tokens.css">
+<link rel="stylesheet" href="/static/singnexa.css">
+</head>
+<body data-page="account"><header class="sx-top"><a class="sx-brand" href="/">Sing<span>nexa</span></a><span class="sx-beta">beta</span>
+<nav class="sx-nav" id="nav"><a href="/">My results</a><a href="/account">Account</a><a href="/admin" id="navAdmin" hidden>Admin</a><button type="button" id="signOut">Sign out</button></nav></header>
+<main><div class="sx-card sx-narrow" style="margin-top:4vh">
+<h1>Your password</h1>
+<p class="sx-muted" id="firstNote" hidden>Welcome! Before you start, replace the one-time password you were given with your own.</p>
+<form id="pwForm">
+<input type="text" name="username" autocomplete="username" id="pwUser" hidden>
+<label for="current">Current (or one-time) password</label><input type="password" id="current" autocomplete="current-password" required>
+<label for="new">New password</label><input type="password" id="new" autocomplete="new-password" minlength="10" required>
+<label for="new2">New password again</label><input type="password" id="new2" autocomplete="new-password" minlength="10" required>
+<p class="sx-muted">At least 10 characters. A short phrase is easiest to remember.</p>
+<button class="sx-btn" type="submit">Save password</button>
+<div class="sx-msg" id="msg" role="status"></div>
+</form></div></main>
+<script src="/static/singnexa.js" defer></script></body></html>

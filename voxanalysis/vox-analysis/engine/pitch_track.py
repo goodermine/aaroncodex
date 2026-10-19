@@ -33,7 +33,8 @@ RAW_RATE_HZ = 20.0
 RELIABLE_CONFIDENCE = 0.55
 CAUTION_CONFIDENCE = 0.05
 STEM_SCRIPT = Path(__file__).parent / "tools" / "stems" / "batch_stems.sh"
-STEM_TIMEOUT_SECONDS = 30 * 60
+# Overridable for slow CPU-only hosts (VOX_STEM_TIMEOUT, seconds).
+STEM_TIMEOUT_SECONDS = int(os.getenv("VOX_STEM_TIMEOUT", str(30 * 60)))
 SHARED_ANALYZER = Path(__file__).parent / "analyse_song.py"
 V2_CALIBRATION = Path(__file__).parent / "calibration" / "pro_reference.json"
 REPO_ROOT = Path(__file__).resolve().parents[2]

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin · Singnexa</title>
+<link rel="icon" href="/static/vox-icon-192.png">
+<link rel="apple-touch-icon" href="/static/vox-icon-180.png">
+<link rel="stylesheet" href="/static/vox-tokens.css">
+<link rel="stylesheet" href="/static/singnexa.css">
+</head>
+<body data-page="admin"><header class="sx-top"><a class="sx-brand" href="/">Sing<span>nexa</span></a><span class="sx-beta">beta</span>
+<nav class="sx-nav" id="nav"><a href="/">My results</a><a href="/account">Account</a><a href="/admin" id="navAdmin" hidden>Admin</a><button type="button" id="signOut">Sign out</button></nav></header>
+<main>
+<section class="sx-card">
+<h1>Test users</h1>
+<form id="newUser">
+<div class="sx-row">
+<div><label for="nuName">Name (shown on their results)</label><input type="text" id="nuName" maxlength="80" required></div>
+<div><label for="nuUser">Username</label><input type="text" id="nuUser" maxlength="32" autocapitalize="none" spellcheck="false" placeholder="lower-case, e.g. jess" required></div>
+</div>
+<label class="sx-check"><input type="checkbox" id="nuAdmin"> Admin (can add users and see everyone's results)</label>
+<button class="sx-btn" type="submit">Create user</button>
+</form>
+<div class="sx-msg" id="msg" role="status"></div>
+<div id="temp" hidden><p>Send them this one-time password. It is shown only once; they choose their own at first sign-in.</p><p class="sx-temp" id="tempPw"></p></div>
+<div class="sx-table-wrap"><table class="sx-table" id="users"></table></div>
+</section>
+<section class="sx-card">
+<h2>Engine check</h2>
+<p id="preflight" class="sx-muted">…</p>
+<button class="sx-btn ghost" type="button" id="rerunPreflight">Run the check again</button>
+</section>
+<section class="sx-card">
+<h2>All results</h2>
+<ul class="sx-list" id="alljobs"></ul>
+</section>
+</main>
+<script src="/static/singnexa.js" defer></script></body></html>
