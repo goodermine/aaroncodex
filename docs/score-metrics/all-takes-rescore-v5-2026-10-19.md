@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.49. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.5. Dynamics component spreads 5.8–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 338/363 takes.
+Full coverage: 344/369 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -25,7 +25,7 @@ Full coverage: 338/363 takes.
 | aaron | mustang-sally | 199 | **7.1** | 5.9 | high | 6.0 | 0.0 | 10.0 | 7.9 | 9.4 | 10.0 | 7.05 |
 | aaron | stand-by-me | 148 | **7.7** | 7.1 | high | 6.0 | 2.35 | 10.0 | 9.74 | 7.64 | 10.0 | 10.0 |
 | aaron | the-letter | 171 | **7.5** | 6.5 | high | 6.0 | 0.0 | 10.0 | 9.25 | 9.34 | 9.85 | 10.0 |
-| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | -0.0 |
+| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | 0.0 |
 | aaron | play-that-funky-music | 206 | **7.4** | 8.1 | high | 10.0 | 6.99 | 3.23 | 8.43 | 9.61 | 5.12 | 7.41 |
 | aaron | beggin | 225 | **6.9** | 7.3 | high | 10.0 | 0.0 | 4.65 | 8.68 | 8.22 | 10.0 | 6.38 |
 | aaron | lonely-boy | 141 | **7.5** | 6.7 | high | 8.0 | 0.0 | 10.0 | 9.41 | 8.48 | 10.0 | 6.17 |
@@ -188,6 +188,9 @@ Full coverage: 338/363 takes.
 | aaron | get-back | 185 | **6.1** | 5.9 | high | 8.0 | 0.0 | 3.97 | 8.79 | 9.92 | 2.85 | 8.24 |
 | aaron | goodbye-s-been-good-to-you | 242 | **7.6** | 7.1 | high | 10.0 | 4.01 | 8.58 | 9.99 | 8.57 | 2.64 | 4.8 |
 | aaron | let-s-go | 148 | **7.2** | 7.8 | high | 10.0 | 8.94 | 3.72 | 7.77 | 8.88 | 2.39 | 6.23 |
+| aaron | fireball | 252 | **9.0** | 8.9 | high | 10.0 | 10.0 | 9.81 | 9.99 | 8.78 | 1.7 | 9.7 |
+| aaron | playing-to-win | 195 | **6.7** | 5.8 | high | 8.0 | 0.0 | 9.78 | 9.57 | 6.81 | 5.09 | 4.37 |
+| aaron | this-is-how-we-do-it-phone | 355 | **8.2** | 8.9 | high | 10.0 | 5.5 | 4.9 | 9.85 | 9.56 | 9.48 | 9.01 |
 | aaron | this-is-how-we-do-it | 388 | **7.9** | 7.2 | high | 8.0 | 3.27 | 9.68 | 10.0 | 8.8 | 5.27 | 8.82 |
 | aaron | all-that-she-wants | 218 | **6.7** | 5.6 | high | 6.0 | 0.4 | 9.92 | 9.68 | 8.12 | 4.39 | 7.28 |
 | aaron | fireball | 257 | **7.7** | 7.3 | high | 10.0 | 0.0 | 8.02 | 9.47 | 9.58 | 8.76 | 6.84 |
@@ -211,6 +214,7 @@ Full coverage: 338/363 takes.
 | aaron | all-that-she-wants | 134 | **8.1** | 7.7 | high | 7.0 | 10.0 | 10.0 | 9.16 | 7.83 | 4.27 | 7.05 |
 | aaron | things-that-make-you-go-hmm-home-first | 317 | **7.2** | 6.0 | high | 6.0 | 0.0 | 9.49 | 9.83 | 9.99 | 10.0 | 5.29 |
 | aaron | all-that-she-wants | 144 | **7.3** | 6.5 | high | 10.0 | 0.0 | 10.0 | 8.88 | 7.25 | 4.52 | 6.07 |
+| aaron | all-that-she-wants | 148 | **8.0** | 7.1 | high | 8.28 | 2.29 | 10.0 | 9.52 | 9.59 | 7.03 | 8.04 |
 | aaron | tennessee-whiskey | 175 | **7.1** | 6.1 | high | 8.0 | 0.0 | 10.0 | 8.66 | 8.28 | 7.0 | 6.12 |
 | aaron | to-be-with-you | 177 | **7.8** | 7.0 | high | 10.0 | 0.0 | 9.71 | 8.87 | 9.41 | 5.94 | 8.31 |
 | aaron | you-sexy-thing | 230 | **6.8** | 5.6 | high | 8.0 | 0.0 | 10.0 | 8.32 | 8.96 | 5.0 | 4.32 |
@@ -324,7 +328,7 @@ Full coverage: 338/363 takes.
 | rilda | dreams | 260 | **7.6** | 7.6 | high | 10.0 | 2.98 | 6.94 | 10.0 | 8.13 | 4.39 | 8.48 |
 | rilda | you-sexy-thing | 204 | **7.1** | 6.7 | high | 8.0 | 0.0 | 7.48 | 9.69 | 9.07 | 10.0 | 5.54 |
 | rilda | bow-river | 205 | **7.6** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.8 | 7.86 | 5.79 | 6.23 |
-| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | -0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
+| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | 0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
 | rilda | bring-me-some-water | 192 | **7.9** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.71 | 9.74 | 7.15 | 5.04 |
 | rilda | ex-s-oh-s | 204 | **7.9** | 7.3 | high | 10.0 | 0.0 | 10.0 | 9.98 | 8.07 | 10.0 | 4.41 |
 | rilda | who-s-that-girl | 215 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.65 | 10.0 | 8.82 |
@@ -342,6 +346,8 @@ Full coverage: 338/363 takes.
 | rilda | bow-river | 247 | **6.2** | 6.0 | high | 6.0 | 1.83 | 4.6 | 10.0 | 9.6 | 7.42 | 4.48 |
 | rilda | to-sir-with-love | 165 | **7.3** | 7.5 | high | 10.0 | 0.17 | 4.63 | 10.0 | 9.75 | 10.0 | 6.26 |
 | rilda | tainted-love | 227 | **6.4** | 6.2 | high | 8.0 | 0.0 | 4.53 | 9.85 | 9.58 | 8.48 | 3.53 |
+| rilda | moon-river | 136 | **7.1** | 6.8 | high | 9.0 | 0.0 | 6.17 | 10.0 | 9.7 | 5.33 | 7.94 |
+| rilda | rhiannon | 202 | **7.0** | 6.6 | high | 10.0 | 0.0 | 7.46 | 9.92 | 8.26 | 1.48 | 8.04 |
 | rilda | ex-s-oh-s | 266 | **8.7** | 8.6 | high | 8.0 | 10.0 | 8.18 | 10.0 | 9.91 | 4.64 | 10.0 |
 | rilda | give-me-one-reason | 226 | **7.3** | 6.5 | high | 9.0 | 0.0 | 9.64 | 9.68 | 7.8 | 3.0 | 8.82 |
 | rilda | who-s-that-girl | 268 | **8.3** | 7.8 | high | 10.0 | 0.0 | 8.86 | 9.72 | 9.65 | 10.0 | 9.26 |
