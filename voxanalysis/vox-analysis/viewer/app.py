@@ -281,9 +281,17 @@ def _process(job_id: str) -> None:
                 raise RuntimeError("VOXAI V2 result artifacts are unavailable")
             raw_v2 = json.loads((job_dir / v2_analysis_file).read_text(encoding="utf-8"))
             take_context = manifest.get("take_context")
+            stamped = False
             if take_context:
                 # stamped AFTER scoring: context can never influence the engine
                 raw_v2["take_context"] = take_context
+                stamped = True
+            if analysis.get("stem_separation") and "stem_separation" not in raw_v2:
+                # How the analysed vocal was obtained, so the report (rule 4) and
+                # the archive can tell a separated take from a dry one.
+                raw_v2["stem_separation"] = analysis["stem_separation"]
+                stamped = True
+            if stamped:
                 (job_dir / v2_analysis_file).write_text(
                     json.dumps(raw_v2, indent=2), encoding="utf-8"
                 )

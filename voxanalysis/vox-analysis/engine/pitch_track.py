@@ -178,6 +178,32 @@ def _write_stage(stage_file: Path | None, stage: str) -> None:
     temporary.replace(stage_file)
 
 
+# Separator markers the engine's score identity recognises in a file name
+# (analyse_song._stem_model), and the label each one is reported under.
+_SEPARATOR_MARKERS = (
+    ("roformer", "RoFormer"), ("mdxnet", "UVR_MDXNET_Main"), ("mdx-net", "UVR_MDXNET_Main"),
+    ("htdemucs", "Demucs"), ("demucs", "Demucs"),
+)
+
+
+def _separator_label(stem_path: Path) -> str | None:
+    name = stem_path.name.lower()
+    for marker, label in _SEPARATOR_MARKERS:
+        if marker in name:
+            return label
+    return None
+
+
+def _analysis_wav_path(out_dir: Path, vocals_path: Path) -> Path:
+    """Where the mono analysis WAV goes. The engine reads which separator made
+    the stem from the analysed file's NAME (it becomes identity.stem_model), so
+    a plain "analysis.wav" turned every web take into an unseparated one: no
+    stem_model, headline withheld, and score_conflict refusing to compare it
+    with the archive. Keep the stem's name; the prefix keeps the WAV distinct
+    from an upload that is itself the vocal (supplied-backing jobs)."""
+    return out_dir / f"analysis__{vocals_path.stem}.wav"
+
+
 def _unlink_temporary_audio(path: Path) -> None:
     """Never fail a completed analysis because optional cleanup was denied."""
     try:
@@ -367,7 +393,7 @@ def analyze_original(
     reference_dir.mkdir(parents=True, exist_ok=True)
     duration = probe_duration(reference_path)
     vocals_path, _ = separate_stems(reference_path, reference_dir)
-    wav_path = reference_dir / "analysis.wav"
+    wav_path = _analysis_wav_path(reference_dir, vocals_path)
     original_playback = job_dir / "original.mp3"
     _run(["ffmpeg", "-y", "-i", str(reference_path), "-vn", "-c:a", "libmp3lame", "-b:a", "160k", str(original_playback)], "conversion_failed")
     _run(["ffmpeg", "-y", "-i", str(vocals_path), "-vn", "-ac", "1", "-ar", "44100", "-c:a", "pcm_s16le", str(wav_path)], "conversion_failed")
@@ -677,7 +703,6 @@ def analyze(
 ) -> dict:
     job_dir.mkdir(parents=True, exist_ok=True)
     duration = probe_duration(input_path)
-    wav_path = job_dir / "analysis.wav"
     if backing_path is not None:
         # Supply-your-own-backing: the upload IS a clean dry vocal and the caller
         # provided a vocal-free backing. Skip separation entirely — pristine
@@ -689,6 +714,7 @@ def analyze(
         _write_stage(stage_file, "separating_vocals")
         vocals_path, instrumental_path = separate_stems(input_path, job_dir)
         supplied_backing = False
+    wav_path = _analysis_wav_path(job_dir, vocals_path)
     _write_stage(stage_file, "preparing_audio")
     vocal_playback = job_dir / "vocals.mp3"
     instrumental_playback = job_dir / "instrumental.mp3"
@@ -704,7 +730,7 @@ def analyze(
     pending_original_spectral_input = None
     result["stem_separation"] = ({"enabled": False, "model": None, "source": "supplied_backing"}
                                  if supplied_backing else
-                                 {"enabled": True, "model": "UVR_MDXNET_Main"})
+                                 {"enabled": True, "model": _separator_label(vocals_path)})
     result["audio_files"] = {"vocals": vocal_playback.name, "instrumental": instrumental_playback.name}
     result["v2_analysis_file"] = v2_analysis_file
     result["v2_report_file"] = v2_report_file
