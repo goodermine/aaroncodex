@@ -282,6 +282,54 @@ class PitchMathTests(unittest.TestCase):
         self.assertIn("vocals_mel_band_roformer", analysed.name)
         self.assertEqual(result["stem_separation"], {"enabled": True, "model": "RoFormer"})
 
+    def _run_with_cut(self, cut):
+        minimal_pitch = {
+            "contour": {"rate_hz": 10, "values": [0.0], "confidence": [0.9]},
+            "quality": {"classification": "reliable", "flags": []},
+        }
+        folder = tempfile.mkdtemp()
+        job_dir = Path(folder) / "job"
+        stems = Path(folder) / "stems"
+        stems.mkdir()
+        vocals = stems / "upload_(Vocals)_vocals_mel_band_roformer.flac"
+        instrumental = stems / "upload_(other)_vocals_mel_band_roformer.flac"
+        vocals.touch()
+        instrumental.touch()
+        with patch.object(pitch_track, "probe_duration", return_value=60.0), patch.object(
+            pitch_track, "separate_stems", return_value=(vocals, instrumental)
+        ), patch.object(pitch_track, "_run"), patch.object(
+            pitch_track, "analyze_wav", return_value=minimal_pitch
+        ), patch.object(pitch_track, "_cut_talk", side_effect=cut), patch.object(
+            pitch_track, "run_v2_analysis", return_value=("v2/output/take_analysis.json", "v2/reports/r.md")
+        ) as run_v2:
+            result = pitch_track.analyze(Path(folder) / "take.wav", job_dir,
+                                         comparison_enabled=False, cut_talk_enabled=True)
+        return result, run_v2, stems
+
+    def test_cut_talk_feeds_the_cut_stems_to_the_engine(self):
+        plan = {"method": "talk_cut_v1", "status": "cut", "kept": [[12.0, 50.0]], "offset_s": 12.0,
+                "removed": [{"start": 0.0, "end": 12.0, "kind": "before_singing", "text": "thank you"}]}
+
+        def cut(vocals, instrumental, job_dir):
+            out = job_dir / "talkcut"
+            return out / f"{vocals.stem}.wav", out / f"{instrumental.stem}.wav", plan
+
+        result, run_v2, _ = self._run_with_cut(cut)
+        analysed = run_v2.call_args.args[0]
+        self.assertIn("vocals_mel_band_roformer", analysed.name)          # stem_model survives the cut
+        self.assertEqual(run_v2.call_args.kwargs["instrumental_path"].parent.name, "talkcut")
+        self.assertEqual(result["audio_prep"], {"talk_cut": plan})
+        self.assertEqual(result["stem_separation"]["model"], "RoFormer")
+
+    def test_a_failed_cut_still_analyses_the_whole_take(self):
+        with tempfile.TemporaryDirectory() as folder:
+            stems = Path(folder)
+            vocals, backing = stems / "v_(Vocals)_x.wav", stems / "v_(other)_x.wav"
+            with patch.dict("sys.modules", {"talk_cut": None}):     # import fails
+                got_v, got_b, plan = pitch_track._cut_talk(vocals, backing, stems / "job")
+        self.assertEqual((got_v, got_b), (vocals, backing))
+        self.assertEqual(plan["status"], "failed")
+
     def test_supplied_backing_wav_never_overwrites_the_upload(self):
         with tempfile.TemporaryDirectory() as folder:
             job_dir = Path(folder)
