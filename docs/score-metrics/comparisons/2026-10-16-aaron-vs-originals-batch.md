@@ -1,5 +1,7 @@
 # Aaron vs the originals — 16 Oct 2026
 
+> **Snapshot as of 16 Oct 2026 (archive state before the Greshman's 16 Oct and later takes landed).** Takes analysed since — e.g. The Door 16 Oct, My Girl 16 and 18 Oct, You Give Love a Bad Name 18 Oct — are not in these tables; "No Aaron takes yet" means none at snapshot time.
+
 Fourteen original studio recordings supplied by Howard (Dropbox `/Song_Analysis/Originals for analysis - DELETE AFTER/`), each verified against its SHA-256 in PROVENANCE.txt, scaled losslessly to −1 dBFS where they peaked above it, separated with the pinned RoFormer model, and analysed as **reference vocals only**: raw measures were kept and **no VOX score was calculated or kept for any original**. Aaron's takes were compared with `tools/compare_takes.py` (banded DTW on the persisted pitch contours, transposition removed and reported). Audio, stems and reference JSONs are not committed; the originals are deleted after analysis.
 
 Measures: held-note drift (median intra-note drift, cents), phrase endings falling (% of endings with a downward pitch release — the measure is pitch-only and counts stylistic fall-offs too), clean entries (% of note onsets landing on pitch), overshot entries (%).
