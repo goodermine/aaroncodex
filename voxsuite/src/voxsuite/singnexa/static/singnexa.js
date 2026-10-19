@@ -10,6 +10,7 @@
   var STAGES = {
     queued: "Waiting in the queue",
     separating_vocals: "Separating your voice from the music — this is the slow part (a few minutes)",
+    cutting_talk: "Finding and cutting out any talking",
     preparing_audio: "Preparing the audio",
     tracking_pitch: "Tracking your pitch",
     running_v2_analysis: "Measuring and scoring",
@@ -38,6 +39,23 @@
     return "Something went wrong (" + status + ").";
   }
   function say(el, text, kind) { el.className = "sx-msg " + (kind || "info"); el.textContent = text || ""; }
+  // The small Markdown subset the coaching notes use: ### headings, - bullets,
+  // **bold**, paragraphs. Everything is escaped first, so no HTML gets through.
+  function md(text) {
+    var out = [], list = false, para = [];
+    function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+    function flush() { if (para.length) { out.push("<p>" + inline(para.join(" ")) + "</p>"); para = []; } }
+    function close() { if (list) { out.push("</ul>"); list = false; } }
+    String(text || "").split(/\r?\n/).forEach(function (line) {
+      var t = line.trim(), h = /^#{1,4}\s+(.*)$/.exec(t), li = /^[-*]\s+(.*)$/.exec(t);
+      if (!t) { flush(); close(); return; }
+      if (h) { flush(); close(); out.push("<h3>" + inline(h[1]) + "</h3>"); return; }
+      if (li) { flush(); if (!list) { out.push("<ul>"); list = true; } out.push("<li>" + inline(li[1]) + "</li>"); return; }
+      close(); para.push(t);
+    });
+    flush(); close();
+    return out.join("");
+  }
   function when(ts) {
     try { return new Date(ts * 1000).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }); }
     catch (e) { return ""; }
@@ -127,7 +145,7 @@
       if (job.status !== "complete") {
         return head + '<p><b>' + esc(STAGES[job.stage] || "Analysing") + "…</b></p>" +
           '<p class="sx-muted">You can leave this page and come back — the result will be under My results.</p>' +
-          '<div class="sx-progress"><i style="width:' + ({ queued: 5, separating_vocals: 30, preparing_audio: 60, tracking_pitch: 70, running_v2_analysis: 85 }[job.stage] || 15) + '%"></i></div>';
+          '<div class="sx-progress"><i style="width:' + ({ queued: 5, separating_vocals: 30, cutting_talk: 50, preparing_audio: 60, tracking_pitch: 70, running_v2_analysis: 85 }[job.stage] || 15) + '%"></i></div>';
       }
       var s = (job.report && job.report.score) || {}, lead = job.lead;
       var score = lead
@@ -139,12 +157,37 @@
         "Calibrated to 50 professional reference vocals — <b>10 = a typical pro</b>. A 7 is a good amateur result, not a failure.</p>" +
         '<p class="sx-muted">We show the higher of your two scores first. Capture-fair leaves out the parts that measure the microphone and room rather than your voice.</p>';
     }
+    function prep(job) {
+      // What was cut before scoring (talk_cut), so the singer can check it by ear.
+      var p = job.report && job.report.audio_prep;
+      if (!p || !p.removed || !p.removed.length) return "";
+      return '<p class="sx-muted">Before scoring we cut out talking at ' + p.removed.map(function (r) {
+        return esc(r.from + "–" + r.to) + (r.text ? " (“" + esc(r.text) + "”)" : "");
+      }).join(", ") + "." + (p.starts_at ? " Times below start at your first sung note, " + esc(p.starts_at) +
+        " into your recording." : "") + "</p>";
+    }
+    var writeupTries = 0;
+    function showWriteup(w) {
+      var box = $("#writeup");
+      if (!w || w.status === "disabled" || w.status === "failed") { box.hidden = true; return false; }
+      box.hidden = false;
+      if (w.status === "ready") { box.innerHTML = "<h2>Your coaching notes</h2>" + md(w.markdown || ""); return false; }
+      box.innerHTML = '<h2>Your coaching notes</h2><p class="sx-muted">Being written now. They appear here in a minute or so; the full results are below.</p>';
+      return true;
+    }
+    function pollWriteup() {
+      if (++writeupTries > 40) { $("#writeup").hidden = true; return; }
+      api("GET", "/api/jobs/" + encodeURIComponent(id)).then(function (job) {
+        if (showWriteup(job.writeup)) setTimeout(pollWriteup, 6000);
+      }).catch(function () {});
+    }
     function load() {
       api("GET", "/api/jobs/" + encodeURIComponent(id)).then(function (job) {
-        $("#summary").innerHTML = summary(job);
+        $("#summary").innerHTML = summary(job) + (job.status === "complete" ? prep(job) : "");
         document.title = (job.song || "Results") + " · Singnexa";
         if (job.status === "queued" || job.status === "processing") { setTimeout(load, 5000); return; }
         $("#tools").hidden = false;
+        if (job.status === "complete" && showWriteup(job.writeup)) setTimeout(pollWriteup, 6000);
         if (job.status === "complete" && window.VOXReport) {
           VOXReport.render($("#report"), { report: job.report, result: job.result,
             reportUrl: "/api/jobs/" + encodeURIComponent(id) + "/technical.md" });

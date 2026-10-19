@@ -27,6 +27,8 @@
 <select id="intent" name="intent"><option value="performance">A performance</option><option value="learning">Learning the song</option><option value="warmup">A warm-up</option></select></div>
 </div>
 <label for="note">Notes (optional)</label><input type="text" id="note" name="note" maxlength="200" placeholder="e.g. one ear monitor, end of a long night">
+<p class="sx-muted">We cut out talking before scoring: the MC, chat before and after the song, and thank-yous. Your results list what was cut.</p>
+<label class="sx-check"><input type="checkbox" id="keep_talk" name="keep_talk" value="1"> Keep everything (don't cut any talking)</label>
 <button class="sx-btn" type="submit" id="uploadBtn">Upload and analyse</button>
 <div class="sx-progress" id="bar" hidden><i></i></div>
 <div class="sx-msg" id="msg" role="status"></div>
