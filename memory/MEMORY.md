@@ -63,6 +63,7 @@ Rules (mirrored in the skill):
 - `042-brand-name-singnexa.md` — public brand is Singnexa (was VOX Analysis); repos/folders keep their vox names
 - `043-radio-ready-master-only.md` — polishes deliver only the "radio ready" master (WAV + MP3); no vocal up/down copies
 - `044-one-ear-monitor.md` — Aaron's one-ear in-ear monitor setup; record monitor yes/no on each take
+- `045-planned-oldies-list.md` — the ten planned new songs (Runaround Sue … Friday on My Mind); measure originals before keys
 - `046-results-plain-english-first.md` — deliver results as plain English first, then full results as formatted markdown (never a code block)
 - `047-gresh-is-aaron-g.md` — Gresh = the singer formerly filed as Aaron G; slug `gresh` (aaron-g is an alias); "Aaron - Greshmans" files stay Aaron's
 
@@ -71,5 +72,6 @@ Rules (mirrored in the skill):
 *(030 given directly by Aaron, 2026-10-14)*
 *(031–041 and edits to 004/006, retirement of 017: approved via /dream apply all, 2026-10-14)*
 *(042–044 given directly by Aaron, 2026-10-15)*
-*(046 given directly by Aaron, 2026-10-17; 045 is reserved by an open branch)*
+*(045 given directly by Aaron, 2026-10-16)*
+*(046 given directly by Aaron, 2026-10-17)*
 *(047 given directly by Aaron, 2026-10-19)*

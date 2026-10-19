@@ -485,10 +485,10 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
         else "A useful take with a clear next technical lever."
     )
     overview = (
-        f"VOXAI measured this take at {overall:.1f}/10 with {confidence} confidence. "
+        f"Singnexa measured this take at {overall:.1f}/10 with {confidence} confidence. "
         f"The next useful focus is {focus['pillar'].lower()}."
         if overall is not None
-        else f"VOXAI completed the diagnostic pass. The next useful focus is {focus['pillar'].lower()}."
+        else f"Singnexa completed the diagnostic pass. The next useful focus is {focus['pillar'].lower()}."
     )
     _drift = intonation.get("median_intra_note_drift_cents")
     interim = _interim_stability_note(raw)
@@ -691,7 +691,7 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
     out: list[str] = []
     line = out.append
 
-    line("VOX ANALYSIS — FULL RESULTS")
+    line("SINGNEXA — FULL RESULTS")
     if result.get("file_name"):
         line(str(result["file_name"]))
     if report.get("headline"):
@@ -916,7 +916,7 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
             line(f"- Phrase-ending comparison unavailable: {breath.get('reason')}")
 
     line("")
-    line("Deterministic VOXAI rubric — identical audio gives identical scores; "
+    line("Deterministic Singnexa rubric — identical audio gives identical scores; "
          "calibrated against 50 professional reference vocals. This is the full "
          "measured analysis, not a summary.")
     return "\n".join(out)

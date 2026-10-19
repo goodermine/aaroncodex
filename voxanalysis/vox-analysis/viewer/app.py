@@ -226,10 +226,13 @@ def _process(job_id: str) -> None:
             manifest.get("recording_conditions", ""),
             "--stage-file",
             str(job_dir / "stage.json"),
-            "--export-spectral",
             "--analysis-deadline-monotonic",
             repr(analysis_deadline),
         ]
+        # Display-only spectrogram tiles; a caller that discards them (Singnexa)
+        # can skip the export and its time cost.
+        if manifest.get("export_spectral", True):
+            command.append("--export-spectral")
         if not manifest.get("comparison_enabled", True):
             command.append("--skip-comparison")
         if manifest.get("backing_file"):

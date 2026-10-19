@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Singnexa</title>
+<link rel="icon" href="/static/vox-icon-192.png">
+<link rel="apple-touch-icon" href="/static/vox-icon-180.png">
+<link rel="stylesheet" href="/static/vox-tokens.css">
+<link rel="stylesheet" href="/static/singnexa.css">
+</head>
+<body data-page="home"><header class="sx-top"><a class="sx-brand" href="/">Sing<span>nexa</span></a><span class="sx-beta">beta</span>
+<nav class="sx-nav" id="nav"><a href="/">My results</a><a href="/account">Account</a><a href="/admin" id="navAdmin" hidden>Admin</a><button type="button" id="signOut">Sign out</button></nav></header>
+<main>
+<section class="sx-card">
+<h1>Analyse a recording</h1>
+<p class="sx-muted">Upload a song you've sung. We separate your voice from the music, measure it, and score it against 50 professional vocals (10 = a typical pro). Lossless files are best: <span id="limits">WAV or FLAC</span>.</p>
+<form id="uploadForm">
+<label for="file">Recording</label><input type="file" id="file" name="file" accept=".wav,.flac,.aif,.aiff,.mp3,.m4a,.aac,.ogg,.opus,audio/*" required>
+<div class="sx-row">
+<div><label for="song">Song</label><input type="text" id="song" name="song" maxlength="160" placeholder="e.g. Lose Control"></div>
+<div><label for="artist">Original artist</label><input type="text" id="artist" name="artist" maxlength="160" placeholder="e.g. Teddy Swims"></div>
+</div>
+<div class="sx-row">
+<div><label for="capture">Where was it recorded?</label>
+<select id="capture" name="capture" required><option value="">Choose…</option><option value="studio">Studio</option><option value="home">Home</option><option value="live">Live (gig, karaoke, open mic)</option></select></div>
+<div><label for="intent">What was it?</label>
+<select id="intent" name="intent"><option value="performance">A performance</option><option value="learning">Learning the song</option><option value="warmup">A warm-up</option></select></div>
+</div>
+<label for="note">Notes (optional)</label><input type="text" id="note" name="note" maxlength="200" placeholder="e.g. one ear monitor, end of a long night">
+<button class="sx-btn" type="submit" id="uploadBtn">Upload and analyse</button>
+<div class="sx-progress" id="bar" hidden><i></i></div>
+<div class="sx-msg" id="msg" role="status"></div>
+</form>
+</section>
+<section class="sx-card">
+<h2>My results</h2>
+<ul class="sx-list" id="jobs"><li class="sx-muted" style="padding:12px 2px">Loading…</li></ul>
+</section>
+<p class="sx-foot">Singnexa beta · your audio is deleted once the analysis is done; the results are kept until you delete them.</p>
+</main>
+<script src="/static/singnexa.js" defer></script></body></html>

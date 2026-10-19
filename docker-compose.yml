@@ -42,6 +42,47 @@ services:
     #           count: 1
     #           capabilities: [gpu]
 
+  # --- Singnexa beta: the public, login-gated app for invited test users -----
+  # Same image, its own command, port and data. Analyze only (no Polish/Fused),
+  # no YouTube lookup, uploads deleted after analysis, results kept.
+  # Bound to 127.0.0.1 on purpose: reach it only through an HTTPS tunnel or
+  # proxy on this host (Tailscale Funnel, Cloudflare Tunnel, Caddy) — see
+  # docs/handoffs/SINGNEXA_BETA_DEPLOY.md.
+  #
+  #   docker compose up -d --build singnexa
+  #   docker compose exec singnexa singnexa-admin create-user aaron --name "Aaron" --admin
+  singnexa:
+    image: voxsuite:latest
+    build:
+      context: .
+      args:
+        WITH_SEPARATION: "1"
+        WITH_PITCH: "1"
+        PREFETCH_MODEL: "1"
+        VOX_BUILD_COMMIT: "${VOX_BUILD_COMMIT:-}"
+        VOX_BUILD_BRANCH: "${VOX_BUILD_BRANCH:-}"
+    command: ["singnexa", "--host", "0.0.0.0", "--port", "8090", "--data", "/data/singnexa"]
+    ports:
+      - "127.0.0.1:8090:8090"
+    volumes:
+      - singnexa-data:/data
+    environment:
+      SINGNEXA_DATA: /data/singnexa
+      SINGNEXA_COOKIE_SECURE: "1"          # it is served over HTTPS by the tunnel
+      SINGNEXA_TRUSTED_PROXIES: "*"        # only the local tunnel can reach the port
+      SINGNEXA_MAX_UPLOAD_MB: "300"
+      SINGNEXA_DAILY_LIMIT: "10"
+      # CPU-only separation is slow: give long songs room before a timeout.
+      VOX_PITCH_TIMEOUT: "5400"
+      VOX_STEM_TIMEOUT: "4500"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8090/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    restart: unless-stopped
+
   # --- TLS + auth for a public cloud instance (optional) ---------------------
   # The mic (monitor/TimberTones) needs HTTPS, and the engine + private singer
   # data must sit behind a login. Front `vox` with a reverse proxy that
@@ -58,4 +99,5 @@ services:
 
 volumes:
   vox-data:
+  singnexa-data:
   # caddy-data:
