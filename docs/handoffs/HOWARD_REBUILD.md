@@ -78,12 +78,15 @@ docker exec vox-suite-deploy-vox-1 python -c "import setuptools, pkg_resources; 
 
 From the deploy dir, compose auto-loads `docker-compose.yml` + the override and
 uses project `vox-suite-deploy` — no extra flags. Build **first** so the service
-stays up until the swap (minimal downtime):
+stays up until the swap (minimal downtime). Name the `vox` service in both
+commands: the compose file also holds the Singnexa beta (`singnexa`, its own
+`singnexa:beta` image, see `SINGNEXA_BETA_DEPLOY.md`), and a bare `build` /
+`up -d` would rebuild and restart that too.
 
 ```bash
 cd ~/.openclaw/workspace/vox-suite-deploy && \
-docker compose build --no-cache && \
-docker compose up -d && \
+docker compose build --no-cache vox && \
+docker compose up -d vox && \
 sleep 5 && \
 curl -fsS http://localhost:18080/api/build | python3 -m json.tool
 ```
@@ -91,7 +94,7 @@ curl -fsS http://localhost:18080/api/build | python3 -m json.tool
 `--no-cache` is what forces the dependency layer to re-resolve (the whole point of
 the Auto Tune fix). Then confirm `/api/build` shows `"commit": "<SHA prefix>…"` and
 `"matches_head": true`. If it still shows the old commit, the image didn't
-rebuild — re-run `docker compose build --no-cache`; if that fails on disk space,
+rebuild — re-run `docker compose build --no-cache vox`; if that fails on disk space,
 `docker system prune -f` to free the layer cache first.
 
 ## Smoke test (after a rebuild)

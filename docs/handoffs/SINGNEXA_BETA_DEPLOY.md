@@ -52,8 +52,13 @@ yet.** Run the check by hand and fix what it says:
 docker compose exec singnexa python3 tools/score_preflight.py
 ```
 
-- The `singnexa` service uses the same `voxsuite:latest` image as the suite,
-  with its own volume, `singnexa-data`.
+- The `singnexa` service builds from the same Dockerfile as the suite, but
+  under its own image tag, `singnexa:beta`, with its own volume,
+  `singnexa-data`. Building it never retags `voxsuite:latest`, so `vox` is not
+  swapped onto the new build behind your back.
+- Always name the service: `docker compose build singnexa` and
+  `docker compose up -d singnexa`. A bare `docker compose up -d` starts or
+  recreates every service in the file.
 - It listens on **127.0.0.1:8090 only**, so nothing outside the box can reach
   it until you put an HTTPS tunnel in front (Step 3).
 - The existing `vox` service on 18080 is untouched.

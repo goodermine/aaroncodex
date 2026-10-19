@@ -43,7 +43,10 @@ services:
     #           capabilities: [gpu]
 
   # --- Singnexa beta: the public, login-gated app for invited test users -----
-  # Same image, its own command, port and data. Analyze only (no Polish/Fused),
+  # Same Dockerfile, but its own image tag (singnexa:beta), command, port and
+  # data. The separate tag matters: if both services shared voxsuite:latest,
+  # building singnexa would retag it and the next bare `docker compose up -d`
+  # would quietly recreate `vox` on that build. Analyze only (no Polish/Fused),
   # no YouTube lookup, uploads deleted after analysis, results kept.
   # Bound to 127.0.0.1 on purpose: reach it only through an HTTPS tunnel or
   # proxy on this host (Tailscale Funnel, Cloudflare Tunnel, Caddy) — see
@@ -52,7 +55,7 @@ services:
   #   docker compose up -d --build singnexa
   #   docker compose exec singnexa singnexa-admin create-user aaron --name "Aaron" --admin
   singnexa:
-    image: voxsuite:latest
+    image: singnexa:beta
     build:
       context: .
       args:
