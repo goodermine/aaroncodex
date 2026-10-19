@@ -309,6 +309,23 @@ class ApiTests(unittest.TestCase):
         # the tracker runs in its own process group so a timeout kills the whole tree
         self.assertTrue(popen.call_args.kwargs.get("start_new_session"))
 
+    def test_manifest_can_opt_out_of_spectral_export(self):
+        job_dir = Path(self.temp.name) / str(uuid.uuid4())
+        job_dir.mkdir()
+        (job_dir / "upload.wav").touch()
+        self.module._write_manifest(job_dir, {
+            "id": job_dir.name, "status": "queued", "stage": "queued",
+            "upload_file": "upload.wav", "comparison_enabled": False,
+            "export_spectral": False,
+        })
+        failed = type("Proc", (), {
+            "returncode": 2, "pid": 12345,
+            "communicate": lambda self, timeout=None: ("analysis_failed", None),
+        })()
+        with patch.object(self.module.subprocess, "Popen", return_value=failed) as popen:
+            self.module._process(job_dir.name)
+        self.assertNotIn("--export-spectral", popen.call_args.args[0])
+
     def test_timeout_finalises_the_manifest_as_failed(self):
         """A tracker timeout must mark the job failed/analysis_timeout — the old
         handler crashed on TimeoutExpired's bytes stdout and left it 'processing'

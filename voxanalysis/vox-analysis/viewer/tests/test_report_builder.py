@@ -119,7 +119,7 @@ class ReportBuilderTests(unittest.TestCase):
         text = render_full_results_text(report, {"file_name": "take.wav",
                                                  "robust_min_note": "E3", "robust_max_note": "A5"})
         # header + provenance
-        self.assertIn("VOX ANALYSIS — FULL RESULTS", text)
+        self.assertIn("SINGNEXA — FULL RESULTS", text)
         self.assertIn("take.wav", text)
         self.assertIn("Overall: 8.4/10", text)
         self.assertIn("Capture-fair: 8.8/10", text)

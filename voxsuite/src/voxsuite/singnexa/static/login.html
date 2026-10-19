@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Sign in · Singnexa</title>
+<link rel="icon" href="/static/vox-icon-192.png">
+<link rel="apple-touch-icon" href="/static/vox-icon-180.png">
+<link rel="stylesheet" href="/static/vox-tokens.css">
+<link rel="stylesheet" href="/static/singnexa.css">
+</head>
+<body data-page="login">
+<main><div class="sx-card sx-narrow">
+<h1>Sing<span style="color:var(--vox-accent)">nexa</span></h1>
+<p class="sx-muted">Beta access is by invitation. Sign in with the username and password you were given.</p>
+<form id="loginForm" autocomplete="on">
+<label for="username">Username</label><input type="text" id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+<label for="password">Password</label><input type="password" id="password" name="password" autocomplete="current-password" required>
+<button class="sx-btn" type="submit">Sign in</button>
+<div class="sx-msg err" id="msg" role="alert"></div>
+</form></div></main>
+<script src="/static/singnexa.js" defer></script></body></html>
