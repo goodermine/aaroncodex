@@ -155,7 +155,7 @@
       for (var k in obj) { var v = obj[k]; if (typeof v === "number" || typeof v === "string" || typeof v === "boolean") parts.push(k + ": " + v); }
       return parts.join(" · ");
     }
-    line("VOX ANALYSIS — FULL RESULTS");
+    line("SINGNEXA — FULL RESULTS");
     if (report.headline) line(report.headline);
     line("");
     line("SCORES");
@@ -191,7 +191,7 @@
     block("INFERRED (verify by ear)", report.inferred);
     block("UNVERIFIABLE FROM AUDIO", report.unverifiable);
     line("");
-    line("Deterministic VOXAI rubric — identical audio gives identical scores; calibrated against 50 professional reference vocals.");
+    line("Deterministic Singnexa rubric — identical audio gives identical scores; calibrated against 50 professional reference vocals.");
     return L.join("\n");
   }
 
@@ -200,7 +200,7 @@
     var report = opts.report, result = opts.result || {}, reportUrl = opts.reportUrl, onSeek = opts.onSeek || function () {};
     container.classList.add("vox-report");
     if (!report) {
-      container.innerHTML = '<div class="vox-rpt-warn">The detailed VOXAI report is unavailable for this recording.</div>';
+      container.innerHTML = '<div class="vox-rpt-warn">The detailed Singnexa report is unavailable for this recording.</div>';
       container.removeAttribute("hidden"); return;
     }
     var s = report.score || {}, m = report.metrics || {}, intonation = m.intonation || {}, voice = m.voice_quality || {},
@@ -254,7 +254,7 @@
       list("Inferred coaching interpretation", report.inferred, "inferred") +
       list("Unverifiable from audio alone", report.unverifiable, "unverifiable"));
     var technical = '<details class="rack technical-report" id="voxTechnicalRack"><summary><div><div class="kicker">Analysis rack</div><strong>Full technical report</strong></div>' +
-      '<span class="rack-summary">Calibrated VOXAI analysis</span></summary><div class="rack-body technical-body" id="voxTechnicalReport"><p class="quality">Open this rack to load the full report.</p></div></details>';
+      '<span class="rack-summary">Calibrated Singnexa analysis</span></summary><div class="rack-body technical-body" id="voxTechnicalReport"><p class="quality">Open this rack to load the full report.</p></div></details>';
 
     var actions = '<div class="report-actions"><button type="button" class="vox-rpt-copy">&#10697; Copy full results</button>' +
       '<span class="report-actions__hint">copies every score, metric and caveat as text — paste the whole thing, not a summary</span></div>';
