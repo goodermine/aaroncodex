@@ -101,8 +101,17 @@ def main() -> int:
               file=sys.stderr)
         d = json.load(open(path)).get("technical_score", {})
         print("Fallback — headline + components (still owe the singer the full report):")
-        print(f"  overall     : {d.get('overall_score_0_to_10')}/10")
-        print(f"  capture-fair: {d.get('capture_fair_score_0_to_10')}/10")
+        ov, cf = d.get("overall_score_0_to_10"), d.get("capture_fair_score_0_to_10")
+        print(f"  overall     : {ov}/10")
+        print(f"  capture-fair: {cf}/10")
+        if ov is not None and cf is not None:
+            # House rule (CLAUDE.md rule 5): lead with the HIGHER of the two, the
+            # other beside it. Mirrors report_builder.render_full_results_text so
+            # the fallback cannot headline a different number than the real report.
+            (lead, lv), (other, ov2) = ((("overall", ov), ("capture-fair", cf)) if ov >= cf
+                                        else (("capture-fair", cf), ("overall", ov)))
+            print(f"  LEAD WITH   : {lv}/10 {lead} — the higher of the two; "
+                  f"give {ov2}/10 {other} beside it")
         print(f"  confidence  : {d.get('confidence')}")
         for k, v in (d.get("components") or {}).items():
             if isinstance(v, dict):
