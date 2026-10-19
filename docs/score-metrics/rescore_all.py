@@ -33,7 +33,11 @@ cal = load_calibration(DEFAULT_CALIBRATION_PATH)
 # under Aaron and counted in his solo average, with its song name mangled to
 # "and-rilda-burning-down-the-house". The archive's own artist_name field ("Aaron
 # and Rilda") is the ground truth, and test_singer_identity.py checks against it.
-SINGERS = ("aaron-and-rilda", "aaron-g", "aaron", "rilda", "chris", "leo")
+SINGERS = ("aaron-and-rilda", "aaron-g", "aaron", "rilda", "chris", "leo", "gresh")
+# "aaron-g" is the OLD slug for Gresh (renamed 19 Oct 2026 at Aaron's request).
+# It stays in the match list -- longest first, so an old "aaron-g-*" name can
+# never fall through to "aaron" -- and resolves to the canonical "gresh".
+SINGER_ALIASES = {"aaron-g": "gresh"}
 
 
 def _sings(name, token):
@@ -50,7 +54,7 @@ def date_of(name):
     m = re.search(r"20\d\d-\d\d-\d\d", name); return m.group(0) if m else "0000-00-00"
 def singer(name):
     for s in SINGERS:                      # longest first: aaron-g before aaron
-        if _sings(name, s): return s
+        if _sings(name, s): return SINGER_ALIASES.get(s, s)
     return "reference"
 # The take number resets per recording SESSION, not globally, so "take-001"
 # recurring across many dates is the real repeat signal, not a coincidence to

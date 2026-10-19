@@ -53,7 +53,8 @@ def test_take_key_strips_only_pipeline_suffixes():
 
 def test_artist_is_read_from_the_filename_longest_token_first():
     m = _load()
-    assert m.artist_of("2026-07-11-aaron-g-vienna-take-001") == "Aaron G"
+    assert m.artist_of("2026-07-11-aaron-g-vienna-take-001") == "Gresh"   # old slug -> Gresh
+    assert m.artist_of("2026-10-16-gresh-easy-take-001") == "Gresh"
     assert m.artist_of("2026-07-11-aaron-danger-zone-take-003") == "Aaron"
     assert m.artist_of("2026-07-25-rilda-dreams-take-001") == "Rilda"
     assert m.artist_of("leo-chasin-that-neon-rainbow-2026-07-11") == "Leo"
