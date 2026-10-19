@@ -115,7 +115,8 @@ def test_everything_needs_sign_in(env):
     assert client.get("/admin", follow_redirects=False).status_code == 303
     assert client.get("/api/jobs").status_code == 401
     assert client.get("/login").status_code == 200
-    assert client.get("/healthz").json()["ok"] is True
+    health = client.get("/healthz").json()
+    assert health["ok"] is True and "commit" in health
 
 
 def test_bad_password_and_throttle(env):
