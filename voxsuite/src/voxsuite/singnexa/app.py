@@ -293,7 +293,10 @@ def create_app(data_dir, pipeline=None, *, cookie_secure: bool | None = None) ->
     @app.get("/healthz")
     def healthz():
         pf = pipeline.preflight or {}
-        return {"ok": True, "scores_published": pf.get("ok") is True}
+        # commit = the deployed code (VOX_BUILD_COMMIT build arg); the "build"
+        # in a report is the scorer's rubric fingerprint, a different thing.
+        return {"ok": True, "scores_published": pf.get("ok") is True,
+                "commit": os.environ.get("VOX_BUILD_COMMIT") or None}
 
     # ---- auth API -------------------------------------------------------
     @app.post("/api/login")
