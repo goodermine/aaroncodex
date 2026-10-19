@@ -55,7 +55,7 @@ MUTE = "#6b7280"
 BAND = "#eef1f5"
 CLEAN_TH = 35       # +/- cents = the "clean zone"
 
-_SINGERS = ("aaron-and-rilda", "aaron-g", "aaron", "rilda", "chris", "leo")
+_SINGERS = ("aaron-and-rilda", "aaron-g", "aaron", "rilda", "chris", "leo", "gresh")  # aaron-g = old slug for gresh
 
 
 def song_slug(take_name: str) -> str:

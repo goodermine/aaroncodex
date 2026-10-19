@@ -22,8 +22,8 @@ This module gives every long-running stage the same guarantees:
   of the group still alive after the leader exits are reaped too.
 * **Structured failure records.** Every failure carries the command, stage,
   exit code, elapsed time, the stdout/stderr tails and the full log paths, and
-  a ``kind``: timeout, resource_limit, busy, cancelled, killed or error. Only
-  timeout and resource_limit set ``shorter_clip_may_help``.
+  a ``kind``: timeout, resource_limit, busy, cancelled, killed, dependency or
+  error. Only timeout and resource_limit set ``shorter_clip_may_help``.
 * **Heartbeat.** A JSON status file is rewritten every few seconds with the
   state, elapsed time, timeout, PID/PGID and the separator's progress, and a
   one-line heartbeat is echoed to stderr.
@@ -213,6 +213,7 @@ def failure_record(*, stage: str, command, kind: str, exit_code=None, elapsed_s=
             "resource_limit": f"{stage} ran out of memory/disk or was killed by the system: {reason}",
             "busy": f"{stage} could not start: another separation holds the lock",
             "killed": f"{stage} was killed by a signal (exit {exit_code}) with no sign of a resource limit",
+            "dependency": f"{stage}: a required Python module is missing",
         }.get(kind, f"{stage} failed (exit {exit_code}): {reason}")
     record = {
         "status": "failed",

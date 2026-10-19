@@ -204,6 +204,38 @@ def main() -> int:
     else:
         print(f"{OK}  one separation model throughout: {A.PINNED_SEPARATOR}")
 
+    # 4b. scored takes that were never separated. The model check above skips
+    # them (no model to compare), so without this a full-mix score — which
+    # measures the band as well as the voice (CLAUDE.md rule 4) — passed as
+    # "safe to publish". A take with no backing declares
+    # take_context.vocal_source "dry" or "isolated_stem"; report_builder
+    # withholds the headline of any other unseparated score.
+    unseparated = []
+    for path in sorted(glob.glob(os.path.join(ARCHIVE, "*_analysis.json"))):
+        try:
+            with open(path) as fh:
+                data = json.load(fh) or {}
+        except (OSError, json.JSONDecodeError):
+            continue
+        score = data.get("technical_score") or {}
+        if score.get("overall_score_0_to_10") is None or A._stem_model(data):
+            continue
+        source = (data.get("take_context") or {}).get("vocal_source")
+        if source in ("dry", "isolated_stem"):
+            continue
+        if (data.get("stem_separation") or {}).get("source") == "supplied_backing":
+            continue
+        unseparated.append(os.path.basename(path))
+    if unseparated:
+        print(f"{WARN}  {len(unseparated)} scored take(s) were never separated and declare no "
+              "dry/isolated source; their headline is withheld in reports:")
+        for name in unseparated:
+            print(f"        - {name}")
+        print("      Fix: re-analyse with --separate-stems, or set take_context.vocal_source")
+        print("      to 'dry' / 'isolated_stem' if the recording has no backing.")
+    else:
+        print(f"{OK}  every scored take was separated or declares a dry/isolated source")
+
     # 5. one MEASUREMENT era across the archive, the reference pack and this engine.
     #
     # The rubric fingerprint hashes the scoring maths only, so a change to how a

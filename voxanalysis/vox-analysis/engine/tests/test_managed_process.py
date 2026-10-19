@@ -270,3 +270,52 @@ def test_candi_never_suggests_a_shorter_clip_for_a_plain_error(monkeypatch, tmp_
     payload = candi.backend_failure_payload(rec, tmp_path / "f.json")
     assert payload["suggest_shorter_clip"] is False
     assert "shorter" in payload["reply_guidance"] and "Do not ask" in payload["reply_guidance"]
+
+
+def test_engine_fails_fast_on_a_missing_module_before_any_separation(monkeypatch, tmp_path):
+    """Candi's host ran the backend on a python3 without matplotlib: the run
+    separated for 774 s and only then died drawing the plots."""
+    import analyse_song as A
+    take = tmp_path / "take.wav"
+    take.touch()
+    record_path = tmp_path / "failure.json"
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VOX_FAILURE_RECORD", str(record_path))
+    monkeypatch.setattr(A, "LAZY_RUNTIME_MODULES", ("vox_no_such_module_for_test",))
+
+    def never(*_a, **_k):
+        raise AssertionError("separation must not start when a dependency is missing")
+
+    monkeypatch.setattr(A, "run_stem_separation", never)
+    monkeypatch.setattr(sys, "argv", ["analyse_song.py", str(take), "--separate-stems"])
+    with pytest.raises(SystemExit) as info:
+        A.main()
+    assert info.value.code == 1
+    rec = json.loads(record_path.read_text())
+    assert rec["kind"] == "dependency" and rec["stage"] == "dependency_check"
+    assert rec["missing_modules"] == ["vox_no_such_module_for_test"]
+    assert rec["shorter_clip_may_help"] is False
+    assert "install.sh" in rec["summary"]
+
+
+def test_candi_backend_interpreter_override(monkeypatch, tmp_path):
+    candi = _load_candi(monkeypatch, tmp_path, "")
+    monkeypatch.delenv("VOXAI_BACKEND_PYTHON", raising=False)
+    assert candi.backend_interpreter() == sys.executable  # no voxai_env -> PATH python
+    monkeypatch.setenv("VOXAI_BACKEND_PYTHON", "/opt/vox/bin/python")
+    assert candi.backend_interpreter() == "/opt/vox/bin/python"
+
+
+def test_candi_dependency_failure_is_not_a_shorter_clip_case(monkeypatch, tmp_path):
+    body = (
+        "import json, os, sys\n"
+        "json.dump({'stage': 'dependency_check', 'kind': 'dependency', 'shorter_clip_may_help': False,\n"
+        "           'summary': 'python3 is missing required module(s): matplotlib'},\n"
+        "          open(os.environ['VOX_FAILURE_RECORD'], 'w'))\n"
+        "sys.exit(1)\n")
+    candi = _load_candi(monkeypatch, tmp_path, body)
+    with pytest.raises(candi.BackendFailure) as info:
+        candi.run_backend(tmp_path / "take.wav", "Aaron G", "take-003")
+    rec = info.value.record
+    assert rec["failed_stage"] == "dependency_check" and rec["kind"] == "dependency"
+    assert candi.backend_failure_payload(rec, tmp_path / "f.json")["suggest_shorter_clip"] is False

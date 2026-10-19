@@ -64,6 +64,8 @@ Rules (mirrored in the skill):
 - `043-radio-ready-master-only.md` — polishes deliver only the "radio ready" master (WAV + MP3); no vocal up/down copies
 - `044-one-ear-monitor.md` — Aaron's one-ear in-ear monitor setup; record monitor yes/no on each take
 - `045-planned-oldies-list.md` — the ten planned new songs (Runaround Sue … Friday on My Mind); measure originals before keys
+- `046-results-plain-english-first.md` — deliver results as plain English first, then full results as formatted markdown (never a code block)
+- `047-gresh-is-aaron-g.md` — Gresh = the singer formerly filed as Aaron G; slug `gresh` (aaron-g is an alias); "Aaron - Greshmans" files stay Aaron's
 
 *(approved from /dream runs of 2026-08-04 and 2026-08-05)*
 *(021–029 mirrored from the Claude Code session memory, approved 2026-08-09)*
@@ -71,3 +73,5 @@ Rules (mirrored in the skill):
 *(031–041 and edits to 004/006, retirement of 017: approved via /dream apply all, 2026-10-14)*
 *(042–044 given directly by Aaron, 2026-10-15)*
 *(045 given directly by Aaron, 2026-10-16)*
+*(046 given directly by Aaron, 2026-10-17)*
+*(047 given directly by Aaron, 2026-10-19)*

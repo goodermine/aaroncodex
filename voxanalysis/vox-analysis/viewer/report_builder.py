@@ -97,6 +97,14 @@ def _interim_stability_note(raw: dict) -> dict | None:
     }
 
 
+# The components the rubric itself sets aside for capture-fair because they
+# measure the microphone and room as much as the voice. Mirrors
+# _CAPTURE_SENSITIVE inside analyse_song.compute_technical_score. It lives here
+# rather than as a flag on each component because editing the scoring function
+# would change rubric_fingerprint and split every archived score from new ones.
+CAPTURE_SENSITIVE_COMPONENTS = ("voice_quality", "dynamics_expression")
+
+
 def _component_rows(raw: dict) -> list[dict]:
     labels = {
         "intonation_accuracy": "Pitch centre",
@@ -119,8 +127,10 @@ def _component_rows(raw: dict) -> list[dict]:
             "score": _number(value.get("score"), 2),
             "basis": value.get("input", ""),
             # Carried through so the focus picker can avoid coaching off the
-            # microphone. The engine declares this per component.
-            "capture_sensitive": bool(value.get("capture_sensitive")),
+            # microphone (CLAUDE.md rule 7). The engine flags only dynamics on
+            # the component itself, so the rubric's capture-fair list is applied too.
+            "capture_sensitive": (bool(value.get("capture_sensitive"))
+                                  or key in CAPTURE_SENSITIVE_COMPONENTS),
             "withheld": False,
         }
         if key == "pitch_stability" and mismatch:
@@ -291,6 +301,7 @@ def _practice_plan(focus: dict) -> dict:
         "Vibrato control": "Held-note stability",
         "Dynamics": "Held-note stability",
         "Phrase control": "Phrase endings",
+        "Breath support": "Phrase endings",
     }.get(pillar, pillar)
     plans = {
         "Held-note stability": {
@@ -400,6 +411,45 @@ def _context_feedback(conditions: str) -> dict:
     }
 
 
+def _score_is_legacy(score: dict) -> bool:
+    """The engine's own is_legacy_score() (contract AND rubric), not just "has a
+    contract": an older rubric that carried a contract is still not quotable
+    (CLAUDE.md rule 3). Falls back to the contract check if the engine cannot
+    be imported here."""
+    try:
+        import os
+        import sys
+        engine = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "engine")
+        if engine not in sys.path:
+            sys.path.insert(0, engine)
+        from analyse_song import is_legacy_score
+        return bool(is_legacy_score(score))
+    except Exception:
+        return not _get(score, "identity", "contract")
+
+
+VOCAL_SOURCES_WITHOUT_SEPARATION = ("dry", "isolated_stem")
+
+
+def _unseparated_reason(raw: dict, score: dict) -> str | None:
+    """CLAUDE.md rule 4: a score from audio that was never separated measures the
+    band as well as the voice, so its headline is withheld unless the take
+    declares a source that needs no separation (a dry vocal, or a stem already
+    isolated elsewhere) or brought its own backing track."""
+    identity = score.get("identity") or {}
+    if "stem_model" not in identity or identity.get("stem_model"):
+        return None
+    separation = raw.get("stem_separation") or {}
+    if separation.get("enabled") or separation.get("source") == "supplied_backing":
+        return None
+    if (raw.get("take_context") or {}).get("vocal_source") in VOCAL_SOURCES_WITHOUT_SEPARATION:
+        return None
+    return ("stem separation did not run, so this score would measure the backing as "
+            "well as the voice. Re-analyse with --separate-stems, or set "
+            "take_context.vocal_source to 'dry' or 'isolated_stem' if the recording "
+            "has no backing.")
+
+
 def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = None) -> dict:
     components = _component_rows(raw)
     focus = _primary_focus(raw, components)
@@ -418,7 +468,16 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
     harmonics = raw.get("harmonics") or {}
     vowel_space = formants.get("vowel_space") or {}
     flags = raw.get("diagnostic_flags") or []
-    overall = score.get("overall_score_0_to_10")
+    legacy = bool(score) and _score_is_legacy(score)
+    withheld_reason = None
+    if score.get("overall_score_0_to_10") is not None:
+        if legacy:
+            withheld_reason = ("legacy score from a superseded rubric. Re-score this take "
+                               "with the current engine before quoting it.")
+        else:
+            withheld_reason = _unseparated_reason(raw, score)
+    overall = None if withheld_reason else score.get("overall_score_0_to_10")
+    capture_fair = None if withheld_reason else score.get("capture_fair_score_0_to_10")
     confidence = score.get("confidence", "unknown")
     headline = (
         "Strong technical foundation with one clear refinement target."
@@ -483,7 +542,8 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
         "word_drift": raw.get("word_drift"),
         "score": {
             "overall": _number(overall, 1),
-            "capture_fair": _number(score.get("capture_fair_score_0_to_10"), 1),
+            "capture_fair": _number(capture_fair, 1),
+            "withheld_reason": withheld_reason,
             "confidence": confidence,
             "components": components,
             "calibration_references": _get(score, "calibration", "n_references"),
@@ -494,7 +554,7 @@ def build_v2_report(raw: dict, conditions: str = "", comparison: dict | None = N
             # only be compared when these match; a score with no identity came
             # from a superseded rubric and must be re-scored, never quoted.
             "identity": _get(score, "identity") or None,
-            "legacy": not _get(score, "identity", "contract"),
+            "legacy": legacy,
             "calibrated": bool(_get(score, "calibration", "active")),
             "capture_risk": (
                 _get(raw, "time_diagnostics", "environment_risk",
@@ -643,8 +703,12 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
     # ---- scores (overall + capture-fair + provenance, matching the badge) ----
     line("SCORES")
     overall, cf, conf = s.get("overall"), s.get("capture_fair"), s.get("confidence") or "—"
-    line(f"Overall: {overall}/10  ({conf} confidence)"
-         if overall is not None else "Overall: — (score withheld pending calibration review)")
+    if overall is not None:
+        line(f"Overall: {overall}/10  ({conf} confidence)")
+    elif s.get("withheld_reason"):
+        line(f"Overall: — (withheld: {s['withheld_reason']})")
+    else:
+        line("Overall: — (score withheld pending calibration review)")
     tc = report.get("take_context") or {}
     capture = tc.get("capture")
     if cf is None:

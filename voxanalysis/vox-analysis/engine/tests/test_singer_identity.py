@@ -32,7 +32,7 @@ def _repo_root(start: str) -> str:
 ROOT = _repo_root(os.path.dirname(os.path.abspath(__file__)))
 ARCHIVE = os.path.join(ROOT, "voxanalysis/archive/scratch-analyses")
 
-EXPECTED_ARTIST = {"aaron": "Aaron", "aaron-g": "Aaron G", "rilda": "Rilda",
+EXPECTED_ARTIST = {"aaron": "Aaron", "gresh": "Gresh", "rilda": "Rilda",
                    "chris": "Chris", "leo": "Leo",
                    "aaron-and-rilda": "Aaron and Rilda"}
 
@@ -56,11 +56,12 @@ def _rescore_module():
 
 
 def test_aaron_g_is_not_filed_under_aaron():
+    """aaron-g is the old slug for Gresh: it must resolve to gresh, never aaron."""
     ns = _rescore_module()
     singer = ns["singer"]
-    assert singer("2026-07-11-aaron-g-vienna-take-001") == "aaron-g"
-    assert singer("2026-07-11-aaron-g-1973-take-001") == "aaron-g"
-    assert singer("2026-07-11-aaron-g-if-you-could-read-my-mind-take-001") == "aaron-g"
+    assert singer("2026-07-11-aaron-g-vienna-take-001") == "gresh"
+    assert singer("2026-07-11-aaron-g-1973-take-001") == "gresh"
+    assert singer("2026-07-11-aaron-g-if-you-could-read-my-mind-take-001") == "gresh"
 
 
 def test_a_song_starting_with_g_is_not_mistaken_for_aaron_g():
@@ -114,3 +115,26 @@ def test_a_duet_is_its_own_singer_not_either_half():
     sys.path.insert(0, os.path.join(ROOT, "tools"))
     import ranked_takes
     assert ranked_takes._singer(name) == "aaron-and-rilda"
+
+
+def test_gresh_and_his_old_aaron_g_slug_are_one_singer():
+    """Aaron G was renamed Gresh on 19 Oct 2026 (same person). New takes use
+    "gresh"; any old "aaron-g" name still resolves to gresh. Neither may land
+    under Aaron -- including Aaron's own takes recorded at Gresh's place
+    ("...-greshmans"), which stay Aaron's because matching is on the whole
+    "gresh-" token."""
+    ns = _rescore_module()
+    singer, song = ns["singer"], ns["song"]
+    assert singer("2026-10-16-gresh-easy-take-001") == "gresh"
+    assert song("2026-10-16-gresh-easy-take-001") == "easy"
+    assert song("2026-07-11-aaron-g-vienna-take-001") == "vienna"
+    assert singer("2026-10-10-aaron-funky-cold-medina-greshmans-take-001") == "aaron"
+
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import ranked_takes
+    assert ranked_takes._singer("2026-10-16-gresh-easy-take-001") == "gresh"
+    assert ranked_takes._singer("2026-07-11-aaron-g-vienna-take-001") == "gresh"
+    assert ranked_takes._song("2026-07-11-aaron-g-vienna-take-001", "gresh") == "Vienna"
+    assert ranked_takes._song("2026-10-16-gresh-easy-take-001", "gresh") == "Easy"
+    assert ranked_takes.canonical_singer("aaron-g") == "gresh"
+    assert ranked_takes._singer("2026-10-10-aaron-funky-cold-medina-greshmans-take-001") == "aaron"

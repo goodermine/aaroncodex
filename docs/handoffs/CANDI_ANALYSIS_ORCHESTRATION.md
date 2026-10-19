@@ -67,7 +67,21 @@ path (`pitch_track.separate_stems`).
   | `busy` | The separation slot stayed held past the lock wait. |
   | `cancelled` | The job was cancelled. |
   | `killed` | A bare signal, for example a hand `kill -9`. |
+  | `dependency` | The Python running the engine lacks a required module. The engine checks before separating, so this fails in seconds. |
   | `error` | Any other failure. |
+
+## Which Python runs the engine
+
+`candi_phase1.py` picks, in order:
+
+1. `VOXAI_BACKEND_PYTHON`, if set.
+2. `vox-analysis/engine/voxai_env/bin/python`, created by `engine/install.sh`
+   with everything in `engine/requirements.txt`.
+3. `python3` on `PATH`.
+
+On 16 Oct the Aaron G retry fell through to `/usr/bin/python3`, which has no
+matplotlib. To fix that, either run `bash vox-analysis/engine/install.sh` once,
+or point `VOXAI_BACKEND_PYTHON` at an interpreter that has the requirements.
 
 ## Rules for the agent
 
