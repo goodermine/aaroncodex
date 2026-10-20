@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.49. Dynamics component spreads 5.0–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.5. Dynamics component spreads 5.0–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 352/377 takes.
+Full coverage: 353/378 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -298,6 +298,7 @@ Full coverage: 352/377 takes.
 | gresh | dont-stop-believing | 169 | **8.8** | 8.2 | high | 10.0 | 1.95 | 10.0 | 10.0 | 9.98 | 8.91 | 10.0 |
 | gresh | we-are | 226 | **9.7** | 9.7 | high | 10.0 | 10.0 | 10.0 | 8.55 | 9.11 | 10.0 | 10.0 |
 | gresh | easy | 222 | **8.1** | 7.3 | high | 8.0 | 0.0 | 10.0 | 9.74 | 9.79 | 10.0 | 9.86 |
+| gresh | holy-grail | 169 | **9.2** | 8.9 | high | 10.0 | 4.53 | 10.0 | 10.0 | 9.92 | 10.0 | 10.0 |
 | gresh | man-i-need | 197 | **9.1** | 8.9 | high | 10.0 | 10.0 | 10.0 | 10.0 | 8.71 | 6.21 | 5.64 |
 | gresh | u-got-it-bad | 249 | **9.6** | 9.7 | high | 10.0 | 10.0 | 10.0 | 9.95 | 8.81 | 10.0 | 7.9 |
 | leo | chasin-that-neon-rainbow | 204 | **6.9** | 6.6 | high | 8.0 | 2.58 | 6.03 | 8.59 | 9.33 | 7.7 | 5.4 |
