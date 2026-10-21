@@ -6,9 +6,9 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 ## Singer takes
 
-Overall: min 5.4 · max 9.7 · mean 7.5. Dynamics component spreads 5.0–10.0 (was a flat 10.0 for every take in v3).
+Overall: min 5.4 · max 9.7 · mean 7.51. Dynamics component spreads 5.0–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 361/386 takes.
+Full coverage: 362/387 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -316,6 +316,7 @@ Full coverage: 361/386 takes.
 | leo | american-trilogy | 200 | **7.5** | 8.0 | high | 8.0 | 10.0 | 6.29 | 8.64 | 6.98 | 4.36 | 7.64 |
 | leo | bat-out-of-hell | 424 | **9.0** | 9.3 | high | 10.0 | 7.91 | 8.3 | 10.0 | 8.35 | 10.0 | 7.95 |
 | leo | bat-out-of-hell | 319 | **6.4** | 7.2 | high | 6.0 | 10.0 | 2.05 | 9.15 | 8.34 | 2.73 | 7.76 |
+| leo | if-i-can-dream | 205 | **9.6** | 9.6 | high | 10.0 | 9.34 | 10.0 | 8.94 | 9.3 | 10.0 | 9.65 |
 | rilda | flowers | 204 | **7.9** | 7.2 | high | 10.0 | 0.0 | 10.0 | 9.82 | 8.6 | 7.94 | 6.61 |
 | rilda | nutbush-city-limits | 120 | **7.5** | 6.5 | high | 8.0 | 0.0 | 10.0 | 10.0 | 9.19 | 5.64 | 7.81 |
 | rilda | blue-bayou | 225 | **6.8** | 6.7 | high | 10.0 | 0.0 | 6.06 | 10.0 | 8.47 | 4.45 | 5.8 |
