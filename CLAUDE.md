@@ -186,6 +186,25 @@ The PR is mandatory archive plumbing, not a substitute for delivering the
 analysis under rules 6 and 8. Do not commit source audio, separated stems or
 local coaching reports unless Aaron explicitly asks for them.
 
+## 10. When Aaron asks for the words map, make it with the repo tool
+
+"Words map", "lyrics on the onset map", "show me the words on the graph" — any
+request to see which word sits on each note — means:
+
+```bash
+python3 tools/word_onset_map.py <take>_analysis.json --stem <vocal stem the engine analysed> \
+    --lyrics lyrics.txt --sections "0-9.7=opening chorus;89.5-103=sax break"
+```
+
+- Ask Aaron for (or find) the lyrics and pass them with `--lyrics` — they are the
+  biggest accuracy win.
+- Look at the first render. Where Whisper has guessed scat, shouts or a solo,
+  label that span with `--sections` and re-render from the saved
+  `--words <out>.words.json` (no second Whisper run).
+- Send him the PNG, then point out the words where he scoops (blue) or lands
+  above the note (amber). It is a diagnostic chart, not a score (rule 1).
+- Don't commit the PNG, the words JSON, the lyrics or the stem (rule 9).
+
 ---
 
 ## Repo orientation
