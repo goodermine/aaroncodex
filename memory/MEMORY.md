@@ -66,6 +66,7 @@ Rules (mirrored in the skill):
 - `045-planned-oldies-list.md` — the ten planned new songs (Runaround Sue … Friday on My Mind); measure originals before keys
 - `046-results-plain-english-first.md` — deliver results as plain English first, then full results as formatted markdown (never a code block)
 - `047-gresh-is-aaron-g.md` — Gresh = the singer formerly filed as Aaron G; slug `gresh` (aaron-g is an alias); "Aaron - Greshmans" files stay Aaron's
+- `048-fireball-comp-song.md` — Fireball = comp candidate; low held-note/phrase is the song's style (original 7.3); judge on InstaMic (9.0 vs 6.4 phone); habit = overshooting entries
 
 *(approved from /dream runs of 2026-08-04 and 2026-08-05)*
 *(021–029 mirrored from the Claude Code session memory, approved 2026-08-09)*
@@ -75,3 +76,4 @@ Rules (mirrored in the skill):
 *(045 given directly by Aaron, 2026-10-16)*
 *(046 given directly by Aaron, 2026-10-17)*
 *(047 given directly by Aaron, 2026-10-19)*
+*(048 given directly by Aaron, 2026-10-22)*
