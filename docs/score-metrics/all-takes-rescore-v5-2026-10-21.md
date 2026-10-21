@@ -402,7 +402,7 @@ Full coverage: 362/387 takes.
 
 ## Professional references (calibration sanity check)
 
-Overall: min 6.8 · max 9.8 · mean 8.33 — pros should sit near the top.
+Overall: min 6.8 · max 9.8 · mean 8.28 — pros should sit near the top.
 
 | reference | v5 | cf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
@@ -420,6 +420,7 @@ Overall: min 6.8 · max 9.8 · mean 8.33 — pros should sit near the top.
 | original-my-girl | **7.9** | 8.0 | 7.0 | 10.0 | 6.19 | 10.0 | 9.73 | 5.48 | 7.27 |
 | wild-cherry-play-that-funky-music | **6.9** | 7.0 | 10.0 | 0.0 | 4.71 | 8.77 | 9.79 | 4.58 | 9.56 |
 | little-richard-tutti-frutti | **9.2** | 9.7 | 9.0 | 10.0 | 8.96 | 10.0 | 7.07 | 10.0 | 10.0 |
+| pitbull-ft-john-ryan-fireball | **7.3** | 6.7 | 10.0 | 0.0 | 8.84 | 10.0 | 8.48 | 2.7 | 7.3 |
 | carpenters-this-masquerade | **9.8** | 9.9 | 10.0 | 9.63 | 10.0 | 10.0 | 8.81 | 10.0 | 10.0 |
 | glenn-frey-the-heat-is-on | **7.7** | 7.7 | 10.0 | 2.12 | 6.28 | 9.9 | 9.57 | 5.09 | 10.0 |
 | guns-n-roses-you-could-be-mine | **6.8** | 6.6 | 9.96 | 0.0 | 6.52 | 8.84 | 8.55 | 3.03 | 7.94 |
