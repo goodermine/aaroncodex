@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 380,
+      "n": 381,
       "overall": {
         "min": 5.4,
         "max": 9.7,
@@ -19,13 +19,13 @@
       "capture_fair": {
         "min": 4.5,
         "max": 10.0,
-        "mean": 7.09,
+        "mean": 7.08,
         "spread": 5.5
       },
       "dynamics": {
         "min": 5.0,
         "max": 10.0,
-        "mean": 8.82,
+        "mean": 8.81,
         "spread": 5.0
       }
     },
@@ -15525,6 +15525,47 @@
         "onsets_pct_clean": 13.2,
         "onsets_pct_scooped": 23.7,
         "onsets_pct_overshot": 63.2,
+        "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-10-21-rilda-nutbush-city-limits-take-001-home",
+      "singer": "rilda",
+      "song": "nutbush-city-limits",
+      "date": "2026-10-21",
+      "n_notes": 120,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 6.8,
+      "capture_fair": 5.9,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 6.0,
+        "pitch_stability": 0.0,
+        "voice_quality": 10.0,
+        "vibrato_control": 9.84,
+        "dynamics_expression": 6.88,
+        "phrase_control": 4.76,
+        "breath_support": 10.0
+      },
+      "raw": {
+        "median_abs_dev_cents": 30.0,
+        "median_intra_note_drift_cents": 95.9,
+        "pct_within_25c": 46.7,
+        "jitter_pct": 0.6778,
+        "shimmer_pct": 7.6467,
+        "hnr_db": 17.15,
+        "vibrato_pct_notes": 40.5,
+        "dyn_phrase_spread_db": 50.22,
+        "dyn_effective_range_db": 37.56,
+        "median_phrase_s": 2.07,
+        "onsets_pct_clean": 11.7,
+        "onsets_pct_scooped": 31.2,
+        "onsets_pct_overshot": 57.1,
         "entry_accuracy_reliability": "high"
       }
     }

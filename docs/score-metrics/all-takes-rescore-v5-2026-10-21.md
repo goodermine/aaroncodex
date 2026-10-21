@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.7 · mean 7.5. Dynamics component spreads 5.0–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 355/380 takes.
+Full coverage: 356/381 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -392,6 +392,7 @@ Full coverage: 355/380 takes.
 | rilda | bring-me-some-water | 220 | **7.0** | 5.9 | high | 6.0 | 0.0 | 9.62 | 9.7 | 8.81 | 7.94 | 6.88 |
 | rilda | dreams | 274 | **7.9** | 7.7 | high | 10.0 | 0.0 | 7.12 | 9.98 | 9.79 | 10.0 | 7.6 |
 | rilda | one-way-or-another | 172 | **8.2** | 7.7 | high | 10.0 | 0.0 | 10.0 | 8.45 | 8.25 | 10.0 | 10.0 |
+| rilda | nutbush-city-limits | 120 | **6.8** | 5.9 | high | 6.0 | 0.0 | 10.0 | 9.84 | 6.88 | 4.76 | 10.0 |
 
 ## Professional references (calibration sanity check)
 
