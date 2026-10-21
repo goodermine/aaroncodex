@@ -361,3 +361,15 @@ def test_breath_support_focus_gets_a_breath_practice_plan():
     assert report["main_focus"]["pillar"] == "Breath support"
     steps = " ".join(report["practice_plan"]["immediate"]["steps"])
     assert "ribs" in steps and "drone" not in steps
+
+
+def test_a_held_note_with_no_measurable_vowel_says_so():
+    notes = [{"time": f"0:{10 + i}", "note": "G♯4", "worst_boundary_excursion_cents": 150.0 + i,
+              "vowel_drift_cents": None if i == 0 else 40.0, "n_boundaries": 2} for i in range(5)]
+    raw = _scored(word_drift={"median_vowel_drift_cents": 40.0, "n_notes_analysed": 5,
+                              "median_boundary_excursion_cents": 150.0, "n_notes_with_boundaries": 5,
+                              "pct_notes_with_boundaries": 100.0, "read": "x", "reliability": "medium",
+                              "worst_boundary_notes": notes})
+    text = render_full_results_text(build_v2_report(raw))
+    assert "Nonec" not in text
+    assert "(vowel too short to measure, 2 boundaries)" in text and "(vowel 40.0c, 2 boundaries)" in text
