@@ -865,8 +865,11 @@ def render_full_results_text(report: dict, result: dict | None = None) -> str:
                     if mb is not None else "too few boundaries to read"))
             line(f"Read: {wd.get('read')}")
             for p in (wd.get("worst_boundary_notes") or [])[:5]:
+                # A note cut up by boundaries can leave no vowel long enough to measure.
+                vowel = p.get("vowel_drift_cents")
+                vowel = f"vowel {vowel}c" if vowel is not None else "vowel too short to measure"
                 line(f"- {p.get('time')}  {p.get('note')}  boundary excursion "
-                     f"{p.get('worst_boundary_excursion_cents')}c  (vowel {p.get('vowel_drift_cents')}c, "
+                     f"{p.get('worst_boundary_excursion_cents')}c  ({vowel}, "
                      f"{p.get('n_boundaries')} boundar{'y' if p.get('n_boundaries') == 1 else 'ies'})")
             if ea.get("pct_clean") is not None:
                 pct = ea.get("percentile_vs_pro_pack")
