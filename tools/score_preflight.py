@@ -12,6 +12,9 @@ Checks:
   1. the engine imports, and its rubric + fingerprints match SCORE_CONTRACT.json
   2. the professional calibration pack is loaded (uncalibrated => harsh scores)
   3. no archived analysis still carries a quotable legacy score
+  …
+  6. voice quality is measured with parselmouth (fails if this engine lacks it;
+     warns about archived scores made without it)
 """
 import json, glob, os, sys
 
@@ -291,6 +294,43 @@ def main() -> int:
         print("        python3 tools/score_preflight.py --update   # re-pin the contract")
         return 1
     print(f"{OK}  one measurement era throughout: {live_era}")
+
+    # 6. voice quality is measured, not approximated.
+    #
+    # Without praat-parselmouth the engine falls back to a frame-level jitter
+    # estimate, reports no shimmer/HNR/CPPS and drops the voice_quality
+    # component, so the overall is averaged over six components instead of
+    # seven while every identity field still matches. Nine takes (26 Sep -
+    # 15 Oct 2026) were scored that way and ranked beside seven-component
+    # scores. Capture-fair excludes voice_quality by design, so only the overall
+    # is affected.
+    if not A.PARSELMOUTH_AVAILABLE:
+        print(f"{FAIL}  praat-parselmouth is not installed — this engine cannot measure "
+              "voice quality and would score the overall on six components, not seven.")
+        print("      DO NOT publish a score. Fix: pip install praat-parselmouth")
+        return 1
+    approximated = []
+    for path in sorted(glob.glob(os.path.join(ARCHIVE, "*_analysis.json"))):
+        try:
+            with open(path) as fh:
+                data = json.load(fh) or {}
+        except (OSError, json.JSONDecodeError):
+            continue
+        if (data.get("technical_score") or {}).get("overall_score_0_to_10") is None:
+            continue
+        if (data.get("engine") or {}).get("parselmouth_available") is False \
+                or (data.get("voice_quality") or {}).get("method") == "frame_f0_approximation":
+            approximated.append(os.path.basename(path))
+    if approximated:
+        print(f"{WARN}  {len(approximated)} archived score(s) were made without parselmouth; "
+              "their overall leaves out voice quality (capture-fair is unaffected):")
+        for name in approximated:
+            print(f"        - {name}")
+        print("      Compare their capture-fair, not their overall, until they are")
+        print("      re-analysed from the original recording with parselmouth installed:")
+        print("        python3 tools/analyse_takes.py <stems> --write --force")
+    else:
+        print(f"{OK}  voice quality measured with parselmouth throughout")
 
     print("\nPREFLIGHT PASSED — safe to score and publish.")
     return 0
