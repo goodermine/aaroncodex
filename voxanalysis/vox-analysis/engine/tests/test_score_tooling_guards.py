@@ -61,3 +61,44 @@ def test_show_results_does_not_turn_a_renderer_bug_into_a_hollow_report(monkeypa
 def test_one_song_is_one_group_in_the_score_tables(name, song):
     rescore = _load("docs/score-metrics/rescore_all.py", "rescore_under_test")
     assert rescore.song(name) == song
+
+
+# ---- parselmouth guard, 22 Oct 2026 ----
+
+def _archive_with(tmp_path, approximated):
+    # A current, fully measured take, so every earlier preflight check passes.
+    src = ROOT / "voxanalysis/archive/scratch-analyses/2026-10-21-aaron-the-wanderer-take-003-redcliffe-leagues-heat-1_analysis.json"
+    data = json.loads(src.read_text())
+    if approximated:
+        data["engine"]["parselmouth_available"] = False
+        data["voice_quality"]["method"] = "frame_f0_approximation"
+    (tmp_path / "2026-10-21-aaron-x-take-001_analysis.json").write_text(json.dumps(data))
+
+
+def test_preflight_names_archived_scores_made_without_parselmouth(tmp_path, monkeypatch, capsys):
+    pre = _load("tools/score_preflight.py", "preflight_under_test")
+    _archive_with(tmp_path, approximated=True)
+    monkeypatch.setattr(pre, "ARCHIVE", str(tmp_path))
+    assert pre.main() == 0
+    out = capsys.readouterr().out
+    assert "1 archived score(s) were made without parselmouth" in out
+    assert "2026-10-21-aaron-x-take-001_analysis.json" in out
+
+
+def test_preflight_is_quiet_when_voice_quality_was_measured(tmp_path, monkeypatch, capsys):
+    pre = _load("tools/score_preflight.py", "preflight_under_test")
+    _archive_with(tmp_path, approximated=False)
+    monkeypatch.setattr(pre, "ARCHIVE", str(tmp_path))
+    assert pre.main() == 0
+    assert "voice quality measured with parselmouth throughout" in capsys.readouterr().out
+
+
+def test_preflight_fails_on_an_engine_without_parselmouth(tmp_path, monkeypatch, capsys):
+    pre = _load("tools/score_preflight.py", "preflight_under_test")
+    _archive_with(tmp_path, approximated=False)
+    monkeypatch.setattr(pre, "ARCHIVE", str(tmp_path))
+    sys.path.insert(0, str(ROOT / "voxanalysis/vox-analysis/engine"))
+    import analyse_song
+    monkeypatch.setattr(analyse_song, "PARSELMOUTH_AVAILABLE", False)
+    assert pre.main() == 1
+    assert "praat-parselmouth is not installed" in capsys.readouterr().out
