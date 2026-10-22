@@ -1,6 +1,6 @@
 # Genre reference candidates — first picks (22 Oct 2026)
 
-**Status: CHOSEN LIST.** Nothing has been fetched, analysed or added to the
+**Status: CHOSEN LIST — fetch requested from Howard 22 Oct 2026** (`docs/handoffs/HOWARD_GENRE_REFERENCES_2026-10-22.md`). Nothing has been fetched, analysed or added to the
 calibration pack. This is step 1 of the genre-aware scoring plan in
 `docs/handoffs/SINGNEXA_STYLE_VS_FAULT_PROPOSAL.md`. That plan was parked on
 22 Oct with genre-aware scoring as the next step.
@@ -33,11 +33,11 @@ they become a genre reference, and they allow a take-vs-original comparison.
 | 3 | Chuck Berry — Johnny B. Goode | ✓ · already on Howard's oldies list |
 | 4 | Jerry Lee Lewis — Great Balls of Fire | ✓ · already on Howard's oldies list |
 | 5 | Dion — Runaround Sue | ✓ · already on Howard's oldies list (*The Wanderer* already measured) |
-| 6 | Del Shannon — Runaway | ✓? — confirm Aaron's 16 Oct *Runaway* is Del Shannon, not Bon Jovi |
+| 6 | Del Shannon — Runaway | ✓ (Aaron confirmed Del Shannon, 22 Oct) |
 | 7 | Bobby Darin — Dream Lover | ✓ |
 | 8 | Roy Orbison — Oh, Pretty Woman | ✓ |
 | 9 | Ben E. King — Stand By Me | ✓ |
-| 10 | Paul Anka — Lonely Boy | ✓? — confirm Aaron's Apr *Lonely Boy* is Paul Anka, not The Black Keys |
+| 10 | Lulu — To Sir With Love | ✓ (Rilda) · female · replaces *Lonely Boy*, which is The Black Keys (Aaron, 22 Oct) |
 | 11 | Wanda Jackson — Let's Have a Party | female rockabilly |
 | 12 | Brenda Lee — Sweet Nothin's | female |
 
@@ -74,6 +74,7 @@ they become a genre reference, and they allow a take-vs-original comparison.
 | 10 | Heart — Barracuda | female |
 | 11 | Pat Benatar — Hit Me With Your Best Shot | female |
 | 12 | Joan Jett & the Blackhearts — I Love Rock 'n' Roll | female |
+| 13 | The Black Keys — Lonely Boy | ✓ (Aaron, Apr 2026) · garage rock |
 
 ## 4. Rap / hip-hop (pack has 0)
 
