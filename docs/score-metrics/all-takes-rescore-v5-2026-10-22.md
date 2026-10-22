@@ -402,7 +402,7 @@ Full coverage: 362/387 takes.
 
 ## Professional references (calibration sanity check)
 
-Overall: min 6.0 · max 9.8 · mean 8.34 — pros should sit near the top.
+Overall: min 5.8 · max 9.8 · mean 8.13 — pros should sit near the top.
 
 | reference | v5 | cf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
@@ -421,6 +421,7 @@ Overall: min 6.0 · max 9.8 · mean 8.34 — pros should sit near the top.
 | wild-cherry-play-that-funky-music | **6.9** | 7.0 | 10.0 | 0.0 | 4.71 | 8.77 | 9.79 | 4.58 | 9.56 |
 | little-richard-tutti-frutti | **9.2** | 9.7 | 9.0 | 10.0 | 8.96 | 10.0 | 7.07 | 10.0 | 10.0 |
 | pitbull-ft-john-ryan-fireball | **7.3** | 6.7 | 10.0 | 0.0 | 8.84 | 10.0 | 8.48 | 2.7 | 7.3 |
+| ac-dc-highway-to-hell | **6.6** | 5.1 | 6.0 | 0.0 | 9.84 | 9.57 | 9.68 | 2.06 | 6.67 |
 | b-b-king-the-thrill-is-gone | **9.1** | 9.5 | 10.0 | 10.0 | 10.0 | 9.83 | 6.3 | 6.3 | 10.0 |
 | ben-e-king-stand-by-me | **9.3** | 10.0 | 10.0 | 10.0 | 7.15 | 10.0 | 8.82 | 9.88 | 10.0 |
 | billy-idol-rebel-yell | **7.7** | 7.9 | 6.0 | 10.0 | 5.52 | 9.75 | 9.77 | 5.94 | 8.61 |
@@ -428,22 +429,33 @@ Overall: min 6.0 · max 9.8 · mean 8.34 — pros should sit near the top.
 | bobby-darin-dream-lover | **8.3** | 9.4 | 10.0 | 10.0 | 4.82 | 9.16 | 7.38 | 6.61 | 10.0 |
 | bonnie-raitt-love-me-like-a-man | **8.8** | 8.7 | 10.0 | 3.61 | 10.0 | 9.73 | 7.53 | 10.0 | 10.0 |
 | brenda-lee-sweet-nothins | **9.4** | 9.6 | 10.0 | 10.0 | 9.8 | 9.67 | 8.28 | 7.24 | 10.0 |
+| c-c-music-factory-things-that-make-you-go-hmmm | **7.3** | 6.5 | 8.0 | 0.74 | 9.34 | 9.9 | 8.61 | 5.09 | 7.85 |
 | chuck-berry-johnny-b-goode | **9.0** | 8.7 | 10.0 | 10.0 | 10.0 | 8.98 | 9.25 | 1.73 | 10.0 |
 | del-shannon-runaway | **9.6** | 9.8 | 10.0 | 10.0 | 8.41 | 8.98 | 9.98 | 10.0 | 10.0 |
 | dion-runaround-sue | **8.5** | 9.5 | 10.0 | 10.0 | 5.96 | 9.95 | 7.3 | 6.09 | 10.0 |
 | elvis-presley-dont-be-cruel | **8.8** | 9.1 | 10.0 | 10.0 | 7.27 | 10.0 | 9.57 | 3.3 | 10.0 |
+| eminem-lose-yourself | **6.4** | 6.4 | 8.0 | 0.0 | 5.43 | 8.92 | 7.32 | 7.18 | 7.48 |
 | etta-james-id-rather-go-blind | **8.1** | 7.5 | 10.0 | 0.0 | 9.75 | 9.79 | 8.82 | 8.06 | 8.52 |
 | gary-moore-still-got-the-blues | **8.3** | 8.0 | 10.0 | 0.0 | 10.0 | 9.88 | 7.79 | 10.0 | 10.0 |
+| heart-barracuda | **9.6** | 9.5 | 10.0 | 10.0 | 10.0 | 10.0 | 9.61 | 6.3 | 10.0 |
 | howlin-wolf-smokestack-lightnin | **8.4** | 9.3 | 10.0 | 10.0 | 5.78 | 9.29 | 7.5 | 5.79 | 10.0 |
 | jerry-lee-lewis-great-balls-of-fire | **6.9** | 6.0 | 7.0 | 0.0 | 9.49 | 10.0 | 7.56 | 5.0 | 7.64 |
 | jimmy-barnes-working-class-man | **8.3** | 8.8 | 10.0 | 10.0 | 5.78 | 10.0 | 8.93 | 2.79 | 8.52 |
+| joan-jett-and-the-blackhearts-i-love-rock-n-roll | **8.8** | 9.6 | 10.0 | 10.0 | 5.34 | 7.77 | 9.66 | 10.0 | 10.0 |
 | john-lee-hooker-boom-boom | **6.0** | 5.0 | 6.0 | 2.64 | 8.36 | – | 6.92 | 0.97 | 10.0 |
 | koko-taylor-wang-dang-doodle | **7.7** | 7.0 | 10.0 | 2.35 | 9.71 | 8.64 | 8.45 | 2.33 | 8.82 |
+| led-zeppelin-whole-lotta-love | **6.2** | 5.9 | 7.0 | 0.0 | 6.28 | 9.62 | 7.28 | 2.45 | 10.0 |
 | lulu-to-sir-with-love | **8.3** | 7.8 | 10.0 | 0.0 | 10.0 | 9.24 | 8.63 | 10.0 | 10.0 |
 | muddy-waters-mannish-boy | **7.6** | 6.7 | 10.0 | 0.0 | 9.18 | 9.49 | 9.8 | 3.45 | 7.88 |
 | nirvana-smells-like-teen-spirit | **8.3** | 8.9 | 10.0 | 10.0 | 6.69 | 9.2 | 7.57 | 2.91 | 10.0 |
+| pat-benatar-hit-me-with-your-best-shot | **7.1** | 6.6 | 8.0 | 4.3 | 7.37 | 9.15 | 9.63 | 3.15 | 5.86 |
 | roy-orbison-oh-pretty-woman | **7.5** | 7.7 | 10.0 | 2.12 | 6.5 | 8.96 | 7.98 | 7.88 | 8.24 |
+| run-dmc-its-tricky | **7.6** | 6.9 | 9.0 | 0.0 | 8.74 | 8.26 | 9.43 | 8.0 | 9.14 |
+| sir-mix-a-lot-baby-got-back | **5.8** | 4.2 | 6.0 | 0.0 | 8.67 | 6.24 | 9.7 | 1.09 | 6.19 |
+| steppenwolf-born-to-be-wild | **7.5** | 6.6 | 6.0 | 0.0 | 9.74 | 9.69 | 9.08 | 10.0 | 10.0 |
 | stevie-ray-vaughan-pride-and-joy | **9.8** | 9.9 | 10.0 | 10.0 | 10.0 | 9.88 | 9.12 | 9.45 | 10.0 |
+| the-angels-am-i-ever-gonna-see-your-face-again | **7.7** | 8.2 | 10.0 | 10.0 | 5.83 | 10.0 | 8.0 | 0.94 | 5.5 |
+| the-black-keys-lonely-boy | **7.7** | 7.8 | 10.0 | 0.0 | 6.23 | 10.0 | 9.02 | 10.0 | 8.82 |
 | tracy-chapman-give-me-one-reason | **8.3** | 8.0 | 10.0 | 1.26 | 10.0 | 8.91 | 7.15 | 10.0 | 10.0 |
 | wanda-jackson-lets-have-a-party | **9.5** | 9.9 | 10.0 | 10.0 | 8.15 | 9.37 | 9.13 | 10.0 | 10.0 |
 | carpenters-this-masquerade | **9.8** | 9.9 | 10.0 | 9.63 | 10.0 | 10.0 | 8.81 | 10.0 | 10.0 |
