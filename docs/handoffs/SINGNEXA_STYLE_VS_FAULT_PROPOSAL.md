@@ -24,6 +24,7 @@ explicit go-ahead (CLAUDE.md rule 1).
   | Rock / pop-rock | ~11 | Bon Jovi, Aerosmith, Journey, Queen, 3 Doors Down, Farnham |
   | Country / folk | ~7 | Dolly, Chris Stapleton, Carrie Underwood, Lightfoot |
   | 50s–60s rock'n'roll, blues, hard rock/grit | 0–1 | — (Aaron's oldies list sits here) |
+  | Rap / hip-hop | 0 | — (added by Aaron, 22 Oct; e.g. the rap-led *Fireball*) |
 
   How many references a genre needs before it can be its own yardstick is
   part of the work (to be decided with the calibration owner). Today no genre
@@ -32,6 +33,11 @@ explicit go-ahead (CLAUDE.md rule 1).
   RoFormer-separated, measured, added to the pack only by a deliberate
   calibration rebuild (new fingerprint, preflight `--update`, archive
   re-score), never mixed in silently.
+- **Rap needs its own thinking, not just more references.** The engine scores
+  sung pitch (held notes, pitch centre, vibrato, breath sag); rapped lines have
+  little or no sustained pitch, so those components barely apply. A rap
+  yardstick likely needs rhythm/flow and diction measures the rubric doesn't
+  have yet — scope that before collecting rap references.
 - Options 1 and 2 below stay on file and are not chosen for now.
 
 ---
