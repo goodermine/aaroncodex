@@ -1,9 +1,44 @@
 # Proposal — stop Singnexa marking deliberate rock/soul style as faults
 
-**Status:** PROPOSAL ONLY — nothing in this document has been implemented.
+**Status:** PARKED (22 Oct 2026) — next step chosen: Option 3, genre-aware scoring, after more pro references per genre. Nothing implemented.
 Aaron decides; no rubric, measurement or calibration change happens without his
 explicit go-ahead (CLAUDE.md rule 1).
 **Written:** 19 Oct 2026 · **Raised by:** Frankie (a9max smoke test) · **Context:** Singnexa beta (#140)
+
+## Decision — 22 Oct 2026 (Aaron): PARKED; Option 3 is next
+
+> "park next will be score each genre against its own pros. and we might need
+> more pro songs in different genres" — Aaron, 22 Oct 2026
+
+- **Parked for now.** Nothing changes in scoring or on the results page yet.
+- **When it resumes, the chosen direction is Option 3:** score each genre
+  against the pros of its own genre.
+- **Prerequisite: more professional reference vocals per genre.** The current
+  50-track pack splits roughly like this (an approximate hand grouping, to be
+  confirmed when genres are tagged):
+
+  | Genre (approx.) | Refs now | Examples |
+  |---|--:|---|
+  | Pop / ballad / diva | ~17 | Whitney ×2, Céline ×2, Mariah, Adele, Sia, Bruno Mars |
+  | Soul / R&B / funk | ~14 | Aretha, Al Green, Tina ×2, Teddy Swims ×2, Wild Cherry |
+  | Rock / pop-rock | ~11 | Bon Jovi, Aerosmith, Journey, Queen, 3 Doors Down, Farnham |
+  | Country / folk | ~7 | Dolly, Chris Stapleton, Carrie Underwood, Lightfoot |
+  | 50s–60s rock'n'roll, blues, hard rock/grit | 0–1 | — (Aaron's oldies list sits here) |
+  | Rap / hip-hop | 0 | — (added by Aaron, 22 Oct; e.g. the rap-led *Fireball*) |
+
+  How many references a genre needs before it can be its own yardstick is
+  part of the work (to be decided with the calibration owner). Today no genre
+  is near the full 50 the current "10 = a typical pro" claim rests on.
+- New references come in the same way Howard's originals did: SHA-verified,
+  RoFormer-separated, measured, added to the pack only by a deliberate
+  calibration rebuild (new fingerprint, preflight `--update`, archive
+  re-score), never mixed in silently.
+- **Rap needs its own thinking, not just more references.** The engine scores
+  sung pitch (held notes, pitch centre, vibrato, breath sag); rapped lines have
+  little or no sustained pitch, so those components barely apply. A rap
+  yardstick likely needs rhythm/flow and diction measures the rubric doesn't
+  have yet — scope that before collecting rap references.
+- Options 1 and 2 below stay on file and are not chosen for now.
 
 ---
 
