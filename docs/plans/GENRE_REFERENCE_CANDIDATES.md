@@ -1,7 +1,6 @@
 # Genre reference candidates — first picks (22 Oct 2026)
 
-**Status: CHOSEN LIST — fetch requested from Howard 22 Oct 2026** (`docs/handoffs/HOWARD_GENRE_REFERENCES_2026-10-22.md`). Nothing has been fetched, analysed or added to the
-calibration pack. This is step 1 of the genre-aware scoring plan in
+**Status: MEASURED 22 Oct 2026** — 41 of the 49 genre picks separated and analysed (#178, #179); first summary in `docs/plans/GENRE_REFERENCE_SUMMARY_2026-10-22.md`. Still to fetch: 7 rap originals and Summer of '69. Nothing has been added to the calibration pack. This is step 1 of the genre-aware scoring plan in
 `docs/handoffs/SINGNEXA_STYLE_VS_FAULT_PROPOSAL.md`. That plan was parked on
 22 Oct with genre-aware scoring as the next step.
 
