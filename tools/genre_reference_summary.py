@@ -38,6 +38,11 @@ GENRES = {
                       "c-c-music-factory-things-that-make-you-go-hmmm", "run-dmc-its-tricky",
                       "young-mc-bust-a-move", "tone-loc-funky-cold-medina", "the-notorious-b-i-g-juicy",
                       "kendrick-lamar-humble", "lauryn-hill-doo-wop-that-thing", "missy-elliott-work-it", "salt-n-pepa-push-it"],
+    # Not a genre yardstick: the rest of Aaron's planned oldies, measured for key planning (memory 045).
+    "Oldies to learn (not a genre set)": ["four-tops-i-cant-help-myself-sugar-pie-honey-bunch",
+                                          "the-foundations-build-me-up-buttercup", "the-isley-brothers-shout",
+                                          "kc-and-the-sunshine-band-thats-the-way-i-like-it",
+                                          "the-drifters-under-the-boardwalk", "the-easybeats-friday-on-my-mind"],
 }
 
 # (pack key, label, unit, which way is "better" for a singer; None = no direction)
@@ -77,25 +82,38 @@ def fmt(v, unit):
 
 
 def settle(values):
-    """Spread of the median across every 8-reference subset: does 12 settle it?"""
-    if len(values) < 10:
+    """Spread of the median across every subset that leaves 3 references out."""
+    if len(values) < 8:
         return None
-    meds = [st.median(c) for c in itertools.combinations(values, 8)]
+    meds = [st.median(c) for c in itertools.combinations(values, len(values) - 3)]
     return max(meds) - min(meds)
+
+
+def suspect(data):
+    # The engine's own contamination signature (analyse_song entry-accuracy gate):
+    # a degraded signal WITH better-than-90%-of-pros pitch behaviour means the
+    # tracker followed the band. The plan drops such stems until checked by ear.
+    return (data.get("entry_accuracy") or {}).get("reliability") == "suspect"
 
 
 print("## Data\n")
 print("Regenerate this section with `python3 tools/genre_reference_summary.py`.\n")
 print("Raw measures from the RoFormer-separated originals, "
-      "read the way `build_calibration.py` reads them, set against the current 50-pro pack.\n")
+      "read the way `build_calibration.py` reads them, set against the current 50-pro pack. "
+      "References the engine flags as **suspect** (its contamination signature: a degraded signal with "
+      "better-than-90%-of-pros pitch behaviour, i.e. the tracker followed the band) are left out of every median "
+      "until their stems are checked by ear or re-separated. They are still listed in the per-reference table.\n")
 
-rows = {}
+rows, everything = {}, {}
 for genre, slugs in GENRES.items():
     data = {s: load(s) for s in slugs}
     have = {s: d for s, d in data.items() if d}
-    rows[genre] = have
-    print(f"- **{genre}:** {len(have)} of {len(slugs)} measured"
-          + (f" (missing: {', '.join(s for s in slugs if s not in have)})" if len(have) < len(slugs) else ""))
+    everything[genre] = have
+    rows[genre] = {s: d for s, d in have.items() if not suspect(d)}
+    held_out = [s for s, d in have.items() if suspect(d)]
+    print(f"- **{genre}:** {len(have)} of {len(slugs)} measured; {len(rows[genre])} used"
+          + (f" (suspect, held out: {', '.join(held_out)})" if held_out else "")
+          + (f" (not yet fetched: {', '.join(s for s in slugs if s not in have)})" if len(have) < len(slugs) else ""))
 
 print("\n## Raw measures: genre median vs the 50-pro pack\n")
 print("Pack column is p10 / **p50** / p90. Genre column is the median of that genre's references, with n in brackets.\n")
@@ -129,16 +147,15 @@ for label, field in (("**Overall**", "overall_score_0_to_10"), ("**Capture-fair*
         cells.append(f"{st.median(vals):.1f} (range {min(vals):.1f}–{max(vals):.1f})" if vals else "—")
     print(f"| {label} | " + " | ".join(cells) + " |")
 
-print("\n## Do 12 references settle the medians?\n")
-print("Widest spread of the genre median across every possible 8-reference subset of the 12. Small means the "
+print("\n## Are the medians settled?\n")
+print("Widest spread of the genre median across every subset that leaves 3 of its references out. Small means the "
       "median is already stable; large means the genre needs more references before it can anchor a score.\n")
-print("| Measure | " + " | ".join(g for g, h in rows.items() if len(h) >= 10) + " |")
-print("|---|" + "---|" * sum(1 for h in rows.values() if len(h) >= 10))
+settled = {g: h for g, h in rows.items() if len(h) >= 8 and not g.startswith("Oldies")}
+print("| Measure | " + " | ".join(f"{g} (n={len(h)})" for g, h in settled.items()) + " |")
+print("|---|" + "---|" * len(settled))
 for key, label, unit, _ in SHOWN:
     cells = []
-    for have in rows.values():
-        if len(have) < 10:
-            continue
+    for have in settled.values():
         vals = [v for v in (metric(d, key) for d in have.values()) if v is not None]
         s = settle(vals)
         cells.append("—" if s is None else f"{s:.1f}")
@@ -147,7 +164,7 @@ for key, label, unit, _ in SHOWN:
 print("\n## Per-reference detail\n")
 print("| Genre | Reference | Overall / capture-fair | Pitch dev (c) | Held drift (c) | Sag (%) | Phrase (s) | HNR (dB) | Entry reliability |")
 print("|---|---|---|---|---|---|---|---|---|")
-for genre, have in rows.items():
+for genre, have in everything.items():
     for slug, d in have.items():
         ts = d["technical_score"]
         print(f"| {genre} | {slug} | {ts.get('overall_score_0_to_10')} / {ts.get('capture_fair_score_0_to_10')} | "
