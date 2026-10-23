@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.7 · mean 7.5. Dynamics component spreads 5.0–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 371/388 takes.
+Full coverage: 374/391 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -295,6 +295,8 @@ Full coverage: 371/388 takes.
 | aaron | the-wanderer | 152 | **8.6** | 8.1 | high | 7.0 | 9.23 | 10.0 | 10.0 | 8.8 | 10.0 | 4.6 |
 | aaron | the-wanderer | 161 | **8.4** | 7.7 | high | 10.0 | 2.01 | 10.0 | 10.0 | 9.63 | 8.91 | 5.8 |
 | aaron | tutti-frutti | 158 | **6.3** | 5.1 | high | 7.0 | 0.0 | 10.0 | 9.67 | 7.46 | 6.27 | 0.0 |
+| aaron | fireball | 238 | **7.3** | 6.4 | high | 8.0 | 0.0 | 9.23 | 10.0 | 8.88 | 5.64 | 7.39 |
+| aaron | play-that-funky-music | 341 | **7.3** | 6.1 | high | 6.0 | 0.0 | 9.69 | 8.92 | 9.94 | 9.12 | 8.2 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | chris | feeling-good | 204 | **5.8** | 5.3 | high | 6.0 | 0.0 | 4.67 | 10.0 | 9.98 | 4.55 | 5.29 |
 | gresh | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
@@ -307,6 +309,7 @@ Full coverage: 371/388 takes.
 | gresh | if-i-aint-got-you | 184 | **8.2** | 7.6 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.97 | 6.7 | 10.0 |
 | gresh | man-i-need | 197 | **9.1** | 8.9 | high | 10.0 | 10.0 | 10.0 | 10.0 | 8.71 | 6.21 | 5.64 |
 | gresh | u-got-it-bad | 249 | **9.6** | 9.7 | high | 10.0 | 10.0 | 10.0 | 9.95 | 8.81 | 10.0 | 7.9 |
+| gresh | harder-to-breathe | 190 | **7.9** | 7.1 | high | 8.0 | 0.0 | 9.9 | 9.25 | 9.44 | 10.0 | 9.26 |
 | leo | chasin-that-neon-rainbow | 204 | **6.9** | 6.6 | high | 8.0 | 2.58 | 6.03 | 8.59 | 9.33 | 7.7 | 5.4 |
 | leo | livin-on-a-prayer | 191 | **7.9** | 7.8 | high | 10.0 | 2.23 | 6.72 | 9.41 | 9.86 | 7.18 | 9.08 |
 | leo | sunshine-smile | 176 | **8.2** | 7.6 | high | 10.0 | 1.03 | 10.0 | 10.0 | 8.9 | 9.88 | 5.8 |
