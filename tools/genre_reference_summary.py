@@ -33,7 +33,9 @@ GENRES = {
                          "led-zeppelin-whole-lotta-love", "the-angels-am-i-ever-gonna-see-your-face-again",
                          "heart-barracuda", "pat-benatar-hit-me-with-your-best-shot",
                          "joan-jett-and-the-blackhearts-i-love-rock-n-roll", "the-black-keys-lonely-boy",
-                         "bryan-adams-summer-of-69"],
+                         # 1984 Reckless voice via the official video (album track region-blocked in AU);
+                         # the 2022 Classic re-recording is archived too but is not the original.
+                         "bryan-adams-summer-of-69-video-edit"],
     "Rap / hip-hop": ["eminem-lose-yourself", "pitbull-ft-john-ryan-fireball", "sir-mix-a-lot-baby-got-back",
                       "c-c-music-factory-things-that-make-you-go-hmmm", "run-dmc-its-tricky",
                       "young-mc-bust-a-move", "tone-loc-funky-cold-medina", "the-notorious-b-i-g-juicy",
