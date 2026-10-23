@@ -45,7 +45,7 @@ The plan says to drop any stem that is mostly band, so these need an ear check o
 - **Blues:** a genre anchor for held-note stability only. The evidence is solid.
 - **Hard rock:** genre anchors for held-note stability, phrase control and breath, after more references settle held drift. Whether voice quality should forgive grit is a judgement call: grit is the style, but it's also what the component measures.
 - **Rap:** don't score it on this rubric. It needs new measures first.
-- **Still to fetch:** Summer of '69.
+- **Summer of '69:** the hard-rock set now uses the 1984 Reckless voice (official-video audio, `bryan-adams-summer-of-69-video-edit`). The engine flags its stem as suspect, so it stays out of the medians until Aaron ear-checks it. The 2022 Classic re-recording is archived but not in any genre set.
 
 **Housekeeping:** the references were archived with a `technical_score`. The plan said to strip it, but it's what makes the component table below possible. Decide whether they keep it.
 
@@ -57,7 +57,7 @@ Raw measures from the RoFormer-separated originals, read the way `build_calibrat
 
 - **50s-60s rock'n'roll:** 12 of 12 measured; 10 used (suspect, held out: elvis-presley-dont-be-cruel, bobby-darin-dream-lover)
 - **Blues:** 12 of 12 measured; 12 used
-- **Hard rock / grit:** 12 of 13 measured; 12 used (not yet fetched: bryan-adams-summer-of-69)
+- **Hard rock / grit:** 13 of 13 measured; 12 used (suspect, held out: bryan-adams-summer-of-69-video-edit)
 - **Rap / hip-hop:** 12 of 12 measured; 12 used
 - **Oldies to learn (not a genre set):** 6 of 6 measured; 5 used (suspect, held out: the-isley-brothers-shout)
 
@@ -151,6 +151,7 @@ Widest spread of the genre median across every subset that leaves 3 of its refer
 | Hard rock / grit | pat-benatar-hit-me-with-your-best-shot | 7.1 / 6.6 | 25.0 | 72.5 | 56.8 | 1.54 | 12.3 | reduced |
 | Hard rock / grit | joan-jett-and-the-blackhearts-i-love-rock-n-roll | 8.8 / 9.6 | 15.0 | 47.4 | 26.7 | 3.95 | 8.4 | reduced |
 | Hard rock / grit | the-black-keys-lonely-boy | 7.7 / 7.8 | 20.0 | 87.0 | 40.0 | 5.98 | 10.3 | reduced |
+| Hard rock / grit | bryan-adams-summer-of-69-video-edit | 8.8 / 9.5 | 10.0 | 39.0 | 24.3 | 2.50 | 10.2 | suspect |
 | Rap / hip-hop | eminem-lose-yourself | 6.4 / 6.4 | 25.0 | 129.7 | 47.6 | 2.87 | 9.1 | reduced |
 | Rap / hip-hop | pitbull-ft-john-ryan-fireball | 7.3 / 6.7 | 20.0 | 87.7 | 48.6 | 1.39 | 12.1 | reduced |
 | Rap / hip-hop | sir-mix-a-lot-baby-got-back | 5.8 / 4.2 | 30.0 | 107.4 | 54.9 | 0.86 | 11.1 | reduced |
