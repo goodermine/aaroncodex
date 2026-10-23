@@ -45,7 +45,7 @@ The plan says to drop any stem that is mostly band, so these need an ear check o
 - **Blues:** a genre anchor for held-note stability only. The evidence is solid.
 - **Hard rock:** genre anchors for held-note stability, phrase control and breath, after more references settle held drift. Whether voice quality should forgive grit is a judgement call: grit is the style, but it's also what the component measures.
 - **Rap:** don't score it on this rubric. It needs new measures first.
-- **Summer of '69:** the hard-rock set now uses the 1984 Reckless voice (official-video audio, `bryan-adams-summer-of-69-video-edit`). The engine flags its stem as suspect, so it stays out of the medians until Aaron ear-checks it. The 2022 Classic re-recording is archived but not in any genre set.
+- **Summer of '69:** the hard-rock set now uses the 1984 Reckless voice (official-video audio, `bryan-adams-summer-of-69-video-edit`). Aaron ear-checked it on 24 Oct: clean (just echo and reverb on his voice), so it now counts. Hard rock goes from 12 to 13 references: held drift 65 to 57 c, held-note stability component 7.2 to 10.0, capture-fair 7.8 to 7.9, overall unchanged at 7.7. The 2022 Classic re-recording is archived but not in any genre set.
 
 **Housekeeping:** the references were archived with a `technical_score`. The plan said to strip it, but it's what makes the component table below possible. Decide whether they keep it.
 
@@ -57,7 +57,7 @@ Raw measures from the RoFormer-separated originals, read the way `build_calibrat
 
 - **50s-60s rock'n'roll:** 12 of 12 measured; 10 used (suspect, held out: elvis-presley-dont-be-cruel, bobby-darin-dream-lover)
 - **Blues:** 12 of 12 measured; 12 used
-- **Hard rock / grit:** 13 of 13 measured; 12 used (suspect, held out: bryan-adams-summer-of-69-video-edit)
+- **Hard rock / grit:** 13 of 13 measured; 13 used
 - **Rap / hip-hop:** 12 of 12 measured; 12 used
 - **Oldies to learn (not a genre set):** 6 of 6 measured; 5 used (suspect, held out: the-isley-brothers-shout)
 
@@ -67,16 +67,16 @@ Pack column is p10 / **p50** / p90. Genre column is the median of that genre's r
 
 | Measure | 50-pro pack | 50s-60s rock'n'roll | Blues | Hard rock / grit | Rap / hip-hop | Oldies to learn (not a genre set) |
 |---|---|---|---|---|---|---|
-| Pitch centre: median deviation (c) | 10.0 / **20.0** / 20.0 | 20.0 (10) | 20.0 (12) | 20.1 (12) | 25.0 (12) | 20.0 (5) |
-| Held-note drift (c) | 44.5 / **62.5** / 90.1 | 51.1 (10) | 74.6 (12) | 64.5 (12) | 85.1 (12) | 64.3 (5) |
-| Long notes with vibrato (%) | 40.4 / **53.2** / 64.0 | 57.2 (10) | 51.4 (11) | 37.9 (12) | 30.1 (12) | 43.1 (5) |
-| Vibrato extent (c) | 52.5 / **64.1** / 78.0 | 66.8 (10) | 69.6 (11) | 68.3 (12) | 75.5 (12) | 55.6 (5) |
-| Median phrase length (s) | 1.64 / **3.80** / 6.81 | 3.43 (10) | 3.39 (12) | 1.52 (12) | 2.02 (12) | 3.67 (5) |
-| Phrase endings that sag (%) | 23.2 / **33.3** / 45.6 | 27.5 (10) | 30.7 (12) | 40.6 (12) | 49.3 (12) | 25.9 (5) |
-| Clean note entries (%) | 21.0 / **33.2** / 44.8 | 35.2 (10) | 27.9 (11) | 30.6 (12) | 20.7 (12) | 31.4 (5) |
-| HNR (capture-sensitive) (dB) | 9.5 / **13.6** / 18.2 | 12.5 (10) | 14.5 (12) | 10.9 (12) | 11.5 (12) | 12.3 (5) |
-| CPPS (capture-sensitive) (dB) | 13.7 / **15.4** / 16.9 | 16.0 (10) | 15.8 (12) | 15.9 (12) | 13.8 (12) | 14.6 (5) |
-| Effective dynamic range (capture-sensitive) (dB) | 18.4 / **27.0** / 36.3 | 28.2 (10) | 34.5 (12) | 25.4 (12) | 24.8 (12) | 27.5 (5) |
+| Pitch centre: median deviation (c) | 10.0 / **20.0** / 20.0 | 20.0 (10) | 20.0 (12) | 20.0 (13) | 25.0 (12) | 20.0 (5) |
+| Held-note drift (c) | 44.5 / **62.5** / 90.1 | 51.1 (10) | 74.6 (12) | 56.5 (13) | 85.1 (12) | 64.3 (5) |
+| Long notes with vibrato (%) | 40.4 / **53.2** / 64.0 | 57.2 (10) | 51.4 (11) | 38.2 (13) | 30.1 (12) | 43.1 (5) |
+| Vibrato extent (c) | 52.5 / **64.1** / 78.0 | 66.8 (10) | 69.6 (11) | 66.9 (13) | 75.5 (12) | 55.6 (5) |
+| Median phrase length (s) | 1.64 / **3.80** / 6.81 | 3.43 (10) | 3.39 (12) | 1.54 (13) | 2.02 (12) | 3.67 (5) |
+| Phrase endings that sag (%) | 23.2 / **33.3** / 45.6 | 27.5 (10) | 30.7 (12) | 40.0 (13) | 49.3 (12) | 25.9 (5) |
+| Clean note entries (%) | 21.0 / **33.2** / 44.8 | 35.2 (10) | 27.9 (11) | 31.8 (13) | 20.7 (12) | 31.4 (5) |
+| HNR (capture-sensitive) (dB) | 9.5 / **13.6** / 18.2 | 12.5 (10) | 14.5 (12) | 10.8 (13) | 11.5 (12) | 12.3 (5) |
+| CPPS (capture-sensitive) (dB) | 13.7 / **15.4** / 16.9 | 16.0 (10) | 15.8 (12) | 15.7 (13) | 13.8 (12) | 14.6 (5) |
+| Effective dynamic range (capture-sensitive) (dB) | 18.4 / **27.0** / 36.3 | 28.2 (10) | 34.5 (12) | 26.1 (13) | 24.8 (12) | 27.5 (5) |
 
 ## How the current rubric scores each genre's professionals
 
@@ -85,31 +85,31 @@ Median component score (0–10) across each genre's references, scored against t
 | Component | 50s-60s rock'n'roll | Blues | Hard rock / grit | Rap / hip-hop | Oldies to learn (not a genre set) |
 |---|---|---|---|---|---|
 | intonation_accuracy | 10.0 | 10.0 | 10.0 | 8.0 | 10.0 |
-| pitch_stability | 10.0 | 3.1 | 7.2 | 0.0 | 9.0 |
+| pitch_stability | 10.0 | 3.1 | 10.0 | 0.0 | 9.0 |
 | vibrato_control | 9.5 | 9.8 | 9.7 | 9.1 | 9.9 |
 | phrase_control | 8.9 | 8.8 | 3.1 | 4.6 | 9.6 |
-| breath_support | 10.0 | 10.0 | 8.7 | 7.2 | 10.0 |
-| voice_quality | 8.7 | 9.9 | 6.4 | 8.4 | 6.3 |
+| breath_support | 10.0 | 10.0 | 8.8 | 7.2 | 10.0 |
+| voice_quality | 8.7 | 9.9 | 6.3 | 8.4 | 6.3 |
 | dynamics_expression | 8.5 | 7.9 | 9.1 | 9.2 | 9.4 |
 | **Overall** | 9.1 (range 6.9–9.6) | 8.3 (range 6.0–9.8) | 7.7 (range 6.2–9.6) | 7.2 (range 5.8–8.3) | 8.3 (range 8.0–9.2) |
-| **Capture-fair** | 9.6 (range 6.0–10.0) | 8.3 (range 5.0–9.9) | 7.8 (range 5.1–9.6) | 6.7 (range 4.2–8.6) | 9.0 (range 7.8–10.0) |
+| **Capture-fair** | 9.6 (range 6.0–10.0) | 8.3 (range 5.0–9.9) | 7.9 (range 5.1–9.6) | 6.7 (range 4.2–8.6) | 9.0 (range 7.8–10.0) |
 
 ## Are the medians settled?
 
 Widest spread of the genre median across every subset that leaves 3 of its references out. Small means the median is already stable; large means the genre needs more references before it can anchor a score.
 
-| Measure | 50s-60s rock'n'roll (n=10) | Blues (n=12) | Hard rock / grit (n=12) | Rap / hip-hop (n=12) |
+| Measure | 50s-60s rock'n'roll (n=10) | Blues (n=12) | Hard rock / grit (n=13) | Rap / hip-hop (n=12) |
 |---|---|---|---|---|
-| Pitch centre: median deviation (c) | 0.0 | 0.0 | 5.0 | 2.5 |
-| Held-note drift (c) | 13.0 | 6.1 | 30.3 | 28.7 |
-| Long notes with vibrato (%) | 14.8 | 16.5 | 8.8 | 9.4 |
-| Vibrato extent (c) | 19.0 | 14.0 | 8.7 | 6.1 |
+| Pitch centre: median deviation (c) | 0.0 | 0.0 | 2.6 | 2.5 |
+| Held-note drift (c) | 13.0 | 6.1 | 26.5 | 28.7 |
+| Long notes with vibrato (%) | 14.8 | 16.5 | 10.2 | 9.4 |
+| Vibrato extent (c) | 19.0 | 14.0 | 10.5 | 6.1 |
 | Median phrase length (s) | 0.9 | 1.4 | 1.0 | 0.7 |
-| Phrase endings that sag (%) | 9.8 | 10.6 | 10.3 | 2.4 |
-| Clean note entries (%) | 21.2 | 1.1 | 6.0 | 4.4 |
-| HNR (capture-sensitive) (dB) | 2.1 | 1.5 | 0.9 | 1.0 |
+| Phrase endings that sag (%) | 9.8 | 10.6 | 12.4 | 2.4 |
+| Clean note entries (%) | 21.2 | 1.1 | 5.8 | 4.4 |
+| HNR (capture-sensitive) (dB) | 2.1 | 1.5 | 0.7 | 1.0 |
 | CPPS (capture-sensitive) (dB) | 2.1 | 1.7 | 1.5 | 0.4 |
-| Effective dynamic range (capture-sensitive) (dB) | 6.6 | 1.3 | 4.0 | 3.0 |
+| Effective dynamic range (capture-sensitive) (dB) | 6.6 | 1.3 | 2.9 | 3.0 |
 
 ## Per-reference detail
 
