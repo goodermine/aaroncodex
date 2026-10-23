@@ -9,7 +9,7 @@
   "source": "voxanalysis/archive/scratch-analyses (re-scored with current engine)",
   "aggregate": {
     "takes": {
-      "n": 387,
+      "n": 388,
       "overall": {
         "min": 5.4,
         "max": 9.7,
@@ -563,7 +563,7 @@
         "vibrato_control": 8.43,
         "dynamics_expression": 7.26,
         "phrase_control": 10.0,
-        "breath_support": -0.0
+        "breath_support": 0.0
       },
       "raw": {
         "median_abs_dev_cents": 20.0,
@@ -1236,6 +1236,47 @@
         "onsets_pct_scooped": 50.0,
         "onsets_pct_overshot": 37.7,
         "entry_accuracy_reliability": "high"
+      }
+    },
+    {
+      "take": "2026-06-20-aaron-rebel-yell-captain-cook-tavern-take-001",
+      "singer": "aaron",
+      "song": "rebel-yell",
+      "date": "2026-06-20",
+      "n_notes": 208,
+      "prior_score_status": "current",
+      "score_status": "current",
+      "withheld_reason": null,
+      "overall": 6.8,
+      "capture_fair": 7.0,
+      "coverage": "full",
+      "components_unscored": [],
+      "confidence": "high",
+      "provenance": "deterministic_rubric_v5",
+      "components": {
+        "intonation_accuracy": 6.0,
+        "pitch_stability": 5.62,
+        "voice_quality": 4.33,
+        "vibrato_control": 8.46,
+        "dynamics_expression": 9.33,
+        "phrase_control": 8.12,
+        "breath_support": 8.31
+      },
+      "raw": {
+        "median_abs_dev_cents": 30.0,
+        "median_intra_note_drift_cents": 70.2,
+        "pct_within_25c": 40.4,
+        "jitter_pct": 1.5605,
+        "shimmer_pct": 16.5088,
+        "hnr_db": 9.84,
+        "vibrato_pct_notes": 28.6,
+        "dyn_phrase_spread_db": 18.91,
+        "dyn_effective_range_db": 29.39,
+        "median_phrase_s": 3.18,
+        "onsets_pct_clean": 23.4,
+        "onsets_pct_scooped": 35.1,
+        "onsets_pct_overshot": 41.6,
+        "entry_accuracy_reliability": "reduced"
       }
     },
     {
@@ -13404,7 +13445,7 @@
       "provenance": "deterministic_rubric_v5",
       "components": {
         "intonation_accuracy": 8.0,
-        "pitch_stability": -0.0,
+        "pitch_stability": 0.0,
         "voice_quality": 10.0,
         "vibrato_control": 9.74,
         "dynamics_expression": 7.95,
