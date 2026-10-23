@@ -51,14 +51,29 @@ def load_contour(path):
     return values, float(contour["rate_hz"]), data
 
 
+def _pitch_class_profile(cents):
+    pcs = np.round(cents / 100.0).astype(int) % 12
+    profile = np.bincount(pcs, minlength=12).astype(float)
+    return profile / profile.sum()
+
+
 def transposition_offset(take, ref):
-    """Median cents difference over voiced frames, snapped to semitones."""
-    n = min(len(take), len(ref))
-    both = np.isfinite(take[:n]) & np.isfinite(ref[:n])
-    if both.sum() < 20:
+    """Key difference in whole semitones, independent of timing.
+
+    The key comes from the pitch-class profiles (which notes are sung, not
+    when), so a take that starts 20 s earlier than the original or has a
+    longer intro still reads its key correctly. Comparing frame i with frame i
+    did not: on a mistimed take it reported a 4-semitone shift for a take sung
+    in the original key. The octave is the one nearest the gap between the two
+    median pitches, so singing a song an octave down is still recognised.
+    """
+    t, r = take[np.isfinite(take)], ref[np.isfinite(ref)]
+    if len(t) < 20 or len(r) < 20:
         return 0.0, 0
-    rough = float(np.median(take[:n][both] - ref[:n][both]))
-    semitones = int(round(rough / 100.0))
+    pt, pr = _pitch_class_profile(t), _pitch_class_profile(r)
+    k = max(range(12), key=lambda s: float(np.dot(np.roll(pr, s), pt)))
+    gap = (float(np.median(t)) - float(np.median(r))) / 100.0
+    semitones = k + 12 * round((gap - k) / 12.0)
     return semitones * 100.0, semitones
 
 
