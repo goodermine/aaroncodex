@@ -92,7 +92,14 @@ def settle(values):
 def suspect(data):
     # The engine's own contamination signature (analyse_song entry-accuracy gate):
     # a degraded signal WITH better-than-90%-of-pros pitch behaviour means the
-    # tracker followed the band. The plan drops such stems until checked by ear.
+    # tracker followed the band. The plan drops such stems until checked by ear;
+    # an ear verdict (reference_check.stem, docs/handoffs/
+    # FRANKIE_SUSPECT_REFERENCE_STEMS_2026-10-23.md) settles it either way.
+    verdict = (data.get("reference_check") or {}).get("stem")
+    if verdict == "clean":
+        return False
+    if verdict in ("band", "mixed"):
+        return True
     return (data.get("entry_accuracy") or {}).get("reliability") == "suspect"
 
 
