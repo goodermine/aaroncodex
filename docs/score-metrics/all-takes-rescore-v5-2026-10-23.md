@@ -403,7 +403,7 @@ Full coverage: 371/388 takes.
 
 ## Professional references (calibration sanity check)
 
-Overall: min 5.8 · max 9.8 · mean 8.08 — pros should sit near the top.
+Overall: min 5.8 · max 9.8 · mean 8.11 — pros should sit near the top.
 
 | reference | v5 | cf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
@@ -425,11 +425,15 @@ Overall: min 5.8 · max 9.8 · mean 8.08 — pros should sit near the top.
 | ac-dc-highway-to-hell | **6.6** | 5.1 | 6.0 | 0.0 | 9.84 | 9.57 | 9.68 | 2.06 | 6.67 |
 | b-b-king-the-thrill-is-gone | **9.1** | 9.5 | 10.0 | 10.0 | 10.0 | 9.83 | 6.3 | 6.3 | 10.0 |
 | ben-e-king-stand-by-me | **9.3** | 10.0 | 10.0 | 10.0 | 7.15 | 10.0 | 8.82 | 9.88 | 10.0 |
+| billy-idol-mony-mony | **7.4** | 7.6 | 8.0 | 10.0 | 6.15 | 10.0 | 8.09 | 0.58 | 6.35 |
 | billy-idol-rebel-yell | **7.7** | 7.9 | 6.0 | 10.0 | 5.52 | 9.75 | 9.77 | 5.94 | 8.61 |
+| billy-idol-white-wedding | **9.6** | 10.0 | 10.0 | 10.0 | 8.53 | 10.0 | 8.9 | 10.0 | 10.0 |
 | bobby-blue-bland-ill-take-care-of-you | **8.1** | 8.7 | 10.0 | 5.85 | 5.83 | 10.0 | 7.98 | 10.0 | 6.47 |
 | bobby-darin-dream-lover | **8.3** | 9.4 | 10.0 | 10.0 | 4.82 | 9.16 | 7.38 | 6.61 | 10.0 |
 | bonnie-raitt-love-me-like-a-man | **8.8** | 8.7 | 10.0 | 3.61 | 10.0 | 9.73 | 7.53 | 10.0 | 10.0 |
 | brenda-lee-sweet-nothins | **9.4** | 9.6 | 10.0 | 10.0 | 9.8 | 9.67 | 8.28 | 7.24 | 10.0 |
+| bryan-adams-summer-of-69-classic-2022 | **9.0** | 9.5 | 10.0 | 10.0 | 6.62 | 9.38 | 9.87 | 7.79 | 9.08 |
+| bryan-adams-summer-of-69-video-edit | **8.8** | 9.5 | 10.0 | 10.0 | 5.59 | 10.0 | 9.71 | 6.06 | 10.0 |
 | c-c-music-factory-things-that-make-you-go-hmmm | **7.3** | 6.5 | 8.0 | 0.74 | 9.34 | 9.9 | 8.61 | 5.09 | 7.85 |
 | chuck-berry-johnny-b-goode | **9.0** | 8.7 | 10.0 | 10.0 | 10.0 | 8.98 | 9.25 | 1.73 | 10.0 |
 | del-shannon-runaway | **9.6** | 9.8 | 10.0 | 10.0 | 8.41 | 8.98 | 9.98 | 10.0 | 10.0 |
