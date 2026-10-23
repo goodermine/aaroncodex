@@ -14,3 +14,8 @@ recording already exists, correctly, as the andy-gibb calibration reference.
 Found by scanning Aaron's takes for same-song + near-exact-duration matches
 against the reference pack. It was the only strong suspect; the others were
 coincidental duration collisions between different songs of similar length.
+
+**Removed 2026-10-24 at Aaron's request:** this mislabeled analysis and its
+relabelled duplicate (`scratch-analyses/2026-07-10-andy-gibb-i-just-want-to-be-your-everything-reference`)
+were deleted. Aaron never sang or used the song. The Andy Gibb recording stays
+in the 50-pro calibration pack (`engine/calibration/references/`), which is untouched.
