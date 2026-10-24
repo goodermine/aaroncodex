@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.7 · mean 7.5. Dynamics component spreads 5.0–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 384/401 takes.
+Full coverage: 395/412 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -25,7 +25,7 @@ Full coverage: 384/401 takes.
 | aaron | mustang-sally | 199 | **7.1** | 5.9 | high | 6.0 | 0.0 | 10.0 | 7.9 | 9.4 | 10.0 | 7.05 |
 | aaron | stand-by-me | 148 | **7.7** | 7.1 | high | 6.0 | 2.35 | 10.0 | 9.74 | 7.64 | 10.0 | 10.0 |
 | aaron | the-letter | 171 | **7.5** | 6.5 | high | 6.0 | 0.0 | 10.0 | 9.25 | 9.34 | 9.85 | 10.0 |
-| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | -0.0 |
+| aaron | you-spin-me-round | 114 | **7.1** | 6.4 | high | 10.0 | 0.0 | 10.0 | 8.43 | 7.26 | 10.0 | 0.0 |
 | aaron | play-that-funky-music | 206 | **7.4** | 8.1 | high | 10.0 | 6.99 | 3.23 | 8.43 | 9.61 | 5.12 | 7.41 |
 | aaron | beggin | 225 | **6.9** | 7.3 | high | 10.0 | 0.0 | 4.65 | 8.68 | 8.22 | 10.0 | 6.38 |
 | aaron | lonely-boy | 141 | **7.5** | 6.7 | high | 8.0 | 0.0 | 10.0 | 9.41 | 8.48 | 10.0 | 6.17 |
@@ -297,6 +297,17 @@ Full coverage: 384/401 takes.
 | aaron | tutti-frutti | 158 | **6.3** | 5.1 | high | 7.0 | 0.0 | 10.0 | 9.67 | 7.46 | 6.27 | 0.0 |
 | aaron | fireball | 238 | **7.3** | 6.4 | high | 8.0 | 0.0 | 9.23 | 10.0 | 8.88 | 5.64 | 7.39 |
 | aaron | play-that-funky-music | 341 | **7.3** | 6.1 | high | 6.0 | 0.0 | 9.69 | 8.92 | 9.94 | 9.12 | 8.2 |
+| aaron | are-you-gonna-be-my-girl | 136 | **6.8** | 5.5 | high | 8.0 | 0.0 | 10.0 | 9.05 | 9.39 | 4.76 | 2.65 |
+| aaron | fireball | 167 | **7.0** | 5.7 | high | 6.0 | 0.0 | 9.96 | 9.81 | 9.67 | 5.03 | 8.04 |
+| aaron | get-ready-for-this | 98 | **6.8** | 5.7 | high | 10.0 | 0.0 | 9.84 | 9.44 | 8.75 | 0.73 | 2.52 |
+| aaron | these-boots-are-made-for-walkin | 113 | **8.0** | 7.2 | high | 10.0 | 0.8 | 10.0 | 9.97 | 9.29 | 10.0 | 3.05 |
+| aaron | tnt | 115 | **7.1** | 6.0 | high | 10.0 | 0.0 | 9.87 | 8.42 | 8.77 | 4.0 | 3.33 |
+| aaron | tnt | 164 | **7.8** | 7.6 | high | 10.0 | 2.98 | 8.35 | 8.91 | 8.38 | 6.06 | 7.99 |
+| aaron | working-class-man | 159 | **7.2** | 7.1 | high | 10.0 | 1.78 | 5.6 | 10.0 | 9.71 | 5.42 | 5.5 |
+| aaron | working-class-man | 163 | **6.6** | 5.1 | high | 6.0 | 0.0 | 10.0 | 9.56 | 9.43 | 8.48 | 0.49 |
+| aaron | you-could-be-mine | 236 | **7.8** | 6.8 | high | 9.0 | 0.0 | 10.0 | 10.0 | 9.94 | 10.0 | 3.19 |
+| aaron | every-morning | 193 | **8.1** | 7.3 | high | 10.0 | 0.0 | 9.88 | 9.41 | 9.9 | 7.24 | 8.13 |
+| aaron | fortunate-son | 95 | **6.8** | 5.6 | high | 8.0 | 0.0 | 10.0 | 7.5 | 9.06 | 8.18 | 2.24 |
 | aaron-and-rilda | burning-down-the-house | 198 | **7.2** | 7.1 | high | 9.0 | 0.0 | 6.05 | 9.96 | 9.26 | 8.55 | 7.05 |
 | chris | feeling-good | 204 | **5.8** | 5.3 | high | 6.0 | 0.0 | 4.67 | 10.0 | 9.98 | 4.55 | 5.29 |
 | gresh | 1973 | 156 | **8.9** | 8.7 | high | 8.0 | 10.0 | 10.0 | 9.75 | 7.97 | 5.82 | 10.0 |
@@ -344,7 +355,7 @@ Full coverage: 384/401 takes.
 | rilda | dreams | 260 | **7.6** | 7.6 | high | 10.0 | 2.98 | 6.94 | 10.0 | 8.13 | 4.39 | 8.48 |
 | rilda | you-sexy-thing | 204 | **7.1** | 6.7 | high | 8.0 | 0.0 | 7.48 | 9.69 | 9.07 | 10.0 | 5.54 |
 | rilda | bow-river | 205 | **7.6** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.8 | 7.86 | 5.79 | 6.23 |
-| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | -0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
+| rilda | bow-river | 206 | **7.1** | 6.2 | high | 8.0 | 0.0 | 10.0 | 9.74 | 7.95 | 5.85 | 5.93 |
 | rilda | bring-me-some-water | 192 | **7.9** | 6.9 | high | 10.0 | 0.0 | 10.0 | 9.71 | 9.74 | 7.15 | 5.04 |
 | rilda | ex-s-oh-s | 204 | **7.9** | 7.3 | high | 10.0 | 0.0 | 10.0 | 9.98 | 8.07 | 10.0 | 4.41 |
 | rilda | who-s-that-girl | 215 | **8.3** | 7.8 | high | 10.0 | 0.0 | 10.0 | 10.0 | 8.65 | 10.0 | 8.82 |
