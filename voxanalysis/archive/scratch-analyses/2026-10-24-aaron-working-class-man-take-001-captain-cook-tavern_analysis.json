@@ -7384,11 +7384,11 @@
     "capture": "live",
     "milestone": null,
     "superseded": false,
-    "note": "Aaron live at the Captain Cook Tavern, Saturday 24 Oct 2026, about 11:11 pm; Working Class Man (Jimmy Barnes), karaoke backing. Insta360 mic (32-bit float, mono 48 kHz); ear monitor and warm-up not recorded. Dropbox source '/Song_Analysis/Aaron/audio_261024_225744_32bit_orig.wav', a 20-minute recording at the Captain Cook Tavern that also holds the MC, crowd chat and other singers; this song is 13:30.0-16:45.0 of it; source peak 7.47 dBFS, scaled by -8.47 dB to -1 dBFS before RoFormer separation. Kept 13:46.2-16:39.5 of the recording, edges corrected by hand (starts after the pre-song 'We got this, bro / Come on!' at 0:16; keeps the sung 'He's a working class man' outro to 3:08 that talk_cut had cut, and excludes the MC's thank-you after it). Singer confirmed as Aaron by Aaron reviewing the identified song list on 25 Oct 2026; automatic voice checks (formants/jitter and a speaker-embedding model) could not separate Aaron from Gresh on these captures, so they were not used."
+    "note": "Aaron live at the Captain Cook Tavern, Saturday 24 Oct 2026, about 11:11 pm; Working Class Man (Jimmy Barnes), karaoke backing. Insta360 mic (32-bit float, mono 48 kHz); ear monitor and warm-up not recorded. Dropbox source '/Song_Analysis/Aaron/audio_261024_225744_32bit_orig.wav', a 20-minute recording at the Captain Cook Tavern that also holds the MC, crowd chat and other singers; this song is 13:30.0-16:45.0 of it; source peak 7.47 dBFS, scaled by -8.47 dB to -1 dBFS before RoFormer separation. Kept 13:46.2-16:39.5 of the recording, edges corrected by hand (starts after the pre-song 'We got this, bro / Come on!' at 13:46; keeps the sung 'He's a working class man' outro to 16:38 that talk_cut had cut, and excludes the MC's thank-you after it). Singer confirmed as Aaron by Aaron reviewing the identified song list on 25 Oct 2026; automatic voice checks (formants/jitter and a speaker-embedding model) could not separate Aaron from Gresh on these captures, so they were not used."
   },
   "audio_prep": {
     "talk_cut": {
-      "method": "talk_cut, edges corrected by hand (starts after the pre-song 'We got this, bro / Come on!' at 0:16; keeps the sung 'He's a working class man' outro to 3:08 that talk_cut had cut, and excludes the MC's thank-you after it)",
+      "method": "talk_cut, edges corrected by hand (starts after the pre-song 'We got this, bro / Come on!' at 13:46; keeps the sung 'He's a working class man' outro to 16:38 that talk_cut had cut, and excludes the MC's thank-you after it)",
       "transcript": "whisper",
       "duration_s": 1005.0,
       "status": "cut",
