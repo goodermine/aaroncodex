@@ -10,7 +10,8 @@ people.
 
 Checks:
   1. the engine imports, and its rubric + fingerprints match SCORE_CONTRACT.json
-  2. the professional calibration pack is loaded (uncalibrated => harsh scores)
+  2. the professional calibration pack is loaded (uncalibrated => harsh scores),
+     and praat-parselmouth is installed (without it voice quality goes unscored)
   3. no archived analysis still carries a quotable legacy score
   …
   6. voice quality is measured with parselmouth (fails if this engine lacks it;
@@ -90,6 +91,18 @@ def main() -> int:
               "voxanalysis/vox-analysis/engine/calibration/pro_reference.json")
         return 1
     print(f"{OK}  calibration active: {ident['calibration_references']} pro references")
+
+    # 2b. Praat measurements available. Without parselmouth the engine silently
+    # falls back to a frame-level jitter estimate and leaves voice_quality
+    # unscored, so every overall score shifts (Oct 2026: 19 analyses).
+    try:
+        import parselmouth  # noqa: F401
+    except ImportError:
+        print(f"{FAIL}  praat-parselmouth is not installed — voice quality would be "
+              f"left unscored and every overall score would shift.")
+        print("      Fix: pip install 'praat-parselmouth>=0.4.3', then re-run this preflight.")
+        return 1
+    print(f"{OK}  Praat measurements available (parselmouth {parselmouth.__version__})")
 
     # 3. no quotable legacy scores left in the archive
     stale = []
