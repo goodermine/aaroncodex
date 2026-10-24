@@ -8,7 +8,7 @@ Every eligible archived take re-scored with **deterministic_rubric_v5** (calibra
 
 Overall: min 5.4 · max 9.7 · mean 7.5. Dynamics component spreads 5.0–10.0 (was a flat 10.0 for every take in v3).
 
-Full coverage: 374/391 takes.
+Full coverage: 384/401 takes.
 
 | singer | song | notes | **v5** | cf | conf | inton | pitch | voice | vib | dyn | phrase | breath |
 |---|---|--:|--:|--:|:--|--:|--:|--:|--:|--:|--:|--:|
@@ -403,6 +403,16 @@ Full coverage: 374/391 takes.
 | rilda | nutbush-city-limits | 120 | **6.8** | 5.9 | high | 6.0 | 0.0 | 10.0 | 9.84 | 6.88 | 4.76 | 10.0 |
 | rilda | nutbush-city-limits | 125 | **7.8** | 7.4 | high | 9.96 | 0.0 | 10.0 | 9.8 | 7.19 | 5.67 | 10.0 |
 | rilda | nutbush-city-limits | 114 | **6.9** | 5.9 | high | 6.04 | 0.0 | 10.0 | 9.52 | 7.75 | 5.91 | 9.19 |
+| rilda | at-last | 151 | **7.8** | 7.3 | high | 8.0 | 0.0 | 10.0 | 9.94 | 7.74 | 10.0 | 9.58 |
+| rilda | bring-me-some-water | 224 | **7.2** | 6.2 | high | 7.0 | 0.0 | 9.48 | 9.27 | 9.42 | 8.33 | 6.84 |
+| rilda | give-me-one-reason | 211 | **7.4** | 6.3 | high | 6.04 | 0.0 | 10.0 | 9.78 | 9.24 | 10.0 | 7.64 |
+| rilda | hung-up | 234 | **8.2** | 7.9 | high | 10.0 | 0.74 | 9.84 | 10.0 | 7.27 | 10.0 | 8.18 |
+| rilda | mamma-mia | 273 | **6.8** | 6.3 | high | 8.0 | 0.0 | 7.73 | 9.92 | 7.9 | 6.39 | 6.3 |
+| rilda | moonlight-serenade | 176 | **7.8** | 6.8 | high | 8.0 | 0.0 | 10.0 | 9.85 | 9.95 | 6.73 | 9.19 |
+| rilda | sway-with-my-heart | 157 | **7.8** | 7.0 | high | 8.0 | 0.0 | 9.75 | 9.76 | 9.3 | 10.0 | 7.85 |
+| rilda | the-way-the-night-shines | 159 | **8.0** | 8.0 | high | 10.0 | 0.0 | 8.11 | 9.79 | 7.91 | 10.0 | 10.0 |
+| rilda | this-masquerade | 240 | **8.0** | 7.6 | high | 10.0 | 0.0 | 8.13 | 9.65 | 9.74 | 10.0 | 7.55 |
+| rilda | velvet-after-midnight | 220 | **7.5** | 6.6 | high | 6.0 | 0.0 | 9.76 | 9.68 | 9.06 | 10.0 | 10.0 |
 
 ## Professional references (calibration sanity check)
 
